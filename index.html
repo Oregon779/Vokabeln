@@ -670,7 +670,7 @@
     .hub-scrim{ background:linear-gradient(180deg, rgba(5,15,26,.55) 0%, rgba(5,15,26,.15) 30%, transparent 48%, rgba(5,15,26,.75) 82%, var(--bg) 100%); }
   }
   .nebula{
-    position:absolute; inset:0; z-index:0; pointer-events:none; opacity:.65; mix-blend-mode:screen;
+    position:absolute; top:0; left:0; right:0; height:66vh; z-index:0; pointer-events:none; opacity:.65; mix-blend-mode:screen;
     background:
       radial-gradient(ellipse 55% 42% at 12% 12%, rgba(233,200,120,.3), transparent 70%),
       radial-gradient(ellipse 48% 38% at 82% 6%, rgba(246,195,92,.34), transparent 70%),
@@ -682,7 +682,7 @@
   @keyframes nebulaDrift{ 0%{transform:translate3d(0,0,0) scale(1);} 100%{transform:translate3d(-1.5%,1%,0) scale(1.04);} }
   @media (prefers-reduced-motion: reduce){ .nebula{animation:none;} }
   .starfield{
-    position:absolute; inset:0; z-index:0; pointer-events:none; opacity:.85;
+    position:absolute; top:0; left:0; right:0; height:66vh; z-index:0; pointer-events:none; opacity:.85;
     background-image:
       radial-gradient(1.4px 1.4px at 12% 10%, #fff, transparent),
       radial-gradient(1px 1px at 22% 22%, #ffe8c4, transparent),
@@ -709,7 +709,7 @@
   }
   @keyframes starTwinkle{ 0%,100%{opacity:.85;} 50%{opacity:.55;} }
   .sun-glow{
-    position:absolute; top:-8%; right:-10%; width:52%; aspect-ratio:1/1; z-index:0; pointer-events:none;
+    position:absolute; top:-6vh; right:-8vw; width:42vw; aspect-ratio:1/1; z-index:0; pointer-events:none;
     background:radial-gradient(circle, rgba(255,246,222,.95) 0%, rgba(255,214,150,.55) 16%, rgba(255,178,110,.22) 36%, transparent 68%);
     filter:blur(1px);
     animation:sunPulse 6s ease-in-out infinite;
@@ -723,9 +723,9 @@
     background:radial-gradient(circle, #000 0%, #030201 44%, transparent 70%);
     box-shadow:0 0 60px 18px rgba(0,0,0,.6), inset 0 0 22px 6px rgba(0,0,0,.85);
   }
-  .black-hole-1{ top:5%; left:6%; width:10.5vw; aspect-ratio:1/1; max-width:132px; min-width:64px; }
-  .black-hole-2{ top:1.5%; left:40%; width:4.4vw; aspect-ratio:1/1; max-width:56px; min-width:28px; opacity:.75; }
-  .black-hole-3{ top:9%; right:4%; width:3.2vw; aspect-ratio:1/1; max-width:42px; min-width:20px; opacity:.6; }
+  .black-hole-1{ top:5vh; left:6%; width:10.5vw; aspect-ratio:1/1; max-width:132px; min-width:64px; }
+  .black-hole-2{ top:1.5vh; left:40%; width:4.4vw; aspect-ratio:1/1; max-width:56px; min-width:28px; opacity:.75; }
+  .black-hole-3{ top:8vh; right:4%; width:3.2vw; aspect-ratio:1/1; max-width:42px; min-width:20px; opacity:.6; }
   .bh-disk{
     position:absolute; inset:-34%; border-radius:50%; opacity:.9;
     background:conic-gradient(from 0deg,
@@ -746,7 +746,7 @@
   @media (max-width:919px){ .black-hole-2, .black-hole-3{ display:none; } }
   @media (prefers-reduced-motion: reduce){ .bh-disk{animation:none;} }
   .globe-sphere{
-    position:absolute; left:50%; bottom:-33vh; width:112vw; height:88vh; transform:translateX(-50%) scale(var(--globe-zoom, 1));
+    position:absolute; left:50%; bottom:-4vh; width:130vw; height:88vh; transform:translateX(-50%) scale(var(--globe-zoom, 1));
     transform-origin:50% 45%; transition:transform .1s linear;
     border-radius:50%; overflow:hidden; z-index:1;
     box-shadow:
@@ -756,7 +756,7 @@
       inset 0 60px 140px rgba(6,22,32,.55),
       inset 0 -14px 60px rgba(246,195,92,.12);
   }
-  @media (max-width:919px){ .globe-sphere{ width:150vw; height:96vh; bottom:-22vh; } }
+  @media (max-width:919px){ .globe-sphere{ width:190vw; height:78vh; bottom:2vh; } }
   .globe-sphere .map-bg{
     position:absolute; inset:0;
     background:
@@ -1191,32 +1191,6 @@
       <p class="exam-banner-text" id="examBannerText"></p>
       <button class="exam-banner-close" id="examBannerClose" type="button" aria-label="Schließen">✕</button>
     </div>
-    <div class="hub-grid">
-      <div class="hub-copy">
-        <p class="hub-eyebrow">🇩🇪 Deutsch – Français 🇫🇷</p>
-        <h1 class="hub-title">Vokabeln lernen,<br><em>élégant</em> gemacht.</h1>
-        <p class="hub-desc">Dein persönlicher Vokabeltrainer für Deutsch und Französisch. Erstelle eigene Lernsets, übe mit KI-Unterstützung und behalte deine Serie im Blick — ganz in deinem Tempo.</p>
-        <div class="hub-interact">
-          <dl class="hub-stats">
-            <div class="hub-stat">
-              <svg class="hub-stat-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="var(--ember)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5V5.5Z"/><path d="M4 18.5A2.5 2.5 0 0 1 6.5 16H20"/></svg>
-              <dt id="hubSetsCount">0</dt><dd>Lernsets</dd>
-            </div>
-            <div class="hub-stat">
-              <svg class="hub-stat-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="var(--ember)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="4.2" rx="1.2"/><rect x="4" y="10.4" width="16" height="4.2" rx="1.2"/><rect x="4" y="16.8" width="16" height="4.2" rx="1.2"/></svg>
-              <dt id="hubWordsCount">0</dt><dd>Vokabeln</dd>
-            </div>
-            <div class="hub-stat">
-              <svg class="hub-stat-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="var(--ember-bright)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c1 3-2 4.5-2 7.5A4.5 4.5 0 0 0 14.5 14c1.8 0 2.9-1 3.3-2 .9 2 .2 4.4-1.4 6a6.5 6.5 0 0 1-9-9c1-1 1.6-2.3 1.6-3.8C9 3.5 10.5 2.4 12 2Z"/></svg>
-              <dt id="hubStreakCount">0</dt><dd>Tage-Serie</dd>
-            </div>
-          </dl>
-          <div class="hub-actions">
-            <button id="btnHubSets" class="btn btn-primary btn-large" style="width:auto; margin:0;">Eigene Lernsets</button>
-            <button id="btnHubListen" class="btn btn-secondary btn-large" style="width:auto; margin:0;">🔊 Aussprache üben</button>
-          </div>
-        </div>
-      </div>
       <div class="europe-visual" aria-hidden="true">
       <div class="nebula"></div>
       <div class="starfield"></div>
@@ -1226,7 +1200,7 @@
       <div class="black-hole black-hole-3"><span class="bh-disk"></span></div>
       <div class="globe-sphere">
         <div class="map-bg"></div>
-        <svg class="map-svg" viewBox="-65 5 545 400" preserveAspectRatio="xMidYMid meet">
+        <svg class="map-svg" viewBox="-70 -30 610 480" preserveAspectRatio="xMidYMid meet">
           <defs>
             <radialGradient id="franceFill" cx="35%" cy="25%" r="80%">
               <stop offset="0%" stop-color="#221808" stop-opacity=".92"/>
@@ -1249,7 +1223,7 @@
               <stop offset="50%" stop-color="#fff4e0"/>
               <stop offset="100%" stop-color="#fff"/>
             </linearGradient>
-            <clipPath id="mapClip"><rect x="-65" y="5" width="545" height="400" rx="0"/></clipPath>
+            <clipPath id="mapClip"><rect x="-70" y="-30" width="610" height="480" rx="0"/></clipPath>
             <clipPath id="landmassClip"><use href="#landC1"/><use href="#landC2"/><use href="#landC3"/><use href="#landC4"/><use href="#landC5"/><use href="#landC6"/><use href="#landC7"/><use href="#landC8"/><use href="#landC9"/><use href="#landC10"/><use href="#landC11"/><use href="#landC12"/><use href="#landC13"/><use href="#landC14"/><use href="#landC15"/></clipPath>
             <filter id="beamGlow" x="-60%" y="-60%" width="220%" height="220%">
               <feGaussianBlur stdDeviation="3.4" result="blur"/>
@@ -1362,6 +1336,33 @@
       </div>
       <div class="hub-scrim"></div>
         <span class="badge">DE · FR — 1.240 km</span>
+      </div>
+
+    <div class="hub-grid">
+      <div class="hub-copy">
+        <p class="hub-eyebrow">🇩🇪 Deutsch – Français 🇫🇷</p>
+        <h1 class="hub-title">Vokabeln lernen,<br><em>élégant</em> gemacht.</h1>
+        <p class="hub-desc">Dein persönlicher Vokabeltrainer für Deutsch und Französisch. Erstelle eigene Lernsets, übe mit KI-Unterstützung und behalte deine Serie im Blick — ganz in deinem Tempo.</p>
+        <div class="hub-interact">
+          <dl class="hub-stats">
+            <div class="hub-stat">
+              <svg class="hub-stat-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="var(--ember)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5V5.5Z"/><path d="M4 18.5A2.5 2.5 0 0 1 6.5 16H20"/></svg>
+              <dt id="hubSetsCount">0</dt><dd>Lernsets</dd>
+            </div>
+            <div class="hub-stat">
+              <svg class="hub-stat-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="var(--ember)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="4.2" rx="1.2"/><rect x="4" y="10.4" width="16" height="4.2" rx="1.2"/><rect x="4" y="16.8" width="16" height="4.2" rx="1.2"/></svg>
+              <dt id="hubWordsCount">0</dt><dd>Vokabeln</dd>
+            </div>
+            <div class="hub-stat">
+              <svg class="hub-stat-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="var(--ember-bright)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c1 3-2 4.5-2 7.5A4.5 4.5 0 0 0 14.5 14c1.8 0 2.9-1 3.3-2 .9 2 .2 4.4-1.4 6a6.5 6.5 0 0 1-9-9c1-1 1.6-2.3 1.6-3.8C9 3.5 10.5 2.4 12 2Z"/></svg>
+              <dt id="hubStreakCount">0</dt><dd>Tage-Serie</dd>
+            </div>
+          </dl>
+          <div class="hub-actions">
+            <button id="btnHubSets" class="btn btn-primary btn-large" style="width:auto; margin:0;">Eigene Lernsets</button>
+            <button id="btnHubListen" class="btn btn-secondary btn-large" style="width:auto; margin:0;">🔊 Aussprache üben</button>
+          </div>
+        </div>
       </div>
     </div>
 
