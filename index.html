@@ -11,7 +11,7 @@
 <style>
   :root{
     --bg:#061620; --bg-2:#0c2436; --surface:rgba(14,32,44,.55); --surface-2:rgba(20,44,58,.65);
-    --ember:#2f9fe0; --ember-dim:#1c6fc9; --ember-bright:#2dd4bf; --gold:#f2a154; --gold-bright:#ffc987; --rose:#5eead4; --stone:#96b0bb;
+    --ember:#2f9fe0; --ember-dim:#1c6fc9; --ember-bright:#2dd4bf; --gold:#2563eb; --gold-bright:#60a5fa; --rose:#5eead4; --stone:#96b0bb;
     --text:#f2f7f6; --border-solid:rgba(255,255,255,.11); --success:#4ade80; --danger:#ef4b57;
     --mx:0; --my:0;
     --ease:cubic-bezier(.4,0,.2,1); --ease-spring:cubic-bezier(.2,1.1,.3,1);
@@ -48,7 +48,7 @@
   @keyframes auroraHue{ 0%,100%{filter:hue-rotate(0deg);} 50%{filter:hue-rotate(18deg);} }
   .aurora-band{position:absolute; border-radius:50%; filter:blur(85px);}
   .aurora-1{width:78vw; height:52vh; top:-16%; left:-12%; background:radial-gradient(ellipse, rgba(45,212,191,.5), transparent 70%); animation:driftA 44s ease-in-out infinite;}
-  .aurora-2{width:64vw; height:58vh; top:18%; right:-16%; background:radial-gradient(ellipse, rgba(242,161,84,.32), transparent 70%); animation:driftB 50s ease-in-out infinite;}
+  .aurora-2{width:64vw; height:58vh; top:18%; right:-16%; background:radial-gradient(ellipse, rgba(37,99,235,.32), transparent 70%); animation:driftB 50s ease-in-out infinite;}
   .aurora-3{width:54vw; height:44vh; bottom:-12%; left:16%; background:radial-gradient(ellipse, rgba(108,79,209,.45), transparent 70%); animation:driftC 56s ease-in-out infinite;}
   .aurora-4{width:38vw; height:30vh; top:6%; left:28%; background:radial-gradient(ellipse, rgba(239,111,158,.28), transparent 70%); animation:driftD 38s ease-in-out infinite;}
   .aurora-5{width:32vw; height:26vh; bottom:8%; right:12%; background:radial-gradient(ellipse, rgba(255,201,135,.22), transparent 70%); animation:driftB 34s ease-in-out infinite reverse;}
@@ -282,7 +282,7 @@
   }
   .practice-card::after{
     content:''; position:absolute; z-index:-1; inset:-6%; border-radius:36px; opacity:.5; filter:blur(30px);
-    background:radial-gradient(ellipse at 30% 20%, rgba(45,212,191,.35), transparent 60%), radial-gradient(ellipse at 75% 85%, rgba(242,161,84,.25), transparent 60%);
+    background:radial-gradient(ellipse at 30% 20%, rgba(45,212,191,.35), transparent 60%), radial-gradient(ellipse at 75% 85%, rgba(37,99,235,.25), transparent 60%);
     animation:practiceGlow 8s ease-in-out infinite;
   }
   @keyframes practiceGlow{ 0%,100%{opacity:.4; transform:scale(1);} 50%{opacity:.65; transform:scale(1.04);} }
@@ -290,7 +290,7 @@
   .practice-card.wrong-flash{border-color:var(--danger); box-shadow:0 4px 16px rgba(0,0,0,.25), 0 0 40px 4px rgba(239,75,87,.3);}
   .practice-mode-tag{
     display:inline-block; font-family:var(--font-mono); font-size:.65rem; text-transform:uppercase; letter-spacing:.08em;
-    color:var(--gold); background:rgba(242,161,84,.12); border:1px solid rgba(242,161,84,.3);
+    color:var(--gold); background:rgba(37,99,235,.12); border:1px solid rgba(37,99,235,.3);
     padding:.25rem .6rem; border-radius:999px; margin-bottom:.9rem;
   }
   .practice-lang{color:var(--stone); font-size:.8rem; text-transform:uppercase; letter-spacing:.06em; margin:0 0 .7rem;}
@@ -382,7 +382,7 @@
   .results-actions{display:flex; gap:.7rem; justify-content:center; flex-wrap:wrap; margin-top:1.2rem;}
   .reward-banner{
     margin-top:1.4rem; padding:1rem 1.2rem; border-radius:14px;
-    background:linear-gradient(120deg, rgba(45,212,191,.16), rgba(242,161,84,.14));
+    background:linear-gradient(120deg, rgba(45,212,191,.16), rgba(37,99,235,.14));
     border:1px solid rgba(45,212,191,.35); font-size:.88rem;
   }
 
@@ -576,7 +576,7 @@
       margin-left:-1.2rem; margin-right:-1.2rem; border-radius:0;
     }
   }
-  .europe-visual .map-bg{position:absolute; inset:0; background:radial-gradient(ellipse at 50% 40%, var(--bg-2) 0%, var(--bg) 72%);}
+  .europe-visual .map-bg{position:absolute; inset:0; background:radial-gradient(ellipse at 50% 40%, #113247 0%, var(--bg) 75%);}
   .europe-visual .ring{position:absolute; inset:6%; border-radius:50%; opacity:.55; filter:blur(2px);
     background:conic-gradient(from 0deg, transparent, var(--ember-bright), var(--ember) 35%, transparent 50%, var(--gold), transparent 80%);
     animation:spinSlow 26s linear infinite;}
@@ -585,8 +585,8 @@
   @keyframes spinSlow{ to{ transform:rotate(360deg); } }
   .europe-visual svg{position:relative; width:100%; height:100%; display:block;}
   .europe-visual .city-label{font-family:var(--font-serif); font-style:italic; font-size:13px; fill:var(--text); paint-order:stroke; stroke:var(--bg); stroke-width:3px;}
-  .euro-country{fill:url(#countryFill); stroke:rgba(94,234,212,.22); stroke-width:1; transition:fill .25s var(--ease), opacity .25s var(--ease), stroke .25s var(--ease);}
-  .euro-country:hover{stroke:rgba(94,234,212,.5); opacity:1;}
+  .euro-country{fill:url(#countryFill); stroke:rgba(94,234,212,.45); stroke-width:1.3; transition:fill .25s var(--ease), opacity .25s var(--ease), stroke .25s var(--ease); filter:drop-shadow(0 0 1px rgba(45,212,191,.3));}
+  .euro-country:hover{stroke:rgba(94,234,212,.85); fill-opacity:.85;}
   .euro-fr{fill:url(#franceFill); transition:filter .25s var(--ease), transform .25s var(--ease); transform-box:fill-box; transform-origin:center;}
   .euro-fr:hover{filter:brightness(1.12); transform:scale(1.015);}
   .city-pulse{transform-box:fill-box; transform-origin:center; animation:markerPulse 2.6s ease-in-out infinite;}
@@ -616,11 +616,11 @@
   .streak-hero .kicker{position:relative; font-family:var(--font-mono); font-size:.65rem; text-transform:uppercase; letter-spacing:.24em; color:var(--stone); margin:0 0 1rem;}
   .streak-hero .streak-num{position:relative; display:flex; align-items:center; gap:.5rem; font-family:var(--font-serif); font-weight:600; font-size:4.2rem; margin:0; line-height:1;}
   .streak-hero .streak-num span{font-size:1.3rem; color:var(--stone); font-family:var(--font-sans); font-weight:500;}
-  .streak-flame{flex-shrink:0; filter:drop-shadow(0 0 8px rgba(242,161,84,.5)); animation:flameFlicker 2.4s ease-in-out infinite;}
+  .streak-flame{flex-shrink:0; filter:drop-shadow(0 0 8px rgba(37,99,235,.5)); animation:flameFlicker 2.4s ease-in-out infinite;}
   @keyframes flameFlicker{ 0%,100%{transform:scale(1) rotate(0deg);} 25%{transform:scale(1.06) rotate(-2deg);} 50%{transform:scale(.97) rotate(1deg);} 75%{transform:scale(1.04) rotate(2deg);} }
   .streak-bar{position:relative; display:flex; gap:.4rem; margin-top:1.4rem;}
   .streak-day{flex:1; height:38px; border-radius:999px; background:var(--surface-2); border:1px solid var(--border-solid); transition:background .3s var(--ease), border-color .3s var(--ease);}
-  .streak-day.active{background:var(--gold); border-color:var(--gold); box-shadow:0 0 12px 1px rgba(242,161,84,.4);}
+  .streak-day.active{background:var(--gold); border-color:var(--gold); box-shadow:0 0 12px 1px rgba(37,99,235,.4);}
   .rewards-side{display:flex; flex-direction:column; gap:1rem;}
   .rewards-card{background:var(--surface); backdrop-filter:blur(18px); border:1px solid var(--border-solid); border-radius:24px; padding:1.6rem; box-shadow:var(--shadow-sm);}
   .rewards-card .label{font-family:var(--font-mono); font-size:.65rem; text-transform:uppercase; letter-spacing:.2em; color:var(--stone); margin:0 0 .5rem;}
@@ -729,8 +729,8 @@
               <stop offset="100%" stop-color="var(--ember)" stop-opacity=".92"/>
             </radialGradient>
             <linearGradient id="countryFill" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stop-color="#123244" stop-opacity=".9"/>
-              <stop offset="100%" stop-color="#0b2230" stop-opacity=".9"/>
+              <stop offset="0%" stop-color="#1e5f7a" stop-opacity=".55"/>
+              <stop offset="100%" stop-color="#123a52" stop-opacity=".6"/>
             </linearGradient>
             <linearGradient id="routeLine" x1="0%" y1="0%" x2="100%" y2="100%">
               <stop offset="0%" stop-color="var(--ember-bright)"/>
@@ -1047,7 +1047,7 @@
         <p class="kicker">Aktuelle Serie</p>
         <p class="streak-num">
           <svg class="streak-flame" viewBox="0 0 24 24" width="30" height="30" aria-hidden="true" fill="none" stroke="var(--gold)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 2c1 3-2 4.5-2 7.5A4.5 4.5 0 0 0 14.5 14c1.8 0 2.9-1 3.3-2 .9 2 .2 4.4-1.4 6a6.5 6.5 0 0 1-9-9c1-1 1.6-2.3 1.6-3.8C9 3.5 10.5 2.4 12 2Z" fill="rgba(242,161,84,.22)"/>
+            <path d="M12 2c1 3-2 4.5-2 7.5A4.5 4.5 0 0 0 14.5 14c1.8 0 2.9-1 3.3-2 .9 2 .2 4.4-1.4 6a6.5 6.5 0 0 1-9-9c1-1 1.6-2.3 1.6-3.8C9 3.5 10.5 2.4 12 2Z" fill="rgba(37,99,235,.22)"/>
           </svg>
           <span id="rewardsStreakNum">0</span><span> Tage</span>
         </p>
