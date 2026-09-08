@@ -819,6 +819,10 @@
   .goal-progress-track{height:8px; border-radius:4px; background:var(--surface-2); overflow:hidden;}
   .goal-progress-fill{height:100%; background:linear-gradient(90deg, var(--ember), var(--gold)); border-radius:4px; transition:width .4s var(--ease-spring); box-shadow:0 0 10px 1px rgba(45,212,191,.5);}
   .goal-progress-label{margin:.6rem 0 0; font-family:var(--font-mono); font-size:.78rem; color:var(--stone);}
+  .glow-preview{
+    width:20px; height:20px; border-radius:50%; flex-shrink:0; background:var(--ember-bright);
+    box-shadow:0 0 14px 4px rgba(45,212,191,.5);
+  }
 
   /* --- Startseiten-Banner für anstehende Klausuren --- */
   .exam-banner{
@@ -1519,6 +1523,7 @@
       <label class="settings-row-label" for="glowSlider">Glow-Intensität der Türkis-Akzente</label>
       <div class="volume-row">
         <input type="range" id="glowSlider" min="60" max="140" value="100" class="volume-slider" aria-label="Glow-Intensität">
+        <span class="glow-preview" id="glowPreview" aria-hidden="true"></span>
       </div>
       <label class="settings-toggle-row" for="reducedMotionToggle">
         <span>Reduzierte Animationen (Performance-Modus)</span>
@@ -1797,11 +1802,17 @@ volumeSlider.addEventListener('input', () => {
   masterVolume = volumeSlider.value / 100;
   soundEnabled = masterVolume > 0;
   updateVolIcon();
+  store.settings.sfxVolume = Number(volumeSlider.value);
+  store.settings.soundEnabled = soundEnabled;
+  saveData(store);
 });
 volBtn.addEventListener('click', () => {
   soundEnabled = !soundEnabled;
   if(soundEnabled && masterVolume === 0){ masterVolume = 0.5; volumeSlider.value = 50; }
   updateVolIcon();
+  store.settings.sfxVolume = Math.round(masterVolume * 100);
+  store.settings.soundEnabled = soundEnabled;
+  saveData(store);
   if(soundEnabled) sndClick();
 });
 updateVolIcon();
@@ -1819,8 +1830,11 @@ function renderSettingsPage(){
   document.querySelectorAll('#speechRateChips .chip').forEach(c => c.classList.toggle('selected', c.dataset.rate === store.settings.speechRate));
   document.querySelectorAll('#reminderLeadChips .chip').forEach(c => c.classList.toggle('selected', store.settings.reminderLeadDays.includes(Number(c.dataset.lead))));
   document.querySelectorAll('#fontScaleChips .chip').forEach(c => c.classList.toggle('selected', c.dataset.scale === store.settings.fontScale));
+  volumeSlider.value = store.settings.sfxVolume;
+  updateVolIcon();
   ttsVolumeSlider.value = store.settings.ttsVolume;
   glowSlider.value = Math.round(store.settings.glowIntensity * 100);
+  updateGlowPreview();
   autoPlayFlashcardToggle.checked = store.settings.autoPlayFlashcard;
   inSiteBannerToggle.checked = store.settings.inSiteBanner;
   reducedMotionToggle.checked = store.settings.reducedMotion;
@@ -1872,10 +1886,16 @@ ttsVolumeSlider.addEventListener('input', () => {
   store.settings.ttsVolume = Number(ttsVolumeSlider.value);
   saveData(store);
 });
+function updateGlowPreview(){
+  const g = Number(glowSlider.value) / 100;
+  const preview = document.getElementById('glowPreview');
+  preview.style.boxShadow = `0 0 ${Math.round(14 * g)}px ${Math.round(4 * g)}px rgba(45,212,191,${(0.5 * g).toFixed(2)})`;
+}
 glowSlider.addEventListener('input', () => {
   store.settings.glowIntensity = Number(glowSlider.value) / 100;
   saveData(store);
   applySettingsToUI();
+  updateGlowPreview();
 });
 autoPlayFlashcardToggle.addEventListener('change', () => {
   store.settings.autoPlayFlashcard = autoPlayFlashcardToggle.checked;
@@ -2346,6 +2366,8 @@ let store = loadData();
 // --- Einstellungen, Kalender & Tagesfortschritt: Standardwerte & Migration ---
 const DEFAULT_SETTINGS = {
   dailyGoal: 20,
+  sfxVolume: 70,
+  soundEnabled: true,
   ttsVolume: 100,
   autoPlayFlashcard: false,
   speechRate: 'normal',
@@ -2381,6 +2403,14 @@ function applySettingsToUI(){
   document.documentElement.style.fontSize = fontPx + 'px';
 }
 applySettingsToUI();
+
+// SFX-Lautstärke wurde vor der Einstellungen-Seite gebaut und lebte bisher nur im Speicher
+// (masterVolume/soundEnabled) statt in store.settings -> hier nachträglich synchronisieren,
+// damit sie wie alle anderen Regler einen Reload übersteht.
+masterVolume = store.settings.sfxVolume / 100;
+soundEnabled = store.settings.soundEnabled;
+volumeSlider.value = store.settings.sfxVolume;
+updateVolIcon();
 
 // --- Mausparallax ------------------------------------------------------
 if(!reducedMotionActive()){
