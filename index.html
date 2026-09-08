@@ -545,7 +545,11 @@
   .hub-stat dt{grid-column:2; font-family:var(--font-serif); font-weight:600; font-size:1.9rem; color:var(--ember); margin:0; line-height:1.1;}
   .hub-stat dd{grid-column:2; margin:.1rem 0 0; font-family:var(--font-mono); font-size:.62rem; text-transform:uppercase; letter-spacing:.14em; color:var(--stone);}
 
-  .europe-visual{position:relative; aspect-ratio:1/1; max-width:460px; margin:0 auto; border-radius:28px; overflow:hidden;}
+  .europe-visual{
+    position:relative; aspect-ratio:1/1; max-width:460px; margin:0 auto; border-radius:28px; overflow:hidden;
+    transform:perspective(900px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg)); transition:transform .4s var(--ease-spring);
+    box-shadow:var(--shadow-lg);
+  }
   @media (max-width:919px){
     .europe-visual{
       max-width:none; aspect-ratio:auto; height:82vw; max-height:560px; min-height:380px;
@@ -560,7 +564,11 @@
     background:radial-gradient(circle at 42% 40%, var(--ember), transparent 55%), radial-gradient(circle at 68% 78%, var(--gold), transparent 45%);}
   @keyframes spinSlow{ to{ transform:rotate(360deg); } }
   .europe-visual svg{position:relative; width:100%; height:100%; display:block;}
-  .europe-visual .city-label{font-family:var(--font-serif); font-style:italic; font-size:13px; fill:var(--text);}
+  .europe-visual .city-label{font-family:var(--font-serif); font-style:italic; font-size:13px; fill:var(--text); paint-order:stroke; stroke:var(--bg); stroke-width:3px;}
+  .euro-country{fill:var(--surface-2); stroke:rgba(255,255,255,.09); stroke-width:1; transition:fill .25s var(--ease), opacity .25s var(--ease);}
+  .euro-country:hover{fill:var(--surface); opacity:1;}
+  .euro-fr, .euro-de{transition:filter .25s var(--ease), transform .25s var(--ease); transform-box:fill-box; transform-origin:center;}
+  .euro-fr:hover, .euro-de:hover{filter:brightness(1.12); transform:scale(1.015);}
   .europe-visual .twinkle-star{animation:twinkleStar 3s ease-in-out infinite;}
   @keyframes twinkleStar{ 0%,100%{opacity:.15;} 50%{opacity:.9;} }
   .europe-visual .badge{
@@ -689,13 +697,17 @@
         <div class="map-bg"></div>
         <div class="glow"></div>
         <div class="ring"></div>
-        <svg viewBox="0 0 400 460" preserveAspectRatio="xMidYMid slice">
+        <svg viewBox="0 0 420 480" preserveAspectRatio="xMidYMid slice">
           <defs>
             <radialGradient id="franceFill" cx="35%" cy="25%" r="80%">
               <stop offset="0%" stop-color="#c3b0ff" stop-opacity=".98"/>
               <stop offset="100%" stop-color="var(--ember)" stop-opacity=".92"/>
             </radialGradient>
-            <clipPath id="mapClip"><rect x="0" y="0" width="400" height="460" rx="0"/></clipPath>
+            <radialGradient id="germanyFill" cx="40%" cy="20%" r="85%">
+              <stop offset="0%" stop-color="var(--gold-bright)" stop-opacity=".98"/>
+              <stop offset="100%" stop-color="var(--gold)" stop-opacity=".92"/>
+            </radialGradient>
+            <clipPath id="mapClip"><rect x="0" y="0" width="420" height="480" rx="0"/></clipPath>
           </defs>
 
           <g clip-path="url(#mapClip)">
@@ -704,80 +716,56 @@
               <circle cx="40" cy="60" r="1.3" fill="var(--text)"/>
               <circle cx="90" cy="25" r="1" fill="var(--text)"/>
               <circle cx="340" cy="50" r="1.2" fill="var(--text)"/>
-              <circle cx="375" cy="130" r="1" fill="var(--text)"/>
+              <circle cx="395" cy="130" r="1" fill="var(--text)"/>
               <circle cx="15" cy="170" r="1.1" fill="var(--text)"/>
-              <circle cx="365" cy="270" r="1.3" fill="var(--text)"/>
-              <circle cx="330" cy="400" r="1" fill="var(--text)"/>
-              <circle cx="50" cy="410" r="1.2" fill="var(--text)"/>
+              <circle cx="385" cy="270" r="1.3" fill="var(--text)"/>
+              <circle cx="350" cy="420" r="1" fill="var(--text)"/>
+              <circle cx="50" cy="430" r="1.2" fill="var(--text)"/>
               <circle cx="150" cy="15" r="1" fill="var(--text)"/>
-              <circle cx="260" cy="430" r="1.1" fill="var(--text)"/>
+              <circle cx="270" cy="450" r="1.1" fill="var(--text)"/>
               <circle cx="200" cy="45" r="1" fill="var(--text)"/>
-              <circle cx="25" cy="300" r="1.2" fill="var(--text)"/>
+              <circle cx="25" cy="310" r="1.2" fill="var(--text)"/>
             </g>
 
-            <!-- Skandinavien-Andeutung (oben rechts, weit im Hintergrund) -->
-            <path d="M280,-10 C310,10 330,40 325,75 C320,100 300,105 285,90 C270,110 250,105 248,85 C246,60 255,20 280,-10 Z"
-                  fill="var(--surface-2)" opacity=".55"/>
+            <!-- Reale Ländergrenzen (vereinfachte, geografisch korrekte Polygone) -->
+            <path class="euro-country" d="M22,111.8 L13.2,129.2 L0.8,124 L-9.4,124.4 L-6,110.8 L-9.4,97.2 L4.4,96.1 L22,111.8 Z M65.8,8.3 L48.2,35.8 L65,32.3 L83,32.4 L78.7,53.1 L63.9,75.8 L81,77.4 L82.3,80.1 L96.9,110 L108.2,114.1 L118.3,143 L123,153 L143,157.8 L141,174.1 L132.6,181.5 L139.2,194.6 L124.4,207.9 L102.3,207.7 L74.3,214.6 L66.6,209.6 L55.7,221.5 L40.5,218.7 L28.9,228.3 L20.2,223.3 L44.3,196.6 L59,191.2 L58.9,191.1 L33.2,186.9 L28.5,176.8 L45.7,169 L36.7,155.3 L39.9,138.7 L64.3,141 L64.4,141 L66.8,126.3 L55.8,110.6 L55.5,110.3 L35.5,105.8 L31.6,99 L37.6,87.6 L32.2,80.6 L23.3,92.6 L22.3,68.2 L14,55.2 L20,29 L32.8,8.5 L45.9,10.5 L65.8,8.3 Z"><title>United Kingdom</title></path>
+            <path class="euro-country" d="M13.2,129.2 L15.9,147.4 L3.5,170 L-25.7,185 L-49,181.2 L-35.7,154.7 L-44.3,128.9 L-21.9,109 L-9.4,97.2 L-6,110.8 L-9.4,124.4 L0.8,124 L13.2,129.2 Z"><title>Ireland</title></path>
+            <path class="euro-country" d="M324.3,85 L314.4,105.6 L297.2,91.3 L294.9,80.7 L319.1,72.3 L324.3,85 Z M295,63.5 L291,73.1 L286.1,70.3 L274.2,88.6 L278.7,100.9 L268.2,104.8 L255.7,101.5 L249,87.4 L248.5,61.5 L251.3,54.6 L256,47 L270.5,45.4 L276.3,38.4 L289.6,31.3 L289,44.3 L284.1,52.6 L286.1,59.7 L295,63.5 Z"><title>Danmark</title></path>
+            <path class="euro-country" d="M215.3,138.3 L229,139 L232.1,147.6 L228,170.8 L223.8,180.4 L213.9,180.4 L216.7,206.9 L207.6,201 L197.2,189.9 L182,195.2 L169.9,193.2 L178.4,186.2 L192.8,148.9 L215.3,138.3 Z"><title>Nederland</title></path>
+            <path class="euro-country" d="M169.9,193.2 L182,195.2 L197.2,189.9 L207.6,201 L216.7,206.9 L214.8,224.1 L210.5,225 L208.7,239.3 L194.3,227.7 L185.9,229.7 L174.4,217.7 L166.7,207.5 L159.1,207.1 L156.7,198.2 L169.9,193.2 Z"><title>België</title></path>
+            <path class="euro-country" d="M214.8,224.1 L218.1,229.8 L217.2,240.9 L212.4,241.5 L208.7,239.3 L210.5,225 L214.8,224.1 Z"><title>Luxembourg</title></path>
+            <path class="euro-country" d="M362.6,199.3 L355.9,183.1 L357.2,174.3 L353.1,160.8 L347.1,151.7 L351.7,144.9 L347.9,132 L359.1,124.6 L384.8,112.9 L405.6,104.3 L422,108.6 L423.2,114.7 L439.1,115.1 L459.4,118 L489.7,117.6 L498.1,120.3 L502.1,128.1 L502.8,139.3 L507.4,149 L507.3,159.1 L497.4,164.2 L502.5,176 L502.8,187.3 L511.1,209.4 L509.3,216.5 L501.1,219.5 L486.2,240.6 L490.4,252 L486.8,250.5 L471.2,240.8 L459.3,244.3 L451.6,241.7 L441.8,247.2 L433.5,238.2 L426.7,241.6 L425.8,240.1 L418.2,227.6 L406,226.1 L404.4,218.1 L393.1,215.3 L390.7,221.8 L381.7,216.6 L382.8,209.6 L370.4,207.4 L362.6,199.3 Z"><title>Polska</title></path>
+            <path class="euro-country" d="M394.6,262.9 L387,258.1 L379.3,259.4 L366.5,251.7 L360.7,253.6 L351.5,264 L339.2,255.8 L329.9,244.9 L321.5,238.8 L319.8,228.1 L316.9,220.6 L328.9,215 L335,208.7 L346.8,203.8 L350.9,199 L355.3,201.9 L362.6,199.3 L370.4,207.4 L382.8,209.6 L381.7,216.6 L390.7,221.8 L393.1,215.3 L404.4,218.1 L406,226.1 L418.2,227.6 L425.8,240.1 L420.9,240.1 L418.4,244.7 L414.6,245.8 L413.5,251.6 L410.3,252.8 L409.9,255.1 L404.3,257.8 L397,257.3 L394.6,262.9 Z"><title>Česko</title></path>
+            <path class="euro-country" d="M273.3,290.1 L274,294.6 L271.4,300.8 L278.9,305.4 L287.3,306.1 L286,316.5 L278.7,320.8 L266.5,317.6 L263,327.8 L255.1,328.6 L252.3,324.6 L243,333.2 L235.1,334.4 L228,329 L222.4,317.9 L214.5,321.8 L214.7,310.4 L226.8,296.1 L226.2,289.7 L233.8,292 L238.3,287.7 L252.3,287.8 L255.7,282.3 L273.3,290.1 Z"><title>Schweiz</title></path>
+            <path class="euro-country" d="M395,274.9 L393.7,285.3 L384.4,285.3 L387.6,290.8 L382.2,307.1 L379,311.4 L364.6,312.1 L356.3,317.8 L342.7,315.8 L319.1,309.3 L315.5,300.5 L299.2,304.9 L297.3,309.7 L287.3,306.1 L278.9,305.4 L271.4,300.8 L274,294.6 L273.3,290.1 L278.3,288.7 L286.6,295.7 L289,289 L303.5,290.1 L315.3,285.6 L323.2,286.3 L328.3,291.5 L329.8,287.2 L327.5,270.7 L333.4,267.5 L339.2,255.8 L351.5,264 L360.7,253.6 L366.5,251.7 L379.3,259.4 L387,258.1 L394.6,262.9 L393.3,266.1 L395,274.9 Z"><title>Österreich</title></path>
+            <path class="euro-country" d="M-33.5,433.2 L-27.5,426.8 L-20.8,423.1 L-16.7,435.5 L-7,435.5 L-4.1,432.3 L5.5,433.2 L10.1,445.9 L2.5,452.8 L2.2,472.5 L-0.4,476.2 L-1.1,488.2 L-8.2,490.3 L-1.6,505.5 L-6.2,522.2 L-0.5,529.7 L-2.7,536.6 L-8.8,546.1 L-7.5,554.5 L-14.1,561.1 L-22.8,557.5 L-31.3,560.3 L-28.8,540.5 L-30.3,524.9 L-37.7,522.6 L-41.6,512.9 L-40.3,496.3 L-33.7,487.1 L-32.6,476.9 L-29.1,461.6 L-29.5,450.9 L-32.8,441.8 L-33.5,433.2 Z"><title>Portugal</title></path>
+            <path class="euro-country" d="M-33.5,433.2 L-32.7,415.2 L-39.4,404.2 L-16.1,385.9 L4,390.4 L26.2,390.3 L43.7,394.6 L57.4,393.3 L84,394.1 L90.5,404 L120.9,415.5 L126.8,410 L145.4,421.5 L164.5,418.2 L165.4,432.9 L149.7,449.8 L128.6,455.2 L127.2,463.7 L117.1,477.8 L110.7,498.4 L117.1,512.9 L107.6,524.2 L104,540.7 L91.6,545.8 L79.9,565.3 L59,565.7 L43.3,565.2 L33,574.1 L26.7,583.7 L18.7,581.6 L12.6,573 L7.9,558.5 L-7.5,554.5 L-8.8,546.1 L-2.7,536.6 L-0.5,529.7 L-6.2,522.2 L-1.6,505.5 L-8.2,490.3 L-1.1,488.2 L-0.4,476.2 L2.2,472.5 L2.5,452.8 L10.1,445.9 L5.5,433.2 L-4.1,432.3 L-7,435.5 L-16.7,435.5 L-20.8,423.1 L-27.5,426.8 L-33.5,433.2 Z"><title>España</title></path>
+            <path class="euro-country" d="M370.9,525.8 L365,545.7 L367.5,553.6 L364,566.6 L351.4,557.1 L343,554.4 L320,541.5 L322.3,528.4 L341.6,530.8 L358.4,528 L370.9,525.8 Z M267,450.2 L276.9,468.2 L274.6,501.8 L267.1,500.2 L260.3,508.7 L254.1,501.9 L253.5,471.3 L249.7,456.8 L258.8,458.1 L267,450.2 Z M319.1,309.3 L342.7,315.8 L340.9,328.3 L344.9,339.1 L331.7,335.4 L318.4,344.4 L319.3,357 L317.2,364.3 L322.6,377.2 L338.1,389.9 L346.4,410.9 L364.7,431.3 L377.6,431.2 L381.6,436.8 L377,441.8 L391.8,451 L403.8,458.7 L418,471.9 L419.7,476.6 L416.6,485.7 L407.5,473.9 L393.1,469.7 L386.2,486.1 L398.1,495.5 L396.2,508.8 L389.3,510.3 L380.5,532 L373.6,534 L373.7,526.2 L377,512.6 L380.6,507.2 L374.2,492.5 L369.2,479.7 L362.3,476.5 L357.5,465.6 L346.9,461 L339.8,450.8 L327.6,449.1 L314.7,437.7 L299.6,421.2 L288.4,406.6 L283.3,381.5 L275.1,378.6 L261.7,370.2 L254.1,373.6 L244.6,385.4 L237.8,387.2 L239.6,376.2 L230.7,373 L226.5,353.4 L232.2,345.7 L227.3,336.2 L228,329 L235.1,334.4 L243,333.2 L252.3,324.6 L255.1,328.6 L263,327.8 L266.5,317.6 L278.7,320.8 L286,316.5 L287.3,306.1 L297.3,309.7 L299.2,304.9 L315.5,300.5 L319.1,309.3 Z"><title>Italia</title></path>
 
-            <!-- Großbritannien & Irland -->
-            <path d="M55,80 C80,68 108,75 115,98 C122,118 112,132 118,150 C124,168 112,185 92,183
-                     C95,198 82,212 65,205 C48,198 42,178 48,162 C34,158 26,140 32,122
-                     C22,112 22,95 35,88 C44,82 48,84 55,80 Z"
-                  fill="var(--surface-2)" stroke="rgba(255,255,255,.07)" stroke-width="1"/>
-
-            <!-- Zentral-/Osteuropa Landmasse (großflächig, sanfte Kontur, Berlin liegt hier) -->
-            <path d="M175,60 C220,35 280,38 320,65 C355,88 372,125 368,165
-                     C382,190 380,225 362,250 C372,280 365,315 340,335
-                     C348,365 330,395 298,400 C275,404 255,392 245,372
-                     C228,382 208,375 202,355 C185,352 172,338 172,318
-                     C158,310 150,292 158,275 C145,260 145,238 160,222
-                     C150,200 156,175 175,160 C168,135 172,105 190,88 C182,80 178,70 175,60 Z"
-                  fill="var(--surface-2)" stroke="rgba(255,255,255,.07)" stroke-width="1"/>
-
-            <!-- Iberische Halbinsel (Andeutung, unten links) -->
-            <path d="M35,330 C65,318 100,325 112,352 C124,378 108,410 78,418 C50,425 22,408 18,380 C15,358 20,340 35,330 Z"
-                  fill="var(--surface-2)" opacity=".8" stroke="rgba(255,255,255,.06)" stroke-width="1"/>
-
-            <!-- Frankreich: die "Hexagone"-Silhouette -->
-            <path d="M175,95
-                     C205,92 232,102 246,122
-                     C258,140 262,162 258,185
-                     C270,200 272,225 262,245
-                     C268,262 262,282 246,292
-                     C250,310 240,328 220,332
-                     C224,348 212,362 194,360
-                     C182,376 160,380 145,368
-                     C122,372 100,360 92,340
-                     C74,336 62,320 64,302
-                     C50,294 44,276 52,260
-                     C40,248 40,228 54,216
-                     C46,198 54,178 74,170
-                     C70,150 82,132 104,126
-                     C100,110 112,96 130,94
-                     C142,80 162,78 175,95 Z"
-                  fill="url(#franceFill)" stroke="#d3c3ff" stroke-width="1.4"
-                  style="filter:drop-shadow(0 0 22px rgba(139,107,240,.6));"/>
-
-            <!-- Korsika -->
-            <ellipse cx="262" cy="330" rx="6" ry="10" fill="var(--ember)" opacity=".55"/>
-            <ellipse cx="262" cy="330" rx="6" ry="10" fill="none" stroke="var(--ember)" stroke-width="1" opacity=".8"/>
+            <!-- Deutschland & Frankreich: hervorgehoben (Amber / Violett) -->
+            <path class="euro-country euro-de" fill="url(#germanyFill)" stroke="var(--gold-bright)" stroke-width="1.4"
+                  style="filter:drop-shadow(0 0 18px rgba(242,161,84,.55));"
+                  d="M278.7,100.9 L279,110.7 L295.6,116.7 L295.5,125.7 L312.2,120.9 L321.5,113.9 L340.1,124 L347.9,132 L351.7,144.9 L347.1,151.7 L353.1,160.8 L357.2,174.3 L355.9,183.1 L362.6,199.3 L355.3,201.9 L350.9,199 L346.8,203.8 L335,208.7 L328.9,215 L316.9,220.6 L319.8,228.1 L321.5,238.8 L329.9,244.9 L339.2,255.8 L333.4,267.5 L327.5,270.7 L329.8,287.2 L328.3,291.5 L323.2,286.3 L315.3,285.6 L303.5,290.1 L289,289 L286.6,295.7 L278.3,288.7 L273.3,290.1 L255.7,282.3 L252.3,287.8 L238.3,287.7 L240.4,269.6 L248.7,252.2 L225,247.6 L217.2,240.9 L218.1,229.8 L214.8,224.1 L216.7,206.9 L213.9,180.4 L223.8,180.4 L228,170.8 L232.1,147.6 L229,139 L232.2,133.6 L246,132.3 L249.1,137.9 L260.2,125.3 L256.5,115.8 L255.7,101.5 L268.2,104.8 L278.7,100.9 Z"><title>Deutschland</title></path>
+            <path class="euro-country euro-fr" fill="url(#franceFill)" stroke="#d3c3ff" stroke-width="1.4"
+                  style="filter:drop-shadow(0 0 22px rgba(139,107,240,.6));"
+                  d="M272.8,426.3 L267.3,445.9 L259.8,440.8 L256,423.7 L259.3,414.3 L270,404.6 L272.8,426.3 Z M174.4,217.7 L185.9,229.7 L194.3,227.7 L208.7,239.3 L212.4,241.5 L217.2,240.9 L225,247.6 L248.7,252.2 L240.4,269.6 L238.3,287.7 L233.8,292 L226.2,289.7 L226.8,296.1 L214.7,310.4 L214.5,321.8 L222.4,317.9 L228,329 L227.3,336.2 L232.2,345.7 L226.5,353.4 L230.7,373 L239.6,376.2 L237.8,387.2 L222.8,401.6 L190.3,394.7 L166.4,402.9 L164.5,418.2 L145.4,421.5 L126.8,410 L120.9,415.5 L90.5,404 L84,394.1 L92.5,378.9 L95.6,328.4 L78.6,301.8 L66.5,288.9 L41.3,279.2 L39.7,260.7 L61,255.2 L88.7,261.7 L83.4,233 L99,243.9 L137.3,224.1 L142.3,203.3 L156.7,198.2 L159.1,207.1 L166.7,207.5 L174.4,217.7 Z"><title>France</title></path>
 
             <!-- Verbindungslinie Paris–Berlin -->
-            <line x1="290" y1="130" x2="150" y2="215" stroke="var(--gold)" stroke-width="1.7" stroke-linecap="round" stroke-dasharray="4 7">
+            <line x1="336.1" y1="163.4" x2="154" y2="256.3" stroke="var(--gold)" stroke-width="1.7" stroke-linecap="round" stroke-dasharray="4 7">
               <animate attributeName="stroke-dashoffset" values="0;-44" dur="6s" repeatCount="indefinite"/>
             </line>
 
             <!-- Berlin -->
             <g>
-              <circle cx="290" cy="130" r="11" fill="var(--gold)" opacity=".22"/>
-              <circle cx="290" cy="130" r="4" fill="var(--gold)" stroke="var(--bg)" stroke-width="1.3"/>
-              <text x="290" y="112" text-anchor="middle" class="city-label">Berlin</text>
+              <circle cx="336.1" cy="163.4" r="11" fill="var(--gold)" opacity=".22"/>
+              <circle cx="336.1" cy="163.4" r="4" fill="var(--gold)" stroke="var(--bg)" stroke-width="1.3"/>
+              <text x="336.1" y="151" text-anchor="middle" class="city-label">Berlin</text>
             </g>
             <!-- Paris -->
             <g>
-              <circle cx="150" cy="215" r="11" fill="var(--text)" opacity=".2"/>
-              <circle cx="150" cy="215" r="4" fill="var(--text)" stroke="var(--bg)" stroke-width="1.3"/>
-              <text x="150" y="238" text-anchor="middle" class="city-label" font-style="italic">Paris</text>
+              <circle cx="154" cy="256.3" r="11" fill="var(--text)" opacity=".2"/>
+              <circle cx="154" cy="256.3" r="4" fill="var(--text)" stroke="var(--bg)" stroke-width="1.3"/>
+              <text x="154" y="273" text-anchor="middle" class="city-label" font-style="italic">Paris</text>
             </g>
           </g>
         </svg>
@@ -1359,6 +1347,22 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){
     document.documentElement.style.setProperty('--mx', ((e.clientX/window.innerWidth-0.5)*2).toFixed(3));
     document.documentElement.style.setProperty('--my', ((e.clientY/window.innerHeight-0.5)*2).toFixed(3));
   }, {passive:true});
+
+  // Dezenter 3D-Tilt der Europakarte, folgt dem Cursor (nur Desktop mit Maus)
+  const mapCard = document.querySelector('.europe-visual');
+  if(mapCard && window.matchMedia('(hover:hover) and (pointer:fine)').matches){
+    mapCard.addEventListener('mousemove', (e) => {
+      const rect = mapCard.getBoundingClientRect();
+      const px = (e.clientX - rect.left) / rect.width - 0.5;
+      const py = (e.clientY - rect.top) / rect.height - 0.5;
+      mapCard.style.setProperty('--tilt-y', (px * 10).toFixed(2) + 'deg');
+      mapCard.style.setProperty('--tilt-x', (py * -10).toFixed(2) + 'deg');
+    });
+    mapCard.addEventListener('mouseleave', () => {
+      mapCard.style.setProperty('--tilt-y', '0deg');
+      mapCard.style.setProperty('--tilt-x', '0deg');
+    });
+  }
 }
 
 // --- View-Management -------------------------------------------------
