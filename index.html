@@ -666,9 +666,6 @@
     animation:floatSlow 6s ease-in-out infinite;
   }
   @keyframes floatSlow{ 0%,100%{transform:translateX(-50%) translateY(0);} 50%{transform:translateX(-50%) translateY(-8px);} }
-  .map-frame{ -webkit-box-reflect:below 6px linear-gradient(to bottom, transparent, transparent 55%, rgba(0,0,0,.35)); }
-  @media (max-width:919px){ .map-frame{ -webkit-box-reflect:none; } }
-
   /* --- Hub: Feature-Vorschaukarten --- */
   .hub-features{ margin-top:3.6rem; }
   .hub-features-eyebrow{
@@ -877,7 +874,6 @@
           </div>
         </dl>
       </div>
-      <div class="map-frame">
       <div class="europe-visual" aria-hidden="true">
         <div class="map-bg"></div>
         <svg viewBox="0 0 420 480" preserveAspectRatio="xMidYMid slice">
@@ -938,7 +934,6 @@
           </g>
         </svg>
         <span class="badge">DE · FR — 1.240 km</span>
-      </div>
       </div>
     </div>
 
