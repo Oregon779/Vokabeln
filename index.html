@@ -549,6 +549,19 @@
   }
   .menu-btn:hover{border-color:var(--ember-dim); color:var(--text);}
   @media (max-width:420px){ .menu-btn-text{display:none;} .menu-btn{padding:.6rem;} }
+  .header-right{display:flex; align-items:center; gap:.7rem;}
+  .lang-switch{
+    display:flex; align-items:center; gap:.15rem; background:var(--surface); border:1px solid var(--border-solid);
+    backdrop-filter:blur(14px); border-radius:999px; padding:.25rem;
+    font-family:var(--font-mono); font-size:.65rem; letter-spacing:.08em;
+  }
+  .lang-opt{
+    padding:.35rem .65rem; border-radius:999px; border:none; background:transparent; color:var(--stone); cursor:pointer;
+    font:inherit; transition:background .2s var(--ease), color .2s var(--ease);
+  }
+  .lang-opt.is-active{background:var(--ember); color:#0c0a1e; font-weight:700;}
+  .lang-opt:not(.is-active):hover{color:var(--text);}
+  @media (max-width:480px){ .lang-switch{display:none;} }
   .menu-lines{position:relative; width:19px; height:14px; flex-shrink:0;}
   .menu-lines span{position:absolute; left:0; width:100%; height:2px; border-radius:2px; background:var(--text); transition:transform .3s var(--ease), opacity .3s var(--ease);}
   .menu-lines span:nth-child(1){top:0;}
@@ -586,7 +599,8 @@
   #view-hub{max-width:1080px !important; position:relative;}
   .hub-grid{position:relative; z-index:1; display:grid; grid-template-columns:1fr; min-height:clamp(500px, 58vh, 680px);}
   @media (max-width:919px){ .hub-grid{min-height:clamp(560px, 76vh, 760px);} }
-  .hub-copy{max-width:34em; display:flex; flex-direction:column; justify-content:center;}
+  .hub-copy{display:flex; flex-direction:column; justify-content:flex-start;}
+  .hub-title{max-width:20em;}
 
   /* Gestaffelter Hero-Einflug (Eyebrow -> Titel -> Text -> Aktionen -> Stats) */
   .hub-copy > *{animation:heroIn .55s var(--ease-spring) backwards;}
@@ -598,7 +612,7 @@
   @keyframes heroIn{ from{opacity:0; transform:translateY(24px);} to{opacity:1; transform:translateY(0);} }
 
   .hub-eyebrow{
-    display:inline-flex; align-items:center; gap:.5rem; border:1px solid var(--border-solid); background:var(--surface);
+    display:inline-flex; align-self:flex-start; align-items:center; gap:.5rem; border:1px solid var(--border-solid); background:var(--surface);
     backdrop-filter:blur(14px); border-radius:999px; padding:.45rem 1.1rem; font-size:.78rem; font-weight:600; color:var(--stone); margin-bottom:1.3rem;
     box-shadow:0 0 0 1px rgba(45,212,191,.08), 0 8px 20px rgba(45,212,191,.1);
   }
@@ -616,14 +630,15 @@
   }
   @keyframes gradientShift{ 0%,100%{background-position:0% center;} 50%{background-position:100% center;} }
   .page-title em{ color:var(--ember-bright); font-style:italic; }
-  .hub-desc{color:var(--stone); font-size:1.05rem; line-height:1.65; max-width:36em; margin:1.3rem 0 0;}
-  .hub-actions{display:flex; flex-wrap:wrap; gap:.8rem; margin-top:1.8rem;}
-  .hub-stats{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:.8rem; margin-top:2.6rem; max-width:30rem;}
-  @media (max-width:520px){ .hub-stats{grid-template-columns:1fr 1fr; max-width:none;} }
+  .hub-desc{color:var(--stone); font-size:1.05rem; line-height:1.65; max-width:31em; margin:1.3rem 0 0;}
+  .hub-interact{display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1.4rem; margin-top:2.2rem;}
+  .hub-actions{display:flex; flex-wrap:wrap; gap:.8rem; margin-top:0;}
+  .hub-stats{display:flex; flex-wrap:wrap; gap:.65rem; margin-top:0; max-width:none;}
+  @media (max-width:520px){ .hub-stats{width:100%;} }
   .hub-stat{
-    position:relative; overflow:hidden; display:grid; grid-template-columns:auto 1fr; column-gap:.55rem; align-items:center;
-    background:var(--surface); backdrop-filter:blur(14px); border:1px solid var(--border-solid); border-radius:16px;
-    padding:.85rem .9rem; box-shadow:var(--shadow-sm);
+    position:relative; overflow:hidden; display:grid; grid-template-columns:auto 1fr; column-gap:.5rem; align-items:center;
+    background:var(--surface); backdrop-filter:blur(14px); border:1px solid var(--border-solid); border-radius:14px;
+    padding:.6rem .8rem; box-shadow:var(--shadow-sm);
     transition:transform .25s var(--ease-spring), border-color .25s var(--ease), box-shadow .25s var(--ease);
   }
   .hub-stat::before{
@@ -634,7 +649,7 @@
   .hub-stat:hover{transform:translateY(-3px); border-color:var(--ember-dim); box-shadow:var(--shadow-md);}
   .hub-stat:hover::before{opacity:1;}
   .hub-stat-icon{grid-row:1 / 3; opacity:.9; position:relative;}
-  .hub-stat dt{grid-column:2; font-family:var(--font-mono); font-weight:700; font-size:1.7rem; color:var(--ember); margin:0; line-height:1.1; position:relative;}
+  .hub-stat dt{grid-column:2; font-family:var(--font-mono); font-weight:700; font-size:1.35rem; color:var(--ember); margin:0; line-height:1.1; position:relative;}
   .hub-stat dd{grid-column:2; margin:.1rem 0 0; font-family:var(--font-mono); font-size:.6rem; text-transform:uppercase; letter-spacing:.1em; color:var(--stone); position:relative;}
 
   .europe-visual{
@@ -1028,10 +1043,16 @@
       <span class="sub" id="brandSub">Startseite</span>
     </span>
   </button>
-  <button class="menu-btn" id="btnMenu" type="button" aria-expanded="false" aria-label="Menü öffnen">
-    <span class="menu-btn-text">Menü</span>
-    <span class="menu-lines"><span></span><span></span><span></span></span>
-  </button>
+  <div class="header-right">
+    <div class="lang-switch" role="group" aria-label="Sprache der Oberfläche">
+      <button type="button" class="lang-opt is-active" id="langDe" data-lang="de">DE</button>
+      <button type="button" class="lang-opt" id="langEn" data-lang="en">EN</button>
+    </div>
+    <button class="menu-btn" id="btnMenu" type="button" aria-expanded="false" aria-label="Menü öffnen">
+      <span class="menu-btn-text">Menü</span>
+      <span class="menu-lines"><span></span><span></span><span></span></span>
+    </button>
+  </div>
 </header>
 
 <div class="nav-overlay" id="navOverlay">
@@ -1126,27 +1147,29 @@
     </div>
     <div class="hub-grid">
       <div class="hub-copy">
-        <p class="hub-eyebrow"><span class="dot"></span> Deutsch — Français</p>
+        <p class="hub-eyebrow">🇩🇪 Deutsch – Français 🇫🇷</p>
         <h1 class="hub-title">Vokabeln lernen,<br><em>élégant</em> gemacht.</h1>
         <p class="hub-desc">Dein persönlicher Vokabeltrainer für Deutsch und Französisch. Erstelle eigene Lernsets, übe mit KI-Unterstützung und behalte deine Serie im Blick — ganz in deinem Tempo.</p>
-        <div class="hub-actions">
-          <button id="btnHubSets" class="btn btn-primary btn-large" style="width:auto; margin:0;">Eigene Lernsets</button>
-          <button id="btnHubListen" class="btn btn-secondary btn-large" style="width:auto; margin:0;">🔊 Aussprache üben</button>
+        <div class="hub-interact">
+          <dl class="hub-stats">
+            <div class="hub-stat">
+              <svg class="hub-stat-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="var(--ember)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5V5.5Z"/><path d="M4 18.5A2.5 2.5 0 0 1 6.5 16H20"/></svg>
+              <dt id="hubSetsCount">0</dt><dd>Lernsets</dd>
+            </div>
+            <div class="hub-stat">
+              <svg class="hub-stat-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="var(--ember)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="4.2" rx="1.2"/><rect x="4" y="10.4" width="16" height="4.2" rx="1.2"/><rect x="4" y="16.8" width="16" height="4.2" rx="1.2"/></svg>
+              <dt id="hubWordsCount">0</dt><dd>Vokabeln</dd>
+            </div>
+            <div class="hub-stat">
+              <svg class="hub-stat-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="var(--gold)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c1 3-2 4.5-2 7.5A4.5 4.5 0 0 0 14.5 14c1.8 0 2.9-1 3.3-2 .9 2 .2 4.4-1.4 6a6.5 6.5 0 0 1-9-9c1-1 1.6-2.3 1.6-3.8C9 3.5 10.5 2.4 12 2Z"/></svg>
+              <dt id="hubStreakCount">0</dt><dd>Tage-Serie</dd>
+            </div>
+          </dl>
+          <div class="hub-actions">
+            <button id="btnHubSets" class="btn btn-primary btn-large" style="width:auto; margin:0;">Eigene Lernsets</button>
+            <button id="btnHubListen" class="btn btn-secondary btn-large" style="width:auto; margin:0;">🔊 Aussprache üben</button>
+          </div>
         </div>
-        <dl class="hub-stats">
-          <div class="hub-stat">
-            <svg class="hub-stat-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="var(--ember)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5V5.5Z"/><path d="M4 18.5A2.5 2.5 0 0 1 6.5 16H20"/></svg>
-            <dt id="hubSetsCount">0</dt><dd>Lernsets</dd>
-          </div>
-          <div class="hub-stat">
-            <svg class="hub-stat-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="var(--ember)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="4.2" rx="1.2"/><rect x="4" y="10.4" width="16" height="4.2" rx="1.2"/><rect x="4" y="16.8" width="16" height="4.2" rx="1.2"/></svg>
-            <dt id="hubWordsCount">0</dt><dd>Vokabeln</dd>
-          </div>
-          <div class="hub-stat">
-            <svg class="hub-stat-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="var(--gold)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c1 3-2 4.5-2 7.5A4.5 4.5 0 0 0 14.5 14c1.8 0 2.9-1 3.3-2 .9 2 .2 4.4-1.4 6a6.5 6.5 0 0 1-9-9c1-1 1.6-2.3 1.6-3.8C9 3.5 10.5 2.4 12 2Z"/></svg>
-            <dt id="hubStreakCount">0</dt><dd>Tage-Serie</dd>
-          </div>
-        </dl>
       </div>
       <div class="europe-visual" aria-hidden="true">
       <div class="nebula"></div>
@@ -2612,6 +2635,15 @@ const btnMenu = document.getElementById('btnMenu');
 const navOverlay = document.getElementById('navOverlay');
 const btnBrand = document.getElementById('btnBrand');
 const brandSub = document.getElementById('brandSub');
+
+document.querySelectorAll('.lang-opt').forEach(btn => {
+  btn.addEventListener('click', () => {
+    if(btn.classList.contains('is-active')) return;
+    document.querySelectorAll('.lang-opt').forEach(b => b.classList.toggle('is-active', b === btn));
+    if(btn.dataset.lang === 'en') showToast('Englische Oberfläche kommt bald – die Webseite ist aktuell auf Deutsch.');
+    else showToast('Oberfläche auf Deutsch.');
+  });
+});
 
 function updateNavActiveStates(){
   if(brandSub) brandSub.textContent = NAV_SUB_LABELS[currentNavId] || '';
