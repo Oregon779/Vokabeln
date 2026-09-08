@@ -130,14 +130,14 @@
 
   /* --- Sanfter Stagger für wiederholte Karten/Chips beim Erscheinen --- */
   .sets-grid .set-card, .session-options .session-opt, .chip-row .chip,
-  .listen-list .listen-row, .match-board .match-chip, .hub-stats .hub-stat{
+  .listen-list .listen-row, .match-board .match-chip, .hub-stats .hub-stat, .feature-rail .feature-card{
     animation:itemIn .5s var(--ease-spring) backwards;
   }
   @keyframes itemIn{ from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);} }
-  .sets-grid .set-card:nth-child(1), .session-options .session-opt:nth-child(1), .chip-row .chip:nth-child(1), .listen-list .listen-row:nth-child(1), .match-board .match-chip:nth-child(1), .hub-stats .hub-stat:nth-child(1){animation-delay:.02s;}
-  .sets-grid .set-card:nth-child(2), .session-options .session-opt:nth-child(2), .chip-row .chip:nth-child(2), .listen-list .listen-row:nth-child(2), .match-board .match-chip:nth-child(2), .hub-stats .hub-stat:nth-child(2){animation-delay:.07s;}
-  .sets-grid .set-card:nth-child(3), .session-options .session-opt:nth-child(3), .chip-row .chip:nth-child(3), .listen-list .listen-row:nth-child(3), .match-board .match-chip:nth-child(3), .hub-stats .hub-stat:nth-child(3){animation-delay:.12s;}
-  .sets-grid .set-card:nth-child(4), .session-options .session-opt:nth-child(4), .chip-row .chip:nth-child(4), .listen-list .listen-row:nth-child(4), .match-board .match-chip:nth-child(4){animation-delay:.17s;}
+  .sets-grid .set-card:nth-child(1), .session-options .session-opt:nth-child(1), .chip-row .chip:nth-child(1), .listen-list .listen-row:nth-child(1), .match-board .match-chip:nth-child(1), .hub-stats .hub-stat:nth-child(1), .feature-rail .feature-card:nth-child(1){animation-delay:.02s;}
+  .sets-grid .set-card:nth-child(2), .session-options .session-opt:nth-child(2), .chip-row .chip:nth-child(2), .listen-list .listen-row:nth-child(2), .match-board .match-chip:nth-child(2), .hub-stats .hub-stat:nth-child(2), .feature-rail .feature-card:nth-child(2){animation-delay:.07s;}
+  .sets-grid .set-card:nth-child(3), .session-options .session-opt:nth-child(3), .chip-row .chip:nth-child(3), .listen-list .listen-row:nth-child(3), .match-board .match-chip:nth-child(3), .hub-stats .hub-stat:nth-child(3), .feature-rail .feature-card:nth-child(3){animation-delay:.12s;}
+  .sets-grid .set-card:nth-child(4), .session-options .session-opt:nth-child(4), .chip-row .chip:nth-child(4), .listen-list .listen-row:nth-child(4), .match-board .match-chip:nth-child(4), .feature-rail .feature-card:nth-child(4){animation-delay:.17s;}
   .sets-grid .set-card:nth-child(5), .chip-row .chip:nth-child(5), .listen-list .listen-row:nth-child(5), .match-board .match-chip:nth-child(5){animation-delay:.22s;}
   .sets-grid .set-card:nth-child(n+6), .listen-list .listen-row:nth-child(n+6), .match-board .match-chip:nth-child(n+6){animation-delay:.27s;}
 
@@ -666,6 +666,68 @@
     animation:floatSlow 6s ease-in-out infinite;
   }
   @keyframes floatSlow{ 0%,100%{transform:translateX(-50%) translateY(0);} 50%{transform:translateX(-50%) translateY(-8px);} }
+  .map-frame{ -webkit-box-reflect:below 6px linear-gradient(to bottom, transparent, transparent 55%, rgba(0,0,0,.35)); }
+  @media (max-width:919px){ .map-frame{ -webkit-box-reflect:none; } }
+
+  /* --- Hub: Feature-Vorschaukarten --- */
+  .hub-features{ margin-top:3.6rem; }
+  .hub-features-eyebrow{
+    font-family:var(--font-mono); font-size:.65rem; text-transform:uppercase; letter-spacing:.3em; color:var(--stone);
+    margin:0 0 1.1rem; padding-left:.1rem;
+  }
+  .feature-rail{ display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; }
+  @media (max-width:1079px) and (min-width:640px){ .feature-rail{grid-template-columns:repeat(2,1fr);} }
+  @media (max-width:639px){
+    .feature-rail{
+      display:flex; gap:.9rem; overflow-x:auto; scroll-snap-type:x mandatory;
+      margin:0 -1.2rem; padding:.2rem 1.2rem 1rem; -webkit-overflow-scrolling:touch; scrollbar-width:none;
+    }
+    .feature-rail::-webkit-scrollbar{display:none;}
+    .feature-card{flex:0 0 76%; scroll-snap-align:start;}
+  }
+  @media (max-width:480px){ .feature-rail{margin:0 -1rem; padding-left:1rem; padding-right:1rem;} .feature-card{flex:0 0 84%;} }
+  .feature-card{
+    position:relative; overflow:hidden; text-align:left; cursor:pointer; display:flex; flex-direction:column; gap:.85rem;
+    padding:1.3rem 1.3rem 1.4rem; font:inherit; color:inherit;
+    background:linear-gradient(var(--surface), var(--surface)) padding-box,
+      linear-gradient(150deg, rgba(148,192,201,.3), rgba(148,192,201,.06)) border-box;
+    border:1px solid transparent; border-radius:20px; backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+    box-shadow:var(--shadow-sm);
+    transition:transform .3s var(--ease-spring), box-shadow .3s var(--ease), background .35s var(--ease);
+  }
+  .feature-card::before{
+    content:''; position:absolute; inset:0; opacity:0; pointer-events:none;
+    background:radial-gradient(220px circle at var(--sx,50%) var(--sy,0%), rgba(45,212,191,.25), transparent 70%);
+    transition:opacity .3s var(--ease);
+  }
+  .feature-card:hover{
+    transform:translateY(-5px);
+    box-shadow:var(--shadow-md), var(--shadow-glow);
+    background:linear-gradient(var(--surface), var(--surface)) padding-box,
+      linear-gradient(150deg, rgba(45,212,191,.65), rgba(37,99,235,.3)) border-box;
+  }
+  .feature-card:hover::before{opacity:1;}
+  .feature-card:active{transform:translateY(-5px) scale(.97);}
+  .feature-card-arrow{
+    position:absolute; top:1.25rem; right:1.25rem; font-family:var(--font-mono); font-size:1rem; color:var(--stone);
+    transition:transform .25s var(--ease-premium), color .25s var(--ease);
+  }
+  .feature-card:hover .feature-card-arrow{transform:translateX(4px); color:var(--ember-bright);}
+  .feature-card-icon{
+    position:relative; width:44px; height:44px; border-radius:13px; display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  }
+  .feature-card-icon::after{ content:''; position:absolute; left:50%; bottom:-.65rem; width:1px; height:.55rem; opacity:.7; }
+  .feature-card-icon.ic-teal{ color:var(--ember-bright); background:rgba(45,212,191,.16); box-shadow:inset 0 0 0 1px rgba(45,212,191,.35); }
+  .feature-card-icon.ic-teal::after{ background:linear-gradient(var(--ember-bright), transparent); }
+  .feature-card-icon.ic-blue{ color:var(--gold-bright); background:rgba(37,99,235,.16); box-shadow:inset 0 0 0 1px rgba(37,99,235,.35); }
+  .feature-card-icon.ic-blue::after{ background:linear-gradient(var(--gold-bright), transparent); }
+  .feature-card-icon.ic-gold{ color:var(--gold); background:rgba(37,99,235,.18); box-shadow:inset 0 0 0 1px rgba(37,99,235,.4); }
+  .feature-card-icon.ic-gold::after{ background:linear-gradient(var(--gold), transparent); }
+  .feature-card-icon.ic-pop{ color:var(--pop); background:rgba(244,114,182,.16); box-shadow:inset 0 0 0 1px rgba(244,114,182,.35); }
+  .feature-card-icon.ic-pop::after{ background:linear-gradient(var(--pop), transparent); }
+  .feature-card-body{position:relative; display:flex; flex-direction:column; gap:.3rem;}
+  .feature-card-title{font-family:var(--font-sans); font-weight:700; font-size:1rem; color:var(--text);}
+  .feature-card-desc{font-size:.82rem; color:var(--stone); line-height:1.5;}
 
 
   /* --- Belohnungen --- */
@@ -815,6 +877,7 @@
           </div>
         </dl>
       </div>
+      <div class="map-frame">
       <div class="europe-visual" aria-hidden="true">
         <div class="map-bg"></div>
         <svg viewBox="0 0 420 480" preserveAspectRatio="xMidYMid slice">
@@ -875,6 +938,56 @@
           </g>
         </svg>
         <span class="badge">DE · FR — 1.240 km</span>
+      </div>
+      </div>
+    </div>
+
+    <div class="hub-features">
+      <p class="hub-features-eyebrow">Entdecke die App</p>
+      <div class="feature-rail" id="featureRail">
+        <button class="feature-card" id="featCardSets" type="button">
+          <span class="feature-card-arrow">→</span>
+          <span class="feature-card-icon ic-teal">
+            <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5V5.5Z"/><path d="M4 18.5A2.5 2.5 0 0 1 6.5 16H20"/></svg>
+          </span>
+          <span class="feature-card-body">
+            <span class="feature-card-title">Lernsets</span>
+            <span class="feature-card-desc">Eigene Vokabeln anlegen &amp; mit KI übersetzen.</span>
+          </span>
+        </button>
+
+        <button class="feature-card" id="featCardListen" type="button">
+          <span class="feature-card-arrow">→</span>
+          <span class="feature-card-icon ic-blue">
+            <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9H4Z"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/><path d="M19.3 6a8.5 8.5 0 0 1 0 12"/></svg>
+          </span>
+          <span class="feature-card-body">
+            <span class="feature-card-title">Aussprache</span>
+            <span class="feature-card-desc">Wörter anhören &amp; Aussprache trainieren.</span>
+          </span>
+        </button>
+
+        <button class="feature-card" id="featCardRewards" type="button">
+          <span class="feature-card-arrow">→</span>
+          <span class="feature-card-icon ic-gold">
+            <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c1 3-2 4.5-2 7.5A4.5 4.5 0 0 0 14.5 14c1.8 0 2.9-1 3.3-2 .9 2 .2 4.4-1.4 6a6.5 6.5 0 0 1-9-9c1-1 1.6-2.3 1.6-3.8C9 3.5 10.5 2.4 12 2Z"/></svg>
+          </span>
+          <span class="feature-card-body">
+            <span class="feature-card-title">Belohnungen</span>
+            <span class="feature-card-desc">Serie halten &amp; Fortschritt sehen.</span>
+          </span>
+        </button>
+
+        <button class="feature-card" id="featCardGrammar" type="button">
+          <span class="feature-card-arrow">→</span>
+          <span class="feature-card-icon ic-pop">
+            <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 2 8l10 5 10-5-10-5Z"/><path d="M6 10.5V16c0 1.5 2.5 3 6 3s6-1.5 6-3v-5.5"/><path d="M22 8v6"/></svg>
+          </span>
+          <span class="feature-card-body">
+            <span class="feature-card-title">Grammatik</span>
+            <span class="feature-card-desc">Regeln von der KI erklärt bekommen.</span>
+          </span>
+        </button>
       </div>
     </div>
   </section>
@@ -1324,7 +1437,7 @@ function sndComplete(){ [523,659,784,1046].forEach((f,i) => playTone(f, 0.18, 's
 
 const soundIsFine = window.matchMedia('(hover:hover) and (pointer:fine)').matches;
 function wireSounds(root = document){
-  root.querySelectorAll('.btn, .icon-btn, .chip, .session-opt, .set-card, .nav-overlay-item, .streak-day').forEach(el => {
+  root.querySelectorAll('.btn, .icon-btn, .chip, .session-opt, .set-card, .nav-overlay-item, .streak-day, .feature-card').forEach(el => {
     if(soundIsFine && !el.dataset.soundWiredHover){ el.addEventListener('mouseenter', sndHover); el.dataset.soundWiredHover = '1'; }
     if(!el.dataset.soundWiredClick){ el.addEventListener('click', sndClick); el.dataset.soundWiredClick = '1'; }
   });
@@ -1469,7 +1582,7 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){
     }, {passive:true});
 
     // Spotlight-Hover auf Karten: Position des Cursors relativ zur Karte für Glow-Effekt
-    const spotlightSelector = '.set-card, .rewards-card, .streak-hero, .hub-stat';
+    const spotlightSelector = '.set-card, .rewards-card, .streak-hero, .hub-stat, .feature-card';
     document.addEventListener('pointermove', (e) => {
       const card = e.target.closest(spotlightSelector);
       if(!card) return;
@@ -1594,6 +1707,10 @@ function renderHub(){
 }
 document.getElementById('btnHubSets').addEventListener('click', () => { sndClick(); renderHome(); });
 document.getElementById('btnHubListen').addEventListener('click', () => openGlobalListen());
+document.getElementById('featCardSets').addEventListener('click', () => { sndClick(); renderHome(); });
+document.getElementById('featCardListen').addEventListener('click', () => openGlobalListen());
+document.getElementById('featCardRewards').addEventListener('click', () => { sndClick(); renderRewards(); });
+document.getElementById('featCardGrammar').addEventListener('click', () => { sndClick(); openGrammar(); });
 
 // --- BELOHNUNGEN / STREAK --------------------------------------------------
 function todayKey(d = new Date()){ const x = new Date(d); x.setHours(0,0,0,0); return x.toISOString().slice(0,10); }
