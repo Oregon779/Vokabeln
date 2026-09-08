@@ -1,0 +1,2240 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lumière · Vokabeltrainer Deutsch-Französisch</title>
+<meta name="theme-color" content="#13141e">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#12141e; --surface:rgba(28,32,48,.55); --surface-2:rgba(34,38,56,.65);
+    --ember:#5b8cf5; --ember-dim:#3f6bd1; --ember-bright:#8fb0ff; --gold:#e2725a; --gold-bright:#f4a15f; --stone:#9a9fb0;
+    --text:#f5f2ea; --border-solid:rgba(255,255,255,.1); --success:#4ade80; --danger:#ef5b6b;
+    --mx:0; --my:0;
+    --ease:cubic-bezier(.4,0,.2,1);
+    --font-serif:'Fraunces',Georgia,serif; --font-sans:'Inter',system-ui,sans-serif; --font-mono:'JetBrains Mono',monospace;
+    --shadow-sm:0 2px 8px rgba(0,0,0,.2), 0 6px 14px rgba(0,0,0,.22);
+    --shadow-md:0 4px 16px rgba(0,0,0,.25), 0 16px 36px rgba(0,0,0,.3);
+    --shadow-lg:0 8px 26px rgba(0,0,0,.3), 0 28px 60px rgba(0,0,0,.34);
+    --shadow-glow:0 0 0 1px rgba(91,140,245,.12), 0 16px 40px rgba(91,140,245,.16);
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{margin:0; background:var(--bg); color:var(--text); font-family:var(--font-sans); line-height:1.5; -webkit-font-smoothing:antialiased; overflow-x:hidden;}
+  code{font-family:var(--font-mono);}
+
+  .bg-base{position:fixed; inset:0; z-index:-5; background:radial-gradient(ellipse at 50% -10%, #1c2440 0%, var(--bg) 55%);}
+  .bg-grid{
+    position:fixed; inset:0; z-index:-4; pointer-events:none; opacity:.13;
+    background-image:linear-gradient(rgba(91,140,245,.5) 1px, transparent 1px), linear-gradient(90deg, rgba(91,140,245,.5) 1px, transparent 1px);
+    background-size:52px 52px;
+    mask-image:radial-gradient(ellipse 85% 60% at 50% 20%, black 30%, transparent 85%);
+    -webkit-mask-image:radial-gradient(ellipse 85% 60% at 50% 20%, black 30%, transparent 85%);
+  }
+  .grain{
+    position:fixed; inset:0; z-index:2; pointer-events:none; opacity:.045; mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  .bg-aurora{position:fixed; inset:0; z-index:-3; overflow:hidden; transform:translate(calc(var(--mx)*12px), calc(var(--my)*12px)); transition:transform .5s ease-out;}
+  .aurora-band{position:absolute; border-radius:50%; filter:blur(85px);}
+  .aurora-1{width:78vw; height:52vh; top:-16%; left:-12%; background:radial-gradient(ellipse, rgba(91,140,245,.5), transparent 70%); animation:driftA 44s ease-in-out infinite;}
+  .aurora-2{width:64vw; height:58vh; top:18%; right:-16%; background:radial-gradient(ellipse, rgba(226,114,90,.35), transparent 70%); animation:driftB 50s ease-in-out infinite;}
+  .aurora-3{width:54vw; height:44vh; bottom:-12%; left:16%; background:radial-gradient(ellipse, rgba(63,107,209,.45), transparent 70%); animation:driftC 56s ease-in-out infinite;}
+  .aurora-4{width:38vw; height:30vh; top:6%; left:28%; background:radial-gradient(ellipse, rgba(212,84,110,.28), transparent 70%); animation:driftD 38s ease-in-out infinite;}
+  @keyframes driftA{0%,100%{transform:translate(0,0) rotate(0deg) scale(1);} 50%{transform:translate(6%,5%) rotate(6deg) scale(1.1);}}
+  @keyframes driftB{0%,100%{transform:translate(0,0) rotate(0deg) scale(1);} 50%{transform:translate(-6%,6%) rotate(-5deg) scale(1.12);}}
+  @keyframes driftC{0%,100%{transform:translate(0,0) rotate(0deg) scale(1);} 50%{transform:translate(5%,-6%) rotate(5deg) scale(1.1);}}
+  @keyframes driftD{0%,100%{transform:translate(0,0) scale(1);} 50%{transform:translate(-4%,-4%) scale(1.15);}}
+  .vignette{position:fixed; inset:0; z-index:-1; pointer-events:none; box-shadow:inset 0 0 160px 40px rgba(0,0,0,.45);}
+
+  /* --- Kritischer Fix: [hidden] muss IMMER gewinnen, auch gegen eigene display-Regeln --- */
+  [hidden]{display:none !important;}
+
+  /* --- Sichtbarer Fokusring für Tastaturnavigation (Accessibility) --- */
+  a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible,
+  .chip:focus-visible, .session-opt:focus-visible, .set-card:focus-visible,
+  .match-chip:focus-visible, .nav-overlay-item:focus-visible{
+    outline:2px solid var(--ember-bright); outline-offset:3px; border-radius:8px;
+  }
+  ::selection{ background:rgba(91,140,245,.35); color:var(--text); }
+
+  /* --- Top bar: Settings + Grammatik-Link --- */
+  .topbar{position:fixed; top:1.1rem; right:1.1rem; z-index:30; display:flex; gap:.6rem;}
+  .icon-btn{
+    width:44px; height:44px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    background:var(--surface); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+    border:1px solid var(--border-solid); cursor:pointer; padding:0;
+    box-shadow:0 2px 8px rgba(0,0,0,.2), 0 10px 24px rgba(0,0,0,.25);
+    transition:border-color .2s var(--ease), transform .2s var(--ease);
+  }
+  .icon-btn:hover{border-color:var(--ember-dim); transform:translateY(-2px);}
+  .icon-btn:active{transform:scale(.92);}
+  .icon-btn svg{width:20px; height:20px; stroke:var(--text); fill:none; stroke-width:1.8;}
+  .settings-panel{
+    position:fixed; top:4.4rem; right:1.1rem; z-index:29; min-width:220px;
+    background:var(--surface); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+    border:1px solid var(--border-solid); border-radius:16px; padding:1.1rem;
+    box-shadow:0 8px 24px rgba(0,0,0,.3), 0 20px 44px rgba(0,0,0,.35);
+    opacity:0; transform:translateY(-10px) scale(.94); pointer-events:none;
+    transition:opacity .25s var(--ease), transform .25s var(--ease);
+  }
+  .settings-panel.open{opacity:1; transform:translateY(0) scale(1); pointer-events:auto;}
+  .settings-panel .settings-label{display:block; font-family:var(--font-mono); font-size:.68rem; text-transform:uppercase; letter-spacing:.06em; color:var(--stone); margin-bottom:.6rem;}
+  .volume-row{display:flex; align-items:center; gap:.6rem;}
+  .vol-btn{
+    flex-shrink:0; width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    background:var(--surface-2); border:1px solid transparent; cursor:pointer; padding:0; font-size:1rem; color:var(--text);
+    transition:background .2s var(--ease);
+  }
+  .vol-btn:hover{background:rgba(91,140,245,.18);}
+  .vol-btn .icon-vol-off{display:none;}
+  .vol-btn.muted .icon-vol-on{display:none;}
+  .vol-btn.muted .icon-vol-off{display:block; color:var(--danger);}
+  .volume-slider{flex:1; -webkit-appearance:none; appearance:none; height:4px; border-radius:2px; background:var(--surface-2); outline:none; cursor:pointer; margin:0;}
+  .volume-slider::-webkit-slider-thumb{-webkit-appearance:none; appearance:none; width:15px; height:15px; border-radius:50%; background:var(--ember); cursor:pointer; box-shadow:0 0 6px rgba(91,140,245,.7);}
+  .volume-slider::-moz-range-thumb{width:15px; height:15px; border-radius:50%; background:var(--ember); border:none; cursor:pointer;}
+
+  /* --- Custom Modal --- */
+  .modal-backdrop{
+    position:fixed; inset:0; z-index:40; display:flex; align-items:center; justify-content:center;
+    background:rgba(6,5,12,.6); backdrop-filter:blur(4px); padding:1.2rem;
+    opacity:0; pointer-events:none; transition:opacity .25s var(--ease);
+  }
+  .modal-backdrop.open{opacity:1; pointer-events:auto;}
+  .modal-box{
+    width:100%; max-width:360px; background:var(--surface); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+    border:1px solid var(--border-solid); border-radius:20px; padding:1.4rem;
+    box-shadow:0 12px 30px rgba(0,0,0,.4); transform:translateY(10px) scale(.96);
+    transition:transform .25s var(--ease);
+  }
+  .modal-backdrop.open .modal-box{transform:translateY(0) scale(1);}
+  .modal-box h3{margin:0 0 .9rem; color:var(--text); text-transform:none; letter-spacing:0; font-size:1rem; font-family:var(--font-sans); font-weight:700;}
+  .modal-input{
+    width:100%; font:inherit; font-size:1rem; color:var(--text); padding:.7rem .9rem;
+    border:1.5px solid var(--border-solid); border-radius:10px; background:var(--surface-2); margin-bottom:1.1rem;
+  }
+  .modal-input:focus{outline:2px solid var(--ember); outline-offset:1px;}
+  .modal-actions{display:flex; justify-content:flex-end; gap:.6rem;}
+
+  /* --- Toast (ersetzt alert()) --- */
+  .toast{
+    position:fixed; left:50%; bottom:1.5rem; z-index:50; transform:translate(-50%, 20px);
+    background:var(--surface); backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px);
+    border:1px solid var(--border-solid); border-radius:12px; padding:.9rem 1.3rem; max-width:90vw;
+    box-shadow:0 8px 24px rgba(0,0,0,.35); font-size:.9rem; text-align:center;
+    opacity:0; pointer-events:none; transition:opacity .25s var(--ease), transform .25s var(--ease);
+  }
+  .toast.show{opacity:1; transform:translate(-50%, 0);}
+  .toast.toast-error{border-color:rgba(242,85,91,.5);}
+
+  .app-header{position:relative; z-index:1; text-align:center; padding:2.2rem 1.5rem 1rem;}
+  .app-header h1{
+    font-family:var(--font-serif); font-weight:600; font-size:clamp(1.8rem,6vw,2.6rem); margin:0; letter-spacing:.01em;
+    background:linear-gradient(180deg, #fff 0%, #cfd3da 100%); -webkit-background-clip:text; background-clip:text; color:transparent;
+    text-shadow:0 0 32px rgba(91,140,245,.3);
+  }
+  .app-header p{color:var(--stone); font-family:var(--font-mono); font-size:.72rem; text-transform:uppercase; letter-spacing:.1em; margin:.5rem 0 0;}
+  .lang-badge{
+    display:inline-flex; align-items:center; justify-content:center; vertical-align:middle;
+    font-family:var(--font-mono); font-size:.48em; font-weight:800; letter-spacing:.02em;
+    padding:.25em .55em; border-radius:7px; margin:0 .05em;
+    background-color:#1b2030; background-image:none;
+    -webkit-background-clip:padding-box; background-clip:padding-box;
+    -webkit-text-fill-color:#fff; color:#fff;
+  }
+  .lang-badge.lang-de{border:1.5px solid #ffce00; box-shadow:0 0 10px rgba(255,206,0,.3);}
+  .lang-badge.lang-fr{border:1.5px solid var(--ember); box-shadow:0 0 10px rgba(91,140,245,.4);}
+
+  #app{position:relative; z-index:1; max-width:880px; margin:0 auto; padding:6.2rem 1.2rem 4rem;}
+  @media (min-width:700px){ #app{padding:6.6rem 2rem 4rem;} }
+  .view{animation:viewIn .4s var(--ease);}
+  @keyframes viewIn{ from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);} }
+
+  h2{font-family:var(--font-serif); font-weight:600; font-size:1.5rem; margin:.2rem 0 1rem; letter-spacing:.01em;}
+  h3{font-family:var(--font-mono); font-size:.78rem; text-transform:uppercase; letter-spacing:.08em; color:var(--ember); margin:2.2rem 0 .9rem; padding-top:1.6rem; border-top:1px solid var(--border-solid);}
+  h3:first-child{padding-top:0; border-top:none; margin-top:.5rem;}
+  .row-between{display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap;}
+  @media (max-width:520px){
+    .row-between{flex-direction:column; align-items:stretch;}
+    .row-between .btn-group{justify-content:stretch;}
+    .row-between .btn-group .btn{flex:1;}
+  }
+
+  .btn{
+    font-family:var(--font-mono); font-weight:700; font-size:.82rem; letter-spacing:.03em; text-transform:uppercase;
+    cursor:pointer; border:none; border-radius:999px; padding:.65rem 1.25rem;
+    transition:background .2s var(--ease), transform .15s var(--ease), box-shadow .2s var(--ease), opacity .2s var(--ease);
+  }
+  .btn:active{transform:scale(.95);}
+  .btn:disabled{opacity:.5; cursor:default;}
+  .btn-primary{
+    background:linear-gradient(135deg, var(--ember-bright), var(--ember) 60%, var(--ember-dim));
+    color:#0d1020; box-shadow:0 2px 8px rgba(91,140,245,.32), 0 10px 24px rgba(91,140,245,.28);
+    position:relative; overflow:hidden;
+  }
+  .btn-primary::after{
+    content:''; position:absolute; inset:0; opacity:0; background:linear-gradient(120deg, transparent 30%, rgba(255,255,255,.35), transparent 70%);
+    transform:translateX(-60%); transition:opacity .3s var(--ease);
+  }
+  .btn-primary:hover{box-shadow:0 3px 10px rgba(91,140,245,.4), 0 14px 30px rgba(91,140,245,.34);}
+  .btn-primary:hover::after{opacity:1; transform:translateX(60%); transition:opacity .3s var(--ease), transform .7s var(--ease);}
+  .btn-secondary{background:var(--surface); color:var(--text); border:1px solid var(--border-solid); backdrop-filter:blur(10px);}
+  .btn-secondary:hover{border-color:var(--ember-dim); background:var(--surface-2);}
+  .btn-danger{background:transparent; color:var(--danger); border:1px solid rgba(242,85,91,.4);}
+  .btn-danger:hover{background:var(--danger); color:#fff;}
+  .btn-link{background:none; color:var(--ember); padding:.3rem 0; margin-bottom:.8rem; text-transform:none; font-weight:600;}
+  .btn-large{width:100%; padding:.9rem; font-size:.9rem; margin:1rem 0 1.6rem;}
+  .btn-small{padding:.35rem .6rem; font-size:.72rem;}
+  .btn-group{display:flex; gap:.5rem; flex-wrap:wrap;}
+
+  .sets-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(200px,1fr)); gap:.9rem; margin-top:1rem;}
+  .set-card{
+    position:relative; background:var(--surface); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+    border:1px solid var(--border-solid); border-radius:20px; padding:1.2rem 1.3rem; cursor:pointer;
+    box-shadow:var(--shadow-sm);
+    transition:transform .2s var(--ease), border-color .2s var(--ease), box-shadow .2s var(--ease);
+  }
+  .set-card:hover{transform:translateY(-3px); border-color:var(--ember-dim); box-shadow:var(--shadow-md), var(--shadow-glow);}
+  .set-card h3{margin:0 0 .3rem; font-size:1rem; color:var(--text); font-family:var(--font-sans); text-transform:none; letter-spacing:0;}
+  .set-card p{margin:0; color:var(--stone); font-size:.82rem;}
+
+  .empty-hint{color:var(--stone); font-style:italic; margin:1rem 0;}
+  .empty-state{
+    display:flex; flex-direction:column; align-items:center; text-align:center; gap:.6rem;
+    padding:2.4rem 1.4rem; margin:1rem 0; border:1px dashed var(--border-solid); border-radius:20px;
+    background:var(--surface); backdrop-filter:blur(10px);
+  }
+  .empty-state svg{opacity:.55;}
+  .empty-state p{color:var(--stone); font-style:normal; margin:0; font-size:.92rem; max-width:28em;}
+
+  .box{margin-top:2.2rem; padding:1.3rem 1.4rem; background:var(--surface); backdrop-filter:blur(14px); border:1px dashed var(--border-solid); border-radius:20px;}
+  .box h3{margin-top:0;}
+  .hint{color:var(--stone); font-size:.85rem; margin:.2rem 0 .8rem;}
+
+  .inline-form{display:flex; gap:.6rem; flex-wrap:wrap;}
+  .inline-form input, .inline-form textarea{
+    flex:1; min-width:120px; font:inherit; color:var(--text); padding:.65rem .85rem;
+    border:1px solid var(--border-solid); border-radius:10px; background:var(--surface-2);
+  }
+  .inline-form input:focus, .inline-form textarea:focus{outline:2px solid var(--ember); outline-offset:1px;}
+  .inline-form input::placeholder{color:var(--stone);}
+
+  .msg{font-size:.85rem; min-height:1.2em; margin-top:.5rem;}
+  .msg-error{color:var(--danger);}
+  .msg-success{color:var(--success);}
+
+  .pairs-table{width:100%; border-collapse:collapse; margin-top:.5rem; background:var(--surface); backdrop-filter:blur(14px); border-radius:14px; overflow:hidden; border:1px solid var(--border-solid);}
+  .pairs-table th{text-align:left; font-family:var(--font-mono); font-size:.68rem; text-transform:uppercase; letter-spacing:.06em; color:var(--stone); padding:.7rem .9rem; border-bottom:1px solid var(--border-solid);}
+  .pairs-table td{padding:.6rem .9rem; border-bottom:1px solid var(--border-solid); font-size:.92rem;}
+  .pairs-table tr:last-child td{border-bottom:none;}
+  .pairs-table .editable{cursor:pointer; border-radius:6px;}
+  .pairs-table .editable:hover{background:var(--surface-2);}
+  .cell-edit{width:100%; font:inherit; color:var(--text); padding:.2rem .4rem; border:1px solid var(--ember); border-radius:5px; background:var(--surface-2);}
+
+  .pair-form{margin-top:1rem; align-items:center;}
+  @media (max-width:480px){
+    .pair-form{flex-direction:column; align-items:stretch;}
+    .pair-form input{width:100%;}
+    .pair-form .arrow{display:none;}
+    .pair-form #btnAiTranslate{align-self:center;}
+  }
+  .pair-form .arrow{color:var(--ember); font-weight:700;}
+
+  textarea.export-box{width:100%; min-height:80px; font-family:monospace; font-size:.78rem; color:var(--text); background:var(--surface-2);}
+
+  /* --- Session setup --- */
+  .config-group{margin:1.1rem 0 1.6rem;}
+  .config-group-label{display:block; font-family:var(--font-mono); font-size:.68rem; text-transform:uppercase; letter-spacing:.07em; color:var(--stone); margin-bottom:.6rem;}
+  .chip-row{display:flex; flex-wrap:wrap; gap:.55rem;}
+  @media (max-width:520px){
+    .chip-row{display:grid; grid-template-columns:1fr 1fr;}
+    .chip{text-align:center;}
+  }
+  .chip{
+    background:var(--surface); backdrop-filter:blur(14px); border:1.5px solid var(--border-solid); border-radius:999px;
+    padding:.55rem 1rem; font-size:.85rem; font-weight:600; cursor:pointer;
+    transition:border-color .2s var(--ease), transform .15s var(--ease), background .2s var(--ease);
+  }
+  .chip:hover{border-color:var(--ember-dim); transform:translateY(-1px);}
+  .chip.selected{border-color:var(--ember); background:rgba(91,140,245,.16); box-shadow:0 0 14px 1px rgba(91,140,245,.25); color:var(--ember);}
+  .session-options{display:grid; grid-template-columns:repeat(4,1fr); gap:.6rem;}
+  @media (max-width:480px){ .session-options{grid-template-columns:repeat(2,1fr);} }
+  .session-opt{
+    background:var(--surface); backdrop-filter:blur(14px); border:1.5px solid var(--border-solid); border-radius:12px;
+    padding:1rem .5rem; text-align:center; cursor:pointer; transition:border-color .2s var(--ease), transform .15s var(--ease), background .2s var(--ease);
+  }
+  .session-opt:hover{border-color:var(--ember-dim); transform:translateY(-2px);}
+  .session-opt.selected{border-color:var(--ember); background:rgba(91,140,245,.16); box-shadow:0 0 16px 1px rgba(91,140,245,.25);}
+  .session-opt .num{display:block; font-family:var(--font-serif); font-weight:600; font-size:1.6rem; color:var(--text);}
+  .session-opt .label{display:block; font-family:var(--font-mono); font-size:.62rem; text-transform:uppercase; letter-spacing:.05em; color:var(--stone); margin-top:.2rem;}
+
+  /* --- Practice --- */
+  .score-badge{
+    background:var(--surface); backdrop-filter:blur(14px); border:1px solid var(--border-solid); border-radius:999px;
+    padding:.4rem .9rem; font-family:var(--font-mono); font-size:.8rem; font-weight:700; white-space:nowrap;
+  }
+  .progress-track{height:6px; border-radius:3px; background:var(--surface-2); overflow:hidden; margin:.8rem 0 1.4rem;}
+  .progress-fill{height:100%; background:linear-gradient(90deg, var(--ember), var(--gold)); border-radius:3px; transition:width .3s var(--ease); box-shadow:0 0 10px 1px rgba(91,140,245,.5);}
+
+  .practice-card{
+    position:relative; background:var(--surface); backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px);
+    border:1px solid var(--border-solid); border-radius:24px; box-shadow:var(--shadow-md);
+    padding:2.4rem 1.6rem 2.2rem; text-align:center; transition:opacity .2s ease, border-color .3s ease;
+    overflow:visible;
+  }
+  .practice-card::before{
+    content:''; position:absolute; top:0; left:14%; right:14%; height:2px; border-radius:2px;
+    background:linear-gradient(90deg, transparent, var(--ember), var(--gold), transparent);
+    opacity:.75;
+  }
+  .practice-card.correct-flash{border-color:var(--success); box-shadow:0 4px 16px rgba(0,0,0,.25), 0 0 40px 4px rgba(74,222,128,.35);}
+  .practice-card.wrong-flash{border-color:var(--danger); box-shadow:0 4px 16px rgba(0,0,0,.25), 0 0 40px 4px rgba(242,85,91,.3);}
+  .practice-mode-tag{
+    display:inline-block; font-family:var(--font-mono); font-size:.65rem; text-transform:uppercase; letter-spacing:.08em;
+    color:var(--gold); background:rgba(226,114,90,.12); border:1px solid rgba(226,114,90,.3);
+    padding:.25rem .6rem; border-radius:999px; margin-bottom:.9rem;
+  }
+  .practice-lang{color:var(--stone); font-size:.8rem; text-transform:uppercase; letter-spacing:.06em; margin:0 0 .7rem;}
+  .practice-word{font-family:var(--font-serif); font-weight:600; font-size:2.4rem; margin:0 0 1.7rem; letter-spacing:.01em;}
+
+  .practice-options{display:grid; grid-template-columns:1fr 1fr; gap:.7rem;}
+  @media (max-width:480px){ .practice-options{grid-template-columns:1fr;} }
+  .btn-option{
+    background:var(--surface-2); border:1.5px solid var(--border-solid); color:var(--text);
+    padding:.85rem 1rem; font-size:1rem; font-family:var(--font-sans); font-weight:600; border-radius:12px; text-transform:none; letter-spacing:0;
+  }
+  .btn-option:hover:not(:disabled){border-color:var(--ember-dim);}
+  .btn-option:disabled{cursor:default;}
+  .option-correct{background:rgba(74,222,128,.15); border-color:var(--success) !important; color:var(--success);}
+  .option-wrong{background:rgba(242,85,91,.15); border-color:var(--danger) !important; color:var(--danger);}
+
+  .free-text-row{display:flex; gap:.6rem; max-width:420px; margin:0 auto;}
+  .free-text-row input{
+    flex:1; font-size:1.1rem; text-align:center; padding:.8rem 1rem; border-radius:12px;
+    border:1.5px solid var(--border-solid); background:var(--surface-2); color:var(--text);
+  }
+  .free-text-row input:focus{outline:2px solid var(--ember);}
+  .write-actions{display:flex; justify-content:center; gap:.6rem; margin-top:.8rem;}
+  .attempts-left{color:var(--stone); font-size:.78rem; margin-top:.6rem;}
+
+  .practice-feedback{min-height:1.5em; font-weight:700; margin:1.3rem 0 0; font-size:1.05rem;}
+  .feedback-correct{color:var(--success);}
+  .feedback-wrong{color:var(--danger);}
+  .feedback-retry{color:var(--gold);}
+  #btnNextQuestion{margin-top:1.1rem;}
+
+  .celebrate-check{
+    position:absolute; top:50%; left:50%; width:64px; height:64px; transform:translate(-50%,-50%) scale(0);
+    border-radius:50%; background:rgba(74,222,128,.18); border:2px solid var(--success);
+    display:flex; align-items:center; justify-content:center; pointer-events:none; opacity:0;
+  }
+  .celebrate-check svg{width:32px; height:32px; stroke:var(--success); fill:none; stroke-width:3; stroke-linecap:round; stroke-linejoin:round;}
+  .celebrate-check.show{animation:celebratePop .6s var(--ease);}
+  @keyframes celebratePop{
+    0%{transform:translate(-50%,-50%) scale(0); opacity:0;}
+    40%{transform:translate(-50%,-50%) scale(1.15); opacity:1;}
+    70%{transform:translate(-50%,-50%) scale(.95); opacity:1;}
+    100%{transform:translate(-50%,-50%) scale(1.4); opacity:0;}
+  }
+  .spark{position:absolute; width:6px; height:6px; border-radius:50%; background:var(--ember); top:50%; left:50%; pointer-events:none; opacity:0;}
+  .spark.fly{animation:sparkFly .7s ease-out forwards;}
+  @keyframes sparkFly{
+    0%{opacity:1; transform:translate(-50%,-50%) translate(0,0) scale(1);}
+    100%{opacity:0; transform:translate(-50%,-50%) translate(var(--sx), var(--sy)) scale(.3);}
+  }
+
+  /* --- Flashcard (Denken) mode --- */
+  .flashcard-answer{
+    margin-top:1.2rem; padding-top:1.2rem; border-top:1px dashed var(--border-solid);
+    font-family:var(--font-serif); font-weight:600; font-size:1.8rem; color:var(--ember);
+    text-shadow:0 0 24px rgba(91,140,245,.4);
+    animation:flashcardReveal .4s var(--ease);
+  }
+  @keyframes flashcardReveal{ from{opacity:0; transform:translateY(8px) scale(.95);} to{opacity:1; transform:translateY(0) scale(1);} }
+  .flashcard-hint{color:var(--gold); font-family:var(--font-mono); font-size:.95rem; margin-top:.8rem; letter-spacing:.1em;}
+  .flashcard-actions{display:flex; justify-content:center; gap:.7rem; margin-top:1.3rem; flex-wrap:wrap;}
+
+  /* --- Match mode --- */
+  .match-board{display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; margin-top:1rem;}
+  @media (max-width:480px){ .match-board{grid-template-columns:1fr;} }
+  .match-col-label{font-family:var(--font-mono); font-size:.68rem; text-transform:uppercase; letter-spacing:.07em; color:var(--stone); margin-bottom:.6rem; text-align:center;}
+  .match-chip{
+    display:block; width:100%; background:var(--surface); backdrop-filter:blur(14px); border:1.5px solid var(--border-solid);
+    border-radius:10px; padding:.75rem 1rem; margin-bottom:.6rem; font-size:.95rem; font-weight:600; color:var(--text);
+    cursor:pointer; text-align:center; transition:border-color .2s var(--ease), transform .1s var(--ease), background .2s var(--ease);
+  }
+  .match-chip:hover:not(:disabled){border-color:var(--ember-dim);}
+  .match-chip.picked{border-color:var(--ember); background:rgba(91,140,245,.18);}
+  .match-chip.matched{border-color:var(--success); background:rgba(74,222,128,.14); color:var(--success); opacity:.7; cursor:default;}
+  .match-chip.wrong-pick{border-color:var(--danger); background:rgba(242,85,91,.16); animation:shake .35s ease;}
+  @keyframes shake{ 0%,100%{transform:translateX(0);} 25%{transform:translateX(-4px);} 75%{transform:translateX(4px);} }
+  .match-stats{text-align:center; margin-top:1.2rem; color:var(--stone); font-family:var(--font-mono); font-size:.85rem;}
+
+  /* --- Results --- */
+  .results-card{
+    background:var(--surface); backdrop-filter:blur(18px); border:1px solid var(--border-solid); border-radius:24px;
+    padding:2.4rem 1.6rem; text-align:center; box-shadow:var(--shadow-md);
+  }
+  .results-emoji{font-size:3rem; margin-bottom:.5rem;}
+  .results-score{font-family:var(--font-serif); font-weight:600; font-size:2.6rem; margin:.3rem 0;}
+  .results-score .of{color:var(--stone); font-size:1.6rem;}
+  .results-pct{font-family:var(--font-mono); color:var(--stone); font-size:.9rem; margin-bottom:1.6rem;}
+  .results-actions{display:flex; gap:.7rem; justify-content:center; flex-wrap:wrap; margin-top:1.2rem;}
+  .reward-banner{
+    margin-top:1.4rem; padding:1rem 1.2rem; border-radius:14px;
+    background:linear-gradient(120deg, rgba(91,140,245,.16), rgba(226,114,90,.14));
+    border:1px solid rgba(91,140,245,.35); font-size:.88rem;
+  }
+
+  /* --- Bonus-Spiel (Ballon-Pop) --- */
+  .game-area{
+    position:relative; height:60vh; min-height:360px; max-height:520px; overflow:hidden;
+    background:var(--surface); backdrop-filter:blur(14px); border:1px solid var(--border-solid); border-radius:24px;
+    box-shadow:0 4px 16px rgba(0,0,0,.25), 0 16px 36px rgba(0,0,0,.3); margin-top:1rem;
+  }
+  .balloon{
+    position:absolute; bottom:-60px; font-size:2.4rem; cursor:pointer; user-select:none;
+    filter:drop-shadow(0 4px 8px rgba(0,0,0,.3)); animation:balloonRise linear forwards;
+    background:none; border:none; padding:0; line-height:1;
+  }
+  @keyframes balloonRise{ from{transform:translateY(0) rotate(-4deg);} to{transform:translateY(-70vh) rotate(4deg);} }
+  .balloon.popped{animation:none; transform:scale(1.6); opacity:0; transition:transform .25s ease, opacity .25s ease;}
+  .game-hud{display:flex; justify-content:space-between; align-items:center; margin:.9rem 0;}
+  .game-timer{font-family:var(--font-mono); font-weight:700; color:var(--gold);}
+  .game-final{text-align:center; padding:2rem 1rem;}
+  .game-final .num{font-family:var(--font-serif); font-weight:600; font-size:3rem; color:var(--ember);}
+
+  /* --- Pronunciation / Listening --- */
+  .listen-list{display:flex; flex-direction:column; gap:.6rem; margin-top:1rem;}
+  .listen-row{
+    display:flex; align-items:center; gap:.8rem; background:var(--surface); backdrop-filter:blur(14px);
+    border:1px solid var(--border-solid); border-radius:12px; padding:.8rem 1rem;
+  }
+  .listen-word{flex:1; display:flex; flex-direction:column; gap:.15rem;}
+  .listen-word .de{font-weight:700;}
+  .listen-word .fr{color:var(--ember); font-weight:700;}
+  .speak-btn{
+    width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    background:var(--surface-2); border:1px solid var(--border-solid); cursor:pointer; font-size:1rem; flex-shrink:0;
+    transition:background .2s var(--ease), transform .15s var(--ease);
+  }
+  .speak-btn:hover{background:rgba(91,140,245,.18); border-color:var(--ember-dim);}
+  .speak-btn:active{transform:scale(.9);}
+
+  /* --- Grammatik --- */
+  .grammar-result{margin-top:1.5rem;}
+  .grammar-section{
+    background:var(--surface); backdrop-filter:blur(14px); border:1px solid var(--border-solid); border-radius:14px;
+    padding:1.2rem 1.4rem; margin-bottom:1rem;
+    animation:grammarIn .4s var(--ease) backwards;
+  }
+  .grammar-section:nth-of-type(1){animation-delay:.05s;}
+  .grammar-section:nth-of-type(2){animation-delay:.15s;}
+  .grammar-section:nth-of-type(3){animation-delay:.25s;}
+  @keyframes grammarIn{ from{opacity:0; transform:translateY(12px);} to{opacity:1; transform:translateY(0);} }
+  .grammar-section h4{margin:0 0 .7rem; font-family:var(--font-mono); font-size:.75rem; text-transform:uppercase; letter-spacing:.07em; color:var(--ember);}
+  .grammar-section ul{margin:0; padding-left:1.2rem;}
+  .grammar-section li{margin-bottom:.5rem; font-size:.92rem; line-height:1.6;}
+  .grammar-loading{text-align:center; color:var(--stone); padding:2rem 0; font-family:var(--font-mono); font-size:.85rem;}
+  .grammar-loading::after{content:''; display:inline-block; width:16px; height:16px; margin-left:.5rem; border:2px solid var(--border-solid); border-top-color:var(--ember); border-radius:50%; animation:spin .7s linear infinite; vertical-align:middle;}
+  @keyframes spin{ to{transform:rotate(360deg);} }
+
+  ::-webkit-scrollbar{width:10px;}
+  ::-webkit-scrollbar-track{background:var(--bg);}
+  ::-webkit-scrollbar-thumb{background:var(--surface-2); border-radius:10px; border:2px solid var(--bg);}
+  html{scrollbar-color:var(--surface-2) var(--bg); scrollbar-width:thin;}
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation:none !important; transition:none !important;}
+    .bg-aurora{transform:none !important;}
+  }
+
+  /* ============================================================
+     NEUES DESIGN: Site-Header, Nav-Overlay, Hub, Belohnungen, Settings
+     ============================================================ */
+
+  /* --- Site header (fixiert, ersetzt alten .app-header + .topbar) --- */
+  .site-header{
+    position:fixed; top:0; left:0; right:0; z-index:35; display:flex; align-items:center; justify-content:space-between; padding:1.1rem 1.3rem; gap:1rem;
+    background:rgba(14,15,23,.72); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+    border-bottom:1px solid var(--border-solid);
+  }
+  .brand{display:flex; align-items:center; gap:.65rem; cursor:pointer; background:none; border:none; padding:0; color:inherit; text-align:left;}
+  .brand-mark{
+    display:flex; align-items:center; justify-content:center; width:38px; height:38px; border-radius:50%;
+    background:var(--surface); border:1px solid var(--border-solid); backdrop-filter:blur(14px);
+    font-family:var(--font-serif); font-style:italic; font-size:1.05rem; font-weight:600; color:var(--ember);
+  }
+  .brand-text{line-height:1.15;}
+  .brand-text .name{display:block; font-family:var(--font-serif); font-style:italic; font-size:1.05rem;}
+  .brand-text .sub{display:block; font-family:var(--font-mono); font-size:.6rem; text-transform:uppercase; letter-spacing:.22em; color:var(--stone);}
+
+  .menu-btn{
+    display:flex; align-items:center; gap:.7rem; background:var(--surface); border:1px solid var(--border-solid);
+    backdrop-filter:blur(14px); border-radius:999px; padding:.55rem .6rem .55rem 1rem; cursor:pointer;
+    font-family:var(--font-mono); font-size:.68rem; text-transform:uppercase; letter-spacing:.18em; color:var(--stone);
+    transition:border-color .2s var(--ease);
+  }
+  .menu-btn:hover{border-color:var(--ember-dim); color:var(--text);}
+  @media (max-width:420px){ .menu-btn-text{display:none;} .menu-btn{padding:.6rem;} }
+  .menu-lines{position:relative; width:19px; height:14px; flex-shrink:0;}
+  .menu-lines span{position:absolute; left:0; width:100%; height:2px; border-radius:2px; background:var(--text); transition:transform .3s var(--ease), opacity .3s var(--ease);}
+  .menu-lines span:nth-child(1){top:0;}
+  .menu-lines span:nth-child(2){top:6px;}
+  .menu-lines span:nth-child(3){top:12px;}
+  .menu-btn.open .menu-lines span:nth-child(1){transform:translateY(6px) rotate(45deg);}
+  .menu-btn.open .menu-lines span:nth-child(2){opacity:0;}
+  .menu-btn.open .menu-lines span:nth-child(3){transform:translateY(-6px) rotate(-45deg);}
+
+  /* --- Nav overlay (Vollbild-Menü) --- */
+  .nav-overlay{
+    position:fixed; inset:0; z-index:34; opacity:0; pointer-events:none;
+    transition:opacity .35s var(--ease);
+  }
+  .nav-overlay.open{opacity:1; pointer-events:auto;}
+  .nav-overlay-bg{position:absolute; inset:0; background:rgba(10,11,18,.82); backdrop-filter:blur(22px); -webkit-backdrop-filter:blur(22px);}
+  .nav-overlay-glow{position:absolute; inset:0; opacity:.5; background:radial-gradient(circle at 82% 18%, rgba(91,140,245,.35), transparent 45%);}
+  .nav-overlay-nav{position:relative; height:100%; max-width:760px; margin:0 auto; display:flex; flex-direction:column; justify-content:center; padding:0 1.5rem;}
+  .nav-overlay-label{margin:0 0 1.3rem .1rem; font-family:var(--font-mono); font-size:.65rem; text-transform:uppercase; letter-spacing:.35em; color:var(--stone);}
+  .nav-overlay-list{list-style:none; margin:0; padding:0; display:flex; flex-direction:column;}
+  .nav-overlay-item{
+    display:flex; align-items:baseline; gap:1rem; width:100%; background:none; border:none; border-bottom:1px solid var(--border-solid);
+    padding:.8rem 0; cursor:pointer; text-align:left; color:inherit;
+    opacity:0; transform:translateY(20px); transition:opacity .5s var(--ease), transform .5s var(--ease);
+  }
+  .nav-overlay.open .nav-overlay-item{opacity:1; transform:translateY(0);}
+  .nav-overlay-item .idx{width:2rem; flex-shrink:0; font-family:var(--font-mono); font-size:.7rem; color:var(--stone);}
+  .nav-overlay-item .label{font-family:var(--font-serif); font-size:1.7rem; letter-spacing:-.01em; transition:transform .3s var(--ease), color .3s var(--ease);}
+  .nav-overlay-item .hint{margin-left:auto; font-family:var(--font-mono); font-size:.65rem; text-transform:uppercase; letter-spacing:.18em; color:var(--stone); display:none;}
+  @media (min-width:640px){ .nav-overlay-item .hint{display:inline;} .nav-overlay-item .label{font-size:2.6rem;} }
+  .nav-overlay-item:hover .label{transform:translateX(10px); color:var(--ember);}
+  .nav-overlay-item.active .label{color:var(--ember); font-style:italic;}
+
+  /* --- Hub / Startseite (Hero) --- */
+  #view-hub{max-width:1080px !important;}
+  .hub-grid{display:grid; grid-template-columns:1fr; gap:2.4rem; align-items:center;}
+  @media (min-width:920px){ .hub-grid{grid-template-columns:1.05fr 1fr; gap:1.5rem;} }
+  .hub-eyebrow{
+    display:inline-flex; align-items:center; gap:.5rem; border:1px solid var(--border-solid); background:var(--surface);
+    backdrop-filter:blur(14px); border-radius:999px; padding:.4rem 1rem; font-size:.78rem; color:var(--stone); margin-bottom:1.3rem;
+  }
+  .hub-eyebrow .dot{width:6px; height:6px; border-radius:50%; background:var(--gold);}
+  .hub-title{
+    font-family:var(--font-serif); font-weight:600; font-size:clamp(2.3rem,6.4vw,3.7rem); line-height:1.03; letter-spacing:-.01em; margin:0;
+  }
+  .hub-title em{color:var(--ember); font-style:italic;}
+  .hub-desc{color:var(--stone); font-size:1.02rem; line-height:1.65; max-width:36em; margin:1.3rem 0 0;}
+  .hub-actions{display:flex; flex-wrap:wrap; gap:.8rem; margin-top:1.8rem;}
+  .hub-stats{display:flex; gap:1.8rem; margin-top:2.6rem; flex-wrap:wrap;}
+  .hub-stat{display:grid; grid-template-columns:auto 1fr; column-gap:.55rem; align-items:center;}
+  .hub-stat-icon{grid-row:1 / 3; opacity:.85;}
+  .hub-stat dt{grid-column:2; font-family:var(--font-serif); font-weight:600; font-size:1.9rem; color:var(--ember); margin:0; line-height:1.1;}
+  .hub-stat dd{grid-column:2; margin:.1rem 0 0; font-family:var(--font-mono); font-size:.62rem; text-transform:uppercase; letter-spacing:.14em; color:var(--stone);}
+
+  .europe-visual{position:relative; aspect-ratio:1/1; max-width:460px; margin:0 auto; border-radius:28px; overflow:hidden;}
+  @media (max-width:919px){
+    .europe-visual{
+      max-width:none; aspect-ratio:auto; height:82vw; max-height:560px; min-height:380px;
+      margin-left:-1.2rem; margin-right:-1.2rem; border-radius:0;
+    }
+  }
+  .europe-visual .map-bg{position:absolute; inset:0; background:radial-gradient(ellipse at 50% 40%, #1a2038 0%, var(--bg) 72%);}
+  .europe-visual .ring{position:absolute; inset:6%; border-radius:50%; opacity:.5; filter:blur(2px);
+    background:conic-gradient(from 0deg, transparent, var(--ember), transparent 45%, var(--gold), transparent 80%);
+    animation:spinSlow 26s linear infinite;}
+  .europe-visual .glow{position:absolute; inset:0; opacity:.55; filter:blur(46px);
+    background:radial-gradient(circle at 42% 40%, var(--ember), transparent 55%), radial-gradient(circle at 68% 78%, var(--gold), transparent 45%);}
+  @keyframes spinSlow{ to{ transform:rotate(360deg); } }
+  .europe-visual svg{position:relative; width:100%; height:100%; display:block;}
+  .europe-visual .city-label{font-family:var(--font-serif); font-style:italic; font-size:13px; fill:var(--text);}
+  .europe-visual .twinkle-star{animation:twinkleStar 3s ease-in-out infinite;}
+  @keyframes twinkleStar{ 0%,100%{opacity:.15;} 50%{opacity:.9;} }
+  .europe-visual .badge{
+    position:absolute; bottom:6%; left:50%; transform:translateX(-50%);
+    background:var(--surface); border:1px solid var(--border-solid); backdrop-filter:blur(14px);
+    border-radius:999px; padding:.4rem 1rem; font-family:var(--font-mono); font-size:.65rem; letter-spacing:.14em; color:var(--stone); white-space:nowrap;
+    animation:floatSlow 6s ease-in-out infinite;
+  }
+  @keyframes floatSlow{ 0%,100%{transform:translateX(-50%) translateY(0);} 50%{transform:translateX(-50%) translateY(-8px);} }
+
+
+  /* --- Belohnungen --- */
+  .rewards-grid{display:grid; grid-template-columns:1fr; gap:1rem; margin-top:1.6rem;}
+  @media (min-width:760px){ .rewards-grid{grid-template-columns:1fr 1.4fr;} }
+  .streak-hero{
+    position:relative; overflow:hidden; background:var(--surface); backdrop-filter:blur(18px); border:1px solid var(--border-solid);
+    border-radius:24px; padding:1.8rem; box-shadow:var(--shadow-sm);
+  }
+  .streak-hero::before{content:''; position:absolute; inset:0; opacity:.4; background:radial-gradient(circle at 75% 15%, var(--gold), transparent 55%); pointer-events:none;}
+  .streak-hero .kicker{position:relative; font-family:var(--font-mono); font-size:.65rem; text-transform:uppercase; letter-spacing:.24em; color:var(--stone); margin:0 0 1rem;}
+  .streak-hero .streak-num{position:relative; display:flex; align-items:center; gap:.5rem; font-family:var(--font-serif); font-weight:600; font-size:4.2rem; margin:0; line-height:1;}
+  .streak-hero .streak-num span{font-size:1.3rem; color:var(--stone); font-family:var(--font-sans); font-weight:500;}
+  .streak-flame{flex-shrink:0; filter:drop-shadow(0 0 8px rgba(226,114,90,.5));}
+  .streak-bar{position:relative; display:flex; gap:.4rem; margin-top:1.4rem;}
+  .streak-day{flex:1; height:38px; border-radius:999px; background:var(--surface-2); border:1px solid var(--border-solid); transition:background .3s var(--ease), border-color .3s var(--ease);}
+  .streak-day.active{background:var(--gold); border-color:var(--gold); box-shadow:0 0 12px 1px rgba(226,114,90,.4);}
+  .rewards-side{display:flex; flex-direction:column; gap:1rem;}
+  .rewards-card{background:var(--surface); backdrop-filter:blur(18px); border:1px solid var(--border-solid); border-radius:24px; padding:1.6rem; box-shadow:var(--shadow-sm);}
+  .rewards-card .label{font-family:var(--font-mono); font-size:.65rem; text-transform:uppercase; letter-spacing:.2em; color:var(--stone); margin:0 0 .5rem;}
+  .rewards-card .value{font-family:var(--font-serif); font-weight:600; font-size:2.1rem; margin:0;}
+  .rewards-card p.desc{color:var(--stone); font-size:.85rem; margin:.5rem 0 0;}
+
+  /* --- Einstellungen-Seite --- */
+  .settings-card{background:var(--surface); backdrop-filter:blur(18px); border:1px solid var(--border-solid); border-radius:24px; padding:1.7rem; margin-top:1.5rem; box-shadow:var(--shadow-sm);}
+  .settings-card .settings-title{font-family:var(--font-serif); font-weight:600; font-size:1.2rem; margin:0 0 .3rem;}
+  .settings-card .settings-desc{color:var(--stone); font-size:.85rem; margin:0 0 1.3rem;}
+  .settings-card .volume-row{gap:1rem;}
+  .settings-card .vol-btn{width:44px; height:44px; font-size:1.2rem;}
+
+  /* --- Page heading (für Grammatik/Sprechen als eigenständige Seiten) --- */
+  .page-eyebrow{font-family:var(--font-mono); font-size:.65rem; text-transform:uppercase; letter-spacing:.3em; color:var(--stone); margin:0 0 .8rem;}
+  .page-title{font-family:var(--font-serif); font-weight:600; font-size:clamp(1.9rem,4.6vw,2.7rem); margin:0 0 .6rem; letter-spacing:-.01em;}
+  .page-sub{color:var(--stone); max-width:36em; line-height:1.6; margin:0 0 1.8rem;}
+</style>
+</head>
+<body>
+
+<div class="bg-base"></div>
+<div class="bg-grid"></div>
+<div class="grain"></div>
+<div class="bg-aurora"><div class="aurora-band aurora-1"></div><div class="aurora-band aurora-2"></div><div class="aurora-band aurora-3"></div><div class="aurora-band aurora-4"></div></div>
+<div class="vignette"></div>
+
+<header class="site-header">
+  <button class="brand" id="btnBrand" type="button" aria-label="Zur Startseite">
+    <span class="brand-mark">L</span>
+    <span class="brand-text">
+      <span class="name">Lumière</span>
+      <span class="sub" id="brandSub">Startseite</span>
+    </span>
+  </button>
+  <button class="menu-btn" id="btnMenu" type="button" aria-expanded="false" aria-label="Menü öffnen">
+    <span class="menu-btn-text">Menü</span>
+    <span class="menu-lines"><span></span><span></span><span></span></span>
+  </button>
+</header>
+
+<div class="nav-overlay" id="navOverlay">
+  <div class="nav-overlay-bg"></div>
+  <div class="nav-overlay-glow"></div>
+  <nav class="nav-overlay-nav">
+    <p class="nav-overlay-label">Navigation</p>
+    <ul class="nav-overlay-list">
+      <li><button class="nav-overlay-item" data-goto="hub"><span class="idx">01</span><span class="label">Startseite</span><span class="hint">Willkommen</span></button></li>
+      <li><button class="nav-overlay-item" data-goto="home"><span class="idx">02</span><span class="label">Lernsets</span><span class="hint">Eigene Vokabelsets</span></button></li>
+      <li><button class="nav-overlay-item" data-goto="rewards"><span class="idx">03</span><span class="label">Belohnungen</span><span class="hint">Serie &amp; Fortschritt</span></button></li>
+      <li><button class="nav-overlay-item" data-goto="grammar"><span class="idx">04</span><span class="label">Grammatik</span><span class="hint">Regeln erklärt</span></button></li>
+      <li><button class="nav-overlay-item" data-goto="listen"><span class="idx">05</span><span class="label">Sprechen</span><span class="hint">Aussprache üben</span></button></li>
+      <li><button class="nav-overlay-item" data-goto="settingsPage"><span class="idx">06</span><span class="label">Einstellungen</span><span class="hint">App anpassen</span></button></li>
+    </ul>
+  </nav>
+</div>
+
+<div class="modal-backdrop" id="modalBackdrop">
+  <div class="modal-box">
+    <h3 id="modalTitle">Titel</h3>
+    <p id="modalMessage" class="hint" hidden style="margin:-.4rem 0 1.1rem;"></p>
+    <input type="text" id="modalInput" class="modal-input">
+    <div class="modal-actions">
+      <button id="modalCancel" class="btn btn-secondary">Abbrechen</button>
+      <button id="modalConfirm" class="btn btn-primary">OK</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<main id="app">
+
+  <section id="view-hub" class="view">
+    <div class="hub-grid">
+      <div>
+        <p class="hub-eyebrow"><span class="dot"></span> Deutsch — Français</p>
+        <h1 class="hub-title">Vokabeln lernen,<br><em>élégant</em> gemacht.</h1>
+        <p class="hub-desc">Dein persönlicher Vokabeltrainer für Deutsch und Französisch. Erstelle eigene Lernsets, übe mit KI-Unterstützung und behalte deine Serie im Blick — ganz in deinem Tempo.</p>
+        <div class="hub-actions">
+          <button id="btnHubSets" class="btn btn-primary btn-large" style="width:auto; margin:0;">Eigene Lernsets</button>
+          <button id="btnHubListen" class="btn btn-secondary btn-large" style="width:auto; margin:0;">🔊 Aussprache üben</button>
+        </div>
+        <dl class="hub-stats">
+          <div class="hub-stat">
+            <svg class="hub-stat-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="var(--ember)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5V5.5Z"/><path d="M4 18.5A2.5 2.5 0 0 1 6.5 16H20"/></svg>
+            <dt id="hubSetsCount">0</dt><dd>Lernsets</dd>
+          </div>
+          <div class="hub-stat">
+            <svg class="hub-stat-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="var(--ember)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="4.2" rx="1.2"/><rect x="4" y="10.4" width="16" height="4.2" rx="1.2"/><rect x="4" y="16.8" width="16" height="4.2" rx="1.2"/></svg>
+            <dt id="hubWordsCount">0</dt><dd>Vokabeln</dd>
+          </div>
+          <div class="hub-stat">
+            <svg class="hub-stat-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="var(--gold)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c1 3-2 4.5-2 7.5A4.5 4.5 0 0 0 14.5 14c1.8 0 2.9-1 3.3-2 .9 2 .2 4.4-1.4 6a6.5 6.5 0 0 1-9-9c1-1 1.6-2.3 1.6-3.8C9 3.5 10.5 2.4 12 2Z"/></svg>
+            <dt id="hubStreakCount">0</dt><dd>Tage-Serie</dd>
+          </div>
+        </dl>
+      </div>
+      <div class="europe-visual" aria-hidden="true">
+        <div class="map-bg"></div>
+        <div class="glow"></div>
+        <div class="ring"></div>
+        <svg viewBox="0 0 400 460" preserveAspectRatio="xMidYMid slice">
+          <defs>
+            <radialGradient id="franceFill" cx="35%" cy="25%" r="80%">
+              <stop offset="0%" stop-color="#8fb4ff" stop-opacity=".98"/>
+              <stop offset="100%" stop-color="var(--ember)" stop-opacity=".92"/>
+            </radialGradient>
+            <clipPath id="mapClip"><rect x="0" y="0" width="400" height="460" rx="0"/></clipPath>
+          </defs>
+
+          <g clip-path="url(#mapClip)">
+            <!-- Sternenfeld -->
+            <g class="twinkle-star" opacity=".75">
+              <circle cx="40" cy="60" r="1.3" fill="var(--text)"/>
+              <circle cx="90" cy="25" r="1" fill="var(--text)"/>
+              <circle cx="340" cy="50" r="1.2" fill="var(--text)"/>
+              <circle cx="375" cy="130" r="1" fill="var(--text)"/>
+              <circle cx="15" cy="170" r="1.1" fill="var(--text)"/>
+              <circle cx="365" cy="270" r="1.3" fill="var(--text)"/>
+              <circle cx="330" cy="400" r="1" fill="var(--text)"/>
+              <circle cx="50" cy="410" r="1.2" fill="var(--text)"/>
+              <circle cx="150" cy="15" r="1" fill="var(--text)"/>
+              <circle cx="260" cy="430" r="1.1" fill="var(--text)"/>
+              <circle cx="200" cy="45" r="1" fill="var(--text)"/>
+              <circle cx="25" cy="300" r="1.2" fill="var(--text)"/>
+            </g>
+
+            <!-- Skandinavien-Andeutung (oben rechts, weit im Hintergrund) -->
+            <path d="M280,-10 C310,10 330,40 325,75 C320,100 300,105 285,90 C270,110 250,105 248,85 C246,60 255,20 280,-10 Z"
+                  fill="var(--surface-2)" opacity=".55"/>
+
+            <!-- Großbritannien & Irland -->
+            <path d="M55,80 C80,68 108,75 115,98 C122,118 112,132 118,150 C124,168 112,185 92,183
+                     C95,198 82,212 65,205 C48,198 42,178 48,162 C34,158 26,140 32,122
+                     C22,112 22,95 35,88 C44,82 48,84 55,80 Z"
+                  fill="var(--surface-2)" stroke="rgba(255,255,255,.07)" stroke-width="1"/>
+
+            <!-- Zentral-/Osteuropa Landmasse (großflächig, sanfte Kontur, Berlin liegt hier) -->
+            <path d="M175,60 C220,35 280,38 320,65 C355,88 372,125 368,165
+                     C382,190 380,225 362,250 C372,280 365,315 340,335
+                     C348,365 330,395 298,400 C275,404 255,392 245,372
+                     C228,382 208,375 202,355 C185,352 172,338 172,318
+                     C158,310 150,292 158,275 C145,260 145,238 160,222
+                     C150,200 156,175 175,160 C168,135 172,105 190,88 C182,80 178,70 175,60 Z"
+                  fill="var(--surface-2)" stroke="rgba(255,255,255,.07)" stroke-width="1"/>
+
+            <!-- Iberische Halbinsel (Andeutung, unten links) -->
+            <path d="M35,330 C65,318 100,325 112,352 C124,378 108,410 78,418 C50,425 22,408 18,380 C15,358 20,340 35,330 Z"
+                  fill="var(--surface-2)" opacity=".8" stroke="rgba(255,255,255,.06)" stroke-width="1"/>
+
+            <!-- Frankreich: die "Hexagone"-Silhouette -->
+            <path d="M175,95
+                     C205,92 232,102 246,122
+                     C258,140 262,162 258,185
+                     C270,200 272,225 262,245
+                     C268,262 262,282 246,292
+                     C250,310 240,328 220,332
+                     C224,348 212,362 194,360
+                     C182,376 160,380 145,368
+                     C122,372 100,360 92,340
+                     C74,336 62,320 64,302
+                     C50,294 44,276 52,260
+                     C40,248 40,228 54,216
+                     C46,198 54,178 74,170
+                     C70,150 82,132 104,126
+                     C100,110 112,96 130,94
+                     C142,80 162,78 175,95 Z"
+                  fill="url(#franceFill)" stroke="#a9c5ff" stroke-width="1.4"
+                  style="filter:drop-shadow(0 0 22px rgba(91,140,245,.6));"/>
+
+            <!-- Korsika -->
+            <ellipse cx="262" cy="330" rx="6" ry="10" fill="var(--ember)" opacity=".55"/>
+            <ellipse cx="262" cy="330" rx="6" ry="10" fill="none" stroke="var(--ember)" stroke-width="1" opacity=".8"/>
+
+            <!-- Verbindungslinie Paris–Berlin -->
+            <line x1="290" y1="130" x2="150" y2="215" stroke="var(--gold)" stroke-width="1.7" stroke-linecap="round" stroke-dasharray="4 7">
+              <animate attributeName="stroke-dashoffset" values="0;-44" dur="6s" repeatCount="indefinite"/>
+            </line>
+
+            <!-- Berlin -->
+            <g>
+              <circle cx="290" cy="130" r="11" fill="var(--gold)" opacity=".22"/>
+              <circle cx="290" cy="130" r="4" fill="var(--gold)" stroke="var(--bg)" stroke-width="1.3"/>
+              <text x="290" y="112" text-anchor="middle" class="city-label">Berlin</text>
+            </g>
+            <!-- Paris -->
+            <g>
+              <circle cx="150" cy="215" r="11" fill="var(--text)" opacity=".2"/>
+              <circle cx="150" cy="215" r="4" fill="var(--text)" stroke="var(--bg)" stroke-width="1.3"/>
+              <text x="150" y="238" text-anchor="middle" class="city-label" font-style="italic">Paris</text>
+            </g>
+          </g>
+        </svg>
+        <span class="badge">DE · FR — 1.240 km</span>
+      </div>
+    </div>
+  </section>
+
+  <section id="view-home" class="view" hidden>
+    <div class="row-between">
+      <h2>Meine Lernsets</h2>
+      <button id="btnNewSet" class="btn btn-primary">+ Neues Set</button>
+    </div>
+    <div id="setsList" class="sets-grid"></div>
+    <div id="setsEmpty" class="empty-state" hidden>
+      <svg viewBox="0 0 24 24" width="34" height="34" aria-hidden="true" fill="none" stroke="var(--stone)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5V5.5Z"/><path d="M4 18.5A2.5 2.5 0 0 1 6.5 16H20"/><path d="M9 9h6M9 12.5h4"/></svg>
+      <p>Du hast noch kein Lernset. Leg dein erstes an!</p>
+    </div>
+
+    <div class="box">
+      <h3>Set übernehmen</h3>
+      <p class="hint">Hat dir jemand einen Export-Code geschickt? Hier einfügen.</p>
+      <form id="formImport" class="inline-form">
+        <input type="text" id="importCode" placeholder="Code hier einfügen" required>
+        <button type="submit" class="btn btn-secondary">Übernehmen</button>
+      </form>
+      <p id="importMsg" class="msg"></p>
+    </div>
+  </section>
+
+  <section id="view-set" class="view" hidden>
+    <button class="btn btn-link" data-nav="home">← Zurück zu allen Sets</button>
+    <div class="row-between">
+      <h2 id="setTitle">Set</h2>
+      <div class="btn-group">
+        <button id="btnRenameSet" class="btn btn-secondary btn-small">Umbenennen</button>
+        <button id="btnExportSet" class="btn btn-secondary btn-small">Teilen</button>
+        <button id="btnDeleteSet" class="btn btn-danger btn-small">Löschen</button>
+      </div>
+    </div>
+
+    <div id="exportBox" hidden class="box">
+      <h3>Export-Code</h3>
+      <p class="hint">Kopieren und z.B. per WhatsApp/Discord teilen.</p>
+      <textarea id="exportText" class="export-box" readonly></textarea>
+      <button id="btnCopyExport" class="btn btn-secondary btn-small" style="margin-top:.5rem;">Kopieren</button>
+    </div>
+
+    <div class="btn-group">
+      <button id="btnGoPractice" class="btn btn-primary btn-large" style="flex:1;">▶ Übung starten</button>
+    </div>
+    <button id="btnGoListen" class="btn btn-secondary btn-large">🔊 Aussprache üben</button>
+
+    <h3>Vokabeln (<span id="pairCount">0</span>)</h3>
+    <table class="pairs-table">
+      <thead><tr><th>Deutsch</th><th>Französisch</th><th></th></tr></thead>
+      <tbody id="pairsBody"></tbody>
+    </table>
+    <div id="pairsEmpty" class="empty-state" hidden>
+      <svg viewBox="0 0 24 24" width="34" height="34" aria-hidden="true" fill="none" stroke="var(--stone)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4" width="17" height="16" rx="3"/><path d="M8 9h8M8 13h5"/></svg>
+      <p>Noch keine Vokabeln – füg unten die erste hinzu.</p>
+    </div>
+
+    <form id="formAddPair" class="inline-form pair-form">
+      <input type="text" id="pairDe" placeholder="Deutsch" required>
+      <button type="button" id="btnAiTranslate" class="btn btn-secondary btn-small" title="Fehlendes Wort mit KI übersetzen">✨</button>
+      <span class="arrow">↔</span>
+      <input type="text" id="pairFr" placeholder="Französisch" required>
+      <button type="submit" class="btn btn-primary">+</button>
+    </form>
+
+    <div class="box">
+      <h3>✨ KI-Vokabeln zu einem Thema</h3>
+      <p class="hint">Gib ein Thema ein (z.B. "Essen", "Familie", "Reisen") — die KI schlägt passende Vokabelpaare vor.</p>
+      <form id="formAiGenerate" class="inline-form">
+        <input type="text" id="aiGenerateTopic" placeholder="Thema …" required>
+        <button type="submit" class="btn btn-primary">Generieren</button>
+      </form>
+      <p id="aiGenerateMsg" class="msg"></p>
+    </div>
+  </section>
+
+  <section id="view-session-setup" class="view" hidden>
+    <button class="btn btn-link" data-nav="set">← Zurück</button>
+    <h2>Übung einrichten</h2>
+
+    <div class="config-group">
+      <label class="config-group-label">Modus</label>
+      <div class="chip-row" id="modeOptions"></div>
+    </div>
+
+    <div class="config-group">
+      <label class="config-group-label">Richtung</label>
+      <div class="chip-row" id="directionOptions"></div>
+    </div>
+
+    <div class="config-group">
+      <label class="config-group-label" id="lengthLabel">Wie viele Vokabeln?</label>
+      <div class="session-options" id="sessionOptions"></div>
+    </div>
+
+    <button id="btnStartSession" class="btn btn-primary btn-large">▶ Los geht's</button>
+  </section>
+
+  <section id="view-practice" class="view" hidden>
+    <div class="row-between">
+      <h2>Übung: <span id="practiceSetName"></span></h2>
+      <div class="score-badge">✅ <span id="scoreCorrect">0</span> · ❌ <span id="scoreWrong">0</span></div>
+    </div>
+    <div class="progress-track"><div id="progressFill" class="progress-fill" style="width:0%"></div></div>
+
+    <div id="practiceCard" class="practice-card">
+      <span class="practice-mode-tag" id="practiceModeTag">Auswählen</span>
+      <p class="practice-lang" id="practiceLang">Deutsch → Französisch</p>
+      <p class="practice-word" id="practiceWord">…</p>
+
+      <div id="practiceOptions" class="practice-options" hidden></div>
+
+      <form id="freeTextForm" class="free-text-row" hidden>
+        <input type="text" id="freeTextInput" placeholder="Antwort eintippen …" autocomplete="off">
+        <button type="submit" class="btn btn-primary">Prüfen</button>
+      </form>
+      <div id="writeActions" class="write-actions" hidden>
+        <button id="btnDontKnow" class="btn btn-secondary btn-small">🤷 Weiß ich nicht</button>
+      </div>
+      <p id="attemptsLeft" class="attempts-left" hidden></p>
+
+      <div id="flashcardBox" hidden>
+        <button id="btnRevealFlashcard" class="btn btn-secondary">Antwort zeigen</button>
+        <button id="btnHintFlashcard" class="btn btn-secondary btn-small">💡 Tipp</button>
+        <p class="flashcard-hint" id="flashcardHint" hidden></p>
+        <p class="flashcard-answer" id="flashcardAnswer" hidden></p>
+        <div class="flashcard-actions" id="flashcardActions" hidden>
+          <button id="btnFlashKnew" class="btn btn-primary">✅ Wusste ich</button>
+          <button id="btnFlashDidntKnow" class="btn btn-secondary">❌ Wusste ich nicht</button>
+        </div>
+      </div>
+
+      <p id="practiceFeedback" class="practice-feedback"></p>
+      <button id="btnNextQuestion" class="btn btn-primary" hidden>Nächste Frage →</button>
+
+      <div class="celebrate-check" id="celebrateCheck"><svg viewBox="0 0 24 24"><path d="M4 12l5 5L20 6"/></svg></div>
+    </div>
+    <p id="practiceError" class="msg msg-error" hidden></p>
+  </section>
+
+  <section id="view-match" class="view" hidden>
+    <div class="row-between">
+      <h2>Zuordnen: <span id="matchSetName"></span></h2>
+      <div class="score-badge">✅ <span id="matchCorrect">0</span> · ❌ <span id="matchWrong">0</span></div>
+    </div>
+    <p class="hint">Klick ein deutsches und das passende französische Wort an.</p>
+    <div class="match-board">
+      <div>
+        <p class="match-col-label">Deutsch</p>
+        <div id="matchColDe"></div>
+      </div>
+      <div>
+        <p class="match-col-label">Français</p>
+        <div id="matchColFr"></div>
+      </div>
+    </div>
+    <p class="match-stats" id="matchStats"></p>
+  </section>
+
+  <section id="view-results" class="view" hidden>
+    <div class="results-card">
+      <div class="results-emoji" id="resultsEmoji">🎉</div>
+      <h2 style="margin-top:0;">Runde geschafft!</h2>
+      <div class="results-score"><span id="resultsCorrect">0</span><span class="of"> / </span><span id="resultsTotal">0</span></div>
+      <p class="results-pct" id="resultsPct">0 % richtig</p>
+      <div class="results-actions">
+        <button id="btnPracticeAgain" class="btn btn-primary">↻ Nochmal üben</button>
+        <button id="btnBackToSet" class="btn btn-secondary">Zurück zum Set</button>
+      </div>
+      <div class="reward-banner">
+        🎁 Belohnung freigeschaltet!
+        <div class="results-actions" style="margin-top:.7rem;">
+          <button id="btnPlayGame" class="btn btn-primary">🎈 Bonus-Spiel spielen</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="view-game" class="view" hidden>
+    <button class="btn btn-link" id="btnGameBack">← Zurück</button>
+    <div class="game-hud">
+      <h2 style="margin:0;">🎈 Ballon-Pop</h2>
+      <span class="game-timer" id="gameTimer">20s</span>
+    </div>
+    <p class="hint">Tipp so viele Ballons wie möglich an, bevor die Zeit abläuft!</p>
+    <div class="game-area" id="gameArea"></div>
+  </section>
+
+  <section id="view-listen" class="view" hidden>
+    <button class="btn btn-link" id="btnListenBack">← Zurück</button>
+    <h2 id="listenTitle">Aussprache üben</h2>
+
+    <div class="box">
+      <h3>Eigenes Wort anhören</h3>
+      <form id="formListenFree" class="inline-form">
+        <input type="text" id="listenFreeText" placeholder="Wort oder Satz eintippen …" required>
+      </form>
+      <div class="btn-group" style="margin-top:.6rem;">
+        <button id="btnListenFreeDe" class="btn btn-secondary btn-small">🔊 Deutsch</button>
+        <button id="btnListenFreeFr" class="btn btn-secondary btn-small">🔊 Français</button>
+      </div>
+    </div>
+
+    <h3 id="listenListLabel">Vokabeln</h3>
+    <p class="hint">Tipp auf einen Lautsprecher, um dir das Wort vorlesen zu lassen.</p>
+    <div class="listen-list" id="listenList"></div>
+  </section>
+
+  <section id="view-grammar" class="view" hidden>
+    <p class="page-eyebrow">Grammatik · 04</p>
+    <h2 class="page-title" style="margin-bottom:.6rem;">Regeln, klar erklärt</h2>
+    <p class="page-sub">Frag z.B. "Erklär mir die Vergangenheit" oder "Wie funktioniert der Konjunktiv?" — die KI erklärt Regeln, Beispiele und Ausnahmen.</p>
+    <form id="formGrammar" class="inline-form">
+      <input type="text" id="grammarQuestion" placeholder="Deine Frage …" required>
+      <button type="submit" class="btn btn-primary">Fragen</button>
+    </form>
+    <div id="grammarResult" class="grammar-result"></div>
+  </section>
+
+  <section id="view-rewards" class="view" hidden>
+    <p class="page-eyebrow">Belohnungen · 03</p>
+    <h2 class="page-title" style="margin-bottom:.6rem;">Deine Lern-Serie</h2>
+    <p class="page-sub">Jede abgeschlossene Übungsrunde zählt. Bleib dran und bau dir eine Serie auf.</p>
+    <div class="rewards-grid">
+      <div class="streak-hero">
+        <p class="kicker">Aktuelle Serie</p>
+        <p class="streak-num">
+          <svg class="streak-flame" viewBox="0 0 24 24" width="30" height="30" aria-hidden="true" fill="none" stroke="var(--gold)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2c1 3-2 4.5-2 7.5A4.5 4.5 0 0 0 14.5 14c1.8 0 2.9-1 3.3-2 .9 2 .2 4.4-1.4 6a6.5 6.5 0 0 1-9-9c1-1 1.6-2.3 1.6-3.8C9 3.5 10.5 2.4 12 2Z" fill="rgba(226,114,90,.22)"/>
+          </svg>
+          <span id="rewardsStreakNum">0</span><span> Tage</span>
+        </p>
+        <div class="streak-bar" id="streakBar"></div>
+      </div>
+      <div class="rewards-side">
+        <div class="rewards-card">
+          <p class="label">Aktive Lerntage insgesamt</p>
+          <p class="value" id="rewardsTotalDays">0</p>
+          <p class="desc">Tage, an denen du mindestens eine Übungsrunde abgeschlossen hast.</p>
+        </div>
+        <div class="rewards-card">
+          <p class="label">Bonus-Spiel</p>
+          <p class="desc" style="margin-top:0;">Nach jeder abgeschlossenen Übungsrunde wartet eine Runde 🎈 Ballon-Pop als kleine Belohnung.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="view-settings" class="view" hidden>
+    <p class="page-eyebrow">Einstellungen · 06</p>
+    <h2 class="page-title" style="margin-bottom:.6rem;">Ganz nach dir</h2>
+    <p class="page-sub">Lautstärke der Soundeffekte anpassen.</p>
+    <div class="settings-card">
+      <p class="settings-title">Lautstärke</p>
+      <p class="settings-desc">Steuert Klick-, Erfolgs- und Fehler-Töne im Übungsmodus.</p>
+      <div class="volume-row">
+        <button class="vol-btn" id="volBtn" type="button" aria-label="Stummschalten">
+          <svg class="icon-vol-on" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5v5h3.5L13 19V5L7.5 9.5H4Z"/><path d="M17 8.5a5 5 0 0 1 0 7"/><path d="M19.7 6a9 9 0 0 1 0 12"/></svg>
+          <svg class="icon-vol-off" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5v5h3.5L13 19V5L7.5 9.5H4Z"/><path d="M16.5 9.5l5 5M21.5 9.5l-5 5"/></svg>
+        </button>
+        <input type="range" id="volumeSlider" class="volume-slider" min="0" max="100" value="70" aria-label="Lautstärke">
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+/* ============================================================
+   ANPASSEN: Hier deinen Gemini-API-Key eintragen
+   (https://aistudio.google.com/apikey)
+   ============================================================ */
+const GEMINI_API_KEY = "DEIN-API-KEY-HIER";
+
+const GEMINI_MODEL = 'gemini-3.6-flash';
+const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
+
+async function callGemini(prompt, jsonMode = true){
+  if(!GEMINI_API_KEY || GEMINI_API_KEY === 'DEIN-API-KEY-HIER') return null;
+  try{
+    const res = await fetch(GEMINI_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-goog-api-key': GEMINI_API_KEY },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: jsonMode ? { temperature: 0.9, responseMimeType: 'application/json' } : { temperature: 0.7 },
+      }),
+    });
+    if(!res.ok){ console.error('Gemini Fehler', res.status, await res.text()); return null; }
+    const data = await res.json();
+    return data?.candidates?.[0]?.content?.parts?.[0]?.text || null;
+  }catch(err){
+    console.error('Gemini Aufruf fehlgeschlagen:', err.message);
+    return null;
+  }
+}
+
+// Einfacher Cache fuer die Dauer der Sitzung: identische Anfragen (z.B.
+// derselbe Tipp fuer dieselbe Vokabel) werden nicht erneut an die API geschickt.
+const aiCache = new Map();
+async function callGeminiCached(cacheKey, prompt, jsonMode = true){
+  if(aiCache.has(cacheKey)) return aiCache.get(cacheKey);
+  const result = await callGemini(prompt, jsonMode);
+  if(result !== null) aiCache.set(cacheKey, result);
+  return result;
+}
+
+const FALLBACK_WORDS = {
+  de: ['Haus','Wasser','Freund','Schule','Zeit','Straße','Buch','Auto','Tisch','Fenster'],
+  fr: ['maison','eau','ami','école','temps','rue','livre','voiture','table','fenêtre'],
+};
+function fallbackDistractors(correct, lang, count){
+  const pool = (FALLBACK_WORDS[lang] || FALLBACK_WORDS.de).filter(w => w.toLowerCase() !== correct.toLowerCase());
+  return pool.sort(() => Math.random() - 0.5).slice(0, count);
+}
+
+async function generateDistractors(word, correctAnswer, answerLanguage, count = 3){
+  const languageName = answerLanguage === 'fr' ? 'Franzoesisch' : 'Deutsch';
+  const prompt = `Du bist Experte fuer Deutsch-Franzoesisch-Vokabeltraining.
+Aufgabe: "${word}" wird korrekt mit "${correctAnswer}" (${languageName}) uebersetzt.
+Generiere genau ${count} FALSCHE Antwortoptionen auf ${languageName} fuer ein Multiple-Choice-Quiz.
+
+Wichtige Regeln fuer gute Distraktoren:
+- Gleiche Wortart wie die richtige Antwort (Nomen zu Nomen, Verb zu Verb, Adjektiv zu Adjektiv)
+- Thematisch verwandt oder aus demselben Alltagsbereich (z.B. bei Essen -> andere Lebensmittel, bei Verben der Bewegung -> andere Bewegungsverben)
+- Aehnliche Laenge/Komplexitaet wie die richtige Antwort
+- Bei Nomen mit Artikel im Franzoesischen: passenden Artikel (le/la/les) mitgeben, falls die richtige Antwort auch einen hat
+- Keine Woerter, die eindeutig aus einem komplett anderen Themenbereich stammen (das waere zu leicht zu erraten)
+- Kein Duplikat der richtigen Antwort
+
+Gib NUR ein JSON-Array mit den ${count} Strings zurueck, sonst nichts. Beispiel: ["wort1", "wort2", "wort3"]`;
+
+  const cacheKey = `mc:${word}|${correctAnswer}|${answerLanguage}|${count}`;
+  const text = await callGeminiCached(cacheKey, prompt, true);
+  if(!text) return fallbackDistractors(correctAnswer, answerLanguage, count);
+  try{
+    let options = JSON.parse(text);
+    if(!Array.isArray(options)) throw new Error('kein Array');
+    options = options
+      .filter(o => typeof o === 'string' && o.trim())
+      .filter(o => o.trim().toLowerCase() !== correctAnswer.trim().toLowerCase())
+      .slice(0, count);
+    if(options.length < count) options = options.concat(fallbackDistractors(correctAnswer, answerLanguage, count - options.length));
+    return options;
+  }catch(err){
+    return fallbackDistractors(correctAnswer, answerLanguage, count);
+  }
+}
+
+async function generateGrammarExplanation(question){
+  const prompt = `Du bist ein Franzoesisch-Lehrer fuer deutschsprachige Schueler.
+Der Schueler fragt: "${question}"
+
+Erklaer das Grammatikthema verstaendlich. Antworte NUR mit einem JSON-Objekt in genau dieser Form:
+{
+  "title": "Kurzer Titel des Themas",
+  "rules": ["Regel 1 verstaendlich erklaert", "Regel 2", "..."],
+  "examples": ["Franzoesisches Beispiel — deutsche Uebersetzung", "..."],
+  "exceptions": ["Ausnahme oder Sonderfall 1", "..."]
+}
+Falls es keine relevanten Ausnahmen gibt, gib ein leeres Array fuer "exceptions" zurueck.
+Halte rules auf 3-6 Punkte, examples auf 3-5 Punkte, exceptions auf 0-4 Punkte begrenzt.
+Gib NUR das JSON zurueck, keinen weiteren Text.`;
+
+  const text = await callGemini(prompt, true);
+  if(!text) return null;
+  try{ return JSON.parse(text); }catch(e){ return null; }
+}
+
+// --- KI: Automatisch uebersetzen (fuer das Vokabel-Hinzufuegen-Formular) ---
+async function aiTranslate(text, fromLang, toLang){
+  const prompt = `Übersetze "${text}" von ${fromLang} nach ${toLang}, für einen Vokabeltrainer.
+Gib NUR die Übersetzung zurück: ein einzelnes Wort oder eine kurze gebräuchliche Wendung.
+Bei französischen Nomen den passenden Artikel (le/la/les) voranstellen, falls üblich.
+Keine Anführungszeichen, keine Erklärung, keine Alternativen — nur die eine beste Übersetzung als Text.`;
+  const cacheKey = `translate:${fromLang}>${toLang}:${text.toLowerCase()}`;
+  const result = await callGeminiCached(cacheKey, prompt, false);
+  return result ? result.trim().replace(/^["'“„]|["'”]$/g, '') : null;
+}
+
+// --- KI: Ganzes Vokabelset zu einem Thema generieren ----------------------
+async function generateVocabSet(topic, count){
+  const prompt = `Erstelle ${count} nützliche Deutsch-Französisch-Vokabelpaare zum Thema "${topic}" für Schüler, die Französisch lernen.
+Nutze gebräuchliche, alltagstaugliche Vokabeln unterschiedlicher Wortarten (Nomen, Verben, Adjektive), passend zum Thema.
+Bei französischen Nomen den passenden Artikel (le/la/les) mit angeben.
+Keine Duplikate untereinander.
+
+Gib NUR ein JSON-Array zurück in genau dieser Form, sonst nichts:
+[{"de":"deutsches Wort","fr":"französisches Wort"}, ...]`;
+
+  const text = await callGemini(prompt, true);
+  if(!text) return null;
+  try{
+    const arr = JSON.parse(text);
+    if(!Array.isArray(arr)) return null;
+    return arr
+      .filter(p => p && typeof p.de === 'string' && typeof p.fr === 'string' && p.de.trim() && p.fr.trim())
+      .slice(0, count);
+  }catch(e){ return null; }
+}
+
+// --- KI: Cleverer Tipp im Denken-Modus (statt nur erster Buchstabe) -------
+async function generateSmartHint(word, correctAnswer, answerLanguage){
+  const languageName = answerLanguage === 'fr' ? 'Französisch' : 'Deutsch';
+  const prompt = `Ein Schüler übt die Übersetzung von "${word}" nach ${languageName} (richtige Antwort: "${correctAnswer}", die er noch NICHT sehen soll).
+Gib EINEN kurzen, hilfreichen Tipp, der NICHT die Antwort verrät. Möglich sind z.B.:
+- eine Kategorie/Themenzuordnung ("Es ist ein Tier" / "C'est un verbe de mouvement")
+- ein verwandtes oder ähnlich klingendes Wort
+- ein kurzer Beispielsatz auf ${languageName} mit einer Lücke ("___") anstelle der gesuchten Antwort
+
+Antworte NUR mit dem Tipp selbst, maximal 15 Wörter, ohne Anführungszeichen, ohne die Lösung zu nennen.`;
+  const cacheKey = `hint:${word}|${correctAnswer}|${answerLanguage}`;
+  const result = await callGeminiCached(cacheKey, prompt, false);
+  return result ? result.trim() : null;
+}
+
+// --- Sound-System ----------------------------------------------------
+let audioCtx = null;
+function ensureAudioCtx(){
+  if(!audioCtx){ try{ audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }catch(e){} }
+  return audioCtx;
+}
+let masterVolume = 0.7;
+let soundEnabled = true;
+function playTone(freq, duration, type, volume, delay = 0){
+  if(!soundEnabled || masterVolume <= 0) return;
+  const ctx = ensureAudioCtx();
+  if(!ctx) return;
+  if(ctx.state === 'suspended') ctx.resume();
+  const start = ctx.currentTime + delay;
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = type; osc.frequency.value = freq;
+  gain.gain.setValueAtTime(volume * masterVolume, start);
+  gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+  osc.connect(gain); gain.connect(ctx.destination);
+  osc.start(start); osc.stop(start + duration);
+}
+function sndHover(){ playTone(700, 0.05, 'sine', 0.06); }
+function sndClick(){ playTone(420, 0.08, 'triangle', 0.1); }
+function sndCorrect(){ playTone(523, 0.1, 'sine', 0.15); playTone(659, 0.13, 'sine', 0.15, 0.09); playTone(880, 0.2, 'sine', 0.14, 0.18); }
+function sndWrong(){ playTone(220, 0.22, 'sawtooth', 0.08); }
+function sndRetry(){ playTone(330, 0.12, 'triangle', 0.08); }
+function sndComplete(){ [523,659,784,1046].forEach((f,i) => playTone(f, 0.18, 'sine', 0.11, i*0.11)); }
+
+const soundIsFine = window.matchMedia('(hover:hover) and (pointer:fine)').matches;
+function wireSounds(root = document){
+  root.querySelectorAll('.btn, .icon-btn, .chip, .session-opt, .set-card, .nav-overlay-item, .streak-day').forEach(el => {
+    if(soundIsFine && !el.dataset.soundWiredHover){ el.addEventListener('mouseenter', sndHover); el.dataset.soundWiredHover = '1'; }
+    if(!el.dataset.soundWiredClick){ el.addEventListener('click', sndClick); el.dataset.soundWiredClick = '1'; }
+  });
+}
+
+// --- Text-zu-Sprache (Aussprache) ------------------------------------
+function speak(text, lang){
+  if(!('speechSynthesis' in window)){ showToast('Dein Browser unterstützt leider keine Sprachausgabe.', true); return; }
+  speechSynthesis.cancel();
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.lang = lang;
+  utter.rate = 0.88;
+  speechSynthesis.speak(utter);
+}
+
+// --- Lautstärke (jetzt auf eigener Einstellungen-Seite) -------------------
+const volBtn = document.getElementById('volBtn');
+const volumeSlider = document.getElementById('volumeSlider');
+
+function updateVolIcon(){
+  const muted = !(soundEnabled && masterVolume > 0);
+  volBtn.classList.toggle('muted', muted);
+  volBtn.setAttribute('aria-label', muted ? 'Ton einschalten' : 'Stummschalten');
+}
+volumeSlider.addEventListener('input', () => {
+  masterVolume = volumeSlider.value / 100;
+  soundEnabled = masterVolume > 0;
+  updateVolIcon();
+});
+volBtn.addEventListener('click', () => {
+  soundEnabled = !soundEnabled;
+  if(soundEnabled && masterVolume === 0){ masterVolume = 0.5; volumeSlider.value = 50; }
+  updateVolIcon();
+  if(soundEnabled) sndClick();
+});
+updateVolIcon();
+
+// --- Custom Modal --------------------------------------------------------
+function customPrompt(title, defaultValue = ''){
+  return new Promise((resolve) => {
+    const backdrop = document.getElementById('modalBackdrop');
+    const input = document.getElementById('modalInput');
+    const messageEl = document.getElementById('modalMessage');
+    const confirmBtn = document.getElementById('modalConfirm');
+    const cancelBtn = document.getElementById('modalCancel');
+    document.getElementById('modalTitle').textContent = title;
+    messageEl.hidden = true;
+    input.hidden = false;
+    input.value = defaultValue;
+    backdrop.classList.add('open');
+    setTimeout(() => { input.focus(); input.select(); }, 60);
+    function cleanup(result){
+      backdrop.classList.remove('open');
+      confirmBtn.removeEventListener('click', onConfirm);
+      cancelBtn.removeEventListener('click', onCancel);
+      backdrop.removeEventListener('click', onBackdropClick);
+      input.removeEventListener('keydown', onKey);
+      resolve(result);
+    }
+    function onConfirm(){ sndClick(); cleanup(input.value.trim() || null); }
+    function onCancel(){ sndClick(); cleanup(null); }
+    function onBackdropClick(e){ if(e.target === backdrop) onCancel(); }
+    function onKey(e){ if(e.key === 'Enter') onConfirm(); if(e.key === 'Escape') onCancel(); }
+    confirmBtn.addEventListener('click', onConfirm);
+    cancelBtn.addEventListener('click', onCancel);
+    backdrop.addEventListener('click', onBackdropClick);
+    input.addEventListener('keydown', onKey);
+  });
+}
+
+function customConfirm(title, message, confirmLabel = 'Löschen'){
+  return new Promise((resolve) => {
+    const backdrop = document.getElementById('modalBackdrop');
+    const input = document.getElementById('modalInput');
+    const messageEl = document.getElementById('modalMessage');
+    const confirmBtn = document.getElementById('modalConfirm');
+    const cancelBtn = document.getElementById('modalCancel');
+    document.getElementById('modalTitle').textContent = title;
+    messageEl.textContent = message;
+    messageEl.hidden = false;
+    input.hidden = true;
+    confirmBtn.textContent = confirmLabel;
+    backdrop.classList.add('open');
+    function cleanup(result){
+      backdrop.classList.remove('open');
+      confirmBtn.textContent = 'OK';
+      confirmBtn.removeEventListener('click', onConfirm);
+      cancelBtn.removeEventListener('click', onCancel);
+      backdrop.removeEventListener('click', onBackdropClick);
+      document.removeEventListener('keydown', onKey);
+      resolve(result);
+    }
+    function onConfirm(){ sndClick(); cleanup(true); }
+    function onCancel(){ sndClick(); cleanup(false); }
+    function onBackdropClick(e){ if(e.target === backdrop) onCancel(); }
+    function onKey(e){ if(e.key === 'Enter') onConfirm(); if(e.key === 'Escape') onCancel(); }
+    confirmBtn.addEventListener('click', onConfirm);
+    cancelBtn.addEventListener('click', onCancel);
+    backdrop.addEventListener('click', onBackdropClick);
+    document.addEventListener('keydown', onKey);
+  });
+}
+
+let toastTimer = null;
+function showToast(message, isError = false){
+  const toast = document.getElementById('toast');
+  toast.textContent = message;
+  toast.classList.toggle('toast-error', isError);
+  toast.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toast.classList.remove('show'), 2600);
+}
+
+// --- Datenspeicherung -----------------------------------------------
+const STORAGE_KEY = 'vokabeltrainer_data';
+function loadData(){ try{ const raw = localStorage.getItem(STORAGE_KEY); return raw ? JSON.parse(raw) : { sets: [] }; }catch(e){ return { sets: [] }; } }
+function saveData(data){ localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
+function uid(){ return crypto.randomUUID(); }
+let store = loadData();
+function getSet(id){ return store.sets.find(s => s.id === id); }
+
+// --- Mausparallax ------------------------------------------------------
+if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+  window.addEventListener('mousemove', (e) => {
+    document.documentElement.style.setProperty('--mx', ((e.clientX/window.innerWidth-0.5)*2).toFixed(3));
+    document.documentElement.style.setProperty('--my', ((e.clientY/window.innerHeight-0.5)*2).toFixed(3));
+  }, {passive:true});
+}
+
+// --- View-Management -------------------------------------------------
+const views = {
+  hub: document.getElementById('view-hub'),
+  home: document.getElementById('view-home'), set: document.getElementById('view-set'),
+  sessionSetup: document.getElementById('view-session-setup'),
+  practice: document.getElementById('view-practice'), match: document.getElementById('view-match'),
+  results: document.getElementById('view-results'), listen: document.getElementById('view-listen'),
+  grammar: document.getElementById('view-grammar'), game: document.getElementById('view-game'),
+  rewards: document.getElementById('view-rewards'), settingsPage: document.getElementById('view-settings'),
+};
+let currentSetId = null;
+let currentNavId = 'hub';
+const NAV_SUB_LABELS = { hub: 'Startseite', home: 'Lernsets', rewards: 'Belohnungen', grammar: 'Grammatik', listen: 'Sprechen', settingsPage: 'Einstellungen' };
+function showView(name){ Object.values(views).forEach(v => v.hidden = true); views[name].hidden = false; }
+document.querySelectorAll('[data-nav]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    if(btn.dataset.nav === 'home') renderHome();
+    else if(btn.dataset.nav === 'set') renderSetDetail(currentSetId);
+    else if(btn.dataset.nav === 'hub') renderHub();
+  });
+});
+
+// --- NAV OVERLAY (Vollbild-Menü) -----------------------------------------
+const btnMenu = document.getElementById('btnMenu');
+const navOverlay = document.getElementById('navOverlay');
+const btnBrand = document.getElementById('btnBrand');
+const brandSub = document.getElementById('brandSub');
+
+function updateNavActiveStates(){
+  if(brandSub) brandSub.textContent = NAV_SUB_LABELS[currentNavId] || '';
+  navOverlay.querySelectorAll('.nav-overlay-item').forEach(item => {
+    item.classList.toggle('active', item.dataset.goto === currentNavId);
+  });
+}
+
+function openNavOverlay(){
+  navOverlay.classList.add('open');
+  btnMenu.classList.add('open');
+  btnMenu.setAttribute('aria-expanded', 'true');
+  updateNavActiveStates();
+}
+function closeNavOverlay(){
+  navOverlay.classList.remove('open');
+  btnMenu.classList.remove('open');
+  btnMenu.setAttribute('aria-expanded', 'false');
+}
+btnMenu.addEventListener('click', () => {
+  sndClick();
+  if(navOverlay.classList.contains('open')) closeNavOverlay(); else openNavOverlay();
+});
+navOverlay.querySelector('.nav-overlay-bg').addEventListener('click', closeNavOverlay);
+document.addEventListener('keydown', (e) => { if(e.key === 'Escape') closeNavOverlay(); });
+btnBrand.addEventListener('click', () => { sndClick(); closeNavOverlay(); renderHub(); });
+
+navOverlay.querySelectorAll('.nav-overlay-item').forEach(item => {
+  item.addEventListener('click', () => {
+    sndClick();
+    closeNavOverlay();
+    const target = item.dataset.goto;
+    if(target === 'hub') renderHub();
+    else if(target === 'home') renderHome();
+    else if(target === 'rewards') renderRewards();
+    else if(target === 'grammar') openGrammar();
+    else if(target === 'listen') openGlobalListen();
+    else if(target === 'settingsPage') openSettingsPage();
+  });
+});
+
+function openGrammar(){ showView('grammar'); currentNavId = 'grammar'; updateNavActiveStates(); }
+function openSettingsPage(){ showView('settingsPage'); currentNavId = 'settingsPage'; updateNavActiveStates(); }
+
+// --- HUB (Startseite) -----------------------------------------------------
+function renderHub(){
+  showView('hub');
+  currentNavId = 'hub';
+  updateNavActiveStates();
+  const totalWords = store.sets.reduce((sum, s) => sum + s.pairs.length, 0);
+  document.getElementById('hubSetsCount').textContent = store.sets.length;
+  document.getElementById('hubWordsCount').textContent = totalWords;
+  document.getElementById('hubStreakCount').textContent = computeCurrentStreak();
+  wireSounds();
+}
+document.getElementById('btnHubSets').addEventListener('click', () => { sndClick(); renderHome(); });
+document.getElementById('btnHubListen').addEventListener('click', () => openGlobalListen());
+
+// --- BELOHNUNGEN / STREAK --------------------------------------------------
+function todayKey(d = new Date()){ const x = new Date(d); x.setHours(0,0,0,0); return x.toISOString().slice(0,10); }
+function recordStreakActivity(){
+  if(!store.streakDates) store.streakDates = [];
+  const key = todayKey();
+  if(!store.streakDates.includes(key)){
+    store.streakDates.push(key);
+    if(store.streakDates.length > 90) store.streakDates = store.streakDates.slice(-90);
+    saveData(store);
+  }
+}
+function computeCurrentStreak(){
+  const dates = store.streakDates || [];
+  if(dates.length === 0) return 0;
+  const set = new Set(dates);
+  let d = new Date();
+  if(!set.has(todayKey(d))) d.setDate(d.getDate() - 1);
+  let streak = 0;
+  while(set.has(todayKey(d))){
+    streak++;
+    d.setDate(d.getDate() - 1);
+  }
+  return streak;
+}
+function renderRewards(){
+  showView('rewards');
+  currentNavId = 'rewards';
+  updateNavActiveStates();
+  const dates = store.streakDates || [];
+  document.getElementById('rewardsStreakNum').textContent = computeCurrentStreak();
+  document.getElementById('rewardsTotalDays').textContent = dates.length;
+  const set = new Set(dates);
+  const bar = document.getElementById('streakBar');
+  bar.innerHTML = '';
+  for(let i = 6; i >= 0; i--){
+    const d = new Date(); d.setDate(d.getDate() - i);
+    const span = document.createElement('span');
+    span.className = 'streak-day' + (set.has(todayKey(d)) ? ' active' : '');
+    span.title = d.toLocaleDateString('de-DE', { weekday: 'short', day: 'numeric', month: 'numeric' });
+    bar.appendChild(span);
+  }
+  wireSounds();
+}
+
+// --- HOME ---------------------------------------------------------------
+function renderHome(){
+  showView('home');
+  const list = document.getElementById('setsList');
+  const empty = document.getElementById('setsEmpty');
+  list.innerHTML = '';
+  empty.hidden = store.sets.length > 0;
+  store.sets.forEach(set => {
+    const card = document.createElement('div');
+    card.className = 'set-card';
+    card.innerHTML = `<h3>${escapeHtml(set.name)}</h3><p>${set.pairs.length} Vokabel${set.pairs.length === 1 ? '' : 'n'}</p>`;
+    card.addEventListener('click', () => renderSetDetail(set.id));
+    list.appendChild(card);
+  });
+  wireSounds();
+}
+
+document.getElementById('btnNewSet').addEventListener('click', async () => {
+  const name = await customPrompt('Name für das neue Lernset', '');
+  if(!name) return;
+  const set = { id: uid(), name: name.trim(), pairs: [] };
+  store.sets.unshift(set);
+  saveData(store);
+  renderSetDetail(set.id);
+});
+
+document.getElementById('formImport').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const input = document.getElementById('importCode');
+  const msg = document.getElementById('importMsg');
+  msg.className = 'msg';
+  try{
+    const decoded = JSON.parse(atob(input.value.trim()));
+    if(!decoded.name || !Array.isArray(decoded.pairs)) throw new Error('ungueltiges Format');
+    const newSet = { id: uid(), name: decoded.name + ' (übernommen)', pairs: decoded.pairs.map(p => ({ id: uid(), de: p.de, fr: p.fr })) };
+    store.sets.unshift(newSet);
+    saveData(store);
+    msg.textContent = 'Übernommen!'; msg.classList.add('msg-success');
+    input.value = '';
+    setTimeout(() => renderSetDetail(newSet.id), 400);
+  }catch(err){
+    msg.textContent = 'Konnte den Code nicht lesen — ist er vollständig eingefügt?';
+    msg.classList.add('msg-error');
+  }
+});
+
+// --- SET-DETAIL -----------------------------------------------------------
+function renderSetDetail(setId){
+  currentSetId = setId;
+  showView('set');
+  const set = getSet(setId);
+  document.getElementById('setTitle').textContent = set.name;
+  document.getElementById('pairCount').textContent = set.pairs.length;
+  document.getElementById('exportBox').hidden = true;
+
+  const body = document.getElementById('pairsBody');
+  const empty = document.getElementById('pairsEmpty');
+  body.innerHTML = '';
+  empty.hidden = set.pairs.length > 0;
+
+  set.pairs.forEach(pair => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="editable" data-field="de">${escapeHtml(pair.de)}</td>
+      <td class="editable" data-field="fr">${escapeHtml(pair.fr)}</td>
+      <td><button class="btn btn-danger btn-small" data-delete="${pair.id}">✕</button></td>`;
+    tr.querySelectorAll('.editable').forEach(cell => cell.addEventListener('click', () => editPairCell(cell, pair, set)));
+    tr.querySelector('[data-delete]').addEventListener('click', async () => {
+      const ok = await customConfirm('Vokabel löschen?', `"${pair.de}" ↔ "${pair.fr}" wird endgültig entfernt.`);
+      if(!ok) return;
+      set.pairs = set.pairs.filter(p => p.id !== pair.id);
+      saveData(store);
+      renderSetDetail(setId);
+    });
+    body.appendChild(tr);
+  });
+  wireSounds();
+}
+
+function editPairCell(cell, pair, set){
+  const field = cell.dataset.field;
+  const oldValue = pair[field];
+  const input = document.createElement('input');
+  input.type = 'text'; input.value = oldValue; input.className = 'cell-edit';
+  cell.textContent = ''; cell.appendChild(input); input.focus(); input.select();
+  function save(){ const v = input.value.trim(); if(v) pair[field] = v; saveData(store); renderSetDetail(set.id); }
+  input.addEventListener('blur', save);
+  input.addEventListener('keydown', e => { if(e.key === 'Enter') input.blur(); if(e.key === 'Escape') renderSetDetail(set.id); });
+}
+
+document.getElementById('formAddPair').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const de = document.getElementById('pairDe'), fr = document.getElementById('pairFr');
+  if(!de.value.trim() || !fr.value.trim()) return;
+  const set = getSet(currentSetId);
+  set.pairs.push({ id: uid(), de: de.value.trim(), fr: fr.value.trim() });
+  saveData(store);
+  de.value = ''; fr.value = ''; de.focus();
+  renderSetDetail(currentSetId);
+});
+
+document.getElementById('btnAiTranslate').addEventListener('click', async () => {
+  const de = document.getElementById('pairDe'), fr = document.getElementById('pairFr');
+  const btn = document.getElementById('btnAiTranslate');
+  const deVal = de.value.trim(), frVal = fr.value.trim();
+  if(!deVal && !frVal){ showToast('Trag zuerst ein Wort in einem der Felder ein.', true); return; }
+  if(deVal && frVal){ showToast('Beide Felder sind schon ausgefüllt.', true); return; }
+  btn.disabled = true; btn.textContent = '…';
+  const result = deVal
+    ? await aiTranslate(deVal, 'Deutsch', 'Französisch')
+    : await aiTranslate(frVal, 'Französisch', 'Deutsch');
+  btn.disabled = false; btn.textContent = '✨';
+  if(!result){ showToast('Übersetzung fehlgeschlagen — Gemini-Key gültig?', true); return; }
+  if(deVal) fr.value = result; else de.value = result;
+});
+
+document.getElementById('formAiGenerate').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const input = document.getElementById('aiGenerateTopic');
+  const msg = document.getElementById('aiGenerateMsg');
+  const btn = e.target.querySelector('button[type="submit"]');
+  const topic = input.value.trim();
+  if(!topic) return;
+  msg.className = 'msg'; msg.textContent = 'Generiere Vokabeln …';
+  btn.disabled = true;
+  const pairs = await generateVocabSet(topic, 10);
+  btn.disabled = false;
+  if(!pairs || pairs.length === 0){
+    msg.textContent = 'Konnte keine Vokabeln generieren — Gemini-Key gültig?';
+    msg.classList.add('msg-error');
+    return;
+  }
+  const set = getSet(currentSetId);
+  pairs.forEach(p => set.pairs.push({ id: uid(), de: p.de.trim(), fr: p.fr.trim() }));
+  saveData(store);
+  msg.textContent = `${pairs.length} Vokabeln hinzugefügt!`;
+  msg.classList.add('msg-success');
+  input.value = '';
+  setTimeout(() => renderSetDetail(currentSetId), 500);
+});
+
+document.getElementById('btnRenameSet').addEventListener('click', async () => {
+  const set = getSet(currentSetId);
+  const name = await customPrompt('Neuer Name für das Set', set.name);
+  if(!name) return;
+  set.name = name.trim(); saveData(store); renderSetDetail(currentSetId);
+});
+
+document.getElementById('btnDeleteSet').addEventListener('click', async () => {
+  const set = getSet(currentSetId);
+  const ok = await customConfirm('Set löschen?', `"${set.name}" mit allen ${set.pairs.length} Vokabeln wird endgültig gelöscht.`);
+  if(!ok) return;
+  store.sets = store.sets.filter(s => s.id !== currentSetId);
+  saveData(store); renderHome();
+});
+
+document.getElementById('btnExportSet').addEventListener('click', () => {
+  const set = getSet(currentSetId);
+  const payload = { name: set.name, pairs: set.pairs.map(p => ({ de: p.de, fr: p.fr })) };
+  document.getElementById('exportText').value = btoa(JSON.stringify(payload));
+  document.getElementById('exportBox').hidden = false;
+});
+document.getElementById('btnCopyExport').addEventListener('click', () => {
+  const ta = document.getElementById('exportText');
+  ta.select();
+  navigator.clipboard?.writeText(ta.value).catch(() => document.execCommand('copy'));
+});
+
+// --- AUSSPRACHE (Listening) ------------------------------------------
+let listenReturnView = 'set';
+
+function renderListenRows(pairs){
+  const list = document.getElementById('listenList');
+  list.innerHTML = '';
+  pairs.forEach(pair => {
+    const row = document.createElement('div');
+    row.className = 'listen-row';
+    row.innerHTML = `
+      <div class="listen-word"><span class="de">${escapeHtml(pair.de)}</span><span class="fr">${escapeHtml(pair.fr)}</span></div>
+      <button class="speak-btn" data-speak="de" title="Deutsch anhören">🔊 DE</button>
+      <button class="speak-btn" data-speak="fr" title="Französisch anhören">🔊 FR</button>`;
+    row.querySelector('[data-speak="de"]').addEventListener('click', () => speak(pair.de, 'de-DE'));
+    row.querySelector('[data-speak="fr"]').addEventListener('click', () => speak(pair.fr, 'fr-FR'));
+    list.appendChild(row);
+  });
+}
+
+document.getElementById('btnGoListen').addEventListener('click', () => {
+  const set = getSet(currentSetId);
+  if(set.pairs.length === 0){ showToast('Dieses Set hat noch keine Vokabeln.', true); return; }
+  listenReturnView = 'set';
+  document.getElementById('listenTitle').textContent = 'Aussprache üben: ' + set.name;
+  document.getElementById('listenListLabel').textContent = 'Vokabeln aus diesem Set';
+  renderListenRows(set.pairs);
+  showView('listen');
+  wireSounds();
+});
+
+function openGlobalListen(){
+  sndClick();
+  const allPairs = store.sets.flatMap(s => s.pairs);
+  if(allPairs.length === 0){ showToast('Leg zuerst ein paar Vokabeln an.', true); return; }
+  listenReturnView = 'hub';
+  document.getElementById('listenTitle').textContent = 'Aussprache üben';
+  document.getElementById('listenListLabel').textContent = 'Alle deine Vokabeln';
+  renderListenRows(allPairs);
+  showView('listen');
+  currentNavId = 'listen';
+  updateNavActiveStates();
+  wireSounds();
+}
+
+document.getElementById('btnListenBack').addEventListener('click', () => {
+  if(listenReturnView === 'set') renderSetDetail(currentSetId);
+  else if(listenReturnView === 'hub') renderHub();
+  else renderHome();
+});
+
+document.getElementById('formListenFree').addEventListener('submit', (e) => e.preventDefault());
+document.getElementById('btnListenFreeDe').addEventListener('click', () => {
+  const text = document.getElementById('listenFreeText').value.trim();
+  if(text) speak(text, 'de-DE');
+});
+document.getElementById('btnListenFreeFr').addEventListener('click', () => {
+  const text = document.getElementById('listenFreeText').value.trim();
+  if(text) speak(text, 'fr-FR');
+});
+
+// --- SESSION SETUP ---------------------------------------------------------
+let sessionConfig = { length: 5, mode: 'mixed', direction: 'mixed' };
+const MODE_LABELS = { mixed: '🔀 Alles gemischt', mc: '☑️ Multiple Choice', write: '✍️ Schreiben', flashcard: '🧠 Denken', match: '🔗 Zuordnen' };
+const DIRECTION_LABELS = { mixed: '🔀 Gemischt', 'de-fr': 'DE → FR', 'fr-de': 'FR → DE' };
+
+document.getElementById('btnGoPractice').addEventListener('click', () => {
+  const set = getSet(currentSetId);
+  if(set.pairs.length === 0){ showToast('Dieses Set hat noch keine Vokabeln.', true); return; }
+  showView('sessionSetup');
+  renderModeOptions();
+  renderDirectionOptions();
+  renderSessionOptions(set.pairs.length);
+});
+
+function renderModeOptions(){
+  const box = document.getElementById('modeOptions');
+  box.innerHTML = '';
+  Object.keys(MODE_LABELS).forEach(key => {
+    const chip = document.createElement('div');
+    chip.className = 'chip' + (key === sessionConfig.mode ? ' selected' : '');
+    chip.textContent = MODE_LABELS[key];
+    chip.addEventListener('click', () => {
+      sessionConfig.mode = key;
+      box.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
+      chip.classList.add('selected');
+      document.getElementById('lengthLabel').textContent = key === 'match' ? 'Wie viele Paare (max. 8)?' : 'Wie viele Vokabeln?';
+      sndClick();
+    });
+    box.appendChild(chip);
+  });
+}
+
+function renderDirectionOptions(){
+  const box = document.getElementById('directionOptions');
+  box.innerHTML = '';
+  Object.keys(DIRECTION_LABELS).forEach(key => {
+    const chip = document.createElement('div');
+    chip.className = 'chip' + (key === sessionConfig.direction ? ' selected' : '');
+    chip.textContent = DIRECTION_LABELS[key];
+    chip.addEventListener('click', () => {
+      sessionConfig.direction = key;
+      box.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
+      chip.classList.add('selected');
+      sndClick();
+    });
+    box.appendChild(chip);
+  });
+}
+
+function renderSessionOptions(totalPairs){
+  const box = document.getElementById('sessionOptions');
+  const choices = [5, 10, 20, totalPairs];
+  const labels = ['Kurz', 'Mittel', 'Lang', 'Alle'];
+  box.innerHTML = '';
+  sessionConfig.length = Math.min(choices[0], totalPairs);
+  choices.forEach((n, i) => {
+    if(n < 1) return;
+    const el = document.createElement('div');
+    el.className = 'session-opt' + (i === 0 ? ' selected' : '');
+    el.innerHTML = `<span class="num">${n}</span><span class="label">${labels[i]}</span>`;
+    el.addEventListener('click', () => {
+      sessionConfig.length = n;
+      box.querySelectorAll('.session-opt').forEach(o => o.classList.remove('selected'));
+      el.classList.add('selected');
+      sndClick();
+    });
+    box.appendChild(el);
+  });
+}
+
+document.getElementById('btnStartSession').addEventListener('click', () => {
+  document.getElementById('practiceSetName').textContent = getSet(currentSetId).name;
+  if(sessionConfig.mode === 'match'){
+    startMatchRound();
+  } else {
+    score = { correct: 0, wrong: 0 };
+    questionIndex = 0;
+    refillBag(getSet(currentSetId).pairs);
+    updateScoreBadge();
+    showView('practice');
+    loadNextQuestion();
+  }
+});
+
+// --- Zufalls-Beutel (verhindert Wiederholungen kurz hintereinander) -------
+let pairBag = [];
+function refillBag(pairs){
+  pairBag = pairs.map((_, i) => i);
+  for(let i = pairBag.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [pairBag[i], pairBag[j]] = [pairBag[j], pairBag[i]];
+  }
+}
+function nextPair(pairs){
+  if(pairBag.length === 0) refillBag(pairs);
+  return pairs[pairBag.pop()];
+}
+function resolveDirection(){
+  if(sessionConfig.direction === 'de-fr') return true;
+  if(sessionConfig.direction === 'fr-de') return false;
+  return Math.random() < 0.5;
+}
+const AUTO_MODES = ['mc', 'write', 'flashcard'];
+function resolveMode(){
+  if(sessionConfig.mode === 'mixed') return AUTO_MODES[Math.floor(Math.random() * AUTO_MODES.length)];
+  return sessionConfig.mode;
+}
+
+// --- ÜBUNGSMODUS ---------------------------------------------------------
+let score = { correct: 0, wrong: 0 };
+let questionIndex = 0;
+let writeAttemptsLeft = 2;
+const WRITE_MAX_ATTEMPTS = 2;
+
+function updateScoreBadge(){
+  document.getElementById('scoreCorrect').textContent = score.correct;
+  document.getElementById('scoreWrong').textContent = score.wrong;
+  document.getElementById('progressFill').style.width = (questionIndex / sessionConfig.length * 100) + '%';
+}
+
+function normalizeAnswer(str){
+  return str.trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+}
+
+let questionAnswered = false;
+
+function resetQuestionUI(){
+  questionAnswered = false;
+  document.getElementById('practiceOptions').hidden = true;
+  document.getElementById('practiceOptions').innerHTML = '';
+  document.getElementById('freeTextForm').hidden = true;
+  document.getElementById('writeActions').hidden = true;
+  document.getElementById('attemptsLeft').hidden = true;
+  document.getElementById('flashcardBox').hidden = true;
+  document.getElementById('flashcardHint').hidden = true;
+  document.getElementById('flashcardAnswer').hidden = true;
+  document.getElementById('flashcardActions').hidden = true;
+  document.getElementById('practiceFeedback').textContent = '';
+  document.getElementById('practiceFeedback').className = 'practice-feedback';
+  document.getElementById('btnNextQuestion').hidden = true;
+}
+
+let questionToken = 0;
+
+async function loadNextQuestion(){
+  if(questionIndex >= sessionConfig.length){ showResults(); return; }
+  const myToken = ++questionToken;
+
+  const errorEl = document.getElementById('practiceError');
+  const card = document.getElementById('practiceCard');
+  card.classList.remove('correct-flash', 'wrong-flash');
+  errorEl.hidden = true;
+  card.style.opacity = '.5';
+  resetQuestionUI();
+
+  try{
+    const set = getSet(currentSetId);
+    const pair = nextPair(set.pairs);
+    const askGerman = resolveDirection();
+    const questionWord = askGerman ? pair.de : pair.fr;
+    const correctAnswer = askGerman ? pair.fr : pair.de;
+    const answerLanguage = askGerman ? 'fr' : 'de';
+    const mode = resolveMode();
+
+    card.style.opacity = '1';
+    document.getElementById('practiceModeTag').textContent = MODE_LABELS[mode] || mode;
+    document.getElementById('practiceLang').textContent = askGerman ? 'Deutsch → Französisch' : 'Französisch → Deutsch';
+    document.getElementById('practiceWord').textContent = questionWord;
+
+    if(mode === 'mc'){
+      const optionsBox = document.getElementById('practiceOptions');
+      optionsBox.hidden = false;
+      const distractors = await generateDistractors(questionWord, correctAnswer, answerLanguage, 3);
+      if(myToken !== questionToken) return;
+      const options = [correctAnswer, ...distractors].sort(() => Math.random() - 0.5);
+      options.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = 'btn btn-option';
+        btn.textContent = opt;
+        btn.addEventListener('click', () => checkAnswer(opt, correctAnswer, btn));
+        optionsBox.appendChild(btn);
+      });
+    } else if(mode === 'write'){
+      writeAttemptsLeft = WRITE_MAX_ATTEMPTS;
+      setupWriteMode(correctAnswer);
+    } else if(mode === 'flashcard'){
+      setupFlashcardMode(questionWord, correctAnswer, answerLanguage);
+    }
+  }catch(err){
+    if(myToken !== questionToken) return;
+    card.style.opacity = '1';
+    errorEl.textContent = 'Fehler beim Laden der Frage: ' + err.message;
+    errorEl.hidden = false;
+  }
+}
+
+function setupWriteMode(correctAnswer){
+  const freeForm = document.getElementById('freeTextForm');
+  const writeActions = document.getElementById('writeActions');
+  const attemptsEl = document.getElementById('attemptsLeft');
+  freeForm.hidden = false;
+  writeActions.hidden = false;
+  attemptsEl.hidden = false;
+  attemptsEl.textContent = `${writeAttemptsLeft} Versuch${writeAttemptsLeft === 1 ? '' : 'e'} übrig`;
+  const input = document.getElementById('freeTextInput');
+  input.value = '';
+  input.disabled = false;
+  setTimeout(() => input.focus(), 50);
+
+  freeForm.onsubmit = (e) => {
+    e.preventDefault();
+    if(!input.value.trim()) return;
+    handleWriteAttempt(input.value, correctAnswer);
+  };
+  document.getElementById('btnDontKnow').onclick = () => {
+    input.disabled = true;
+    finalizeAnswer(false, correctAnswer, null, `🤷 Kein Problem — richtig wäre: ${correctAnswer}`);
+  };
+}
+
+function handleWriteAttempt(chosen, correctAnswer){
+  const isCorrect = normalizeAnswer(chosen) === normalizeAnswer(correctAnswer);
+  if(isCorrect){
+    document.getElementById('freeTextInput').disabled = true;
+    finalizeAnswer(true, correctAnswer, null, '✅ Richtig!');
+    return;
+  }
+  writeAttemptsLeft--;
+  if(writeAttemptsLeft > 0){
+    sndRetry();
+    const feedback = document.getElementById('practiceFeedback');
+    feedback.textContent = '❌ Nicht ganz — versuch\'s nochmal!';
+    feedback.className = 'practice-feedback feedback-retry';
+    document.getElementById('attemptsLeft').textContent = `${writeAttemptsLeft} Versuch${writeAttemptsLeft === 1 ? '' : 'e'} übrig`;
+    document.getElementById('freeTextInput').value = '';
+    document.getElementById('freeTextInput').focus();
+  } else {
+    document.getElementById('freeTextInput').disabled = true;
+    finalizeAnswer(false, correctAnswer, null, `❌ Richtig wäre: ${correctAnswer}`);
+  }
+}
+
+function setupFlashcardMode(questionWord, correctAnswer, answerLanguage){
+  const box = document.getElementById('flashcardBox');
+  box.hidden = false;
+  const hintEl = document.getElementById('flashcardHint');
+  const answerEl = document.getElementById('flashcardAnswer');
+  const actionsEl = document.getElementById('flashcardActions');
+  const revealBtn = document.getElementById('btnRevealFlashcard');
+  const hintBtn = document.getElementById('btnHintFlashcard');
+  revealBtn.hidden = false;
+  hintBtn.hidden = false;
+  hintBtn.disabled = false;
+  hintEl.hidden = true; answerEl.hidden = true; actionsEl.hidden = true;
+
+  hintBtn.onclick = async () => {
+    hintBtn.disabled = true;
+    hintEl.textContent = '💭 Denke nach …';
+    hintEl.hidden = false;
+    sndClick();
+    const smartHint = await generateSmartHint(questionWord, correctAnswer, answerLanguage);
+    hintEl.textContent = '💡 ' + (smartHint || (correctAnswer[0].toUpperCase() + '_'.repeat(Math.max(correctAnswer.length - 1, 1))));
+  };
+  revealBtn.onclick = () => {
+    answerEl.textContent = correctAnswer;
+    answerEl.hidden = false;
+    actionsEl.hidden = false;
+    revealBtn.hidden = true;
+    hintBtn.hidden = true;
+  };
+  document.getElementById('btnFlashKnew').onclick = () => finalizeAnswer(true, correctAnswer, null, '✅ Super!');
+  document.getElementById('btnFlashDidntKnow').onclick = () => finalizeAnswer(false, correctAnswer, null, '📚 Kein Problem, kommt wieder dran.');
+}
+
+function checkAnswer(chosen, correctAnswer, clickedBtn){
+  document.querySelectorAll('#practiceOptions .btn-option').forEach(b => b.disabled = true);
+  const isCorrect = normalizeAnswer(chosen) === normalizeAnswer(correctAnswer);
+  if(clickedBtn){
+    document.querySelectorAll('#practiceOptions .btn-option').forEach(b => { if(b.textContent === correctAnswer) b.classList.add('option-correct'); });
+    if(!isCorrect) clickedBtn.classList.add('option-wrong');
+  }
+  finalizeAnswer(isCorrect, correctAnswer, null, isCorrect ? '✅ Richtig!' : `❌ Richtig wäre: ${correctAnswer}`);
+}
+
+function finalizeAnswer(isCorrect, correctAnswer, clickedBtn, feedbackText){
+  if(questionAnswered) return;
+  questionAnswered = true;
+  const feedback = document.getElementById('practiceFeedback');
+  const card = document.getElementById('practiceCard');
+  feedback.textContent = feedbackText;
+  feedback.className = 'practice-feedback ' + (isCorrect ? 'feedback-correct' : 'feedback-wrong');
+
+  if(isCorrect){
+    card.classList.add('correct-flash');
+    score.correct++;
+    celebrate(card);
+    sndCorrect();
+  } else {
+    card.classList.add('wrong-flash');
+    score.wrong++;
+    sndWrong();
+  }
+  questionIndex++;
+  updateScoreBadge();
+  document.getElementById('btnNextQuestion').hidden = false;
+  document.getElementById('btnNextQuestion').textContent = questionIndex >= sessionConfig.length ? 'Ergebnis ansehen →' : 'Nächste Frage →';
+}
+
+function celebrate(card){
+  const check = document.getElementById('celebrateCheck');
+  check.classList.remove('show'); void check.offsetWidth; check.classList.add('show');
+  for(let i = 0; i < 10; i++){
+    const spark = document.createElement('span');
+    spark.className = 'spark';
+    const angle = (Math.PI * 2 * i) / 10;
+    const dist = 40 + Math.random() * 30;
+    spark.style.setProperty('--sx', (Math.cos(angle) * dist) + 'px');
+    spark.style.setProperty('--sy', (Math.sin(angle) * dist) + 'px');
+    spark.style.background = i % 2 === 0 ? 'var(--ember)' : 'var(--gold)';
+    card.appendChild(spark);
+    requestAnimationFrame(() => spark.classList.add('fly'));
+    setTimeout(() => spark.remove(), 750);
+  }
+}
+
+document.getElementById('btnNextQuestion').addEventListener('click', loadNextQuestion);
+
+// --- ZUORDNEN (Match) -----------------------------------------------------
+let matchState = { picks: {de:null, fr:null}, remaining: 0 };
+
+function startMatchRound(){
+  const set = getSet(currentSetId);
+  const count = Math.min(sessionConfig.length, 8, set.pairs.length);
+  const shuffled = [...set.pairs].sort(() => Math.random() - 0.5).slice(0, count);
+  score = { correct: 0, wrong: 0 };
+  matchState.remaining = shuffled.length;
+  document.getElementById('matchSetName').textContent = set.name;
+  document.getElementById('matchCorrect').textContent = 0;
+  document.getElementById('matchWrong').textContent = 0;
+  document.getElementById('matchStats').textContent = `0 / ${shuffled.length} gefunden`;
+
+  const colDe = document.getElementById('matchColDe');
+  const colFr = document.getElementById('matchColFr');
+  colDe.innerHTML = ''; colFr.innerHTML = '';
+  matchState.picks = {de:null, fr:null};
+
+  const deShuffled = [...shuffled].sort(() => Math.random() - 0.5);
+  const frShuffled = [...shuffled].sort(() => Math.random() - 0.5);
+
+  deShuffled.forEach(pair => {
+    const chip = document.createElement('button');
+    chip.className = 'match-chip'; chip.textContent = pair.de; chip.dataset.pairId = pair.id;
+    chip.addEventListener('click', () => handleMatchPick('de', chip, pair.id));
+    colDe.appendChild(chip);
+  });
+  frShuffled.forEach(pair => {
+    const chip = document.createElement('button');
+    chip.className = 'match-chip'; chip.textContent = pair.fr; chip.dataset.pairId = pair.id;
+    chip.addEventListener('click', () => handleMatchPick('fr', chip, pair.id));
+    colFr.appendChild(chip);
+  });
+
+  showView('match');
+  wireSounds();
+}
+
+function handleMatchPick(side, chip, pairId){
+  if(chip.classList.contains('matched') || chip.disabled) return;
+  const other = side === 'de' ? 'fr' : 'de';
+  if(matchState.picks[side]) matchState.picks[side].el.classList.remove('picked');
+  matchState.picks[side] = { el: chip, pairId };
+  chip.classList.add('picked');
+  sndClick();
+
+  if(matchState.picks[other]){
+    const a = matchState.picks.de, b = matchState.picks.fr;
+    if(a.pairId === b.pairId){
+      a.el.classList.remove('picked'); b.el.classList.remove('picked');
+      a.el.classList.add('matched'); b.el.classList.add('matched');
+      a.el.disabled = true; b.el.disabled = true;
+      score.correct++;
+      matchState.remaining--;
+      sndCorrect();
+      document.getElementById('matchCorrect').textContent = score.correct;
+      document.getElementById('matchStats').textContent = `${score.correct} / ${score.correct + matchState.remaining} gefunden`;
+      matchState.picks = {de:null, fr:null};
+      if(matchState.remaining === 0){ setTimeout(showResults, 500); }
+    } else {
+      score.wrong++;
+      sndWrong();
+      document.getElementById('matchWrong').textContent = score.wrong;
+      a.el.classList.add('wrong-pick'); b.el.classList.add('wrong-pick');
+      matchState.picks = {de:null, fr:null};
+      setTimeout(() => {
+        a.el.classList.remove('picked', 'wrong-pick');
+        b.el.classList.remove('picked', 'wrong-pick');
+      }, 500);
+    }
+  }
+}
+
+// --- ERGEBNIS ---------------------------------------------------------
+function showResults(){
+  showView('results');
+  recordStreakActivity();
+  const total = score.correct + score.wrong;
+  const pct = total > 0 ? Math.round((score.correct / total) * 100) : 0;
+  document.getElementById('resultsCorrect').textContent = score.correct;
+  document.getElementById('resultsTotal').textContent = total;
+  document.getElementById('resultsPct').textContent = pct + ' % richtig';
+  document.getElementById('resultsEmoji').textContent = pct >= 90 ? '🏆' : pct >= 70 ? '🎉' : pct >= 40 ? '💪' : '📚';
+  sndComplete();
+  wireSounds();
+}
+document.getElementById('btnPracticeAgain').addEventListener('click', () => {
+  if(sessionConfig.mode === 'match'){ startMatchRound(); return; }
+  score = { correct: 0, wrong: 0 }; questionIndex = 0;
+  refillBag(getSet(currentSetId).pairs);
+  updateScoreBadge();
+  showView('practice');
+  loadNextQuestion();
+});
+document.getElementById('btnBackToSet').addEventListener('click', () => renderSetDetail(currentSetId));
+
+// --- GRAMMATIK -----------------------------------------------------------
+document.getElementById('formGrammar').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const input = document.getElementById('grammarQuestion');
+  const result = document.getElementById('grammarResult');
+  const question = input.value.trim();
+  if(!question) return;
+
+  result.innerHTML = '<p class="grammar-loading">Lädt Erklärung …</p>';
+  const data = await generateGrammarExplanation(question);
+
+  if(!data){
+    result.innerHTML = '<p class="msg msg-error">Konnte keine Erklärung laden. Ist der Gemini-Key gesetzt und gültig?</p>';
+    return;
+  }
+
+  let html = `<h3 style="margin-top:0;">${escapeHtml(data.title || question)}</h3>`;
+  if(data.rules?.length){
+    html += `<div class="grammar-section"><h4>📐 Regeln</h4><ul>${data.rules.map(r => `<li>${escapeHtml(r)}</li>`).join('')}</ul></div>`;
+  }
+  if(data.examples?.length){
+    html += `<div class="grammar-section"><h4>💬 Beispiele</h4><ul>${data.examples.map(r => `<li>${escapeHtml(r)}</li>`).join('')}</ul></div>`;
+  }
+  if(data.exceptions?.length){
+    html += `<div class="grammar-section"><h4>⚠️ Ausnahmen</h4><ul>${data.exceptions.map(r => `<li>${escapeHtml(r)}</li>`).join('')}</ul></div>`;
+  }
+  result.innerHTML = html;
+  wireSounds();
+});
+
+function escapeHtml(str){ const d = document.createElement('div'); d.textContent = str; return d.innerHTML; }
+
+// --- BONUS-SPIEL: Ballon-Pop ---------------------------------------------
+const BALLOON_EMOJI = ['🎈','🎉','⭐','🍀'];
+let gameScore = 0;
+let gameTimeLeft = 20;
+let gameTimerInterval = null;
+let gameSpawnInterval = null;
+
+function startBalloonGame(){
+  gameScore = 0;
+  gameTimeLeft = 20;
+  const area = document.getElementById('gameArea');
+  area.innerHTML = '';
+  document.getElementById('gameTimer').textContent = gameTimeLeft + 's';
+  showView('game');
+
+  clearInterval(gameTimerInterval);
+  clearInterval(gameSpawnInterval);
+
+  gameSpawnInterval = setInterval(() => spawnBalloon(area), 650);
+  gameTimerInterval = setInterval(() => {
+    gameTimeLeft--;
+    document.getElementById('gameTimer').textContent = gameTimeLeft + 's';
+    if(gameTimeLeft <= 0) endBalloonGame();
+  }, 1000);
+}
+
+function spawnBalloon(area){
+  const areaWidth = area.clientWidth;
+  const balloon = document.createElement('button');
+  balloon.className = 'balloon';
+  balloon.textContent = BALLOON_EMOJI[Math.floor(Math.random() * BALLOON_EMOJI.length)];
+  const duration = 3.5 + Math.random() * 2.5;
+  balloon.style.left = Math.max(10, Math.random() * (areaWidth - 50)) + 'px';
+  balloon.style.animationDuration = duration + 's';
+  balloon.addEventListener('click', () => {
+    if(balloon.classList.contains('popped')) return;
+    balloon.classList.add('popped');
+    gameScore++;
+    sndCorrect();
+    setTimeout(() => balloon.remove(), 260);
+  });
+  balloon.addEventListener('animationend', () => balloon.remove());
+  area.appendChild(balloon);
+}
+
+function endBalloonGame(){
+  clearInterval(gameTimerInterval);
+  clearInterval(gameSpawnInterval);
+  const area = document.getElementById('gameArea');
+  area.innerHTML = `
+    <div class="game-final">
+      <p>Geschafft!</p>
+      <div class="num">${gameScore}</div>
+      <p class="hint">Ballons gepoppt 🎈</p>
+      <button id="btnGameAgain" class="btn btn-primary">↻ Nochmal</button>
+      <button id="btnGameHome" class="btn btn-secondary">Zur Startseite</button>
+    </div>`;
+  document.getElementById('gameTimer').textContent = '0s';
+  sndComplete();
+  document.getElementById('btnGameAgain').addEventListener('click', () => { sndClick(); startBalloonGame(); });
+  document.getElementById('btnGameHome').addEventListener('click', () => { sndClick(); renderHub(); });
+}
+
+document.getElementById('btnPlayGame').addEventListener('click', () => { sndClick(); startBalloonGame(); });
+document.getElementById('btnGameBack').addEventListener('click', () => {
+  sndClick();
+  clearInterval(gameTimerInterval);
+  clearInterval(gameSpawnInterval);
+  renderHub();
+});
+
+wireSounds(document.body);
+renderHub();
+</script>
+</body>
+</html>
