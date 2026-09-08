@@ -25,7 +25,7 @@
   }
   *{box-sizing:border-box;}
   html{scroll-behavior:smooth;}
-  body{margin:0; background:var(--bg); color:var(--text); font-family:var(--font-sans); line-height:1.5; -webkit-font-smoothing:antialiased; overflow-x:hidden;}
+  body{margin:0; background:var(--bg); color:var(--text); font-family:var(--font-sans); line-height:1.5; -webkit-font-smoothing:antialiased; overflow-x:hidden; overflow-anchor:none;}
   code{font-family:var(--font-mono);}
 
   .bg-base{position:fixed; inset:0; z-index:-5; background:radial-gradient(ellipse at 50% -10%, var(--bg-2) 0%, var(--bg) 55%);}
@@ -67,6 +67,12 @@
 
   /* --- Kritischer Fix: [hidden] muss IMMER gewinnen, auch gegen eigene display-Regeln --- */
   [hidden]{display:none !important;}
+
+  /* --- Performance-Modus (manueller Reduce-Motion-Schalter aus den Einstellungen) --- */
+  html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after{
+    animation-duration:.001ms !important; animation-delay:0ms !important; animation-iteration-count:1 !important;
+    transition-duration:.001ms !important; scroll-behavior:auto !important;
+  }
 
   /* --- Sichtbarer Fokusring für Tastaturnavigation (Accessibility) --- */
   a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible,
@@ -138,7 +144,7 @@
   .sets-grid .set-card:nth-child(2), .session-options .session-opt:nth-child(2), .chip-row .chip:nth-child(2), .listen-list .listen-row:nth-child(2), .match-board .match-chip:nth-child(2), .hub-stats .hub-stat:nth-child(2), .feature-rail .feature-card:nth-child(2){animation-delay:.07s;}
   .sets-grid .set-card:nth-child(3), .session-options .session-opt:nth-child(3), .chip-row .chip:nth-child(3), .listen-list .listen-row:nth-child(3), .match-board .match-chip:nth-child(3), .hub-stats .hub-stat:nth-child(3), .feature-rail .feature-card:nth-child(3){animation-delay:.12s;}
   .sets-grid .set-card:nth-child(4), .session-options .session-opt:nth-child(4), .chip-row .chip:nth-child(4), .listen-list .listen-row:nth-child(4), .match-board .match-chip:nth-child(4), .feature-rail .feature-card:nth-child(4){animation-delay:.17s;}
-  .sets-grid .set-card:nth-child(5), .chip-row .chip:nth-child(5), .listen-list .listen-row:nth-child(5), .match-board .match-chip:nth-child(5){animation-delay:.22s;}
+  .sets-grid .set-card:nth-child(5), .chip-row .chip:nth-child(5), .listen-list .listen-row:nth-child(5), .match-board .match-chip:nth-child(5), .feature-rail .feature-card:nth-child(5){animation-delay:.22s;}
   .sets-grid .set-card:nth-child(n+6), .listen-list .listen-row:nth-child(n+6), .match-board .match-chip:nth-child(n+6){animation-delay:.27s;}
 
   h2{font-family:var(--font-serif); font-weight:600; font-size:1.5rem; margin:.2rem 0 1rem; letter-spacing:.01em;}
@@ -672,7 +678,8 @@
     font-family:var(--font-mono); font-size:.65rem; text-transform:uppercase; letter-spacing:.3em; color:var(--stone);
     margin:0 0 1.1rem; padding-left:.1rem;
   }
-  .feature-rail{ display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; }
+  .feature-rail{ display:grid; grid-template-columns:repeat(5,1fr); gap:1rem; }
+  @media (max-width:1399px) and (min-width:1080px){ .feature-rail{grid-template-columns:repeat(3,1fr);} }
   @media (max-width:1079px) and (min-width:640px){ .feature-rail{grid-template-columns:repeat(2,1fr);} }
   @media (max-width:639px){
     .feature-rail{
@@ -722,6 +729,8 @@
   .feature-card-icon.ic-gold::after{ background:linear-gradient(var(--gold), transparent); }
   .feature-card-icon.ic-pop{ color:var(--pop); background:rgba(244,114,182,.16); box-shadow:inset 0 0 0 1px rgba(244,114,182,.35); }
   .feature-card-icon.ic-pop::after{ background:linear-gradient(var(--pop), transparent); }
+  .feature-card-icon.ic-violet{ color:var(--pop-2); background:rgba(167,139,250,.18); box-shadow:inset 0 0 0 1px rgba(167,139,250,.4); }
+  .feature-card-icon.ic-violet::after{ background:linear-gradient(var(--pop-2), transparent); }
   .feature-card-body{position:relative; display:flex; flex-direction:column; gap:.3rem;}
   .feature-card-title{font-family:var(--font-sans); font-weight:700; font-size:1rem; color:var(--text);}
   .feature-card-desc{font-size:.82rem; color:var(--stone); line-height:1.5;}
@@ -788,6 +797,138 @@
   .settings-card .settings-desc{color:var(--stone); font-size:.85rem; margin:0 0 1.3rem;}
   .settings-card .volume-row{gap:1rem;}
   .settings-card .vol-btn{width:44px; height:44px; font-size:1.2rem;}
+  .settings-row-label{display:block; font-family:var(--font-mono); font-size:.68rem; text-transform:uppercase; letter-spacing:.07em; color:var(--stone); margin:1.2rem 0 .6rem;}
+  .settings-row-label:first-child{margin-top:0;}
+  .settings-toggle-row{
+    display:flex; align-items:center; justify-content:space-between; gap:1rem; margin:1.3rem 0 0;
+    cursor:pointer; font-size:.9rem; color:var(--text);
+  }
+  .settings-switch{
+    -webkit-appearance:none; appearance:none; width:42px; height:24px; border-radius:999px; flex-shrink:0;
+    background:var(--surface-2); border:1px solid var(--border-solid); position:relative; cursor:pointer; margin:0;
+    transition:background .2s var(--ease), border-color .2s var(--ease);
+  }
+  .settings-switch::before{
+    content:''; position:absolute; top:2px; left:2px; width:18px; height:18px; border-radius:50%; background:var(--stone);
+    transition:transform .25s var(--ease-spring), background .2s var(--ease);
+  }
+  .settings-switch:checked{background:rgba(45,212,191,.28); border-color:var(--ember);}
+  .settings-switch:checked::before{transform:translateX(18px); background:var(--ember-bright); box-shadow:0 0 8px 1px rgba(45,212,191,.6);}
+  .settings-note{font-size:.8rem; color:var(--stone); margin:.8rem 0 0;}
+  .goal-progress{margin-top:1.3rem;}
+  .goal-progress-track{height:8px; border-radius:4px; background:var(--surface-2); overflow:hidden;}
+  .goal-progress-fill{height:100%; background:linear-gradient(90deg, var(--ember), var(--gold)); border-radius:4px; transition:width .4s var(--ease-spring); box-shadow:0 0 10px 1px rgba(45,212,191,.5);}
+  .goal-progress-label{margin:.6rem 0 0; font-family:var(--font-mono); font-size:.78rem; color:var(--stone);}
+
+  /* --- Startseiten-Banner für anstehende Klausuren --- */
+  .exam-banner{
+    display:flex; align-items:center; gap:.8rem; margin-bottom:1.6rem; padding:.9rem 1.1rem;
+    background:linear-gradient(120deg, rgba(45,212,191,.14), rgba(37,99,235,.1)); border:1px solid rgba(45,212,191,.35);
+    border-radius:16px; backdrop-filter:blur(14px); animation:heroIn .5s var(--ease-premium) backwards;
+  }
+  .exam-banner-icon{font-size:1.2rem; flex-shrink:0;}
+  .exam-banner-text{flex:1; margin:0; font-size:.88rem; color:var(--text); line-height:1.5;}
+  .exam-banner-close{
+    flex-shrink:0; background:none; border:none; color:var(--stone); cursor:pointer; font-size:.9rem; padding:.3rem;
+    border-radius:50%; transition:color .2s var(--ease), background .2s var(--ease);
+  }
+  .exam-banner-close:hover{color:var(--text); background:rgba(255,255,255,.08);}
+
+  /* --- Kalender --- */
+  .cal-toolbar{display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:.8rem; margin-top:1.6rem;}
+  .cal-nav{display:flex; align-items:center; gap:.9rem;}
+  .cal-nav-btn{
+    width:34px; height:34px; border-radius:50%; background:var(--surface); border:1px solid var(--border-solid); color:var(--text);
+    font-size:1.1rem; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:border-color .2s var(--ease), background .2s var(--ease);
+  }
+  .cal-nav-btn:hover{border-color:var(--ember-dim); background:var(--surface-2);}
+  .cal-label{font-family:var(--font-serif); font-weight:600; font-size:1.15rem; min-width:11em; text-align:center; margin:0;}
+  .cal-toolbar-right{display:flex; align-items:center; gap:.7rem; flex-wrap:wrap;}
+  .cal-view-toggle{gap:.4rem;}
+  .cal-view-toggle .chip{padding:.4rem .85rem; font-size:.78rem;}
+  .cal-weekday-row{display:grid; grid-template-columns:repeat(7,1fr); gap:.5rem; margin-top:1.4rem; text-align:center; font-family:var(--font-mono); font-size:.65rem; text-transform:uppercase; letter-spacing:.08em; color:var(--stone);}
+  .cal-grid{display:grid; grid-template-columns:repeat(7,1fr); gap:.5rem; margin-top:.6rem;}
+  .cal-grid-week{grid-template-columns:repeat(7,1fr);}
+  @media (max-width:700px){ .cal-grid-week{grid-template-columns:1fr; gap:.6rem;} }
+  .cal-day{
+    position:relative; aspect-ratio:1/1; min-height:44px; background:var(--surface); border:1px solid var(--border-solid); border-radius:12px;
+    color:var(--text); cursor:pointer; padding:.4rem; display:flex; flex-direction:column; align-items:flex-start; gap:.3rem;
+    transition:border-color .2s var(--ease), background .2s var(--ease), transform .15s var(--ease-spring);
+  }
+  .cal-day:hover{border-color:var(--ember-dim); background:var(--surface-2); transform:translateY(-2px);}
+  .cal-day:active{transform:scale(.95);}
+  .cal-day.other-month{opacity:.35;}
+  .cal-day.today{border-color:var(--ember); box-shadow:0 0 0 1px var(--ember), 0 0 14px 1px rgba(45,212,191,.35);}
+  .cal-day-num{font-family:var(--font-mono); font-size:.78rem; font-weight:700;}
+  .cal-day-dots{display:flex; gap:.2rem; flex-wrap:wrap; margin-top:auto;}
+  .cal-dot{width:6px; height:6px; border-radius:50%; flex-shrink:0;}
+  .cal-dot-more{font-family:var(--font-mono); font-size:.55rem; color:var(--stone);}
+  .cal-dot-lk, .cal-week-event.cal-dot-lk{background:var(--pop);}
+  .cal-dot-ka, .cal-week-event.cal-dot-ka{background:var(--gold-bright);}
+  .cal-dot-vt, .cal-week-event.cal-dot-vt{background:var(--ember-bright);}
+  .cal-dot-mp, .cal-week-event.cal-dot-mp{background:var(--pop-2);}
+  .cal-dot-other, .cal-week-event.cal-dot-other{background:var(--stone);}
+  .agenda-dot.cal-dot-lk{box-shadow:0 0 8px 1px var(--pop);} .agenda-dot.cal-dot-ka{box-shadow:0 0 8px 1px var(--gold-bright);}
+  .agenda-dot.cal-dot-vt{box-shadow:0 0 8px 1px var(--ember-bright);} .agenda-dot.cal-dot-mp{box-shadow:0 0 8px 1px var(--pop-2);}
+
+  .cal-week-day{
+    background:var(--surface); border:1px solid var(--border-solid); border-radius:14px; padding:.8rem; min-height:140px;
+    display:flex; flex-direction:column; gap:.4rem;
+  }
+  .cal-week-day.today{border-color:var(--ember); box-shadow:0 0 0 1px var(--ember);}
+  .cal-week-daynum{margin:0 0 .2rem; font-family:var(--font-mono); font-size:.7rem; text-transform:uppercase; letter-spacing:.06em; color:var(--stone);}
+  .cal-week-event{
+    display:block; width:100%; text-align:left; border:none; border-radius:8px; padding:.4rem .6rem; font-size:.78rem; font-weight:600;
+    color:#0a0518; cursor:pointer; white-space:normal; line-height:1.3;
+  }
+  .cal-week-empty{margin:0; color:var(--stone); font-size:.8rem; font-style:italic;}
+  .cal-week-add{
+    margin-top:auto; background:none; border:1px dashed var(--border-solid); border-radius:8px; padding:.35rem; color:var(--stone);
+    font-family:var(--font-mono); font-size:.68rem; cursor:pointer; transition:border-color .2s var(--ease), color .2s var(--ease);
+  }
+  .cal-week-add:hover{border-color:var(--ember-dim); color:var(--text);}
+
+  .cal-agenda{margin-top:2.2rem;}
+  .agenda-row{
+    display:flex; align-items:flex-start; gap:.9rem; background:var(--surface); backdrop-filter:blur(14px); border:1px solid var(--border-solid);
+    border-radius:16px; padding:1rem 1.2rem; margin-bottom:.7rem;
+  }
+  .agenda-dot{width:10px; height:10px; border-radius:50%; margin-top:.4rem; flex-shrink:0;}
+  .agenda-body{flex:1; min-width:0;}
+  .agenda-title{margin:0; font-weight:700; font-size:.95rem;}
+  .agenda-type{font-family:var(--font-mono); font-size:.62rem; text-transform:uppercase; letter-spacing:.06em; color:var(--stone); font-weight:500; margin-left:.4rem;}
+  .agenda-meta{margin:.25rem 0 0; font-size:.78rem; color:var(--stone);}
+  .agenda-topics{margin:.4rem 0 0; font-size:.82rem; color:var(--text);}
+  .agenda-plan{margin:.4rem 0 0; font-size:.78rem; color:var(--ember-bright);}
+  .agenda-checklist{margin:.4rem 0 0; font-size:.78rem; color:var(--success);}
+
+  /* --- Termin-Modal --- */
+  .event-modal-box{max-width:520px; max-height:88vh; overflow-y:auto;}
+  .ev-label{display:block; font-family:var(--font-mono); font-size:.65rem; text-transform:uppercase; letter-spacing:.07em; color:var(--stone); margin:1.1rem 0 .5rem;}
+  .ev-label:first-of-type{margin-top:0;}
+  .event-modal-box .modal-input{width:100%; margin-bottom:0; resize:vertical; font-family:var(--font-sans);}
+  .ev-row{display:grid; grid-template-columns:1fr 1fr; gap:.8rem;}
+  .ev-set-picker{display:flex; flex-direction:column; gap:.5rem; max-height:140px; overflow-y:auto; padding-right:.2rem;}
+  .ev-set-chip{
+    display:flex; align-items:center; gap:.6rem; background:var(--surface-2); border:1px solid var(--border-solid); border-radius:10px;
+    padding:.55rem .8rem; font-size:.85rem; cursor:pointer;
+  }
+  .ev-set-chip input{accent-color:var(--ember); width:16px; height:16px; flex-shrink:0;}
+  .ev-set-chip em{color:var(--stone); font-style:normal;}
+  .ev-plan{margin:.7rem 0 0; padding:.7rem .9rem; background:rgba(45,212,191,.1); border:1px solid rgba(45,212,191,.3); border-radius:10px; font-size:.8rem; color:var(--ember-bright);}
+  .ev-checklist{display:flex; flex-direction:column; gap:.5rem;}
+  .ev-checklist-row{display:flex; align-items:center; gap:.5rem;}
+  .ev-checklist-row input[type="checkbox"]{accent-color:var(--ember); width:17px; height:17px; flex-shrink:0;}
+  .ev-check-text{flex:1; font:inherit; font-size:.85rem; color:var(--text); background:var(--surface-2); border:1px solid var(--border-solid); border-radius:8px; padding:.45rem .6rem;}
+  .ev-check-remove{flex-shrink:0; background:none; border:none; color:var(--stone); cursor:pointer; font-size:.85rem; padding:.3rem;}
+  .ev-check-remove:hover{color:var(--danger);}
+  .ev-modal-actions{justify-content:space-between; margin-top:1.5rem;}
+  @media (max-width:480px){
+    .ev-row{grid-template-columns:1fr;}
+    .ev-modal-actions{flex-direction:column-reverse; align-items:stretch; gap:.6rem;}
+    .ev-modal-actions .btn-group{justify-content:stretch;}
+    .ev-modal-actions .btn-group .btn{flex:1;}
+  }
 
   /* --- Page heading (für Grammatik/Sprechen als eigenständige Seiten) --- */
   .page-eyebrow{font-family:var(--font-mono); font-size:.65rem; text-transform:uppercase; letter-spacing:.3em; color:var(--stone); margin:0 0 .8rem;}
@@ -829,7 +970,8 @@
       <li><button class="nav-overlay-item" data-goto="rewards"><span class="idx">03</span><span class="label">Belohnungen</span><span class="hint">Serie &amp; Fortschritt</span></button></li>
       <li><button class="nav-overlay-item" data-goto="grammar"><span class="idx">04</span><span class="label">Grammatik</span><span class="hint">Regeln erklärt</span></button></li>
       <li><button class="nav-overlay-item" data-goto="listen"><span class="idx">05</span><span class="label">Sprechen</span><span class="hint">Aussprache üben</span></button></li>
-      <li><button class="nav-overlay-item" data-goto="settingsPage"><span class="idx">06</span><span class="label">Einstellungen</span><span class="hint">App anpassen</span></button></li>
+      <li><button class="nav-overlay-item" data-goto="calendar"><span class="idx">06</span><span class="label">Kalender</span><span class="hint">Klausuren &amp; Lernplan</span></button></li>
+      <li><button class="nav-overlay-item" data-goto="settingsPage"><span class="idx">07</span><span class="label">Einstellungen</span><span class="hint">Webseite anpassen</span></button></li>
     </ul>
   </nav>
 </div>
@@ -845,11 +987,68 @@
     </div>
   </div>
 </div>
+
+<div class="modal-backdrop" id="eventModalBackdrop">
+  <div class="modal-box event-modal-box">
+    <h3 id="eventModalTitle">Neuer Termin</h3>
+    <form id="eventForm">
+      <label class="ev-label">Art der Arbeit</label>
+      <div class="chip-row" id="eventTypeChips">
+        <button type="button" class="chip" data-type="LK">LK</button>
+        <button type="button" class="chip" data-type="Klassenarbeit">Klassenarbeit</button>
+        <button type="button" class="chip" data-type="Vokabeltest">Vokabeltest</button>
+        <button type="button" class="chip" data-type="Mündliche Prüfung">Mündliche Prüfung</button>
+      </div>
+
+      <label class="ev-label" for="eventTitle">Titel (optional)</label>
+      <input type="text" id="eventTitle" class="modal-input" placeholder="z.B. Französisch LK 3">
+
+      <div class="ev-row">
+        <div>
+          <label class="ev-label" for="eventDate">Datum</label>
+          <input type="date" id="eventDate" class="modal-input" required>
+        </div>
+        <div>
+          <label class="ev-label" for="eventTime">Uhrzeit (optional)</label>
+          <input type="time" id="eventTime" class="modal-input">
+        </div>
+      </div>
+
+      <label class="ev-label" for="eventTopics">Themen &amp; Kapitel</label>
+      <textarea id="eventTopics" class="modal-input" rows="2" placeholder="z.B. Kapitel 3, Passé composé, Wortschatz Reisen"></textarea>
+
+      <label class="ev-label">Verknüpfte Lernsets</label>
+      <div class="ev-set-picker" id="eventSetPicker"></div>
+      <p class="ev-plan" id="eventPlanInfo" hidden></p>
+
+      <label class="ev-label" for="eventNotes">Notizen</label>
+      <textarea id="eventNotes" class="modal-input" rows="2" placeholder="Weitere Notizen ..."></textarea>
+
+      <label class="ev-label">Vorbereitungs-Checkliste</label>
+      <div id="eventChecklist" class="ev-checklist"></div>
+      <button type="button" class="btn btn-secondary btn-small" id="btnAddChecklistItem">+ Punkt hinzufügen</button>
+
+      <div class="modal-actions ev-modal-actions">
+        <button type="button" class="btn btn-danger btn-small" id="btnDeleteEvent" hidden>Löschen</button>
+        <div class="btn-group">
+          <button type="button" class="btn btn-secondary" id="eventCancel">Abbrechen</button>
+          <button type="submit" class="btn btn-primary">Speichern</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <main id="app">
 
   <section id="view-hub" class="view">
+    <div class="exam-banner" id="examBanner" hidden>
+      <span class="exam-banner-icon">⏰</span>
+      <p class="exam-banner-text" id="examBannerText"></p>
+      <button class="exam-banner-close" id="examBannerClose" type="button" aria-label="Schließen">✕</button>
+    </div>
     <div class="hub-grid">
       <div class="hub-copy">
         <p class="hub-eyebrow"><span class="dot"></span> Deutsch — Français</p>
@@ -938,7 +1137,7 @@
     </div>
 
     <div class="hub-features">
-      <p class="hub-features-eyebrow">Entdecke die App</p>
+      <p class="hub-features-eyebrow">Entdecke die Webseite</p>
       <div class="feature-rail" id="featureRail">
         <button class="feature-card" id="featCardSets" type="button">
           <span class="feature-card-arrow">→</span>
@@ -981,6 +1180,17 @@
           <span class="feature-card-body">
             <span class="feature-card-title">Grammatik</span>
             <span class="feature-card-desc">Regeln von der KI erklärt bekommen.</span>
+          </span>
+        </button>
+
+        <button class="feature-card" id="featCardCalendar" type="button">
+          <span class="feature-card-arrow">→</span>
+          <span class="feature-card-icon ic-violet">
+            <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="16" rx="2.5"/><path d="M3.5 9.5h17"/><path d="M8 3v4M16 3v4"/><circle cx="8.2" cy="14" r="1.1" fill="currentColor" stroke="none"/><circle cx="12" cy="14" r="1.1" fill="currentColor" stroke="none"/></svg>
+          </span>
+          <span class="feature-card-body">
+            <span class="feature-card-title">Kalender</span>
+            <span class="feature-card-desc">Klausuren eintragen &amp; Lernplan sehen.</span>
           </span>
         </button>
       </div>
@@ -1234,11 +1444,26 @@
   </section>
 
   <section id="view-settings" class="view" hidden>
-    <p class="page-eyebrow">Einstellungen · 06</p>
+    <p class="page-eyebrow">Einstellungen · 07</p>
     <h2 class="page-title" style="margin-bottom:.6rem;">Ganz nach dir</h2>
-    <p class="page-sub">Lautstärke der Soundeffekte anpassen.</p>
+    <p class="page-sub">Lernziele, Ton, Erinnerungen und Design nach deinem Geschmack.</p>
+
     <div class="settings-card">
-      <p class="settings-title">Lautstärke</p>
+      <p class="settings-title">🎯 Tagesziel</p>
+      <p class="settings-desc">Wie viele Vokabeln möchtest du pro Tag üben?</p>
+      <div class="chip-row" id="dailyGoalChips">
+        <button type="button" class="chip" data-goal="10">10 / Tag</button>
+        <button type="button" class="chip" data-goal="20">20 / Tag</button>
+        <button type="button" class="chip" data-goal="50">50 / Tag</button>
+      </div>
+      <div class="goal-progress">
+        <div class="goal-progress-track"><div class="goal-progress-fill" id="goalProgressFill" style="width:0%"></div></div>
+        <p class="goal-progress-label" id="goalProgressLabel">0 / 20 heute geübt</p>
+      </div>
+    </div>
+
+    <div class="settings-card">
+      <p class="settings-title">Lautstärke (Soundeffekte)</p>
       <p class="settings-desc">Steuert Klick-, Erfolgs- und Fehler-Töne im Übungsmodus.</p>
       <div class="volume-row">
         <button class="vol-btn" id="volBtn" type="button" aria-label="Stummschalten">
@@ -1247,6 +1472,110 @@
         </button>
         <input type="range" id="volumeSlider" class="volume-slider" min="0" max="100" value="70" aria-label="Lautstärke">
       </div>
+    </div>
+
+    <div class="settings-card">
+      <p class="settings-title">🔊 Sprachausgabe &amp; Aussprache-Trainer</p>
+      <p class="settings-desc">Lautstärke, Geschwindigkeit und Verhalten der Vorlese-Stimme.</p>
+      <label class="settings-row-label" for="ttsVolumeSlider">Lautstärke</label>
+      <div class="volume-row">
+        <input type="range" id="ttsVolumeSlider" class="volume-slider" min="0" max="100" value="100" aria-label="Sprachausgabe-Lautstärke">
+      </div>
+      <p class="settings-row-label">Sprechgeschwindigkeit (Empfindlichkeit Aussprache-Trainer)</p>
+      <div class="chip-row" id="speechRateChips">
+        <button type="button" class="chip" data-rate="slow">🐢 Langsam</button>
+        <button type="button" class="chip" data-rate="normal">Normal</button>
+        <button type="button" class="chip" data-rate="fast">🐇 Schnell</button>
+      </div>
+      <label class="settings-toggle-row" for="autoPlayFlashcard">
+        <span>Antwort beim Umdrehen der Karteikarte automatisch vorlesen</span>
+        <input type="checkbox" id="autoPlayFlashcard" class="settings-switch">
+      </label>
+    </div>
+
+    <div class="settings-card">
+      <p class="settings-title">🔔 Erinnerungen &amp; Benachrichtigungen</p>
+      <p class="settings-desc">Wann und wie du an bevorstehende Klausuren erinnert werden möchtest.</p>
+      <p class="settings-row-label">Vorlaufzeit für Erinnerungen</p>
+      <div class="chip-row" id="reminderLeadChips">
+        <button type="button" class="chip" data-lead="7">7 Tage</button>
+        <button type="button" class="chip" data-lead="3">3 Tage</button>
+        <button type="button" class="chip" data-lead="1">1 Tag</button>
+      </div>
+      <label class="settings-toggle-row" for="inSiteBannerToggle">
+        <span>Hinweis-Banner auf der Startseite</span>
+        <input type="checkbox" id="inSiteBannerToggle" class="settings-switch">
+      </label>
+      <label class="settings-toggle-row" for="browserNotifToggle">
+        <span>Browser-Benachrichtigungen</span>
+        <input type="checkbox" id="browserNotifToggle" class="settings-switch">
+      </label>
+      <p class="settings-note" id="notifNote">Funktioniert, solange diese Seite im Browser geöffnet ist.</p>
+    </div>
+
+    <div class="settings-card">
+      <p class="settings-title">✨ Darstellung</p>
+      <p class="settings-desc">Leuchteffekte, Bewegung und Textgröße feinjustieren.</p>
+      <label class="settings-row-label" for="glowSlider">Glow-Intensität der Türkis-Akzente</label>
+      <div class="volume-row">
+        <input type="range" id="glowSlider" min="60" max="140" value="100" class="volume-slider" aria-label="Glow-Intensität">
+      </div>
+      <label class="settings-toggle-row" for="reducedMotionToggle">
+        <span>Reduzierte Animationen (Performance-Modus)</span>
+        <input type="checkbox" id="reducedMotionToggle" class="settings-switch">
+      </label>
+      <p class="settings-row-label">Schriftgröße &amp; Dichte</p>
+      <div class="chip-row" id="fontScaleChips">
+        <button type="button" class="chip" data-scale="small">Kompakt</button>
+        <button type="button" class="chip" data-scale="normal">Standard</button>
+        <button type="button" class="chip" data-scale="large">Groß</button>
+      </div>
+    </div>
+
+    <div class="settings-card">
+      <p class="settings-title">💾 Daten-Management</p>
+      <p class="settings-desc">Lernfortschritt zurücksetzen oder alle Lern- &amp; Kalenderdaten sichern.</p>
+      <div class="btn-group">
+        <button type="button" class="btn btn-secondary" id="btnExportAll">⬇ Alles exportieren</button>
+        <button type="button" class="btn btn-secondary" id="btnImportAll">⬆ Importieren</button>
+        <button type="button" class="btn btn-danger" id="btnResetProgress">Fortschritt zurücksetzen</button>
+      </div>
+      <input type="file" id="importAllFile" accept="application/json" hidden>
+    </div>
+  </section>
+
+  <section id="view-calendar" class="view" hidden>
+    <div class="row-between">
+      <div>
+        <p class="page-eyebrow">Kalender · 06</p>
+        <h2 class="page-title" style="margin-bottom:.3rem;">Klausuren &amp; Lernplan</h2>
+      </div>
+      <button type="button" class="btn btn-primary" id="btnAddEvent">+ Termin</button>
+    </div>
+
+    <div class="cal-toolbar">
+      <div class="cal-nav">
+        <button type="button" class="cal-nav-btn" id="calPrev" aria-label="Zurück">‹</button>
+        <p class="cal-label" id="calLabel">—</p>
+        <button type="button" class="cal-nav-btn" id="calNext" aria-label="Weiter">›</button>
+      </div>
+      <div class="cal-toolbar-right">
+        <div class="chip-row cal-view-toggle">
+          <button type="button" class="chip selected" data-calview="month">Monat</button>
+          <button type="button" class="chip" data-calview="week">Woche</button>
+        </div>
+        <button type="button" class="btn btn-secondary btn-small" id="calToday">Heute</button>
+      </div>
+    </div>
+
+    <div class="cal-weekday-row">
+      <span>Mo</span><span>Di</span><span>Mi</span><span>Do</span><span>Fr</span><span>Sa</span><span>So</span>
+    </div>
+    <div class="cal-grid cal-grid-month" id="calGrid"></div>
+
+    <div class="cal-agenda">
+      <p class="settings-row-label">Nächste Termine</p>
+      <div id="calAgendaList"></div>
     </div>
   </section>
 
@@ -1445,7 +1774,8 @@ function speak(text, lang, btn){
   document.querySelectorAll('.speaking').forEach(el => el.classList.remove('speaking'));
   const utter = new SpeechSynthesisUtterance(text);
   utter.lang = lang;
-  utter.rate = 0.88;
+  utter.rate = { slow: 0.68, normal: 0.88, fast: 1.15 }[store.settings.speechRate] || 0.88;
+  utter.volume = Math.max(0, Math.min(1, store.settings.ttsVolume / 100));
   if(btn){
     btn.classList.add('speaking');
     const stop = () => btn.classList.remove('speaking');
@@ -1475,6 +1805,460 @@ volBtn.addEventListener('click', () => {
   if(soundEnabled) sndClick();
 });
 updateVolIcon();
+
+// --- Einstellungen-Seite --------------------------------------------------
+const ttsVolumeSlider = document.getElementById('ttsVolumeSlider');
+const glowSlider = document.getElementById('glowSlider');
+const autoPlayFlashcardToggle = document.getElementById('autoPlayFlashcard');
+const inSiteBannerToggle = document.getElementById('inSiteBannerToggle');
+const reducedMotionToggle = document.getElementById('reducedMotionToggle');
+const browserNotifToggle = document.getElementById('browserNotifToggle');
+
+function renderSettingsPage(){
+  document.querySelectorAll('#dailyGoalChips .chip').forEach(c => c.classList.toggle('selected', Number(c.dataset.goal) === store.settings.dailyGoal));
+  document.querySelectorAll('#speechRateChips .chip').forEach(c => c.classList.toggle('selected', c.dataset.rate === store.settings.speechRate));
+  document.querySelectorAll('#reminderLeadChips .chip').forEach(c => c.classList.toggle('selected', store.settings.reminderLeadDays.includes(Number(c.dataset.lead))));
+  document.querySelectorAll('#fontScaleChips .chip').forEach(c => c.classList.toggle('selected', c.dataset.scale === store.settings.fontScale));
+  ttsVolumeSlider.value = store.settings.ttsVolume;
+  glowSlider.value = Math.round(store.settings.glowIntensity * 100);
+  autoPlayFlashcardToggle.checked = store.settings.autoPlayFlashcard;
+  inSiteBannerToggle.checked = store.settings.inSiteBanner;
+  reducedMotionToggle.checked = store.settings.reducedMotion;
+  browserNotifToggle.checked = store.settings.browserNotifications && ('Notification' in window) && Notification.permission === 'granted';
+  const notifNote = document.getElementById('notifNote');
+  if('Notification' in window && Notification.permission === 'denied'){
+    notifNote.textContent = 'Benachrichtigungen sind in deinem Browser blockiert — erlaube sie in den Website-Einstellungen deines Browsers.';
+  } else {
+    notifNote.textContent = 'Funktioniert, solange diese Seite in einem Browser-Tab geöffnet ist.';
+  }
+  const goal = store.settings.dailyGoal;
+  const done = store.dailyProgress[todayKey()] || 0;
+  document.getElementById('goalProgressFill').style.width = Math.min(100, (done / goal) * 100) + '%';
+  document.getElementById('goalProgressLabel').textContent = `${done} / ${goal} heute geübt` + (done >= goal ? ' 🎉' : '');
+}
+
+document.querySelectorAll('#dailyGoalChips .chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    store.settings.dailyGoal = Number(chip.dataset.goal);
+    saveData(store);
+    renderSettingsPage();
+  });
+});
+document.querySelectorAll('#speechRateChips .chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    store.settings.speechRate = chip.dataset.rate;
+    saveData(store);
+    renderSettingsPage();
+  });
+});
+document.querySelectorAll('#reminderLeadChips .chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    const days = Number(chip.dataset.lead);
+    const idx = store.settings.reminderLeadDays.indexOf(days);
+    if(idx === -1) store.settings.reminderLeadDays.push(days); else store.settings.reminderLeadDays.splice(idx, 1);
+    saveData(store);
+    renderSettingsPage();
+  });
+});
+document.querySelectorAll('#fontScaleChips .chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    store.settings.fontScale = chip.dataset.scale;
+    saveData(store);
+    applySettingsToUI();
+    renderSettingsPage();
+  });
+});
+ttsVolumeSlider.addEventListener('input', () => {
+  store.settings.ttsVolume = Number(ttsVolumeSlider.value);
+  saveData(store);
+});
+glowSlider.addEventListener('input', () => {
+  store.settings.glowIntensity = Number(glowSlider.value) / 100;
+  saveData(store);
+  applySettingsToUI();
+});
+autoPlayFlashcardToggle.addEventListener('change', () => {
+  store.settings.autoPlayFlashcard = autoPlayFlashcardToggle.checked;
+  saveData(store);
+});
+inSiteBannerToggle.addEventListener('change', () => {
+  store.settings.inSiteBanner = inSiteBannerToggle.checked;
+  saveData(store);
+  if(typeof updateExamBanner === 'function') updateExamBanner();
+});
+reducedMotionToggle.addEventListener('change', () => {
+  store.settings.reducedMotion = reducedMotionToggle.checked;
+  saveData(store);
+  applySettingsToUI();
+});
+browserNotifToggle.addEventListener('change', async () => {
+  if(browserNotifToggle.checked){
+    if(!('Notification' in window)){
+      showToast('Dein Browser unterstützt keine Benachrichtigungen.', true);
+      browserNotifToggle.checked = false;
+      return;
+    }
+    const perm = await Notification.requestPermission();
+    if(perm !== 'granted'){
+      browserNotifToggle.checked = false;
+      showToast('Benachrichtigungen wurden nicht erlaubt.', true);
+      store.settings.browserNotifications = false;
+    } else {
+      store.settings.browserNotifications = true;
+      showToast('Benachrichtigungen aktiviert.');
+      if(typeof checkExamReminders === 'function') checkExamReminders();
+    }
+  } else {
+    store.settings.browserNotifications = false;
+  }
+  saveData(store);
+});
+
+document.getElementById('btnResetProgress').addEventListener('click', async () => {
+  const ok = await customConfirm('Fortschritt zurücksetzen?', 'Deine Lern-Serie und dein Tagesfortschritt werden gelöscht. Lernsets und Kalendereinträge bleiben erhalten.', 'Zurücksetzen');
+  if(!ok) return;
+  store.streakDates = [];
+  store.dailyProgress = {};
+  saveData(store);
+  renderSettingsPage();
+  showToast('Fortschritt wurde zurückgesetzt.');
+});
+
+document.getElementById('btnExportAll').addEventListener('click', () => {
+  const blob = new Blob([JSON.stringify(store, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `vokabeltrainer-daten-${todayKey()}.json`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+  showToast('Daten exportiert.');
+});
+document.getElementById('btnImportAll').addEventListener('click', () => document.getElementById('importAllFile').click());
+document.getElementById('importAllFile').addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  e.target.value = '';
+  if(!file) return;
+  try{
+    const text = await file.text();
+    const parsed = JSON.parse(text);
+    if(!parsed || !Array.isArray(parsed.sets)) throw new Error('Ungültiges Format');
+    const ok = await customConfirm('Daten importieren?', 'Alle aktuellen Lernsets, Einstellungen und Kalendereinträge werden durch die Datei ersetzt.', 'Importieren');
+    if(!ok) return;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
+    showToast('Import erfolgreich — die Seite wird neu geladen.');
+    setTimeout(() => location.reload(), 900);
+  }catch(err){
+    showToast('Import fehlgeschlagen: Datei ist kein gültiges Backup.', true);
+  }
+});
+
+// --- Kalender: Klausuren & Lernplan ---------------------------------------
+function dateKey(d){ const x = new Date(d); x.setHours(0,0,0,0); return x.toISOString().slice(0,10); }
+function startOfWeek(d){ const x = new Date(d); const day = (x.getDay() + 6) % 7; x.setDate(x.getDate() - day); x.setHours(0,0,0,0); return x; }
+function eventsOnDate(k){ return store.examEvents.filter(ev => ev.date === k); }
+function evTypeClass(type){ return { 'LK': 'lk', 'Klassenarbeit': 'ka', 'Vokabeltest': 'vt', 'Mündliche Prüfung': 'mp' }[type] || 'other'; }
+function daysUntilDate(dateStr){
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const d = new Date(dateStr + 'T00:00:00');
+  return Math.round((d - today) / 86400000);
+}
+function computeStudyPlan(ev){
+  const daysUntil = Math.max(0, daysUntilDate(ev.date));
+  const totalWords = (ev.linkedSetIds || []).reduce((sum, id) => { const s = getSet(id); return sum + (s ? s.pairs.length : 0); }, 0);
+  const perDay = daysUntil > 0 ? Math.ceil(totalWords / daysUntil) : totalWords;
+  return { daysUntil, totalWords, perDay };
+}
+
+let calendarState = { mode: 'month', cursor: new Date() };
+
+function renderCalendar(){
+  showView('calendar');
+  currentNavId = 'calendar';
+  updateNavActiveStates();
+  renderCalendarGrid();
+  renderCalendarAgenda();
+  wireSounds();
+}
+
+function renderCalendarGrid(){
+  const grid = document.getElementById('calGrid');
+  const label = document.getElementById('calLabel');
+  const weekdayRow = document.querySelector('.cal-weekday-row');
+  grid.innerHTML = '';
+  grid.className = 'cal-grid cal-grid-' + calendarState.mode;
+  const cursor = calendarState.cursor;
+  const todayK = dateKey(new Date());
+
+  if(calendarState.mode === 'month'){
+    weekdayRow.hidden = false;
+    label.textContent = cursor.toLocaleDateString('de-DE', { month: 'long', year: 'numeric' });
+    const firstOfMonth = new Date(cursor.getFullYear(), cursor.getMonth(), 1);
+    const start = startOfWeek(firstOfMonth);
+    for(let i = 0; i < 42; i++){
+      const d = new Date(start); d.setDate(start.getDate() + i);
+      const k = dateKey(d);
+      const inMonth = d.getMonth() === cursor.getMonth();
+      const evs = eventsOnDate(k);
+      const cell = document.createElement('button');
+      cell.type = 'button';
+      cell.className = 'cal-day' + (inMonth ? '' : ' other-month') + (k === todayK ? ' today' : '');
+      cell.innerHTML = `<span class="cal-day-num">${d.getDate()}</span>` +
+        (evs.length ? `<span class="cal-day-dots">${evs.slice(0, 3).map(ev => `<span class="cal-dot cal-dot-${evTypeClass(ev.type)}"></span>`).join('')}${evs.length > 3 ? `<span class="cal-dot-more">+${evs.length - 3}</span>` : ''}</span>` : '');
+      cell.addEventListener('click', () => {
+        sndClick();
+        if(evs.length === 1) openEventModal(evs[0].id);
+        else if(evs.length > 1){
+          calendarState.mode = 'week';
+          calendarState.cursor = d;
+          document.querySelectorAll('[data-calview]').forEach(b => b.classList.toggle('selected', b.dataset.calview === 'week'));
+          renderCalendarGrid();
+        } else openEventModal(null, k);
+      });
+      grid.appendChild(cell);
+    }
+  } else {
+    weekdayRow.hidden = true;
+    const start = startOfWeek(cursor);
+    const end = new Date(start); end.setDate(start.getDate() + 6);
+    label.textContent = start.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' }) + ' – ' + end.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    for(let i = 0; i < 7; i++){
+      const d = new Date(start); d.setDate(start.getDate() + i);
+      const k = dateKey(d);
+      const evs = eventsOnDate(k);
+      const cell = document.createElement('div');
+      cell.className = 'cal-week-day' + (k === todayK ? ' today' : '');
+      cell.innerHTML = `<p class="cal-week-daynum">${d.toLocaleDateString('de-DE', { weekday: 'short' })} ${d.getDate()}.</p>` +
+        (evs.length ? evs.map(ev => `<button type="button" class="cal-week-event cal-dot-${evTypeClass(ev.type)}" data-id="${ev.id}">${escapeHtml(ev.title || ev.type)}</button>`).join('') : '<p class="cal-week-empty">—</p>') +
+        `<button type="button" class="cal-week-add" data-date="${k}">+ Termin</button>`;
+      cell.querySelectorAll('.cal-week-event').forEach(b => b.addEventListener('click', () => openEventModal(b.dataset.id)));
+      cell.querySelector('.cal-week-add').addEventListener('click', () => openEventModal(null, k));
+      grid.appendChild(cell);
+    }
+  }
+}
+
+function renderCalendarAgenda(){
+  const list = document.getElementById('calAgendaList');
+  const todayK = dateKey(new Date());
+  const upcoming = store.examEvents.filter(ev => ev.date >= todayK).sort((a, b) => a.date.localeCompare(b.date) || (a.time || '').localeCompare(b.time || ''));
+  if(upcoming.length === 0){ list.innerHTML = '<p class="empty-hint">Noch keine Termine eingetragen.</p>'; return; }
+  list.innerHTML = '';
+  upcoming.forEach(ev => {
+    const plan = computeStudyPlan(ev);
+    const doneCount = (ev.checklist || []).filter(c => c.done).length;
+    const row = document.createElement('div');
+    row.className = 'agenda-row';
+    row.innerHTML = `
+      <span class="agenda-dot cal-dot-${evTypeClass(ev.type)}"></span>
+      <div class="agenda-body">
+        <p class="agenda-title">${escapeHtml(ev.title || ev.type)}<span class="agenda-type">${escapeHtml(ev.type)}</span></p>
+        <p class="agenda-meta">${new Date(ev.date + 'T00:00:00').toLocaleDateString('de-DE', { weekday: 'short', day: '2-digit', month: '2-digit', year: 'numeric' })}${ev.time ? ', ' + ev.time + ' Uhr' : ''} · ${plan.daysUntil === 0 ? 'heute' : 'in ' + plan.daysUntil + ' Tag' + (plan.daysUntil === 1 ? '' : 'en')}</p>
+        ${ev.topics ? `<p class="agenda-topics">${escapeHtml(ev.topics)}</p>` : ''}
+        ${plan.totalWords > 0 ? `<p class="agenda-plan">📘 ${plan.totalWords} Vokabeln verknüpft — ca. ${plan.perDay} / Tag bis dahin</p>` : ''}
+        ${(ev.checklist || []).length ? `<p class="agenda-checklist">✅ ${doneCount}/${ev.checklist.length} erledigt</p>` : ''}
+      </div>
+      <button type="button" class="btn btn-secondary btn-small" data-edit="${ev.id}">Bearbeiten</button>
+    `;
+    row.querySelector('[data-edit]').addEventListener('click', () => openEventModal(ev.id));
+    list.appendChild(row);
+  });
+}
+
+let editingEventId = null;
+let checklistDraft = [];
+
+function renderChecklistDraft(){
+  const box = document.getElementById('eventChecklist');
+  box.innerHTML = checklistDraft.map((item, i) => `
+    <div class="ev-checklist-row">
+      <input type="checkbox" ${item.done ? 'checked' : ''} data-idx="${i}" class="ev-check">
+      <input type="text" value="${escapeHtml(item.text)}" data-idx="${i}" class="ev-check-text" placeholder="Aufgabe ...">
+      <button type="button" class="ev-check-remove" data-idx="${i}" aria-label="Entfernen">✕</button>
+    </div>`).join('');
+  box.querySelectorAll('.ev-check').forEach(el => el.addEventListener('change', () => { checklistDraft[el.dataset.idx].done = el.checked; }));
+  box.querySelectorAll('.ev-check-text').forEach(el => el.addEventListener('input', () => { checklistDraft[el.dataset.idx].text = el.value; }));
+  box.querySelectorAll('.ev-check-remove').forEach(el => el.addEventListener('click', () => { checklistDraft.splice(Number(el.dataset.idx), 1); renderChecklistDraft(); }));
+}
+document.getElementById('btnAddChecklistItem').addEventListener('click', () => {
+  checklistDraft.push({ id: uid(), text: '', done: false });
+  renderChecklistDraft();
+});
+
+function updateEventPlanPreview(){
+  const picker = document.getElementById('eventSetPicker');
+  const ids = Array.from(picker.querySelectorAll('input:checked')).map(cb => cb.value);
+  const totalWords = ids.reduce((sum, id) => { const s = getSet(id); return sum + (s ? s.pairs.length : 0); }, 0);
+  const dateVal = document.getElementById('eventDate').value;
+  const info = document.getElementById('eventPlanInfo');
+  if(!dateVal || totalWords === 0){ info.hidden = true; return; }
+  const daysUntil = Math.max(0, daysUntilDate(dateVal));
+  const perDay = daysUntil > 0 ? Math.ceil(totalWords / daysUntil) : totalWords;
+  info.hidden = false;
+  info.textContent = `📘 ${totalWords} Vokabeln in den verknüpften Lernsets — du müsstest ca. ${perDay} pro Tag lernen, um bis dahin fertig zu sein.`;
+}
+
+function openEventModal(id, prefillDate){
+  editingEventId = id || null;
+  const ev = id ? store.examEvents.find(e => e.id === id) : null;
+  document.getElementById('eventModalTitle').textContent = ev ? 'Termin bearbeiten' : 'Neuer Termin';
+  document.getElementById('eventTitle').value = ev ? (ev.title || '') : '';
+  document.getElementById('eventDate').value = ev ? ev.date : (prefillDate || todayKey());
+  document.getElementById('eventTime').value = ev ? (ev.time || '') : '';
+  document.getElementById('eventTopics').value = ev ? (ev.topics || '') : '';
+  document.getElementById('eventNotes').value = ev ? (ev.notes || '') : '';
+  checklistDraft = ev ? JSON.parse(JSON.stringify(ev.checklist || [])) : [];
+  renderChecklistDraft();
+
+  const selectedType = ev ? ev.type : 'Klassenarbeit';
+  document.querySelectorAll('#eventTypeChips .chip').forEach(c => c.classList.toggle('selected', c.dataset.type === selectedType));
+
+  const picker = document.getElementById('eventSetPicker');
+  picker.innerHTML = store.sets.length ? store.sets.map(s => `
+    <label class="ev-set-chip">
+      <input type="checkbox" value="${s.id}" ${ev && ev.linkedSetIds && ev.linkedSetIds.includes(s.id) ? 'checked' : ''}>
+      <span>${escapeHtml(s.name)} <em>(${s.pairs.length})</em></span>
+    </label>`).join('') : '<p class="empty-hint">Noch keine Lernsets vorhanden.</p>';
+  picker.querySelectorAll('input').forEach(cb => cb.addEventListener('change', updateEventPlanPreview));
+  updateEventPlanPreview();
+
+  document.getElementById('btnDeleteEvent').hidden = !ev;
+  document.getElementById('eventModalBackdrop').classList.add('open');
+  setTimeout(() => document.getElementById('eventTitle').focus(), 60);
+}
+function closeEventModal(){
+  document.getElementById('eventModalBackdrop').classList.remove('open');
+  editingEventId = null;
+}
+document.getElementById('eventDate').addEventListener('input', updateEventPlanPreview);
+document.querySelectorAll('#eventTypeChips .chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    document.querySelectorAll('#eventTypeChips .chip').forEach(c => c.classList.remove('selected'));
+    chip.classList.add('selected');
+  });
+});
+document.getElementById('eventCancel').addEventListener('click', () => { sndClick(); closeEventModal(); });
+document.getElementById('eventModalBackdrop').addEventListener('click', (e) => { if(e.target.id === 'eventModalBackdrop') closeEventModal(); });
+document.addEventListener('keydown', (e) => { if(e.key === 'Escape' && document.getElementById('eventModalBackdrop').classList.contains('open')) closeEventModal(); });
+
+document.getElementById('eventForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const dateVal = document.getElementById('eventDate').value;
+  if(!dateVal){ showToast('Bitte ein Datum wählen.', true); return; }
+  const typeChip = document.querySelector('#eventTypeChips .chip.selected');
+  const data = {
+    type: typeChip ? typeChip.dataset.type : 'Klassenarbeit',
+    title: document.getElementById('eventTitle').value.trim(),
+    date: dateVal,
+    time: document.getElementById('eventTime').value,
+    topics: document.getElementById('eventTopics').value.trim(),
+    notes: document.getElementById('eventNotes').value.trim(),
+    linkedSetIds: Array.from(document.querySelectorAll('#eventSetPicker input:checked')).map(cb => cb.value),
+    checklist: checklistDraft.filter(c => c.text.trim() !== ''),
+  };
+  if(editingEventId){
+    const ev = store.examEvents.find(e => e.id === editingEventId);
+    Object.assign(ev, data);
+    ev.notifiedDays = [];
+  } else {
+    store.examEvents.push(Object.assign({ id: uid(), notifiedDays: [] }, data));
+  }
+  saveData(store);
+  sndClick();
+  closeEventModal();
+  renderCalendarGrid();
+  renderCalendarAgenda();
+  updateExamBanner();
+  showToast('Termin gespeichert.');
+});
+
+document.getElementById('btnDeleteEvent').addEventListener('click', async () => {
+  const idToDelete = editingEventId;
+  closeEventModal();
+  const ok = await customConfirm('Termin löschen?', 'Dieser Kalendereintrag wird endgültig entfernt.', 'Löschen');
+  if(!ok) return;
+  store.examEvents = store.examEvents.filter(e => e.id !== idToDelete);
+  saveData(store);
+  renderCalendarGrid();
+  renderCalendarAgenda();
+  updateExamBanner();
+  showToast('Termin gelöscht.');
+});
+
+document.getElementById('btnAddEvent').addEventListener('click', () => { sndClick(); openEventModal(null); });
+document.querySelectorAll('[data-calview]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    sndClick();
+    calendarState.mode = btn.dataset.calview;
+    document.querySelectorAll('[data-calview]').forEach(b => b.classList.toggle('selected', b === btn));
+    renderCalendarGrid();
+  });
+});
+document.getElementById('calPrev').addEventListener('click', () => {
+  sndClick();
+  if(calendarState.mode === 'month') calendarState.cursor.setMonth(calendarState.cursor.getMonth() - 1);
+  else calendarState.cursor.setDate(calendarState.cursor.getDate() - 7);
+  renderCalendarGrid();
+});
+document.getElementById('calNext').addEventListener('click', () => {
+  sndClick();
+  if(calendarState.mode === 'month') calendarState.cursor.setMonth(calendarState.cursor.getMonth() + 1);
+  else calendarState.cursor.setDate(calendarState.cursor.getDate() + 7);
+  renderCalendarGrid();
+});
+document.getElementById('calToday').addEventListener('click', () => {
+  sndClick();
+  calendarState.cursor = new Date();
+  renderCalendarGrid();
+});
+
+// --- Erinnerungen: Startseiten-Banner & Browser-Benachrichtigungen -------
+let examBannerDismissed = false;
+function examLabel(ev){ return (ev.title || ev.type) + (ev.title ? ' (' + ev.type + ')' : ''); }
+function updateExamBanner(){
+  const banner = document.getElementById('examBanner');
+  if(!banner) return;
+  if(!store.settings.inSiteBanner || examBannerDismissed){ banner.hidden = true; return; }
+  let best = null, bestDays = Infinity;
+  store.examEvents.forEach(ev => {
+    const daysUntil = daysUntilDate(ev.date);
+    if(daysUntil < 0) return;
+    if((store.settings.reminderLeadDays.includes(daysUntil) || daysUntil === 0) && daysUntil < bestDays){
+      best = ev; bestDays = daysUntil;
+    }
+  });
+  if(!best){ banner.hidden = true; return; }
+  const when = bestDays === 0 ? 'Heute' : bestDays === 1 ? 'Morgen' : `In ${bestDays} Tagen`;
+  document.getElementById('examBannerText').textContent =
+    `${when} steht deine ${best.type}${best.title ? ' „' + best.title + '"' : ''} an` + (best.topics ? ` — Themen: ${best.topics}` : '') + '.';
+  banner.hidden = false;
+}
+document.getElementById('examBannerClose').addEventListener('click', () => {
+  examBannerDismissed = true;
+  document.getElementById('examBanner').hidden = true;
+});
+
+function checkExamReminders(){
+  if(!('Notification' in window) || Notification.permission !== 'granted' || !store.settings.browserNotifications) return;
+  let changed = false;
+  store.examEvents.forEach(ev => {
+    const daysUntil = daysUntilDate(ev.date);
+    if(!Array.isArray(ev.notifiedDays)) ev.notifiedDays = [];
+    if(store.settings.reminderLeadDays.includes(daysUntil) && !ev.notifiedDays.includes(daysUntil)){
+      try{
+        new Notification('📅 ' + ev.type + ' in ' + daysUntil + ' Tag' + (daysUntil === 1 ? '' : 'en') + '!', {
+          body: examLabel(ev) + (ev.topics ? ' — ' + ev.topics : ''),
+        });
+      }catch(e){ /* Notification kann in manchen Kontexten fehlschlagen, still ignorieren */ }
+      ev.notifiedDays.push(daysUntil);
+      changed = true;
+    }
+  });
+  if(changed) saveData(store);
+}
+checkExamReminders();
 
 // --- Custom Modal --------------------------------------------------------
 function customPrompt(title, defaultValue = ''){
@@ -1558,10 +2342,48 @@ function loadData(){ try{ const raw = localStorage.getItem(STORAGE_KEY); return 
 function saveData(data){ localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
 function uid(){ return crypto.randomUUID(); }
 let store = loadData();
+
+// --- Einstellungen, Kalender & Tagesfortschritt: Standardwerte & Migration ---
+const DEFAULT_SETTINGS = {
+  dailyGoal: 20,
+  ttsVolume: 100,
+  autoPlayFlashcard: false,
+  speechRate: 'normal',
+  reminderLeadDays: [7, 3, 1],
+  inSiteBanner: true,
+  browserNotifications: false,
+  glowIntensity: 1,
+  reducedMotion: false,
+  fontScale: 'normal',
+};
+store.settings = Object.assign({}, DEFAULT_SETTINGS, store.settings || {});
+if(!Array.isArray(store.examEvents)) store.examEvents = [];
+if(!store.dailyProgress || typeof store.dailyProgress !== 'object') store.dailyProgress = {};
+if(!Array.isArray(store.streakDates)) store.streakDates = [];
+
 function getSet(id){ return store.sets.find(s => s.id === id); }
+function reducedMotionActive(){
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches || !!store.settings.reducedMotion;
+}
+function recordDailyProgress(n = 1){
+  const key = todayKey();
+  store.dailyProgress[key] = (store.dailyProgress[key] || 0) + n;
+  saveData(store);
+}
+function applySettingsToUI(){
+  const g = store.settings.glowIntensity;
+  document.documentElement.style.setProperty('--shadow-glow',
+    `0 0 0 1px rgba(45,212,191,${(0.25 * g).toFixed(2)}), 0 ${Math.round(20 * g)}px ${Math.round(50 * g)}px rgba(45,212,191,${(0.32 * g).toFixed(2)})`);
+  document.documentElement.style.setProperty('--shadow-glow-lg',
+    `0 0 0 1px rgba(45,212,191,${(0.3 * g).toFixed(2)}), 0 8px 20px rgba(244,114,182,${(0.25 * g).toFixed(2)}), 0 ${Math.round(30 * g)}px ${Math.round(70 * g)}px rgba(45,212,191,${(0.35 * g).toFixed(2)})`);
+  document.documentElement.classList.toggle('reduce-motion', reducedMotionActive());
+  const fontPx = { small: 15, normal: 16, large: 18 }[store.settings.fontScale] || 16;
+  document.documentElement.style.fontSize = fontPx + 'px';
+}
+applySettingsToUI();
 
 // --- Mausparallax ------------------------------------------------------
-if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+if(!reducedMotionActive()){
   window.addEventListener('mousemove', (e) => {
     document.documentElement.style.setProperty('--mx', ((e.clientX/window.innerWidth-0.5)*2).toFixed(3));
     document.documentElement.style.setProperty('--my', ((e.clientY/window.innerHeight-0.5)*2).toFixed(3));
@@ -1613,10 +2435,11 @@ const views = {
   results: document.getElementById('view-results'), listen: document.getElementById('view-listen'),
   grammar: document.getElementById('view-grammar'), game: document.getElementById('view-game'),
   rewards: document.getElementById('view-rewards'), settingsPage: document.getElementById('view-settings'),
+  calendar: document.getElementById('view-calendar'),
 };
 let currentSetId = null;
 let currentNavId = 'hub';
-const NAV_SUB_LABELS = { hub: 'Startseite', home: 'Lernsets', rewards: 'Belohnungen', grammar: 'Grammatik', listen: 'Sprechen', settingsPage: 'Einstellungen' };
+const NAV_SUB_LABELS = { hub: 'Startseite', home: 'Lernsets', rewards: 'Belohnungen', grammar: 'Grammatik', listen: 'Sprechen', settingsPage: 'Einstellungen', calendar: 'Kalender' };
 function showView(name){ Object.values(views).forEach(v => v.hidden = true); views[name].hidden = false; }
 document.querySelectorAll('[data-nav]').forEach(btn => {
   btn.addEventListener('click', () => {
@@ -1668,18 +2491,18 @@ navOverlay.querySelectorAll('.nav-overlay-item').forEach(item => {
     else if(target === 'rewards') renderRewards();
     else if(target === 'grammar') openGrammar();
     else if(target === 'listen') openGlobalListen();
+    else if(target === 'calendar') renderCalendar();
     else if(target === 'settingsPage') openSettingsPage();
   });
 });
 
 function openGrammar(){ showView('grammar'); currentNavId = 'grammar'; updateNavActiveStates(); }
-function openSettingsPage(){ showView('settingsPage'); currentNavId = 'settingsPage'; updateNavActiveStates(); }
+function openSettingsPage(){ showView('settingsPage'); currentNavId = 'settingsPage'; updateNavActiveStates(); renderSettingsPage(); }
 
 // --- HUB (Startseite) -----------------------------------------------------
 // --- Kleine Zahlen-Hochzähl-Animation für Statistiken --------------------
-const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 function animateNumber(el, target, duration = 700){
-  if(reducedMotion || target <= 0){ el.textContent = target; return; }
+  if(reducedMotionActive() || target <= 0){ el.textContent = target; return; }
   const start = performance.now();
   function tick(now){
     const p = Math.min(1, (now - start) / duration);
@@ -1698,6 +2521,7 @@ function renderHub(){
   animateNumber(document.getElementById('hubSetsCount'), store.sets.length);
   animateNumber(document.getElementById('hubWordsCount'), totalWords);
   animateNumber(document.getElementById('hubStreakCount'), computeCurrentStreak());
+  updateExamBanner();
   wireSounds();
 }
 document.getElementById('btnHubSets').addEventListener('click', () => { sndClick(); renderHome(); });
@@ -1706,6 +2530,7 @@ document.getElementById('featCardSets').addEventListener('click', () => { sndCli
 document.getElementById('featCardListen').addEventListener('click', () => openGlobalListen());
 document.getElementById('featCardRewards').addEventListener('click', () => { sndClick(); renderRewards(); });
 document.getElementById('featCardGrammar').addEventListener('click', () => { sndClick(); openGrammar(); });
+document.getElementById('featCardCalendar').addEventListener('click', () => { sndClick(); renderCalendar(); });
 
 // --- BELOHNUNGEN / STREAK --------------------------------------------------
 function todayKey(d = new Date()){ const x = new Date(d); x.setHours(0,0,0,0); return x.toISOString().slice(0,10); }
@@ -2248,6 +3073,7 @@ function setupFlashcardMode(questionWord, correctAnswer, answerLanguage){
     actionsEl.hidden = false;
     revealBtn.hidden = true;
     hintBtn.hidden = true;
+    if(store.settings.autoPlayFlashcard) speak(correctAnswer, answerLanguage === 'fr' ? 'fr-FR' : 'de-DE');
   };
   document.getElementById('btnFlashKnew').onclick = () => finalizeAnswer(true, correctAnswer, null, '✅ Super!');
   document.getElementById('btnFlashDidntKnow').onclick = () => finalizeAnswer(false, correctAnswer, null, '📚 Kein Problem, kommt wieder dran.');
@@ -2266,6 +3092,7 @@ function checkAnswer(chosen, correctAnswer, clickedBtn){
 function finalizeAnswer(isCorrect, correctAnswer, clickedBtn, feedbackText){
   if(questionAnswered) return;
   questionAnswered = true;
+  recordDailyProgress();
   const feedback = document.getElementById('practiceFeedback');
   const card = document.getElementById('practiceCard');
   feedback.textContent = feedbackText;
@@ -2361,6 +3188,7 @@ function handleMatchPick(side, chip, pairId){
       a.el.disabled = true; b.el.disabled = true;
       score.correct++;
       matchState.remaining--;
+      recordDailyProgress();
       sndCorrect();
       document.getElementById('matchCorrect').textContent = score.correct;
       document.getElementById('matchStats').textContent = `${score.correct} / ${score.correct + matchState.remaining} gefunden`;
@@ -2382,7 +3210,7 @@ function handleMatchPick(side, chip, pairId){
 
 // --- Konfetti-Burst (bei gutem Ergebnis) ----------------------------------
 function burstConfetti(count = 26){
-  if(reducedMotion) return;
+  if(reducedMotionActive()) return;
   const colors = ['var(--ember)', 'var(--gold)', 'var(--rose)', 'var(--gold-bright)', 'var(--ember-bright)'];
   for(let i = 0; i < count; i++){
     const piece = document.createElement('span');
