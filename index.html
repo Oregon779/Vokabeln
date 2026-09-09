@@ -746,7 +746,7 @@
   @media (max-width:919px){ .black-hole-2, .black-hole-3{ display:none; } }
   @media (prefers-reduced-motion: reduce){ .bh-disk{animation:none;} }
   .globe-sphere{
-    position:absolute; left:50%; bottom:-4vh; width:130vw; height:92vh; transform:translateX(-50%) scale(var(--globe-zoom, 1));
+    position:absolute; left:50%; bottom:0; width:120vw; height:139vh; transform:translateX(-50%) translateY(4vh) scale(var(--globe-zoom, 1));
     transform-origin:50% 45%; transition:transform .1s linear;
     border-radius:0; overflow:hidden; z-index:1;
     box-shadow:
@@ -804,7 +804,8 @@
   @media (max-width:919px){ .europe-visual .badge{ display:none; } }
   @keyframes floatSlow{ 0%,100%{transform:translateY(0);} 50%{transform:translateY(-8px);} }
   /* --- Hub: Feature-Vorschaukarten --- */
-  .hub-features{ position:relative; z-index:1; margin-top:3.6rem; }
+  .hub-features{ position:relative; z-index:1; margin-top:3.6rem; padding-bottom:26rem; }
+  @media (max-width:919px){ .hub-features{ padding-bottom:6rem; } }
   .hub-features-eyebrow{
     font-family:var(--font-mono); font-size:.65rem; text-transform:uppercase; letter-spacing:.3em; color:var(--stone);
     margin:0 0 1.1rem; padding-left:.1rem;
