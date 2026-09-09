@@ -132,8 +132,22 @@
 
   #app{position:relative; z-index:1; max-width:880px; margin:0 auto; padding:6.2rem 1.2rem 4rem;}
   @media (min-width:700px){ #app{padding:6.6rem 2rem 4rem;} }
-  .view{animation:viewIn .6s var(--ease-premium);}
+  .view{animation:viewIn .6s var(--ease-premium); position:relative;}
   @keyframes viewIn{ from{opacity:0; transform:translateY(18px) scale(.985); filter:blur(3px);} to{opacity:1; transform:translateY(0) scale(1); filter:blur(0);} }
+
+  /* --- Seiten-Motive: dezente schwebende Icons + Glow je Bereich (Pendant zur Startseite) --- */
+  .page-glow{
+    position:absolute; z-index:-2; border-radius:50%; pointer-events:none; filter:blur(60px);
+    background:radial-gradient(circle, rgba(246,195,92,.22), transparent 70%);
+    animation:pageGlowPulse 9s ease-in-out infinite;
+  }
+  @keyframes pageGlowPulse{ 0%,100%{opacity:.7; transform:scale(1);} 50%{opacity:1; transform:scale(1.08);} }
+  .page-motifs{position:absolute; inset:0; overflow:hidden; pointer-events:none; z-index:-1;}
+  .page-motif{position:absolute; opacity:.16; color:var(--ember-dim); animation:floatSlow 7s ease-in-out infinite;}
+  .page-motif:nth-of-type(2n){animation-duration:8.5s; animation-delay:.6s; color:var(--ember-bright); opacity:.12;}
+  .page-motif:nth-of-type(3n){animation-duration:6.2s; animation-delay:1.3s;}
+  @media (prefers-reduced-motion: reduce){ .page-glow, .page-motif{animation:none;} }
+  @media (max-width:600px){ .page-motif{display:none;} .page-glow{opacity:.6;} }
 
   /* --- Sanfter Stagger für wiederholte Karten/Chips beim Erscheinen --- */
   .sets-grid .set-card, .session-options .session-opt, .chip-row .chip,
@@ -1464,6 +1478,13 @@
   </section>
 
   <section id="view-home" class="view" hidden>
+    <div class="page-glow" style="width:340px; height:340px; top:-6rem; right:-4rem;" aria-hidden="true"></div>
+    <div class="page-motifs" aria-hidden="true">
+      <span class="page-motif" style="top:4%; left:2%; width:34px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3" y="5" width="18" height="13" rx="2"/><path d="M3 9h18M8 13h4"/></svg></span>
+      <span class="page-motif" style="top:14%; right:4%; width:26px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M4 8h13M13 4l4 4-4 4"/><path d="M20 16H7M11 12l-4 4 4 4"/></svg></span>
+      <span class="page-motif" style="top:32%; left:10%; width:20px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 3l1.8 5.5L19 10l-5.2 1.5L12 17l-1.8-5.5L5 10l5.2-1.5L12 3Z"/></svg></span>
+      <span class="page-motif" style="top:55%; right:8%; width:30px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3" y="5" width="18" height="13" rx="2"/><path d="M3 9h18M8 13h4"/></svg></span>
+    </div>
     <div class="row-between">
       <h2>Meine Lernsets</h2>
       <button id="btnNewSet" class="btn btn-primary">+ Neues Set</button>
@@ -1486,6 +1507,7 @@
   </section>
 
   <section id="view-set" class="view" hidden>
+    <div class="page-glow" style="width:280px; height:280px; top:-3rem; right:-5rem;" aria-hidden="true"></div>
     <button class="btn btn-link" data-nav="home">← Zurück zu allen Sets</button>
     <div class="row-between">
       <h2 id="setTitle">Set</h2>
@@ -1538,6 +1560,11 @@
   </section>
 
   <section id="view-session-setup" class="view" hidden>
+    <div class="page-glow" style="width:280px; height:280px; top:-3rem; right:-5rem;" aria-hidden="true"></div>
+    <div class="page-motifs" aria-hidden="true">
+      <span class="page-motif" style="top:6%; left:4%; width:24px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M20 6 9 17l-5-5"/></svg></span>
+      <span class="page-motif" style="top:30%; right:6%; width:20px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 3l1.8 5.5L19 10l-5.2 1.5L12 17l-1.8-5.5L5 10l5.2-1.5L12 3Z"/></svg></span>
+    </div>
     <button class="btn btn-link" data-nav="set">← Zurück</button>
     <h2>Übung einrichten</h2>
 
@@ -1650,6 +1677,12 @@
   </section>
 
   <section id="view-listen" class="view" hidden>
+    <div class="page-glow" style="width:320px; height:320px; top:-3rem; right:-6rem;" aria-hidden="true"></div>
+    <div class="page-motifs" aria-hidden="true">
+      <span class="page-motif" style="top:6%; left:4%; width:26px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 10v4M7 7v10M11 4v16M15 7v10M19 10v4"/></svg></span>
+      <span class="page-motif" style="top:24%; right:5%; width:22px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M11 5 6 9H3v6h3l5 4V5Z"/><path d="M16 8.5a5 5 0 0 1 0 7"/></svg></span>
+      <span class="page-motif" style="top:48%; left:8%; width:18px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 3l1.8 5.5L19 10l-5.2 1.5L12 17l-1.8-5.5L5 10l5.2-1.5L12 3Z"/></svg></span>
+    </div>
     <button class="btn btn-link" id="btnListenBack">← Zurück</button>
     <h2 id="listenTitle">Aussprache üben</h2>
 
@@ -1670,6 +1703,11 @@
   </section>
 
   <section id="view-grammar" class="view" hidden>
+    <div class="page-glow" style="width:300px; height:300px; top:-3rem; right:-5rem;" aria-hidden="true"></div>
+    <div class="page-motifs" aria-hidden="true">
+      <span class="page-motif" style="top:4%; left:2%; width:24px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M4 5.5C6 4.5 9 4.5 12 6c3-1.5 6-1.5 8-.5v13c-2-1-5-1-8 .5-3-1.5-6-1.5-8-.5V5.5Z"/><path d="M12 6v13"/></svg></span>
+      <span class="page-motif" style="top:26%; right:6%; width:18px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 3l1.8 5.5L19 10l-5.2 1.5L12 17l-1.8-5.5L5 10l5.2-1.5L12 3Z"/></svg></span>
+    </div>
     <p class="page-eyebrow">Grammatik · 04</p>
     <h2 class="page-title" style="margin-bottom:.6rem;">Regeln, klar erklärt</h2>
     <p class="page-sub">Frag z.B. "Erklär mir die Vergangenheit" oder "Wie funktioniert der Konjunktiv?" — die KI erklärt Regeln, Beispiele und Ausnahmen.</p>
@@ -1702,6 +1740,11 @@
   </section>
 
   <section id="view-rewards" class="view" hidden>
+    <div class="page-glow" style="width:320px; height:320px; top:-4rem; left:-5rem;" aria-hidden="true"></div>
+    <div class="page-motifs" aria-hidden="true">
+      <span class="page-motif" style="top:2%; right:5%; width:26px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 3l1.8 5.5L19 10l-5.2 1.5L12 17l-1.8-5.5L5 10l5.2-1.5L12 3Z"/></svg></span>
+      <span class="page-motif" style="top:36%; right:2%; width:18px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 3l1.8 5.5L19 10l-5.2 1.5L12 17l-1.8-5.5L5 10l5.2-1.5L12 3Z"/></svg></span>
+    </div>
     <p class="page-eyebrow">Belohnungen · 03</p>
     <h2 class="page-title" style="margin-bottom:.6rem;">Deine Lern-Serie</h2>
     <p class="page-sub">Jede abgeschlossene Übungsrunde zählt. Bleib dran und bau dir eine Serie auf.</p>
@@ -1734,6 +1777,11 @@
   </section>
 
   <section id="view-settings" class="view" hidden>
+    <div class="page-glow" style="width:300px; height:300px; top:-4rem; right:-4rem;" aria-hidden="true"></div>
+    <div class="page-motifs" aria-hidden="true">
+      <span class="page-motif" style="top:4%; left:3%; width:26px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="12" cy="12" r="3"/><path d="M12 3v2.4M12 18.6V21M4.9 4.9l1.7 1.7M17.4 17.4l1.7 1.7M3 12h2.4M18.6 12H21M4.9 19.1l1.7-1.7M17.4 6.6l1.7-1.7"/></svg></span>
+      <span class="page-motif" style="top:22%; right:5%; width:20px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="7" cy="7" r="2.4"/><path d="M7 9.4V19M17 4v10.6M17 17a2.4 2.4 0 1 0 0 4.8 2.4 2.4 0 0 0 0-4.8Z"/></svg></span>
+    </div>
     <p class="page-eyebrow">Einstellungen · 07</p>
     <h2 class="page-title" style="margin-bottom:.6rem;">Ganz nach dir</h2>
     <p class="page-sub">Lernziele, Ton, Erinnerungen und Design nach deinem Geschmack.</p>
@@ -1836,6 +1884,12 @@
   </section>
 
   <section id="view-calendar" class="view" hidden>
+    <div class="page-glow" style="width:300px; height:300px; top:-4rem; left:-5rem;" aria-hidden="true"></div>
+    <div class="page-motifs" aria-hidden="true">
+      <span class="page-motif" style="top:2%; right:6%; width:28px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg></span>
+      <span class="page-motif" style="top:20%; left:3%; width:22px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3.5" y="4.5" width="17" height="16" rx="2"/><path d="M3.5 9.5h17M8 3v3M16 3v3"/></svg></span>
+      <span class="page-motif" style="top:42%; right:3%; width:18px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 3l1.8 5.5L19 10l-5.2 1.5L12 17l-1.8-5.5L5 10l5.2-1.5L12 3Z"/></svg></span>
+    </div>
     <div class="row-between">
       <div>
         <p class="page-eyebrow">Kalender · 06</p>
