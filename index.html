@@ -284,7 +284,8 @@
   .btn-danger:hover{background:var(--danger); color:#fff;}
   .btn-link{background:none; color:var(--ember); padding:.3rem 0; margin-bottom:.8rem; text-transform:none; font-weight:600;}
   .btn-large{width:100%; padding:.9rem; font-size:.9rem; margin:1rem 0 1.6rem;}
-  .hub-cta{display:inline-flex; align-items:center; gap:.55rem;}
+  .hub-cta{display:inline-flex; align-items:center; gap:.55rem; border-radius:.6rem !important;}
+  .hub-cta.btn-primary{border:1px solid rgba(255,255,255,.2);}
   .hub-cta-arrow{transition:transform .25s var(--ease-spring); flex-shrink:0;}
   .hub-cta:hover .hub-cta-arrow{transform:translateX(4px);}
   .hub-cta-icon{
@@ -731,8 +732,16 @@
     max-width:1280px !important; position:relative;
     width:100vw; left:50%; margin-left:-50vw; box-sizing:border-box;
     padding-left:1.4rem; padding-right:1.4rem;
+    background:linear-gradient(180deg, rgba(20,28,44,.55) 0%, transparent 45%);
+    border-bottom:1px solid var(--border-solid);
   }
   @media (min-width:640px){ #view-hub{ padding-left:2.4rem; padding-right:2.4rem; } }
+  /* Zwei grosse, unscharfe Leuchtflecken im Hero-Hintergrund (wie im Referenz-Entwurf) */
+  .hub-hero-bg{position:absolute; inset:0; z-index:0; overflow:hidden; pointer-events:none;}
+  .hub-hero-bg::before, .hub-hero-bg::after{content:''; position:absolute; border-radius:50%; filter:blur(150px);}
+  .hub-hero-bg::before{ top:-14rem; left:14%; width:60rem; height:34rem; background:radial-gradient(ellipse, rgba(246,195,92,.16), transparent 70%); }
+  .hub-hero-bg::after{ top:8rem; right:-8rem; width:32rem; height:32rem; background:rgba(187,136,30,.14); }
+  .hub-hero-bg .hairline{position:absolute; top:0; left:5%; right:5%; height:1px; background:linear-gradient(90deg, transparent, rgba(246,195,92,.2), transparent);}
   .hub-grid{position:relative; z-index:1; display:grid; grid-template-columns:1fr; gap:2.6rem; align-items:center; padding-top:1rem; max-width:1280px; margin:0 auto;}
   @media (min-width:980px){ .hub-grid{ grid-template-columns:1.05fr .95fr; gap:3.2rem; } }
   .hub-copy{display:flex; flex-direction:column; justify-content:flex-start;}
@@ -1423,6 +1432,7 @@
 <main id="app">
 
   <section id="view-hub" class="view">
+    <div class="hub-hero-bg" aria-hidden="true"><span class="hairline"></span></div>
     <div class="exam-banner" id="examBanner" hidden>
       <span class="exam-banner-icon">⏰</span>
       <p class="exam-banner-text" id="examBannerText"></p>
