@@ -707,8 +707,11 @@
 
   /* --- Hub / Startseite (Hero) --- */
   #view-hub{max-width:1080px !important; position:relative;}
-  .hub-grid{position:relative; z-index:1; display:grid; grid-template-columns:1fr; min-height:clamp(500px, 58vh, 680px);}
-  @media (max-width:919px){ .hub-grid{min-height:clamp(560px, 76vh, 760px);} }
+  /* Hoch genug, damit die Feature-Karten unterhalb der ersten Bildschirmfuellung
+     starten - sonst ueberlappt der (normal mitscrollende) Paris-Pin der Karte
+     beim Scrollen die noch sichtbaren Stat-Boxen, bevor der Hero ausgeblendet ist. */
+  .hub-grid{position:relative; z-index:1; display:grid; grid-template-columns:1fr; min-height:clamp(560px, 88vh, 860px);}
+  @media (max-width:919px){ .hub-grid{min-height:clamp(560px, 84vh, 780px);} }
   .hub-copy{display:flex; flex-direction:column; justify-content:flex-start;}
   .hub-title{max-width:20em;}
 
@@ -920,7 +923,7 @@
   @media (max-width:919px){ .europe-visual .badge{ display:none; } }
   @keyframes floatSlow{ 0%,100%{transform:translateY(0);} 50%{transform:translateY(-8px);} }
   /* --- Hub: Feature-Vorschaukarten --- */
-  .hub-features{ position:relative; z-index:1; margin-top:3.6rem; padding-bottom:29vw; }
+  .hub-features{ position:relative; z-index:1; margin-top:6.5rem; padding-bottom:29vw; }
   @media (hover:hover) and (pointer:fine){ .hub-features{ transform:translateY(var(--hero-drift, 0px)); } }
 
   /* Waehrend der Scroll-Kamera aktiv ist (siehe Lerp-Loop in JS) gezielt
@@ -1578,7 +1581,7 @@
             </circle>
 
             <!-- Brandenburger Tor: steht über Berlin, markiert den deutschen Endpunkt der Route -->
-            <g class="landmark landmark-de" transform="translate(336.1,124) scale(.62)" aria-hidden="true">
+            <g class="landmark landmark-de" transform="translate(336.1,124) scale(.62)" aria-hidden="true" style="opacity:var(--berlin-fade, 1)">
               <rect x="-15" y="-16" width="30" height="3" fill="var(--saphir-bright)"/>
               <rect x="-9" y="-20.5" width="18" height="4.5" fill="var(--saphir-bright)"/>
               <rect x="-12" y="-13" width="2.2" height="13" fill="var(--saphir-bright)"/>
@@ -1591,25 +1594,29 @@
             </g>
 
             <!-- Berlin (Akzent) -->
-            <g class="map-pin" transform="translate(336.1,163.4) scale(.62)">
-              <path d="M0,-24 C-4.69,-24 -8.5,-20.19 -8.5,-15.5 C-8.5,-9 0,0 0,0 C0,0 8.5,-9 8.5,-15.5 C8.5,-20.19 4.69,-24 0,-24 Z" fill="var(--saphir-bright)" stroke="var(--bg)" stroke-width="1"/>
-              <circle cx="0" cy="-15.5" r="3.4" fill="var(--bg)"/>
+            <g id="cityBerlin" style="opacity:var(--berlin-fade, 1)">
+              <g class="map-pin" transform="translate(336.1,163.4) scale(.62)">
+                <path d="M0,-24 C-4.69,-24 -8.5,-20.19 -8.5,-15.5 C-8.5,-9 0,0 0,0 C0,0 8.5,-9 8.5,-15.5 C8.5,-20.19 4.69,-24 0,-24 Z" fill="var(--saphir-bright)" stroke="var(--bg)" stroke-width="1"/>
+                <circle cx="0" cy="-15.5" r="3.4" fill="var(--bg)"/>
+              </g>
+              <text x="336.1" y="186" text-anchor="middle" class="city-label">Berlin</text>
             </g>
-            <text x="336.1" y="186" text-anchor="middle" class="city-label">Berlin</text>
 
             <!-- Eiffelturm: steht über Paris, markiert den französischen Endpunkt der Route -->
-            <g class="landmark landmark-fr" transform="translate(154,214) scale(.62)" aria-hidden="true">
+            <g class="landmark landmark-fr" transform="translate(154,214) scale(.62)" aria-hidden="true" style="opacity:var(--paris-fade, .35)">
               <path d="M-7,0 L-3,-9 L-4.6,-9 L-1.6,-17 L-2.8,-17 L-0.9,-26 L0,-32 L0.9,-26 L2.8,-17 L1.6,-17 L4.6,-9 L3,-9 L7,0 Z" fill="var(--ember-bright)"/>
               <rect x="-4.6" y="-9.6" width="9.2" height="1" fill="var(--bg)" opacity=".55"/>
               <rect x="-2.8" y="-17.6" width="5.6" height="1" fill="var(--bg)" opacity=".55"/>
             </g>
 
-            <!-- Paris -->
-            <g class="map-pin" transform="translate(154,256.3) scale(.62)">
-              <path d="M0,-24 C-4.69,-24 -8.5,-20.19 -8.5,-15.5 C-8.5,-9 0,0 0,0 C0,0 8.5,-9 8.5,-15.5 C8.5,-20.19 4.69,-24 0,-24 Z" fill="var(--text)" stroke="var(--bg)" stroke-width="1"/>
-              <circle cx="0" cy="-15.5" r="3.4" fill="var(--ember)"/>
+            <!-- Paris (blendet erst ein, wenn die Kamera dort ankommt - siehe --paris-fade) -->
+            <g id="cityParis" style="opacity:var(--paris-fade, .35)">
+              <g class="map-pin" transform="translate(154,256.3) scale(.62)">
+                <path d="M0,-24 C-4.69,-24 -8.5,-20.19 -8.5,-15.5 C-8.5,-9 0,0 0,0 C0,0 8.5,-9 8.5,-15.5 C8.5,-20.19 4.69,-24 0,-24 Z" fill="var(--text)" stroke="var(--bg)" stroke-width="1"/>
+                <circle cx="0" cy="-15.5" r="3.4" fill="var(--ember)"/>
+              </g>
+              <text x="154" y="273" text-anchor="middle" class="city-label" font-style="italic">Paris</text>
             </g>
-            <text x="154" y="273" text-anchor="middle" class="city-label" font-style="italic">Paris</text>
           </g>
         </svg>
         <svg class="graticule" viewBox="0 0 420 480" preserveAspectRatio="xMidYMid slice">
@@ -3226,13 +3233,27 @@ if(!reducedMotionActive()){
     }
 
     function applyProgress(p){
-      globeSphere.style.setProperty('--globe-zoom', (1 + p * 0.8).toFixed(4));
+      // Der Zoom/Schwenk startet erst, wenn der Hero-Text (samt Stat-Boxen)
+      // schon groesstenteils ausgeblendet ist ("zp" statt "p") - vorher kollidierte
+      // der bereits vergroesserte, durchscheinende Paris-Pin optisch mit den noch
+      // sichtbaren Glas-Stat-Boxen. Ausserdem: max. Zoom von 1.8x auf 1.45x gesenkt,
+      // damit Elemente nicht so weit aus dem sichtbaren Bereich wandern.
+      const zp = Math.max(0, Math.min(1, (p - 0.3) / 0.7));
+      globeSphere.style.setProperty('--globe-zoom', (1 + zp * 0.45).toFixed(4));
       // Kamera reist beim Reinzoomen von Berlins zu Paris' gemessener Position
       // (60.9%/44.3% -> 39.1%/60.3%, per Playwright-Inspektion ermittelt).
-      globeSphere.style.setProperty('--globe-origin-x', (60.9 - p * 21.8).toFixed(2) + '%');
-      globeSphere.style.setProperty('--globe-origin-y', (44.3 + p * 16).toFixed(2) + '%');
+      globeSphere.style.setProperty('--globe-origin-x', (60.9 - zp * 21.8).toFixed(2) + '%');
+      globeSphere.style.setProperty('--globe-origin-y', (44.3 + zp * 16).toFixed(2) + '%');
+      // Berlin blendet sanft aus, bevor die Kamera dorthin schwenkt - statt vom
+      // "overflow:hidden" der Karte hart am Rand abgeschnitten zu werden.
+      const berlinFade = Math.max(0, 1 - Math.min(1, p / 0.4));
+      globeSphere.style.setProperty('--berlin-fade', berlinFade.toFixed(3));
+      // Paris blendet erst ein, wenn die Kamera dort ankommt - vorher war der
+      // Pin schon voll sichtbar und kollidierte optisch mit den Stat-Boxen.
+      const parisFade = Math.min(1, Math.max(0.12, (p - 0.2) / 0.5));
+      globeSphere.style.setProperty('--paris-fade', parisFade.toFixed(3));
       if(heroCopyEl){
-        const fade = Math.max(0, 1 - Math.min(1, p / 0.45));
+        const fade = Math.max(0, 1 - Math.min(1, p / 0.35));
         heroCopyEl.style.setProperty('--hero-fade', fade.toFixed(3));
       }
       if(heroFineHover && heroFeaturesEl){
