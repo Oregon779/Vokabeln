@@ -876,10 +876,15 @@
   /* --- Hub: Feature-Vorschaukarten --- */
   .hub-features{ position:relative; z-index:1; margin-top:5rem; padding-bottom:6rem; }
   @media (max-width:919px){ .hub-features{ padding-bottom:5rem; } }
+  .hub-features-head{display:flex; align-items:center; justify-content:space-between; gap:1rem; margin-bottom:1.4rem; flex-wrap:wrap;}
   .hub-features-eyebrow{
-    font-family:var(--font-mono); font-size:.65rem; text-transform:uppercase; letter-spacing:.3em; color:var(--stone);
-    margin:0 0 1.1rem; padding-left:.1rem;
+    display:flex; align-items:center; gap:.55rem;
+    font-family:var(--font-mono); font-size:.65rem; text-transform:uppercase; letter-spacing:.3em; color:var(--ember-bright); font-weight:700;
+    margin:0; padding-left:.1rem;
   }
+  .hub-features-eyebrow .dot{width:6px; height:6px; border-radius:50%; background:var(--ember-bright); box-shadow:0 0 8px var(--ember-bright); flex-shrink:0;}
+  .hub-features-hint{font-family:var(--font-mono); font-size:.62rem; text-transform:uppercase; letter-spacing:.16em; color:var(--stone);}
+  @media (max-width:640px){ .hub-features-hint{display:none;} }
   .feature-rail{ display:grid; grid-template-columns:repeat(5,1fr); gap:1rem; }
   @media (max-width:1399px) and (min-width:1080px){ .feature-rail{grid-template-columns:repeat(3,1fr);} }
   @media (max-width:1079px) and (min-width:640px){ .feature-rail{grid-template-columns:repeat(2,1fr);} }
@@ -914,8 +919,20 @@
   }
   .feature-card:hover::before{opacity:1;}
   .feature-card:active{transform:translateY(-5px) scale(.97);}
+  .feature-card-head{display:flex; align-items:flex-start; justify-content:space-between;}
+  .feature-card-num{
+    font-family:var(--font-mono); font-size:.6rem; font-weight:700; letter-spacing:.1em; color:var(--ember-bright);
+    background:rgba(246,195,92,.1); border:1px solid rgba(246,195,92,.25); border-radius:5px; padding:.15rem .4rem;
+  }
+  .feature-card-eyebrow{font-family:var(--font-mono); font-size:.6rem; font-weight:700; letter-spacing:.16em; text-transform:uppercase; color:var(--ember-bright); opacity:.85;}
+  .feature-card-footer{
+    display:flex; align-items:center; justify-content:space-between; gap:.5rem; margin-top:.3rem; padding-top:.85rem;
+    border-top:1px solid rgba(255,255,255,.06); font-family:var(--font-mono); font-size:.6rem; font-weight:700;
+    text-transform:uppercase; letter-spacing:.12em; color:var(--stone); transition:color .25s var(--ease);
+  }
+  .feature-card:hover .feature-card-footer{color:var(--ember-bright);}
   .feature-card-arrow{
-    position:absolute; top:1.25rem; right:1.25rem; font-family:var(--font-mono); font-size:1rem; color:var(--stone);
+    font-family:var(--font-mono); font-size:1rem; color:inherit; flex-shrink:0;
     transition:transform .25s var(--ease-premium), color .25s var(--ease);
   }
   .feature-card:hover .feature-card-arrow{transform:translateX(4px); color:var(--ember-bright);}
@@ -1714,61 +1731,84 @@
     </div>
 
     <div class="hub-features">
-      <p class="hub-features-eyebrow">Entdecke die Webseite</p>
+      <div class="hub-features-head">
+        <p class="hub-features-eyebrow"><span class="dot"></span>Entdecke die Webseite</p>
+        <span class="hub-features-hint">Scroll · Entdecken →</span>
+      </div>
       <div class="feature-rail" id="featureRail">
         <button class="feature-card" id="featCardSets" type="button">
-          <span class="feature-card-arrow">→</span>
-          <span class="feature-card-icon ic-teal">
-            <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5V5.5Z"/><path d="M4 18.5A2.5 2.5 0 0 1 6.5 16H20"/></svg>
+          <span class="feature-card-head">
+            <span class="feature-card-icon ic-teal">
+              <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5V5.5Z"/><path d="M4 18.5A2.5 2.5 0 0 1 6.5 16H20"/></svg>
+            </span>
+            <span class="feature-card-num">01</span>
           </span>
           <span class="feature-card-body">
+            <span class="feature-card-eyebrow">Kollektion</span>
             <span class="feature-card-title">Lernsets</span>
             <span class="feature-card-desc">Eigene Vokabeln anlegen &amp; mit KI übersetzen.</span>
           </span>
+          <span class="feature-card-footer"><span>Eigene Sets</span><span class="feature-card-arrow">→</span></span>
         </button>
 
         <button class="feature-card" id="featCardListen" type="button">
-          <span class="feature-card-arrow">→</span>
-          <span class="feature-card-icon ic-blue">
-            <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9H4Z"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/><path d="M19.3 6a8.5 8.5 0 0 1 0 12"/></svg>
+          <span class="feature-card-head">
+            <span class="feature-card-icon ic-blue">
+              <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9H4Z"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/><path d="M19.3 6a8.5 8.5 0 0 1 0 12"/></svg>
+            </span>
+            <span class="feature-card-num">02</span>
           </span>
           <span class="feature-card-body">
+            <span class="feature-card-eyebrow">Akustik</span>
             <span class="feature-card-title">Aussprache</span>
             <span class="feature-card-desc">Wörter anhören &amp; Aussprache trainieren.</span>
           </span>
+          <span class="feature-card-footer"><span>Text-to-Speech</span><span class="feature-card-arrow">→</span></span>
         </button>
 
         <button class="feature-card" id="featCardRewards" type="button">
-          <span class="feature-card-arrow">→</span>
-          <span class="feature-card-icon ic-gold">
-            <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c1 3-2 4.5-2 7.5A4.5 4.5 0 0 0 14.5 14c1.8 0 2.9-1 3.3-2 .9 2 .2 4.4-1.4 6a6.5 6.5 0 0 1-9-9c1-1 1.6-2.3 1.6-3.8C9 3.5 10.5 2.4 12 2Z"/></svg>
+          <span class="feature-card-head">
+            <span class="feature-card-icon ic-gold">
+              <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c1 3-2 4.5-2 7.5A4.5 4.5 0 0 0 14.5 14c1.8 0 2.9-1 3.3-2 .9 2 .2 4.4-1.4 6a6.5 6.5 0 0 1-9-9c1-1 1.6-2.3 1.6-3.8C9 3.5 10.5 2.4 12 2Z"/></svg>
+            </span>
+            <span class="feature-card-num">03</span>
           </span>
           <span class="feature-card-body">
+            <span class="feature-card-eyebrow">Insignien</span>
             <span class="feature-card-title">Belohnungen</span>
             <span class="feature-card-desc">Serie halten &amp; Fortschritt sehen.</span>
           </span>
+          <span class="feature-card-footer"><span>Serie &amp; Badges</span><span class="feature-card-arrow">→</span></span>
         </button>
 
         <button class="feature-card" id="featCardGrammar" type="button">
-          <span class="feature-card-arrow">→</span>
-          <span class="feature-card-icon ic-pop">
-            <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 2 8l10 5 10-5-10-5Z"/><path d="M6 10.5V16c0 1.5 2.5 3 6 3s6-1.5 6-3v-5.5"/><path d="M22 8v6"/></svg>
+          <span class="feature-card-head">
+            <span class="feature-card-icon ic-pop">
+              <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 2 8l10 5 10-5-10-5Z"/><path d="M6 10.5V16c0 1.5 2.5 3 6 3s6-1.5 6-3v-5.5"/><path d="M22 8v6"/></svg>
+            </span>
+            <span class="feature-card-num">04</span>
           </span>
           <span class="feature-card-body">
+            <span class="feature-card-eyebrow">Struktur</span>
             <span class="feature-card-title">Grammatik</span>
             <span class="feature-card-desc">Regeln von der KI erklärt bekommen.</span>
           </span>
+          <span class="feature-card-footer"><span>KI erklärt</span><span class="feature-card-arrow">→</span></span>
         </button>
 
         <button class="feature-card" id="featCardCalendar" type="button">
-          <span class="feature-card-arrow">→</span>
-          <span class="feature-card-icon ic-violet">
-            <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="16" rx="2.5"/><path d="M3.5 9.5h17"/><path d="M8 3v4M16 3v4"/><circle cx="8.2" cy="14" r="1.1" fill="currentColor" stroke="none"/><circle cx="12" cy="14" r="1.1" fill="currentColor" stroke="none"/></svg>
+          <span class="feature-card-head">
+            <span class="feature-card-icon ic-violet">
+              <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="16" rx="2.5"/><path d="M3.5 9.5h17"/><path d="M8 3v4M16 3v4"/><circle cx="8.2" cy="14" r="1.1" fill="currentColor" stroke="none"/><circle cx="12" cy="14" r="1.1" fill="currentColor" stroke="none"/></svg>
+            </span>
+            <span class="feature-card-num">05</span>
           </span>
           <span class="feature-card-body">
+            <span class="feature-card-eyebrow">Rhythmus</span>
             <span class="feature-card-title">Kalender</span>
             <span class="feature-card-desc">Klausuren eintragen &amp; Lernplan sehen.</span>
           </span>
+          <span class="feature-card-footer"><span>Lernplan</span><span class="feature-card-arrow">→</span></span>
         </button>
       </div>
     </div>
