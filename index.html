@@ -2130,12 +2130,60 @@ async function callGemini(prompt, jsonMode = true){
   }
 }
 
+/* ============================================================
+   ANPASSEN (optional): Ersatz-KI, falls Gemini gerade sein Limit
+   erreicht hat oder aus einem anderen Grund nicht antwortet.
+   Hier deinen Claude-API-Key eintragen (https://console.anthropic.com/settings/keys).
+   Ohne Key wird dieser Schritt einfach übersprungen.
+   ============================================================ */
+const ANTHROPIC_API_KEY = "DEIN-CLAUDE-KEY-HIER";
+const ANTHROPIC_MODEL = 'claude-opus-5';
+const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages';
+
+async function callClaude(prompt){
+  if(!ANTHROPIC_API_KEY || ANTHROPIC_API_KEY === 'DEIN-CLAUDE-KEY-HIER') return null;
+  try{
+    const res = await fetch(ANTHROPIC_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01',
+        // Erlaubt den direkten Aufruf aus dem Browser heraus (ohne eigenen Server dazwischen).
+        'anthropic-dangerous-direct-browser-access': 'true',
+      },
+      body: JSON.stringify({
+        model: ANTHROPIC_MODEL,
+        max_tokens: 1024,
+        output_config: { effort: 'low' },
+        messages: [{ role: 'user', content: prompt }],
+      }),
+    });
+    if(!res.ok){ console.error('Claude Fehler', res.status, await res.text()); return null; }
+    const data = await res.json();
+    const textBlock = (data?.content || []).find(b => b.type === 'text');
+    return textBlock?.text || null;
+  }catch(err){
+    console.error('Claude Aufruf fehlgeschlagen:', err.message);
+    return null;
+  }
+}
+
+// Ruft zuerst Gemini auf. Schlägt das fehl (z.B. weil Gemini gerade sein
+// Anfragelimit erreicht hat, der Key ungültig ist oder ein Netzwerkfehler
+// auftritt) und ist ein Claude-Key hinterlegt, springt Claude als Ersatz-KI ein.
+async function callAI(prompt, jsonMode = true){
+  const geminiResult = await callGemini(prompt, jsonMode);
+  if(geminiResult !== null) return geminiResult;
+  return await callClaude(prompt);
+}
+
 // Einfacher Cache fuer die Dauer der Sitzung: identische Anfragen (z.B.
 // derselbe Tipp fuer dieselbe Vokabel) werden nicht erneut an die API geschickt.
 const aiCache = new Map();
-async function callGeminiCached(cacheKey, prompt, jsonMode = true){
+async function callAICached(cacheKey, prompt, jsonMode = true){
   if(aiCache.has(cacheKey)) return aiCache.get(cacheKey);
-  const result = await callGemini(prompt, jsonMode);
+  const result = await callAI(prompt, jsonMode);
   if(result !== null) aiCache.set(cacheKey, result);
   return result;
 }
@@ -2166,7 +2214,7 @@ Wichtige Regeln fuer gute Distraktoren:
 Gib NUR ein JSON-Array mit den ${count} Strings zurueck, sonst nichts. Beispiel: ["wort1", "wort2", "wort3"]`;
 
   const cacheKey = `mc:${word}|${correctAnswer}|${answerLanguage}|${count}`;
-  const text = await callGeminiCached(cacheKey, prompt, true);
+  const text = await callAICached(cacheKey, prompt, true);
   if(!text) return fallbackDistractors(correctAnswer, answerLanguage, count);
   try{
     let options = JSON.parse(text);
@@ -2197,7 +2245,7 @@ Falls es keine relevanten Ausnahmen gibt, gib ein leeres Array fuer "exceptions"
 Halte rules auf 3-6 Punkte, examples auf 3-5 Punkte, exceptions auf 0-4 Punkte begrenzt.
 Gib NUR das JSON zurueck, keinen weiteren Text.`;
 
-  const text = await callGemini(prompt, true);
+  const text = await callAI(prompt, true);
   if(!text) return null;
   try{ return JSON.parse(text); }catch(e){ return null; }
 }
@@ -2209,7 +2257,7 @@ Gib NUR die Übersetzung zurück: ein einzelnes Wort oder eine kurze gebräuchli
 Bei französischen Nomen den passenden Artikel (le/la/les) voranstellen, falls üblich.
 Keine Anführungszeichen, keine Erklärung, keine Alternativen — nur die eine beste Übersetzung als Text.`;
   const cacheKey = `translate:${fromLang}>${toLang}:${text.toLowerCase()}`;
-  const result = await callGeminiCached(cacheKey, prompt, false);
+  const result = await callAICached(cacheKey, prompt, false);
   return result ? result.trim().replace(/^["'“„]|["'”]$/g, '') : null;
 }
 
@@ -2223,7 +2271,7 @@ Keine Duplikate untereinander.
 Gib NUR ein JSON-Array zurück in genau dieser Form, sonst nichts:
 [{"de":"deutsches Wort","fr":"französisches Wort"}, ...]`;
 
-  const text = await callGemini(prompt, true);
+  const text = await callAI(prompt, true);
   if(!text) return null;
   try{
     const arr = JSON.parse(text);
@@ -2245,7 +2293,7 @@ Gib EINEN kurzen, hilfreichen Tipp, der NICHT die Antwort verrät. Möglich sind
 
 Antworte NUR mit dem Tipp selbst, maximal 15 Wörter, ohne Anführungszeichen, ohne die Lösung zu nennen.`;
   const cacheKey = `hint:${word}|${correctAnswer}|${answerLanguage}`;
-  const result = await callGeminiCached(cacheKey, prompt, false);
+  const result = await callAICached(cacheKey, prompt, false);
   return result ? result.trim() : null;
 }
 
