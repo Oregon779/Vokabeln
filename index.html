@@ -1341,6 +1341,16 @@
     text-shadow:0 0 40px rgba(246,195,92,.25);
   }
   .hub-quote-attr{ margin:1.1rem 0 0; color:var(--stone); font-family:var(--font-mono); font-size:.78rem; letter-spacing:.1em; text-transform:uppercase; }
+
+  /* --- Wort-fuer-Wort-Blur-Einblendung (IntersectionObserver-getriggert) --- */
+  .blur-word{
+    display:inline-block; filter:blur(10px); opacity:0; transform:translateY(16px);
+    transition:filter .6s var(--ease-premium), opacity .6s var(--ease-premium), transform .6s var(--ease-premium);
+  }
+  .blur-in .blur-word{ filter:blur(0); opacity:1; transform:translateY(0); }
+  @media (prefers-reduced-motion: reduce){
+    .blur-word{ transition:none; filter:none; opacity:1; transform:none; }
+  }
 </style>
 </head>
 <body>
@@ -3295,6 +3305,28 @@ if(!reducedMotionActive()){
     qCurrent = qTarget;
     applyQuoteProgress(qCurrent);
   }
+
+  // Wort-fuer-Wort-Blur-Einblendung fuers Zitat, sobald es in den Viewport kommt.
+  setupBlurReveal(document.querySelector('.hub-quote-text'));
+}
+
+// Zerlegt den Text eines Elements in einzeln animierbare Woerter und blendet
+// sie gestaffelt ein (Blur -> scharf), sobald das Element sichtbar wird.
+// Nur einmalig, danach wird der Observer wieder abgehaengt.
+function setupBlurReveal(el, stagger = 60){
+  if(!el || el.dataset.blurReveal) return;
+  el.dataset.blurReveal = '1';
+  const words = el.textContent.trim().split(/\s+/);
+  el.innerHTML = words.map((w, i) => `<span class="blur-word" style="transition-delay:${i * stagger}ms">${escapeHtml(w)}</span>`).join(' ');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if(entry.isIntersecting){
+        el.classList.add('blur-in');
+        io.disconnect();
+      }
+    });
+  }, { threshold: 0.35 });
+  io.observe(el);
 }
 
 // --- View-Management -------------------------------------------------
