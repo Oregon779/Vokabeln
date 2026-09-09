@@ -721,7 +721,13 @@
   }
   .hub-eyebrow .dot{width:6px; height:6px; border-radius:50%; background:var(--pop); box-shadow:0 0 10px 2px var(--pop-dim); animation:dotPulse 2.2s ease-in-out infinite;}
   @keyframes dotPulse{ 0%,100%{opacity:1; transform:scale(1);} 50%{opacity:.6; transform:scale(1.3);} }
-  .hub-copy{position:relative; z-index:1;}
+  .hub-copy{position:relative; z-index:1; opacity:var(--hero-fade, 1);}
+  @media (hover:hover) and (pointer:fine){
+    .hub-copy{
+      transform:scale(calc(1 + (1 - var(--hero-fade, 1)) * .08)) translateY(calc((1 - var(--hero-fade, 1)) * -14px));
+      transform-origin:0 15%;
+    }
+  }
   .hub-title{
     font-family:var(--font-serif); font-weight:700; font-size:clamp(2.6rem,7.2vw,4.4rem); line-height:1.01; letter-spacing:-.02em; margin:0;
   }
@@ -847,7 +853,7 @@
   @media (prefers-reduced-motion: reduce){ .bh-disk{animation:none;} }
   .globe-sphere{
     position:absolute; left:50%; bottom:0; width:130vw; height:85vw; transform:translateX(-50%) translateY(-11vw) scale(var(--globe-zoom, 1));
-    transform-origin:50% 45%; transition:transform .1s linear;
+    transform-origin:50% 45%;
     border-radius:0; overflow:hidden; z-index:1;
     box-shadow:
       0 0 0 1.5px rgba(255,229,180,.55),
@@ -905,6 +911,13 @@
   @keyframes floatSlow{ 0%,100%{transform:translateY(0);} 50%{transform:translateY(-8px);} }
   /* --- Hub: Feature-Vorschaukarten --- */
   .hub-features{ position:relative; z-index:1; margin-top:3.6rem; padding-bottom:29vw; }
+  @media (hover:hover) and (pointer:fine){ .hub-features{ transform:translateY(var(--hero-drift, 0px)); } }
+
+  /* Waehrend der Scroll-Kamera aktiv ist (siehe Lerp-Loop in JS) gezielt
+     Compositing-Layer erzwingen; danach wieder freigeben. */
+  html.hero-animating .globe-sphere{ will-change:transform; }
+  html.hero-animating .hub-copy{ will-change:opacity, transform; }
+  html.hero-animating .hub-features{ will-change:transform; }
   @media (max-width:919px){ .hub-features{ padding-bottom:34vw; } }
   .hub-features-eyebrow{
     font-family:var(--font-mono); font-size:.65rem; text-transform:uppercase; letter-spacing:.3em; color:var(--stone);
@@ -1250,6 +1263,36 @@
   .quick-nav-item.menu{color:var(--ember-bright);}
   @media (max-width:480px){ .quick-nav{ gap:.1rem; padding:.3rem; } .quick-nav-item{ width:38px; height:38px; } .quick-nav-item svg{ width:17px; height:17px; } }
   body.quicknav-visible #app{ padding-bottom:6.6rem; }
+
+  /* --- Gold-Hover-System: Cursor-Spotlight + metallischer Lichtreflex ------
+     Nutzt dieselben --sx/--sy-Variablen wie die bestehenden Karten-Spotlights
+     (siehe .set-card/.streak-hero), nur erweitert auf Buttons, Chips und
+     Auswahl-Kacheln. Nur transform/opacity animiert -> GPU-Compositing. --- */
+  .btn-secondary, .chip, .session-opt{ position:relative; overflow:hidden; }
+  .btn-secondary::before, .chip::before, .session-opt::before{
+    content:''; position:absolute; inset:0; opacity:0; pointer-events:none;
+    background:radial-gradient(120px circle at var(--sx,50%) var(--sy,50%), rgba(246,195,92,.32), transparent 70%);
+    transition:opacity .25s var(--ease);
+  }
+  .btn-secondary:hover::before, .chip:hover::before, .session-opt:hover::before{ opacity:1; }
+  .btn-secondary::after, .chip::after{
+    content:''; position:absolute; inset:0; opacity:0; pointer-events:none;
+    background:linear-gradient(115deg, transparent 30%, rgba(255,223,0,.3), transparent 70%);
+    transform:translateX(-60%);
+  }
+  .btn-secondary:hover::after, .chip:hover::after{
+    opacity:1; transform:translateX(60%); transition:opacity .3s var(--ease), transform .7s var(--ease);
+  }
+  .btn:hover{transform:translate3d(0,-2px,0) scale(1.01);}
+  .chip:hover{transform:translate3d(0,-1px,0) scale(1.01);}
+  .session-opt:hover{transform:translate3d(0,-2px,0) scale(1.015);}
+  .settings-switch{transition:background .2s var(--ease), border-color .2s var(--ease), box-shadow .2s var(--ease);}
+  .settings-switch:hover{border-color:var(--ember-dim); box-shadow:0 0 0 4px rgba(246,195,92,.12);}
+  .settings-switch:focus-visible{outline:2px solid var(--ember-bright); outline-offset:2px;}
+  @media (prefers-reduced-motion: reduce), (hover:none){
+    .btn-secondary::before, .chip::before, .session-opt::before,
+    .btn-secondary::after, .chip::after{ display:none; }
+  }
 </style>
 </head>
 <body>
@@ -3051,7 +3094,7 @@ if(!reducedMotionActive()){
     }, {passive:true});
 
     // Spotlight-Hover auf Karten: Position des Cursors relativ zur Karte für Glow-Effekt
-    const spotlightSelector = '.set-card, .rewards-card, .streak-hero, .hub-stat, .feature-card';
+    const spotlightSelector = '.set-card, .rewards-card, .streak-hero, .hub-stat, .feature-card, .btn-secondary, .chip, .session-opt';
     document.addEventListener('pointermove', (e) => {
       const card = e.target.closest(spotlightSelector);
       if(!card) return;
@@ -3061,28 +3104,85 @@ if(!reducedMotionActive()){
     }, {passive:true});
   }
 
-  // Scroll-Zoom auf die Weltkugel: beim Runterscrollen kommt man der Karte näher
+  // Kino-Scroll-Kamera: beim Runterscrollen kommt man der Karte naeher (Zoom),
+  // der Text im Vordergrund weicht der Kamera (Fade + leichtes Aufskalieren),
+  // die Feature-Karten im Mittelgrund driften gegenlaeufig (Tiefenwirkung).
+  // Sanft interpoliert (Lerp) statt 1:1 an den Scroll gekoppelt, damit die
+  // Kamera "nachzieht" statt bei jedem Wheel-Tick zu springen.
   const globeSphere = document.querySelector('.globe-sphere');
   const heroSection = document.getElementById('view-hub');
+  const heroCopyEl = document.querySelector('.hub-copy');
+  const heroFeaturesEl = document.querySelector('.hub-features');
+  const heroFineHover = window.matchMedia('(hover:hover) and (pointer:fine)').matches;
+
   if(globeSphere && heroSection && !reducedMotionActive()){
-    let ticking = false;
-    const updateGlobeZoom = () => {
-      ticking = false;
-      const span = Math.max(heroSection.offsetHeight, 1);
+    let targetProgress = 0;
+    let currentProgress = 0;
+    let rafId = null;
+    let idleTimer = null;
+    let lastTickTime = 0;
+    let heroSpan = Math.max(heroSection.offsetHeight, 1);
+    // Pro 16.7ms (1 Frame bei 60fps) schliesst sich 9% der Distanz zum Ziel.
+    // Ueber die Zeit statt pro Frame normiert, damit die gefuehlte Geschwindigkeit
+    // bei 30fps oder 15fps genauso schnell wirkt wie bei 60fps (kein "haengt fest"
+    // auf schwaecheren Geraeten/Tabs mit gedrosselter Framerate).
+    const LERP_PER_FRAME = 0.09;
+    const REF_FRAME_MS = 16.67;
+    const EPSILON = 0.0006;
+
+    // offsetHeight aendert sich nur bei Resize/Layout-Wechsel, nicht bei jedem
+    // Scroll-Tick -> nur dort neu lesen, statt in der rAF-Hot-Loop.
+    let resizeTimer = null;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => { heroSpan = Math.max(heroSection.offsetHeight, 1); }, 150);
+    }, {passive:true});
+
+    function readTargetProgress(){
       const scrollY = window.scrollY || document.documentElement.scrollTop || document.body.scrollTop || 0;
-      const progress = Math.min(1, Math.max(0, scrollY / span));
-      const zoom = 1 + progress * 0.55;
-      globeSphere.style.setProperty('--globe-zoom', zoom.toFixed(3));
-    };
-    const onScroll = () => {
-      if(!ticking){
-        ticking = true;
-        requestAnimationFrame(updateGlobeZoom);
+      targetProgress = Math.min(1, Math.max(0, scrollY / heroSpan));
+    }
+
+    function applyProgress(p){
+      globeSphere.style.setProperty('--globe-zoom', (1 + p * 0.55).toFixed(4));
+      if(heroCopyEl){
+        const fade = Math.max(0, 1 - Math.min(1, p / 0.45));
+        heroCopyEl.style.setProperty('--hero-fade', fade.toFixed(3));
       }
+      if(heroFineHover && heroFeaturesEl){
+        heroFeaturesEl.style.setProperty('--hero-drift', (p * -22).toFixed(2) + 'px');
+      }
+    }
+
+    function tick(now){
+      const dt = lastTickTime ? Math.min(now - lastTickTime, 100) : REF_FRAME_MS;
+      lastTickTime = now;
+      // Zeit-normierter Lerp-Faktor: 1-(1-r)^(dt/refFrame) statt fixem r pro Tick.
+      const factor = 1 - Math.pow(1 - LERP_PER_FRAME, dt / REF_FRAME_MS);
+      readTargetProgress();
+      currentProgress += (targetProgress - currentProgress) * factor;
+      if(Math.abs(targetProgress - currentProgress) < EPSILON){
+        currentProgress = targetProgress;
+        applyProgress(currentProgress);
+        rafId = null;
+        lastTickTime = 0;
+        return;
+      }
+      applyProgress(currentProgress);
+      rafId = requestAnimationFrame(tick);
+    }
+
+    const onScroll = () => {
+      document.documentElement.classList.add('hero-animating');
+      clearTimeout(idleTimer);
+      idleTimer = setTimeout(() => document.documentElement.classList.remove('hero-animating'), 200);
+      if(rafId === null){ lastTickTime = 0; rafId = requestAnimationFrame(tick); }
     };
     window.addEventListener('scroll', onScroll, {passive:true});
     document.body.addEventListener('scroll', onScroll, {passive:true});
-    updateGlobeZoom();
+    readTargetProgress();
+    currentProgress = targetProgress;
+    applyProgress(currentProgress);
   }
 }
 
