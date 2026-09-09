@@ -5,6 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Lumière · Vokabeltrainer Deutsch-Französisch</title>
 <meta name="theme-color" content="#07070a">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Lumière">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
@@ -2920,7 +2927,33 @@ function showToast(message, isError = false){
 
 // --- Datenspeicherung -----------------------------------------------
 const STORAGE_KEY = 'vokabeltrainer_data';
-function loadData(){ try{ const raw = localStorage.getItem(STORAGE_KEY); return raw ? JSON.parse(raw) : { sets: [] }; }catch(e){ return { sets: [] }; } }
+// --- Beispiel-Set fuer den allerersten Besuch (leeres localStorage) -------
+const DEMO_PAIRS = [
+  ['Hallo', 'Bonjour'], ['Danke', 'Merci'], ['Bitte', "S'il te plaît"], ['Tschüss', 'Au revoir'],
+  ['das Haus', 'la maison'], ['der Hund', 'le chien'], ['die Katze', 'le chat'], ['das Wasser', "l'eau"],
+  ['das Brot', 'le pain'], ['die Schule', "l'école"], ['der Freund', "l'ami"], ['die Familie', 'la famille'],
+  ['essen', 'manger'], ['trinken', 'boire'], ['gehen', 'aller'], ['sprechen', 'parler'],
+  ['lernen', 'apprendre'], ['lieben', 'aimer'], ['groß', 'grand'], ['klein', 'petit'],
+  ['schön', 'beau'], ['gut', 'bon'],
+];
+function buildDemoSet(){
+  return {
+    id: uid(),
+    name: 'Grundwortschatz (Beispiel)',
+    pairs: DEMO_PAIRS.map(([de, fr]) => makePair(de, fr)),
+  };
+}
+function loadData(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw) return JSON.parse(raw);
+    // Allererster Besuch: Beispiel-Set anlegen und sofort speichern, damit es
+    // auch ohne weitere Aktion des Nutzers dauerhaft bestehen bleibt.
+    const seeded = { sets: [buildDemoSet()] };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(seeded));
+    return seeded;
+  }catch(e){ return { sets: [] }; }
+}
 function saveData(data){ localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
 function uid(){ return crypto.randomUUID(); }
 let store = loadData();
@@ -4207,6 +4240,13 @@ document.getElementById('btnGameBack').addEventListener('click', () => {
 
 wireSounds(document.body);
 renderHub();
+
+// --- PWA: Offline-Faehigkeit ueber einen Service Worker ------------------
+if('serviceWorker' in navigator){
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch((err) => console.error('Service-Worker-Registrierung fehlgeschlagen:', err.message));
+  });
+}
 </script>
 </body>
 </html>
