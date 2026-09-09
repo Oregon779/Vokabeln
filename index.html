@@ -863,7 +863,7 @@
   @keyframes mapBeaconPulse{ 0%,100%{ opacity:.45; transform:scale(1); } 50%{ opacity:1; transform:scale(1.1); } }
   .map-city-glow circle:first-child{ animation:cityTwinkle 3.4s ease-in-out infinite; }
   @keyframes cityTwinkle{ 0%,100%{opacity:.7;} 50%{opacity:1;} }
-  @media (prefers-reduced-motion: reduce){ .map-comet, .map-beacon-ring, .map-city-glow circle:first-child, .hud-tag .hud-dot{ animation:none; } }
+  @media (prefers-reduced-motion: reduce){ .map-comet, .map-beacon-ring, .map-city-glow circle:first-child, .hud-tag .hud-dot{ animation:none; } .map-flight-dot{ display:none; } }
   .hub-map-snippet{
     position:absolute; left:.9rem; right:.9rem; bottom:.9rem; z-index:3;
     display:flex; align-items:center; justify-content:space-between; gap:.7rem;
@@ -887,19 +887,12 @@
   @media (max-width:640px){ .hub-map-snippet-desc{ display:none; } }
 
   /* --- Hub: Feature-Vorschaukarten --- */
-  /* Ab hier soll der Gold-Aurora-Hintergrund aufhoeren und nur noch flaches Dunkel
-     kommen (wie im Referenz-Entwurf), mit einer duennen goldenen Trennlinie oben.
-     .hub-dark-zone umschliesst Feature-Karten UND Manifest-Box, damit der Hintergrund
-     sich exakt an deren tatsaechliche Gesamthoehe anpasst (inset:0) - KEIN vmax/vw-
-     Ausdehnungstrick mehr noetig. Der fruehere Versuch (bottom:-100vmax auf nur einem
-     der beiden Bloecke) hat die Seite um ~1000px leeren Leerraum verlaengert, weil das
-     Pseudo-Element selbst zur Scroll-Hoehe der Seite zaehlt, auch wenn es unsichtbar ist. */
+  /* Kein harter Farb-Cutoff mehr hier: der sitegweite Aurora-Hintergrund soll
+     nahtlos unter dem gesamten Hub-Bereich weiterlaufen (frueher gab es hier einen
+     harten Gold->Schwarz-Schnitt, der als stoerende Kante wahrgenommen wurde).
+     .hub-dark-zone bleibt nur als Gruppierungs-Wrapper fuer Feature-Karten + Manifest. */
   .hub-dark-zone{ position:relative; z-index:1; margin-top:5rem; }
-  .hub-dark-zone::before{
-    content:''; position:absolute; inset:0; z-index:-1;
-    background:var(--bg); border-top:1px solid rgba(246,195,92,.25);
-  }
-  .hub-features{ position:relative; z-index:1; padding-top:3rem; padding-bottom:6rem; }
+  .hub-features{ position:relative; z-index:1; padding-top:1rem; padding-bottom:6rem; }
   @media (max-width:919px){ .hub-features{ padding-bottom:5rem; } }
   .hub-features-head{display:flex; align-items:center; justify-content:space-between; gap:1rem; margin-bottom:1.4rem; flex-wrap:wrap;}
   .hub-features-eyebrow{
@@ -1602,6 +1595,11 @@
           <path d="M 555 375 C 650 150 800 80 935 265" fill="none" filter="url(#mapSuperGlow)" stroke="url(#mapBridgeGrad)" stroke-width="4"/>
           <path d="M 555 375 C 650 150 800 80 935 265" fill="none" stroke="#ffffff" stroke-opacity=".98" stroke-width="1.8"/>
           <path class="map-comet" d="M 555 375 C 650 150 800 80 935 265" fill="none" stroke="#ffe3b4" stroke-linecap="round" stroke-width="4"/>
+          <!-- Deutlich sichtbarer wandernder Lichtpunkt, der die Strecke Paris->Berlin abfliegt (zusaetzlich zum gestrichelten "Kometen"-Streifen oben) -->
+          <circle class="map-flight-dot" r="5.5" fill="#fff8e6" filter="url(#mapSuperGlow)">
+            <animateMotion dur="3.2s" repeatCount="indefinite" path="M 555 375 C 650 150 800 80 935 265"/>
+            <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;.08;.9;1" dur="3.2s" repeatCount="indefinite"/>
+          </circle>
 
           <!-- Paris-Leuchtfeuer -->
           <polygon fill="url(#mapVerticalPillar)" opacity=".8" points="550,375 560,375 565,235 545,235"/>
