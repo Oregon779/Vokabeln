@@ -17,7 +17,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#07070a; --bg-2:#151009; --surface:rgba(26,21,14,.55); --surface-2:rgba(34,27,17,.65);
+    --bg:#0f131c; --bg-2:#0f131c; --surface:rgba(26,21,14,.55); --surface-2:rgba(34,27,17,.65);
     --ember:#d9a548; --ember-dim:#8c6b2e; --ember-bright:#f6c35c; --gold:#b8862f; --gold-bright:#e9c878; --rose:#d9b06b; --stone:#a79c88;
     --saphir:#b8862f; --saphir-dim:#8c6b2e; --saphir-bright:#e9c878;
     --pop:#e0a23d; --pop-2:#f5dfa6; --pop-dim:rgba(224,162,61,.5);
@@ -36,15 +36,10 @@
   body{margin:0; background:var(--bg); color:var(--text); font-family:var(--font-sans); line-height:1.5; -webkit-font-smoothing:antialiased; overflow-x:hidden; overflow-anchor:none;}
   code{font-family:var(--font-mono);}
 
-  .bg-base{position:fixed; inset:0; z-index:-5; background:radial-gradient(ellipse at 50% -10%, var(--bg-2) 0%, var(--bg) 55%);}
-  .bg-grid{
-    position:fixed; inset:-52px; z-index:-4; pointer-events:none; opacity:.13; will-change:transform;
-    background-image:linear-gradient(rgba(246,195,92,.5) 1px, transparent 1px), linear-gradient(90deg, rgba(246,195,92,.5) 1px, transparent 1px);
-    background-size:52px 52px;
-    mask-image:radial-gradient(ellipse 85% 60% at 50% 20%, black 30%, transparent 85%);
-    -webkit-mask-image:radial-gradient(ellipse 85% 60% at 50% 20%, black 30%, transparent 85%);
-    animation:gridPan 18s linear infinite;
-  }
+  /* Einheitliche, flache Hintergrundfarbe statt Verlauf/Raster - auf Nutzerwunsch,
+     gilt ab jetzt als Standard fuer die ganze Seite (nicht nur die Startseite). */
+  .bg-base{position:fixed; inset:0; z-index:-5; background:var(--bg);}
+  .bg-grid{ display:none; }
   @keyframes gridPan{ from{ transform:translate3d(-52px,-52px,0); } to{ transform:translate3d(0,0,0); } }
   .grain{
     position:fixed; inset:0; z-index:2; pointer-events:none; opacity:.045; mix-blend-mode:overlay;
@@ -119,10 +114,9 @@
   @keyframes bgStarTwinkle{ 0%,100%{opacity:1;} 50%{opacity:.55;} }
   @keyframes bgStarTwinkle2{ 0%,100%{opacity:.4;} 50%{opacity:.9;} }
   @media (prefers-reduced-motion: reduce){ .bg-stars, .bg-stars::after{animation:none;} }
-  .bg-aurora{
-    position:fixed; inset:0; z-index:-3; overflow:hidden;
-    transform:translate(calc(var(--mx)*12px), calc(var(--my)*12px)); transition:transform .5s ease-out;
-  }
+  /* Auf Nutzerwunsch abgeschaltet: kein Gold-Aurora-Blob-Hintergrund mehr,
+     nur noch die einheitliche flache Hintergrundfarbe (siehe .bg-base). */
+  .bg-aurora{ display:none; }
   /* Kein filter-Animation mehr auf dem Container (erzwang jeden Frame ein
      komplettes Neu-Rendern des gesamten Hintergrunds auf JEDER Seite) und
      nur noch 3 statt 5 Blobs mit kleinerem Blur-Radius (Blur ist teuer, die
@@ -748,11 +742,9 @@
     background:linear-gradient(180deg, rgba(20,28,44,.55) 0%, transparent 45%);
     border-bottom:1px solid var(--border-solid);
   }
-  /* Zwei grosse, unscharfe Leuchtflecken im Hero-Hintergrund (wie im Referenz-Entwurf) */
+  /* Keine Gold-Leuchtflecken mehr im Hero-Hintergrund - nur noch die duenne
+     Trennlinie unter dem Header bleibt, Rest ist die einheitliche Hintergrundfarbe. */
   .hub-hero-bg{position:absolute; inset:0; z-index:0; overflow:hidden; pointer-events:none;}
-  .hub-hero-bg::before, .hub-hero-bg::after{content:''; position:absolute; border-radius:50%; filter:blur(150px);}
-  .hub-hero-bg::before{ top:-14rem; left:14%; width:60rem; height:34rem; background:radial-gradient(ellipse, rgba(246,195,92,.16), transparent 70%); }
-  .hub-hero-bg::after{ top:8rem; right:-8rem; width:32rem; height:32rem; background:rgba(187,136,30,.14); }
   .hub-hero-bg .hairline{position:absolute; top:0; left:5%; right:5%; height:1px; background:linear-gradient(90deg, transparent, rgba(246,195,92,.2), transparent);}
   .hub-grid{position:relative; z-index:1; display:grid; grid-template-columns:1fr; gap:2.6rem; align-items:center; padding-top:1rem; max-width:1280px; margin:0 auto;}
   @media (min-width:980px){ .hub-grid{ grid-template-columns:1.05fr .95fr; gap:3.2rem; } }
