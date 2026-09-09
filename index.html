@@ -2847,7 +2847,6 @@ function checkExamReminders(){
   });
   if(changed) saveData(store);
 }
-checkExamReminders();
 
 // --- Custom Modal --------------------------------------------------------
 function customPrompt(title, defaultValue = ''){
@@ -2977,6 +2976,9 @@ store.settings = Object.assign({}, DEFAULT_SETTINGS, store.settings || {});
 if(!Array.isArray(store.examEvents)) store.examEvents = [];
 if(!store.dailyProgress || typeof store.dailyProgress !== 'object') store.dailyProgress = {};
 if(!Array.isArray(store.streakDates)) store.streakDates = [];
+// Erst hier aufrufen (nicht frueher im Script) - die Funktion liest store.settings/store.examEvents,
+// die erst ab dieser Zeile garantiert initialisiert sind.
+checkExamReminders();
 
 // --- Spaced Repetition (vereinfachtes Leitner-System) ---------------------
 // Box 0-5: je höher die Box, desto länger das Wiederholungsintervall.
