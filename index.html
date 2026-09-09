@@ -1189,6 +1189,60 @@
   .page-eyebrow{font-family:var(--font-mono); font-size:.65rem; text-transform:uppercase; letter-spacing:.3em; color:var(--stone); margin:0 0 .8rem;}
   .page-title{font-family:var(--font-serif); font-weight:600; font-size:clamp(1.9rem,4.6vw,2.7rem); margin:0 0 .6rem; letter-spacing:-.01em;}
   .page-sub{color:var(--stone); max-width:36em; line-height:1.6; margin:0 0 1.8rem;}
+
+  /* --- Fällig-Badge & Statistik (Set-Detail) --- */
+  .srs-row{display:flex; align-items:center; gap:.6rem; flex-wrap:wrap; margin:.9rem 0;}
+  .srs-badge{
+    display:inline-flex; align-items:center; gap:.4rem; font-family:var(--font-mono); font-size:.72rem;
+    background:rgba(246,195,92,.12); border:1px solid rgba(246,195,92,.3); color:var(--ember-bright);
+    border-radius:999px; padding:.4rem .85rem;
+  }
+  .srs-badge.none{background:var(--surface-2); border-color:var(--border-solid); color:var(--stone);}
+  .stats-box .stats-summary{display:flex; gap:1.6rem; flex-wrap:wrap; margin-bottom:1.1rem;}
+  .stats-summary-item .num{display:block; font-family:var(--font-mono); font-weight:700; font-size:1.5rem; color:var(--ember);}
+  .stats-summary-item .lbl{display:block; font-family:var(--font-mono); font-size:.62rem; text-transform:uppercase; letter-spacing:.1em; color:var(--stone); margin-top:.15rem;}
+  .stats-hard-row{display:flex; align-items:center; gap:.7rem; padding:.5rem 0; border-top:1px solid var(--border-solid);}
+  .stats-hard-row:first-of-type{border-top:none;}
+  .stats-hard-words{margin:0 0 .3rem; padding:.5rem .2rem 0;}
+  .stats-hard-label{flex:1; min-width:0; font-size:.85rem;}
+  .stats-hard-label .fr{color:var(--ember-bright);}
+  .stats-hard-bar-track{width:70px; height:5px; border-radius:3px; background:var(--surface-2); overflow:hidden; flex-shrink:0;}
+  .stats-hard-bar-fill{height:100%; background:linear-gradient(90deg, var(--danger), var(--gold));}
+  .stats-hard-pct{width:2.6rem; text-align:right; flex-shrink:0; font-family:var(--font-mono); font-size:.72rem; color:var(--stone);}
+
+  /* --- Mehrere Vokabeln auf einmal einfügen --- */
+  textarea#bulkPasteInput{width:100%; min-height:88px; font-family:monospace; font-size:.82rem; color:var(--text); background:var(--surface-2); border:1px solid var(--border-solid); border-radius:10px; padding:.65rem .85rem; resize:vertical;}
+  textarea#bulkPasteInput:focus{outline:2px solid var(--ember); outline-offset:1px;}
+
+  /* --- Übungssession: Fragenzähler + Wort anhören --- */
+  .practice-hud{display:flex; align-items:center; gap:.6rem;}
+  .question-counter{
+    font-family:var(--font-mono); font-size:.75rem; color:var(--stone); background:var(--surface);
+    border:1px solid var(--border-solid); border-radius:999px; padding:.4rem .85rem; white-space:nowrap;
+  }
+  .practice-word-row{display:flex; align-items:center; justify-content:center; gap:.7rem; margin:0 0 1.7rem;}
+  .practice-word-row .practice-word{margin:0;}
+  .flashcard-answer-row{display:flex; align-items:center; justify-content:center; gap:.7rem;}
+  .flashcard-answer-row .flashcard-answer{margin:0;}
+
+  /* --- Quick-Nav (schwebende Kurz-Navigation außerhalb der Startseite) --- */
+  .quick-nav{
+    position:fixed; left:50%; bottom:1.1rem; transform:translateX(-50%); z-index:40;
+    display:flex; align-items:center; gap:.25rem; padding:.4rem; border-radius:999px;
+    background:var(--surface); backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px);
+    border:1px solid var(--border-solid); box-shadow:var(--shadow-md);
+  }
+  .quick-nav-item{
+    width:42px; height:42px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    background:none; border:none; color:var(--stone); cursor:pointer; flex-shrink:0;
+    transition:background .2s var(--ease), color .2s var(--ease), transform .15s var(--ease-premium);
+  }
+  .quick-nav-item svg{width:19px; height:19px;}
+  .quick-nav-item:hover{background:var(--surface-2); color:var(--text); transform:translateY(-2px);}
+  .quick-nav-item.active{background:rgba(246,195,92,.16); color:var(--ember-bright); box-shadow:inset 0 0 0 1px rgba(246,195,92,.35);}
+  .quick-nav-item.menu{color:var(--ember-bright);}
+  @media (max-width:480px){ .quick-nav{ gap:.1rem; padding:.3rem; } .quick-nav-item{ width:38px; height:38px; } .quick-nav-item svg{ width:17px; height:17px; } }
+  body.quicknav-visible #app{ padding-bottom:6.6rem; }
 </style>
 </head>
 <body>
@@ -1237,6 +1291,24 @@
     </ul>
   </nav>
 </div>
+
+<nav class="quick-nav" id="quickNav" aria-label="Schnellzugriff" hidden>
+  <button type="button" class="quick-nav-item" data-goto="home" aria-label="Lernsets" title="Lernsets">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5V5.5Z"/><path d="M4 18.5A2.5 2.5 0 0 1 6.5 16H20"/></svg>
+  </button>
+  <button type="button" class="quick-nav-item" data-goto="calendar" aria-label="Kalender" title="Kalender">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4.5" width="17" height="16" rx="2"/><path d="M3.5 9.5h17M8 3v3M16 3v3"/></svg>
+  </button>
+  <button type="button" class="quick-nav-item" data-goto="rewards" aria-label="Belohnungen" title="Belohnungen">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 5.5L19 10l-5.2 1.5L12 17l-1.8-5.5L5 10l5.2-1.5L12 3Z"/></svg>
+  </button>
+  <button type="button" class="quick-nav-item" data-goto="grammar" aria-label="Grammatik" title="Grammatik">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5C6 4.5 9 4.5 12 6c3-1.5 6-1.5 8-.5v13c-2-1-5-1-8 .5-3-1.5-6-1.5-8-.5V5.5Z"/><path d="M12 6v13"/></svg>
+  </button>
+  <button type="button" class="quick-nav-item menu" id="quickNavMenu" aria-label="Menü öffnen" title="Menü">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+  </button>
+</nav>
 
 <div class="modal-backdrop" id="modalBackdrop">
   <div class="modal-box">
@@ -1584,6 +1656,7 @@
       <div class="btn-group">
         <button id="btnRenameSet" class="btn btn-secondary btn-small">Umbenennen</button>
         <button id="btnExportSet" class="btn btn-secondary btn-small">Teilen</button>
+        <button id="btnCsvExport" class="btn btn-secondary btn-small">⬇ CSV</button>
         <button id="btnDeleteSet" class="btn btn-danger btn-small">Löschen</button>
       </div>
     </div>
@@ -1595,10 +1668,14 @@
       <button id="btnCopyExport" class="btn btn-secondary btn-small" style="margin-top:.5rem;">Kopieren</button>
     </div>
 
+    <div class="srs-row" id="srsRow"></div>
+
     <div class="btn-group">
       <button id="btnGoPractice" class="btn btn-primary btn-large" style="flex:1;">▶ Übung starten</button>
     </div>
     <button id="btnGoListen" class="btn btn-secondary btn-large">🔊 Aussprache üben</button>
+
+    <div class="box stats-box" id="setStatsBox"></div>
 
     <h3>Vokabeln (<span id="pairCount">0</span>)</h3>
     <table class="pairs-table">
@@ -1617,6 +1694,18 @@
       <input type="text" id="pairFr" placeholder="Französisch" required>
       <button type="submit" class="btn btn-primary">+</button>
     </form>
+
+    <div class="box">
+      <h3>📋 Mehrere Vokabeln auf einmal</h3>
+      <p class="hint">Eine Zeile pro Vokabel, z.B. aus Excel/Sheets eingefügt oder per Hand — getrennt durch Tab, Semikolon, Komma oder " - ": <code>Deutsch;Französisch</code></p>
+      <textarea id="bulkPasteInput" rows="4" placeholder="das Haus; la maison&#10;der Hund; le chien"></textarea>
+      <div class="btn-group" style="margin-top:.6rem;">
+        <button type="button" id="btnBulkAdd" class="btn btn-primary btn-small">+ Alle hinzufügen</button>
+        <button type="button" id="btnCsvUpload" class="btn btn-secondary btn-small">⬆ CSV-Datei</button>
+      </div>
+      <input type="file" id="csvFileInput" accept=".csv,text/csv,text/plain" hidden>
+      <p id="bulkAddMsg" class="msg"></p>
+    </div>
 
     <div class="box">
       <h3>✨ KI-Vokabeln zu einem Thema</h3>
@@ -1649,6 +1738,12 @@
     </div>
 
     <div class="config-group">
+      <label class="config-group-label">Auswahl</label>
+      <div class="chip-row" id="selectionOptions"></div>
+      <p class="hint" id="srsInfo" style="margin:.5rem 0 0;"></p>
+    </div>
+
+    <div class="config-group">
       <label class="config-group-label" id="lengthLabel">Wie viele Vokabeln?</label>
       <div class="session-options" id="sessionOptions"></div>
     </div>
@@ -1659,14 +1754,20 @@
   <section id="view-practice" class="view" hidden>
     <div class="row-between">
       <h2>Übung: <span id="practiceSetName"></span></h2>
-      <div class="score-badge">✅ <span id="scoreCorrect">0</span> · ❌ <span id="scoreWrong">0</span></div>
+      <div class="practice-hud">
+        <span class="question-counter" id="questionCounter">1 / 1</span>
+        <div class="score-badge">✅ <span id="scoreCorrect">0</span> · ❌ <span id="scoreWrong">0</span></div>
+      </div>
     </div>
     <div class="progress-track"><div id="progressFill" class="progress-fill" style="width:0%"></div></div>
 
     <div id="practiceCard" class="practice-card">
       <span class="practice-mode-tag" id="practiceModeTag">Auswählen</span>
       <p class="practice-lang" id="practiceLang">Deutsch → Französisch</p>
-      <p class="practice-word" id="practiceWord">…</p>
+      <div class="practice-word-row">
+        <p class="practice-word" id="practiceWord">…</p>
+        <button type="button" class="speak-btn" id="btnSpeakQuestion" aria-label="Wort anhören" title="Anhören">🔊</button>
+      </div>
 
       <div id="practiceOptions" class="practice-options" hidden></div>
 
@@ -1683,7 +1784,10 @@
         <button id="btnRevealFlashcard" class="btn btn-secondary">Antwort zeigen</button>
         <button id="btnHintFlashcard" class="btn btn-secondary btn-small">💡 Tipp</button>
         <p class="flashcard-hint" id="flashcardHint" hidden></p>
-        <p class="flashcard-answer" id="flashcardAnswer" hidden></p>
+        <div class="flashcard-answer-row">
+          <p class="flashcard-answer" id="flashcardAnswer" hidden></p>
+          <button type="button" class="speak-btn" id="btnSpeakFlashAnswer" hidden aria-label="Antwort anhören" title="Anhören">🔊</button>
+        </div>
         <div class="flashcard-actions" id="flashcardActions" hidden>
           <button id="btnFlashKnew" class="btn btn-primary">✅ Wusste ich</button>
           <button id="btnFlashDidntKnow" class="btn btn-secondary">❌ Wusste ich nicht</button>
@@ -2176,7 +2280,7 @@ function sndComplete(){ [523,659,784,1046].forEach((f,i) => playTone(f, 0.18, 's
 
 const soundIsFine = window.matchMedia('(hover:hover) and (pointer:fine)').matches;
 function wireSounds(root = document){
-  root.querySelectorAll('.btn, .icon-btn, .chip, .session-opt, .set-card, .nav-overlay-item, .streak-day, .feature-card').forEach(el => {
+  root.querySelectorAll('.btn, .icon-btn, .chip, .session-opt, .set-card, .nav-overlay-item, .streak-day, .feature-card, .quick-nav-item, .speak-btn').forEach(el => {
     if(soundIsFine && !el.dataset.soundWiredHover){ el.addEventListener('mouseenter', sndHover); el.dataset.soundWiredHover = '1'; }
     if(!el.dataset.soundWiredClick){ el.addEventListener('click', sndClick); el.dataset.soundWiredClick = '1'; }
   });
@@ -2793,6 +2897,31 @@ if(!Array.isArray(store.examEvents)) store.examEvents = [];
 if(!store.dailyProgress || typeof store.dailyProgress !== 'object') store.dailyProgress = {};
 if(!Array.isArray(store.streakDates)) store.streakDates = [];
 
+// --- Spaced Repetition (vereinfachtes Leitner-System) ---------------------
+// Box 0-5: je höher die Box, desto länger das Wiederholungsintervall.
+const SRS_INTERVALS = [0, 1, 2, 4, 7, 14];
+function defaultPairStats(){ return { box: 0, due: todayKey(), correct: 0, wrong: 0, seen: 0 }; }
+function ensurePairStats(pair){
+  if(!pair.stats || typeof pair.stats !== 'object') pair.stats = defaultPairStats();
+  return pair.stats;
+}
+function isPairDue(pair){ return ensurePairStats(pair).due <= todayKey(); }
+function addDaysKey(baseKey, days){
+  const d = new Date(baseKey + 'T00:00:00');
+  d.setDate(d.getDate() + days);
+  return todayKey(d);
+}
+function recordPairResult(pair, isCorrect){
+  const s = ensurePairStats(pair);
+  s.seen++;
+  if(isCorrect){ s.correct++; s.box = Math.min(s.box + 1, SRS_INTERVALS.length - 1); }
+  else { s.wrong++; s.box = 0; }
+  s.due = addDaysKey(todayKey(), SRS_INTERVALS[s.box]);
+}
+function makePair(de, fr){ return { id: uid(), de, fr, stats: defaultPairStats() }; }
+// Migration: aeltere Sets hatten noch keine pair.stats
+store.sets.forEach(s => s.pairs.forEach(ensurePairStats));
+
 function getSet(id){ return store.sets.find(s => s.id === id); }
 function reducedMotionActive(){
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches || !!store.settings.reducedMotion;
@@ -2888,7 +3017,15 @@ const views = {
 let currentSetId = null;
 let currentNavId = 'hub';
 const NAV_SUB_LABELS = { hub: 'Startseite', home: 'Lernsets', rewards: 'Belohnungen', grammar: 'Grammatik', listen: 'Sprechen', settingsPage: 'Einstellungen', calendar: 'Kalender' };
-function showView(name){ Object.values(views).forEach(v => v.hidden = true); views[name].hidden = false; }
+const QUICKNAV_HIDDEN_VIEWS = new Set(['hub', 'practice', 'match', 'results', 'game']);
+function showView(name){
+  Object.values(views).forEach(v => v.hidden = true);
+  views[name].hidden = false;
+  const qn = document.getElementById('quickNav');
+  const visible = !QUICKNAV_HIDDEN_VIEWS.has(name);
+  if(qn) qn.hidden = !visible;
+  document.body.classList.toggle('quicknav-visible', visible);
+}
 document.querySelectorAll('[data-nav]').forEach(btn => {
   btn.addEventListener('click', () => {
     if(btn.dataset.nav === 'home') renderHome();
@@ -2917,6 +3054,9 @@ function updateNavActiveStates(){
   navOverlay.querySelectorAll('.nav-overlay-item').forEach(item => {
     item.classList.toggle('active', item.dataset.goto === currentNavId);
   });
+  document.querySelectorAll('.quick-nav-item[data-goto]').forEach(item => {
+    item.classList.toggle('active', item.dataset.goto === currentNavId);
+  });
 }
 
 function openNavOverlay(){
@@ -2938,19 +3078,33 @@ navOverlay.querySelector('.nav-overlay-bg').addEventListener('click', closeNavOv
 document.addEventListener('keydown', (e) => { if(e.key === 'Escape') closeNavOverlay(); });
 btnBrand.addEventListener('click', () => { sndClick(); closeNavOverlay(); renderHub(); });
 
+function goToDestination(target){
+  if(target === 'hub') renderHub();
+  else if(target === 'home') renderHome();
+  else if(target === 'rewards') renderRewards();
+  else if(target === 'grammar') openGrammar();
+  else if(target === 'listen') openGlobalListen();
+  else if(target === 'calendar') renderCalendar();
+  else if(target === 'settingsPage') openSettingsPage();
+}
 navOverlay.querySelectorAll('.nav-overlay-item').forEach(item => {
   item.addEventListener('click', () => {
     sndClick();
     closeNavOverlay();
-    const target = item.dataset.goto;
-    if(target === 'hub') renderHub();
-    else if(target === 'home') renderHome();
-    else if(target === 'rewards') renderRewards();
-    else if(target === 'grammar') openGrammar();
-    else if(target === 'listen') openGlobalListen();
-    else if(target === 'calendar') renderCalendar();
-    else if(target === 'settingsPage') openSettingsPage();
+    goToDestination(item.dataset.goto);
   });
+});
+
+// --- Quick-Nav (schwebende Kurz-Navigation außerhalb der Startseite) -----
+document.querySelectorAll('.quick-nav-item[data-goto]').forEach(item => {
+  item.addEventListener('click', () => {
+    sndClick();
+    goToDestination(item.dataset.goto);
+  });
+});
+document.getElementById('quickNavMenu').addEventListener('click', () => {
+  sndClick();
+  openNavOverlay();
 });
 
 function openGrammar(){ showView('grammar'); currentNavId = 'grammar'; updateNavActiveStates(); }
@@ -3067,7 +3221,7 @@ document.getElementById('formImport').addEventListener('submit', (e) => {
   try{
     const decoded = JSON.parse(atob(input.value.trim()));
     if(!decoded.name || !Array.isArray(decoded.pairs)) throw new Error('ungueltiges Format');
-    const newSet = { id: uid(), name: decoded.name + ' (übernommen)', pairs: decoded.pairs.map(p => ({ id: uid(), de: p.de, fr: p.fr })) };
+    const newSet = { id: uid(), name: decoded.name + ' (übernommen)', pairs: decoded.pairs.map(p => makePair(p.de, p.fr)) };
     store.sets.unshift(newSet);
     saveData(store);
     msg.textContent = 'Übernommen!'; msg.classList.add('msg-success');
@@ -3087,6 +3241,8 @@ function renderSetDetail(setId){
   document.getElementById('setTitle').textContent = set.name;
   document.getElementById('pairCount').textContent = set.pairs.length;
   document.getElementById('exportBox').hidden = true;
+  renderSrsRow(set);
+  renderSetStats(set);
 
   const body = document.getElementById('pairsBody');
   const empty = document.getElementById('pairsEmpty');
@@ -3112,6 +3268,58 @@ function renderSetDetail(setId){
   wireSounds();
 }
 
+function renderSrsRow(set){
+  const row = document.getElementById('srsRow');
+  if(set.pairs.length === 0){ row.innerHTML = ''; return; }
+  const dueCount = set.pairs.filter(isPairDue).length;
+  row.innerHTML = dueCount > 0
+    ? `<span class="srs-badge">🧠 ${dueCount} von ${set.pairs.length} heute fällig</span>`
+    : `<span class="srs-badge none">✓ Alles frisch gelernt — nichts fällig</span>`;
+}
+
+function renderSetStats(set){
+  const box = document.getElementById('setStatsBox');
+  const seen = set.pairs.filter(p => ensurePairStats(p).seen > 0);
+  if(seen.length === 0){
+    box.innerHTML = `<h3>📊 Statistik</h3><p class="hint" style="margin:0;">Noch keine Übungsdaten — starte eine Übungsrunde, um hier deine Trefferquote und die schwierigsten Wörter zu sehen.</p>`;
+    return;
+  }
+  const totalCorrect = seen.reduce((sum, p) => sum + p.stats.correct, 0);
+  const totalWrong = seen.reduce((sum, p) => sum + p.stats.wrong, 0);
+  const totalSeen = totalCorrect + totalWrong;
+  const accuracy = totalSeen > 0 ? Math.round((totalCorrect / totalSeen) * 100) : 0;
+  const hardest = [...seen]
+    .filter(p => p.stats.wrong > 0)
+    .sort((a, b) => {
+      const accA = a.stats.correct / (a.stats.correct + a.stats.wrong);
+      const accB = b.stats.correct / (b.stats.correct + b.stats.wrong);
+      return accA - accB || b.stats.wrong - a.stats.wrong;
+    })
+    .slice(0, 5);
+
+  let html = `<h3>📊 Statistik</h3>
+    <div class="stats-summary">
+      <div class="stats-summary-item"><span class="num">${totalSeen}</span><span class="lbl">Wiederholungen</span></div>
+      <div class="stats-summary-item"><span class="num">${accuracy}%</span><span class="lbl">Trefferquote</span></div>
+      <div class="stats-summary-item"><span class="num">${seen.length}</span><span class="lbl">geübte Wörter</span></div>
+    </div>`;
+
+  if(hardest.length > 0){
+    html += `<p class="hint" style="margin-bottom:.3rem;">Schwierigste Wörter</p><div class="stats-hard-words">`;
+    hardest.forEach(p => {
+      const s = p.stats;
+      const acc = Math.round((s.correct / (s.correct + s.wrong)) * 100);
+      html += `<div class="stats-hard-row">
+        <span class="stats-hard-label">${escapeHtml(p.de)} ↔ <span class="fr">${escapeHtml(p.fr)}</span></span>
+        <span class="stats-hard-bar-track"><span class="stats-hard-bar-fill" style="width:${acc}%;"></span></span>
+        <span class="stats-hard-pct">${acc}%</span>
+      </div>`;
+    });
+    html += `</div>`;
+  }
+  box.innerHTML = html;
+}
+
 function editPairCell(cell, pair, set){
   const field = cell.dataset.field;
   const oldValue = pair[field];
@@ -3128,7 +3336,7 @@ document.getElementById('formAddPair').addEventListener('submit', (e) => {
   const de = document.getElementById('pairDe'), fr = document.getElementById('pairFr');
   if(!de.value.trim() || !fr.value.trim()) return;
   const set = getSet(currentSetId);
-  set.pairs.push({ id: uid(), de: de.value.trim(), fr: fr.value.trim() });
+  set.pairs.push(makePair(de.value.trim(), fr.value.trim()));
   saveData(store);
   de.value = ''; fr.value = ''; de.focus();
   renderSetDetail(currentSetId);
@@ -3166,12 +3374,59 @@ document.getElementById('formAiGenerate').addEventListener('submit', async (e) =
     return;
   }
   const set = getSet(currentSetId);
-  pairs.forEach(p => set.pairs.push({ id: uid(), de: p.de.trim(), fr: p.fr.trim() }));
+  pairs.forEach(p => set.pairs.push(makePair(p.de.trim(), p.fr.trim())));
   saveData(store);
   msg.textContent = `${pairs.length} Vokabeln hinzugefügt!`;
   msg.classList.add('msg-success');
   input.value = '';
   setTimeout(() => renderSetDetail(currentSetId), 500);
+});
+
+// --- Mehrere Vokabeln auf einmal einfügen (Copy/Paste aus Excel/Sheets o.ä.) ---
+function parseBulkLine(line){
+  const delimiters = ['\t', ';', ',', ' - ', ' = '];
+  for(const d of delimiters){
+    const idx = line.indexOf(d);
+    if(idx > -1){
+      const de = line.slice(0, idx).trim();
+      const fr = line.slice(idx + d.length).trim();
+      if(de && fr) return { de, fr };
+    }
+  }
+  return null;
+}
+document.getElementById('btnBulkAdd').addEventListener('click', () => {
+  const ta = document.getElementById('bulkPasteInput');
+  const msg = document.getElementById('bulkAddMsg');
+  const lines = ta.value.split('\n').map(l => l.trim()).filter(Boolean);
+  msg.className = 'msg';
+  if(lines.length === 0){ msg.textContent = 'Erst ein paar Zeilen einfügen.'; msg.classList.add('msg-error'); return; }
+  const set = getSet(currentSetId);
+  let added = 0, skipped = 0;
+  lines.forEach(line => {
+    const parsed = parseBulkLine(line);
+    if(parsed){ set.pairs.push(makePair(parsed.de, parsed.fr)); added++; }
+    else skipped++;
+  });
+  if(added === 0){
+    msg.textContent = 'Keine gültigen Zeilen erkannt. Format: Deutsch;Französisch (eine Vokabel pro Zeile)';
+    msg.classList.add('msg-error');
+    return;
+  }
+  saveData(store);
+  msg.textContent = `${added} Vokabel${added === 1 ? '' : 'n'} hinzugefügt` + (skipped ? `, ${skipped} Zeile${skipped === 1 ? '' : 'n'} übersprungen.` : '.');
+  msg.classList.add('msg-success');
+  ta.value = '';
+  setTimeout(() => renderSetDetail(currentSetId), 500);
+});
+document.getElementById('btnCsvUpload').addEventListener('click', () => document.getElementById('csvFileInput').click());
+document.getElementById('csvFileInput').addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  e.target.value = '';
+  if(!file) return;
+  const text = await file.text();
+  document.getElementById('bulkPasteInput').value = text;
+  document.getElementById('btnBulkAdd').click();
 });
 
 document.getElementById('btnRenameSet').addEventListener('click', async () => {
@@ -3199,6 +3454,21 @@ document.getElementById('btnCopyExport').addEventListener('click', () => {
   const ta = document.getElementById('exportText');
   ta.select();
   navigator.clipboard?.writeText(ta.value).catch(() => document.execCommand('copy'));
+});
+document.getElementById('btnCsvExport').addEventListener('click', () => {
+  const set = getSet(currentSetId);
+  const csvField = (s) => `"${String(s).replace(/"/g, '""')}"`;
+  const rows = ['Deutsch,Französisch', ...set.pairs.map(p => `${csvField(p.de)},${csvField(p.fr)}`)];
+  const blob = new Blob(['﻿' + rows.join('\n')], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${set.name.replace(/[^\w\-]+/g, '_')}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+  showToast('CSV exportiert.');
 });
 
 // --- AUSSPRACHE (Listening) ------------------------------------------
@@ -3262,9 +3532,27 @@ document.getElementById('btnListenFreeFr').addEventListener('click', (e) => {
 });
 
 // --- SESSION SETUP ---------------------------------------------------------
-let sessionConfig = { length: 5, mode: 'mixed', direction: 'mixed' };
+let sessionConfig = { length: 5, mode: 'mixed', direction: 'mixed', selection: 'random' };
 const MODE_LABELS = { mixed: '🔀 Alles gemischt', mc: '☑️ Multiple Choice', write: '✍️ Schreiben', flashcard: '🧠 Denken', match: '🔗 Zuordnen' };
 const DIRECTION_LABELS = { mixed: '🔀 Gemischt', 'de-fr': 'DE → FR', 'fr-de': 'FR → DE' };
+const SELECTION_LABELS = { random: '🔀 Zufällig', srs: '🧠 Fällige zuerst' };
+
+// Liefert die Vokabeln, aus denen eine Session schöpft — bei "srs" bevorzugt fällige Karten.
+function getSessionPairs(set){
+  if(sessionConfig.selection !== 'srs') return set.pairs;
+  const due = set.pairs.filter(isPairDue);
+  if(due.length > 0) return due;
+  return [...set.pairs].sort((a, b) => ensurePairStats(a).due.localeCompare(ensurePairStats(b).due));
+}
+function updateSrsInfo(){
+  const set = getSet(currentSetId);
+  const info = document.getElementById('srsInfo');
+  if(!set || sessionConfig.selection !== 'srs'){ info.textContent = ''; return; }
+  const dueCount = set.pairs.filter(isPairDue).length;
+  info.textContent = dueCount > 0
+    ? `🧠 ${dueCount} von ${set.pairs.length} Vokabeln sind heute fällig.`
+    : `✓ Aktuell nichts fällig — es werden die am längsten nicht geübten Vokabeln gezeigt.`;
+}
 
 document.getElementById('btnGoPractice').addEventListener('click', () => {
   const set = getSet(currentSetId);
@@ -3272,7 +3560,9 @@ document.getElementById('btnGoPractice').addEventListener('click', () => {
   showView('sessionSetup');
   renderModeOptions();
   renderDirectionOptions();
-  renderSessionOptions(set.pairs.length);
+  renderSelectionOptions();
+  renderSessionOptions(getSessionPairs(set).length);
+  updateSrsInfo();
 });
 
 function renderModeOptions(){
@@ -3287,6 +3577,25 @@ function renderModeOptions(){
       box.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
       chip.classList.add('selected');
       document.getElementById('lengthLabel').textContent = key === 'match' ? 'Wie viele Paare (max. 8)?' : 'Wie viele Vokabeln?';
+      sndClick();
+    });
+    box.appendChild(chip);
+  });
+}
+
+function renderSelectionOptions(){
+  const box = document.getElementById('selectionOptions');
+  box.innerHTML = '';
+  Object.keys(SELECTION_LABELS).forEach(key => {
+    const chip = document.createElement('div');
+    chip.className = 'chip' + (key === sessionConfig.selection ? ' selected' : '');
+    chip.textContent = SELECTION_LABELS[key];
+    chip.addEventListener('click', () => {
+      sessionConfig.selection = key;
+      box.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
+      chip.classList.add('selected');
+      updateSrsInfo();
+      renderSessionOptions(getSessionPairs(getSet(currentSetId)).length);
       sndClick();
     });
     box.appendChild(chip);
@@ -3332,13 +3641,16 @@ function renderSessionOptions(totalPairs){
 }
 
 document.getElementById('btnStartSession').addEventListener('click', () => {
-  document.getElementById('practiceSetName').textContent = getSet(currentSetId).name;
+  const set = getSet(currentSetId);
+  document.getElementById('practiceSetName').textContent = set.name;
+  sessionPairPool = getSessionPairs(set);
+  sessionConfig.length = Math.min(sessionConfig.length, sessionPairPool.length);
   if(sessionConfig.mode === 'match'){
     startMatchRound();
   } else {
     score = { correct: 0, wrong: 0 };
     questionIndex = 0;
-    refillBag(getSet(currentSetId).pairs);
+    refillBag(sessionPairPool);
     updateScoreBadge();
     showView('practice');
     loadNextQuestion();
@@ -3346,6 +3658,7 @@ document.getElementById('btnStartSession').addEventListener('click', () => {
 });
 
 // --- Zufalls-Beutel (verhindert Wiederholungen kurz hintereinander) -------
+let sessionPairPool = [];
 let pairBag = [];
 function refillBag(pairs){
   pairBag = pairs.map((_, i) => i);
@@ -3374,11 +3687,16 @@ let score = { correct: 0, wrong: 0 };
 let questionIndex = 0;
 let writeAttemptsLeft = 2;
 const WRITE_MAX_ATTEMPTS = 2;
+let currentPair = null;
+let currentQuestionWord = '';
+let currentQuestionLang = 'de-DE';
 
 function updateScoreBadge(){
   document.getElementById('scoreCorrect').textContent = score.correct;
   document.getElementById('scoreWrong').textContent = score.wrong;
   document.getElementById('progressFill').style.width = (questionIndex / sessionConfig.length * 100) + '%';
+  const counter = document.getElementById('questionCounter');
+  if(counter) counter.textContent = `${Math.min(questionIndex + 1, sessionConfig.length)} / ${sessionConfig.length}`;
 }
 
 function normalizeAnswer(str){
@@ -3398,6 +3716,7 @@ function resetQuestionUI(){
   document.getElementById('flashcardHint').hidden = true;
   document.getElementById('flashcardAnswer').hidden = true;
   document.getElementById('flashcardActions').hidden = true;
+  document.getElementById('btnSpeakFlashAnswer').hidden = true;
   document.getElementById('practiceFeedback').textContent = '';
   document.getElementById('practiceFeedback').className = 'practice-feedback';
   document.getElementById('btnNextQuestion').hidden = true;
@@ -3417,13 +3736,15 @@ async function loadNextQuestion(){
   resetQuestionUI();
 
   try{
-    const set = getSet(currentSetId);
-    const pair = nextPair(set.pairs);
+    const pair = nextPair(sessionPairPool);
     const askGerman = resolveDirection();
     const questionWord = askGerman ? pair.de : pair.fr;
     const correctAnswer = askGerman ? pair.fr : pair.de;
     const answerLanguage = askGerman ? 'fr' : 'de';
     const mode = resolveMode();
+    currentPair = pair;
+    currentQuestionWord = questionWord;
+    currentQuestionLang = askGerman ? 'de-DE' : 'fr-FR';
 
     card.style.opacity = '1';
     document.getElementById('practiceModeTag').textContent = MODE_LABELS[mode] || mode;
@@ -3524,14 +3845,18 @@ function setupFlashcardMode(questionWord, correctAnswer, answerLanguage){
     const smartHint = await generateSmartHint(questionWord, correctAnswer, answerLanguage);
     hintEl.textContent = '💡 ' + (smartHint || (correctAnswer[0].toUpperCase() + '_'.repeat(Math.max(correctAnswer.length - 1, 1))));
   };
+  const speakAnswerBtn = document.getElementById('btnSpeakFlashAnswer');
+  const answerLang = answerLanguage === 'fr' ? 'fr-FR' : 'de-DE';
   revealBtn.onclick = () => {
     answerEl.textContent = correctAnswer;
     answerEl.hidden = false;
     actionsEl.hidden = false;
     revealBtn.hidden = true;
     hintBtn.hidden = true;
-    if(store.settings.autoPlayFlashcard) speak(correctAnswer, answerLanguage === 'fr' ? 'fr-FR' : 'de-DE');
+    speakAnswerBtn.hidden = false;
+    if(store.settings.autoPlayFlashcard) speak(correctAnswer, answerLang);
   };
+  speakAnswerBtn.onclick = (e) => speak(correctAnswer, answerLang, e.currentTarget);
   document.getElementById('btnFlashKnew').onclick = () => finalizeAnswer(true, correctAnswer, null, '✅ Super!');
   document.getElementById('btnFlashDidntKnow').onclick = () => finalizeAnswer(false, correctAnswer, null, '📚 Kein Problem, kommt wieder dran.');
 }
@@ -3549,6 +3874,7 @@ function checkAnswer(chosen, correctAnswer, clickedBtn){
 function finalizeAnswer(isCorrect, correctAnswer, clickedBtn, feedbackText){
   if(questionAnswered) return;
   questionAnswered = true;
+  if(currentPair) recordPairResult(currentPair, isCorrect);
   recordDailyProgress();
   const feedback = document.getElementById('practiceFeedback');
   const card = document.getElementById('practiceCard');
@@ -3589,14 +3915,18 @@ function celebrate(card){
 }
 
 document.getElementById('btnNextQuestion').addEventListener('click', loadNextQuestion);
+document.getElementById('btnSpeakQuestion').addEventListener('click', (e) => {
+  if(currentQuestionWord) speak(currentQuestionWord, currentQuestionLang, e.currentTarget);
+});
 
 // --- ZUORDNEN (Match) -----------------------------------------------------
 let matchState = { picks: {de:null, fr:null}, remaining: 0 };
 
 function startMatchRound(){
   const set = getSet(currentSetId);
-  const count = Math.min(sessionConfig.length, 8, set.pairs.length);
-  const shuffled = [...set.pairs].sort(() => Math.random() - 0.5).slice(0, count);
+  if(sessionPairPool.length === 0) sessionPairPool = getSessionPairs(set);
+  const count = Math.min(sessionConfig.length, 8, sessionPairPool.length);
+  const shuffled = [...sessionPairPool].sort(() => Math.random() - 0.5).slice(0, count);
   score = { correct: 0, wrong: 0 };
   matchState.remaining = shuffled.length;
   document.getElementById('matchSetName').textContent = set.name;
@@ -3645,6 +3975,8 @@ function handleMatchPick(side, chip, pairId){
       a.el.disabled = true; b.el.disabled = true;
       score.correct++;
       matchState.remaining--;
+      const matchedPair = sessionPairPool.find(p => p.id === a.pairId);
+      if(matchedPair) recordPairResult(matchedPair, true);
       recordDailyProgress();
       sndCorrect();
       document.getElementById('matchCorrect').textContent = score.correct;
@@ -3701,9 +4033,12 @@ function showResults(){
   wireSounds();
 }
 document.getElementById('btnPracticeAgain').addEventListener('click', () => {
+  const set = getSet(currentSetId);
+  sessionPairPool = getSessionPairs(set);
+  sessionConfig.length = Math.min(sessionConfig.length, sessionPairPool.length) || sessionPairPool.length;
   if(sessionConfig.mode === 'match'){ startMatchRound(); return; }
   score = { correct: 0, wrong: 0 }; questionIndex = 0;
-  refillBag(getSet(currentSetId).pairs);
+  refillBag(sessionPairPool);
   updateScoreBadge();
   showView('practice');
   loadNextQuestion();
