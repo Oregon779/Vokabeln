@@ -3621,15 +3621,17 @@ function renderDirectionOptions(){
 
 function renderSessionOptions(totalPairs){
   const box = document.getElementById('sessionOptions');
-  const choices = [5, 10, 20, totalPairs];
-  const labels = ['Kurz', 'Mittel', 'Lang', 'Alle'];
+  const namedLabels = { 5: 'Kurz', 10: 'Mittel', 20: 'Lang' };
+  // Auf die tatsaechlich verfuegbare Anzahl kappen und Duplikate entfernen
+  // (z.B. bei einem kleinen Set oder einer kleinen SRS-Faellig-Auswahl).
+  const choices = [...new Set([5, 10, 20, totalPairs].map(n => Math.min(n, totalPairs)).filter(n => n >= 1))];
   box.innerHTML = '';
-  sessionConfig.length = Math.min(choices[0], totalPairs);
+  sessionConfig.length = choices[0] || totalPairs;
   choices.forEach((n, i) => {
-    if(n < 1) return;
     const el = document.createElement('div');
     el.className = 'session-opt' + (i === 0 ? ' selected' : '');
-    el.innerHTML = `<span class="num">${n}</span><span class="label">${labels[i]}</span>`;
+    const label = n === totalPairs ? 'Alle' : (namedLabels[n] || '');
+    el.innerHTML = `<span class="num">${n}</span><span class="label">${label}</span>`;
     el.addEventListener('click', () => {
       sessionConfig.length = n;
       box.querySelectorAll('.session-opt').forEach(o => o.classList.remove('selected'));
