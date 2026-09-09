@@ -746,7 +746,7 @@
   @media (max-width:919px){ .black-hole-2, .black-hole-3{ display:none; } }
   @media (prefers-reduced-motion: reduce){ .bh-disk{animation:none;} }
   .globe-sphere{
-    position:absolute; left:50%; bottom:0; width:120vw; height:139vh; transform:translateX(-50%) translateY(4vh) scale(var(--globe-zoom, 1));
+    position:absolute; left:50%; bottom:0; width:130vw; height:85vw; transform:translateX(-50%) translateY(2.8vw) scale(var(--globe-zoom, 1));
     transform-origin:50% 45%; transition:transform .1s linear;
     border-radius:0; overflow:hidden; z-index:1;
     box-shadow:
@@ -756,7 +756,7 @@
       inset 0 60px 140px rgba(6,22,32,.55),
       inset 0 -14px 60px rgba(246,195,92,.12);
   }
-  @media (max-width:919px){ .globe-sphere{ width:190vw; height:78vh; bottom:2vh; } }
+  @media (max-width:919px){ .globe-sphere{ width:175vw; height:118vh; bottom:0; transform:translateX(-50%) scale(var(--globe-zoom, 1)); } }
   .globe-sphere .map-bg{
     position:absolute; inset:0;
     background:
@@ -804,8 +804,8 @@
   @media (max-width:919px){ .europe-visual .badge{ display:none; } }
   @keyframes floatSlow{ 0%,100%{transform:translateY(0);} 50%{transform:translateY(-8px);} }
   /* --- Hub: Feature-Vorschaukarten --- */
-  .hub-features{ position:relative; z-index:1; margin-top:3.6rem; padding-bottom:26rem; }
-  @media (max-width:919px){ .hub-features{ padding-bottom:6rem; } }
+  .hub-features{ position:relative; z-index:1; margin-top:3.6rem; padding-bottom:29vw; }
+  @media (max-width:919px){ .hub-features{ padding-bottom:34vw; } }
   .hub-features-eyebrow{
     font-family:var(--font-mono); font-size:.65rem; text-transform:uppercase; letter-spacing:.3em; color:var(--stone);
     margin:0 0 1.1rem; padding-left:.1rem;
@@ -1305,7 +1305,7 @@
               <path d="M0,-24 C-4.69,-24 -8.5,-20.19 -8.5,-15.5 C-8.5,-9 0,0 0,0 C0,0 8.5,-9 8.5,-15.5 C8.5,-20.19 4.69,-24 0,-24 Z" fill="var(--saphir-bright)" stroke="var(--bg)" stroke-width="1"/>
               <circle cx="0" cy="-15.5" r="3.4" fill="var(--bg)"/>
             </g>
-            <text x="336.1" y="150" text-anchor="middle" class="city-label">Berlin</text>
+            <text x="336.1" y="186" text-anchor="middle" class="city-label">Berlin</text>
 
             <!-- Eiffelturm: steht über Paris, markiert den französischen Endpunkt der Route -->
             <g class="landmark landmark-fr" transform="translate(154,214) scale(.62)" aria-hidden="true">
