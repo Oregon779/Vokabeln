@@ -139,7 +139,7 @@
   @keyframes driftD{0%,100%{transform:translate(0,0) scale(1);} 50%{transform:translate(-4%,-4%) scale(1.15);}}
   .cursor-spotlight{
     position:fixed; inset:0; z-index:0; pointer-events:none;
-    background:radial-gradient(560px circle at var(--cx) var(--cy), rgba(246,195,92,.1), rgba(245,223,166,.05) 45%, transparent 72%);
+    background:radial-gradient(300px circle at var(--cx) var(--cy), rgba(246,195,92,.09), rgba(245,223,166,.04) 45%, transparent 70%);
   }
   @media (hover:none), (pointer:coarse){ .cursor-spotlight{display:none;} }
   .vignette{position:fixed; inset:0; z-index:-1; pointer-events:none; box-shadow:inset 0 0 160px 40px rgba(0,0,0,.5);}
@@ -304,7 +304,7 @@
   }
   .set-card::before{
     content:''; position:absolute; inset:0; opacity:0; pointer-events:none;
-    background:radial-gradient(220px circle at var(--sx,50%) var(--sy,0%), rgba(246,195,92,.22), transparent 70%);
+    background:radial-gradient(110px circle at var(--sx,50%) var(--sy,0%), rgba(246,195,92,.3), transparent 55%);
     transition:opacity .3s var(--ease);
   }
   .set-card:hover{transform:translateY(-5px) scale(1.015); border-color:var(--ember-dim); box-shadow:var(--shadow-md), var(--shadow-glow);}
@@ -725,17 +725,17 @@
 
   /* --- Hub / Startseite (Hero) --- */
   /* #app deckelt normalerweise alle Ansichten auf 880px (Lesebreite); die Startseite
-     braucht fuer die zweispaltige Karten-Hero aber mehr Platz. Klassischer "Full-Bleed
-     innerhalb eines schmaleren Elternelements"-Trick: 100vw + negative Margin zentriert
-     unabhaengig von der Breite von #app, dafuer eigenes Padding statt dem von #app. */
+     braucht fuer die zweispaltige Karten-Hero aber mehr Platz. Statt #view-hub per
+     100vw+negativer Margin aus #app auszubrechen (zaehlt unter Windows/Chrome faelschlich
+     die Breite der Scrollbar mit -> Seite wirkt leicht ausser Mitte), wird stattdessen
+     #app selbst per Klasse breiter gemacht, solange die Startseite aktiv ist. #app bleibt
+     so weiterhin ganz normal per margin:0 auto zentriert, unabhaengig von der Scrollbar. */
+  body.view-hub-active #app{ max-width:1280px; }
   #view-hub{
-    max-width:1280px !important; position:relative;
-    width:100vw; left:50%; margin-left:-50vw; box-sizing:border-box;
-    padding-left:1.4rem; padding-right:1.4rem;
+    position:relative;
     background:linear-gradient(180deg, rgba(20,28,44,.55) 0%, transparent 45%);
     border-bottom:1px solid var(--border-solid);
   }
-  @media (min-width:640px){ #view-hub{ padding-left:2.4rem; padding-right:2.4rem; } }
   /* Zwei grosse, unscharfe Leuchtflecken im Hero-Hintergrund (wie im Referenz-Entwurf) */
   .hub-hero-bg{position:absolute; inset:0; z-index:0; overflow:hidden; pointer-events:none;}
   .hub-hero-bg::before, .hub-hero-bg::after{content:''; position:absolute; border-radius:50%; filter:blur(150px);}
@@ -792,7 +792,7 @@
   }
   .hub-stat::before{
     content:''; position:absolute; inset:0; opacity:0; pointer-events:none;
-    background:radial-gradient(120px circle at var(--sx,50%) var(--sy,0%), rgba(246,195,92,.28), transparent 70%);
+    background:radial-gradient(70px circle at var(--sx,50%) var(--sy,0%), rgba(246,195,92,.35), transparent 55%);
     transition:opacity .3s var(--ease);
   }
   .hub-stat:hover{transform:translateY(-3px); border-color:var(--ember-dim); box-shadow:var(--shadow-md);}
@@ -874,7 +874,18 @@
   @media (max-width:640px){ .hub-map-snippet-desc{ display:none; } }
 
   /* --- Hub: Feature-Vorschaukarten --- */
-  .hub-features{ position:relative; z-index:1; margin-top:5rem; padding-bottom:6rem; }
+  /* Ab hier soll der Gold-Aurora-Hintergrund aufhoeren und nur noch flaches Dunkel
+     kommen (wie im Referenz-Entwurf), mit einer duennen goldenen Trennlinie oben.
+     Nur nach UNTEN ausdehnen (bottom:-100vmax) - das ist sicher, weil die Seite ohnehin
+     vertikal scrollt. NICHT horizontal per vmax/vw ausdehnen: das laesst die tatsaechliche
+     Scrollbreite der Seite wachsen (getestet: 1440px-Viewport wurde zu 2768px), selbst mit
+     overflow-x:hidden auf body - also einfach auf die Breite von .hub-features selbst
+     begrenzen (links/rechts 0 statt -100vmax). */
+  .hub-features{ position:relative; z-index:1; margin-top:5rem; padding-top:3rem; padding-bottom:6rem; }
+  .hub-features::before{
+    content:''; position:absolute; z-index:-1; top:0; left:0; right:0; bottom:-100vmax;
+    background:var(--bg); border-top:1px solid rgba(246,195,92,.25);
+  }
   @media (max-width:919px){ .hub-features{ padding-bottom:5rem; } }
   .hub-features-head{display:flex; align-items:center; justify-content:space-between; gap:1rem; margin-bottom:1.4rem; flex-wrap:wrap;}
   .hub-features-eyebrow{
@@ -908,7 +919,7 @@
   }
   .feature-card::before{
     content:''; position:absolute; inset:0; opacity:0; pointer-events:none;
-    background:radial-gradient(220px circle at var(--sx,50%) var(--sy,0%), rgba(246,195,92,.25), transparent 70%);
+    background:radial-gradient(110px circle at var(--sx,50%) var(--sy,0%), rgba(246,195,92,.32), transparent 55%);
     transition:opacity .3s var(--ease);
   }
   .feature-card:hover{
@@ -1048,7 +1059,7 @@
   }
   .rewards-card::before{
     content:''; position:absolute; inset:0; opacity:0; pointer-events:none;
-    background:radial-gradient(200px circle at var(--sx,50%) var(--sy,0%), rgba(245,223,166,.22), transparent 70%);
+    background:radial-gradient(100px circle at var(--sx,50%) var(--sy,0%), rgba(245,223,166,.3), transparent 55%);
     transition:opacity .3s var(--ease);
   }
   .rewards-card:hover{transform:translateY(-3px); border-color:var(--ember-dim); box-shadow:var(--shadow-md);}
@@ -1278,7 +1289,7 @@
   .btn-secondary, .chip, .session-opt{ position:relative; overflow:hidden; }
   .btn-secondary::before, .chip::before, .session-opt::before{
     content:''; position:absolute; inset:0; opacity:0; pointer-events:none;
-    background:radial-gradient(120px circle at var(--sx,50%) var(--sy,50%), rgba(246,195,92,.32), transparent 70%);
+    background:radial-gradient(70px circle at var(--sx,50%) var(--sy,50%), rgba(246,195,92,.4), transparent 55%);
     transition:opacity .25s var(--ease);
   }
   .btn-secondary:hover::before, .chip:hover::before, .session-opt:hover::before{ opacity:1; }
@@ -3396,6 +3407,7 @@ function showView(name){
   const visible = !QUICKNAV_HIDDEN_VIEWS.has(name);
   if(qn) qn.hidden = !visible;
   document.body.classList.toggle('quicknav-visible', visible);
+  document.body.classList.toggle('view-hub-active', name === 'hub');
 }
 document.querySelectorAll('[data-nav]').forEach(btn => {
   btn.addEventListener('click', () => {
