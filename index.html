@@ -954,6 +954,39 @@
   .feature-card-title{font-family:var(--font-sans); font-weight:700; font-size:1rem; color:var(--text);}
   .feature-card-desc{font-size:.82rem; color:var(--stone); line-height:1.5;}
 
+  /* --- Hub: Manifest-/Zitat-Sektion (Bild + Zitat) --- */
+  .hub-manifest{
+    position:relative; z-index:1; margin:0 0 4rem; display:grid; grid-template-columns:1fr; overflow:hidden;
+    border-radius:26px; border:1px solid rgba(246,195,92,.2); background:linear-gradient(115deg, #10151f, #141b2b 55%, #0e131d);
+    box-shadow:0 20px 50px rgba(0,0,0,.5);
+  }
+  @media (min-width:900px){ .hub-manifest{ grid-template-columns:5fr 7fr; min-height:320px; } }
+  .hub-manifest-media{ position:relative; min-height:220px; background:radial-gradient(ellipse at 30% 20%, #221808, #0a0705); }
+  @media (min-width:900px){ .hub-manifest-media{ min-height:100%; } }
+  .hub-manifest-media img{ width:100%; height:100%; object-fit:cover; display:block; color:transparent; font-size:.7rem; }
+  .hub-manifest-media-fade{
+    position:absolute; inset:0;
+    background:linear-gradient(0deg, #10151f, rgba(16,21,31,.55) 45%, rgba(16,21,31,.15) 70%, transparent 100%);
+  }
+  @media (min-width:900px){ .hub-manifest-media-fade{ background:linear-gradient(90deg, transparent 0%, rgba(16,21,31,.2) 55%, #10151f 100%); } }
+  .hub-manifest-body{ position:relative; padding:2rem 1.6rem; display:flex; flex-direction:column; justify-content:center; }
+  @media (min-width:640px){ .hub-manifest-body{ padding:2.6rem; } }
+  .hub-manifest-eyebrow{
+    display:flex; align-items:center; gap:.55rem; margin:0 0 .9rem; color:var(--ember-bright);
+    font-family:var(--font-mono); font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.18em;
+  }
+  .hub-manifest-quote{
+    margin:0 0 1.1rem; font-family:var(--font-serif); font-weight:600; font-style:italic; color:var(--text);
+    font-size:clamp(1.5rem, 3.2vw, 2.1rem); line-height:1.3; max-width:34em;
+  }
+  .hub-manifest-quote .blur-word{display:inline-block; filter:blur(10px); opacity:0; transform:translateY(10px); transition:filter .6s var(--ease-premium), opacity .6s var(--ease-premium), transform .6s var(--ease-premium);}
+  .hub-manifest-quote.blur-in .blur-word{filter:blur(0); opacity:1; transform:translateY(0);}
+  @media (prefers-reduced-motion: reduce){ .hub-manifest-quote .blur-word{filter:none; opacity:1; transform:none;} }
+  .hub-manifest-text{margin:0 0 1.4rem; max-width:34em; color:var(--stone); font-size:.95rem; line-height:1.7;}
+  .hub-manifest-attrib{display:flex; align-items:center; gap:1rem;}
+  .hub-manifest-attrib span:first-child{font-family:var(--font-serif); font-style:italic; font-size:.85rem; color:var(--gold-bright); white-space:nowrap;}
+  .hub-manifest-attrib .line{flex:1; max-width:9rem; height:1px; background:linear-gradient(90deg, var(--border-solid), transparent);}
+
 
   /* --- Belohnungen --- */
   .rewards-grid{display:grid; grid-template-columns:1fr; gap:1rem; margin-top:1.6rem;}
@@ -1810,6 +1843,22 @@
           </span>
           <span class="feature-card-footer"><span>Lernplan</span><span class="feature-card-arrow">→</span></span>
         </button>
+      </div>
+    </div>
+
+    <div class="hub-manifest">
+      <div class="hub-manifest-media">
+        <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuDW3rmKC7JxqWEkGaM7rCti8OkXWm4luaPISy9RFzYO7Ux3OdsjUn4zX_xeAA8Htce0iNOJopM1PXkP33ezvMAs6c5YuNH9QFDINcWR8G1aGyme7nqHLOjNnNfNJAjiQiK4xg4GUB5i4dlAc_v6SttmDUanfZqwuoAApkHc-nRnxAl-RO5Bx7leAD7cFudtwZeNrdlVk65Y1iB2-A2lHZhacv7FBs8sCeFa3Luri5Wz7RfTHhnsmiVlRw" alt="Nächtliche Café-Szene in Paris mit einem alten Wörterbuch, Espresso und Blick auf eine regennasse Straße" loading="lazy">
+        <div class="hub-manifest-media-fade"></div>
+      </div>
+      <div class="hub-manifest-body">
+        <p class="hub-manifest-eyebrow">
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.5c-1.8-1.3-4.2-2-7-2v13c2.8 0 5.2.7 7 2 1.8-1.3 4.2-2 7-2v-13c-2.8 0-5.2.7-7 2Z"/><path d="M12 6.5v13"/></svg>
+          Das Lumière-Manifest
+        </p>
+        <h2 class="hub-manifest-quote">« Die Grenzen meiner Sprache bedeuten die Grenzen meiner Welt. »</h2>
+        <p class="hub-manifest-text">Jedes französische Wort trägt ein subtiles Echo seiner Geschichte in sich. Wir ersetzen stures Auswendiglernen durch elegante Assoziationen, phonetische Klarheit und literarische Kontexte, die im Gedächtnis verweilen.</p>
+        <div class="hub-manifest-attrib"><span>Ludwig Wittgenstein · Édition Critique</span><span class="line"></span></div>
       </div>
     </div>
   </section>
@@ -3285,6 +3334,7 @@ if(!reducedMotionActive()){
   // Feature-Karten erst einblenden, wenn man tatsaechlich zu ihnen scrollt
   // (statt schon beim Laden der Seite, lange bevor man sie sieht).
   setupCardReveal(document.querySelector('.hub-features'), '.feature-card');
+  setupBlurReveal(document.querySelector('.hub-manifest-quote'));
 }
 
 // Zerlegt den Text eines Elements in einzeln animierbare Woerter und blendet
