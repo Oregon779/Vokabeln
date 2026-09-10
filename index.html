@@ -770,7 +770,7 @@
      die Breite der Scrollbar mit -> Seite wirkt leicht ausser Mitte), wird stattdessen
      #app selbst per Klasse breiter gemacht, solange die Startseite aktiv ist. #app bleibt
      so weiterhin ganz normal per margin:0 auto zentriert, unabhaengig von der Scrollbar. */
-  body.view-hub-active #app{ max-width:1280px; }
+  body.wide-view-active #app{ max-width:1280px; }
   #view-hub{
     position:relative;
     background:linear-gradient(180deg, rgba(20,28,44,.55) 0%, transparent 45%);
@@ -1385,6 +1385,106 @@
   @media (prefers-reduced-motion: reduce){
     .feature-card{ transition:none; opacity:1; filter:none; transform:none; }
   }
+
+  /* --- App-Download-Seite (Menü · 08) --- */
+  .dl-view{ position:relative; padding-top:1rem; }
+  .dl-glow{ position:absolute; z-index:-1; border-radius:50%; filter:blur(70px); pointer-events:none; opacity:.5; }
+  .dl-glow-1{ width:520px; height:340px; top:-6rem; left:50%; transform:translateX(-50%); background:radial-gradient(ellipse, rgba(246,195,92,.16), transparent 70%); }
+  .dl-glow-2{ width:380px; height:380px; top:34rem; right:-6rem; background:radial-gradient(circle, rgba(217,176,107,.12), transparent 70%); }
+
+  .dl-eyebrow-badge{
+    display:inline-flex; align-items:center; gap:.55rem; padding:.4rem .85rem; border-radius:999px;
+    background:var(--surface-2); font-family:var(--font-mono); font-size:.66rem; text-transform:uppercase;
+    letter-spacing:.14em; color:var(--ember-bright); margin-bottom:1.2rem;
+  }
+  .dl-eyebrow-badge-static{ margin-bottom:.9rem; }
+  .dl-pulse-dot{ width:7px; height:7px; border-radius:50%; background:var(--ember-bright); box-shadow:0 0 8px var(--ember-bright); animation:dotPulse 2s ease-in-out infinite; flex-shrink:0; }
+
+  .dl-hero{ display:grid; grid-template-columns:1fr; gap:2.6rem; align-items:center; padding:1rem 0 3.5rem; }
+  @media (min-width:960px){ .dl-hero{ grid-template-columns:1.15fr .85fr; gap:3rem; } }
+  .dl-hero-title{
+    font-family:var(--font-serif); font-weight:600; font-size:clamp(2.1rem,5vw,3.2rem); line-height:1.08;
+    letter-spacing:-.01em; margin:0 0 1.1rem;
+  }
+  .dl-hero-title em{ font-style:italic; color:var(--ember-bright); font-weight:500; }
+  .dl-hero-sub{ color:var(--stone); max-width:38em; line-height:1.7; margin:0 0 1.6rem; font-size:1.02rem; }
+  .dl-hero-actions{ display:flex; flex-wrap:wrap; gap:.8rem; margin-bottom:1.8rem; }
+  .dl-hero-actions .btn-secondary{ text-decoration:none; display:inline-flex; align-items:center; }
+  .dl-trust-row{ display:flex; flex-wrap:wrap; gap:1.4rem; color:var(--stone); font-family:var(--font-mono); font-size:.7rem; letter-spacing:.04em; }
+  .dl-trust-row span{ display:inline-flex; align-items:center; gap:.4rem; }
+  .dl-dot{ color:var(--ember-dim); }
+
+  .dl-hero-phone-wrap{ display:flex; justify-content:center; position:relative; }
+  .dl-phone{
+    width:100%; max-width:270px; background:var(--surface-2); border:1px solid var(--border-solid);
+    border-radius:36px; padding:.7rem; box-shadow:0 30px 70px rgba(0,0,0,.55), var(--shadow-glow-lg);
+  }
+  .dl-phone-screen{
+    background:linear-gradient(160deg, #171d2c, #10141d 70%); border-radius:28px; overflow:hidden;
+    display:flex; flex-direction:column; aspect-ratio:9/18.3; padding:.9rem .95rem;
+  }
+  .dl-phone-status{ display:flex; align-items:center; justify-content:space-between; font-family:var(--font-mono); font-size:.55rem; color:var(--stone); margin-bottom:.6rem; }
+  .dl-phone-notch{ width:44px; height:12px; border-radius:999px; background:#0a0e16; }
+  .dl-phone-appbar{ display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem; }
+  .dl-phone-brand{ font-family:var(--font-serif); font-style:italic; color:var(--ember-bright); font-size:.95rem; }
+  .dl-phone-streak{ font-family:var(--font-mono); font-size:.6rem; color:var(--ember-bright); background:var(--surface); padding:.2rem .5rem; border-radius:999px; }
+  .dl-phone-card{
+    flex:1; background:var(--surface); border-radius:16px; padding:1.2rem 1rem; display:flex; flex-direction:column;
+    align-items:center; text-align:center; justify-content:center; gap:.35rem; border:1px solid var(--border-solid);
+  }
+  .dl-phone-tag{ font-family:var(--font-mono); font-size:.55rem; text-transform:uppercase; letter-spacing:.1em; color:var(--ember-bright); background:var(--surface-2); padding:.2rem .55rem; border-radius:999px; margin-bottom:.5rem; }
+  .dl-phone-term{ font-family:var(--font-serif); font-style:italic; font-size:1.35rem; color:var(--text); margin:0; }
+  .dl-phone-phon{ font-family:var(--font-mono); font-size:.68rem; color:var(--ember-dim); margin:.15rem 0 .6rem; letter-spacing:.04em; }
+  .dl-phone-speak{ width:32px; height:32px; border-radius:50%; background:var(--ember-bright); display:flex; align-items:center; justify-content:center; font-size:.85rem; margin-bottom:.7rem; }
+  .dl-phone-divider{ width:100%; height:1px; background:var(--border-solid); margin:.3rem 0 .7rem; }
+  .dl-phone-de{ font-size:.78rem; color:var(--stone); margin:0; line-height:1.5; }
+  .dl-phone-progress{ height:3px; border-radius:999px; background:var(--surface-2); margin-top:.8rem; overflow:hidden; }
+  .dl-phone-progress-fill{ width:64%; height:100%; background:var(--ember-bright); border-radius:999px; }
+
+  .dl-section{ padding:2.6rem 0; border-top:1px solid var(--border-solid); }
+  .dl-section-eyebrow{ font-family:var(--font-mono); font-size:.65rem; text-transform:uppercase; letter-spacing:.28em; color:var(--stone); margin:0 0 .6rem; }
+  .dl-section-title{ font-family:var(--font-serif); font-weight:600; font-size:clamp(1.5rem,3.2vw,2rem); margin:0 0 .5rem; }
+  .dl-section-sub{ color:var(--stone); text-align:center; max-width:32em; margin:0 auto 1.8rem; }
+
+  .dl-feature-grid{ display:grid; grid-template-columns:1fr; gap:1rem; margin-top:1.6rem; }
+  @media (min-width:640px){ .dl-feature-grid{ grid-template-columns:1fr 1fr; } }
+  @media (min-width:1080px){ .dl-feature-grid{ grid-template-columns:repeat(4,1fr); } }
+  .dl-feature-card{
+    background:var(--surface); border:1px solid var(--border-solid); border-radius:16px; padding:1.3rem;
+    transition:border-color .25s var(--ease), transform .25s var(--ease);
+  }
+  .dl-feature-card:hover{ border-color:var(--ember-dim); transform:translateY(-3px); }
+  .dl-feature-card h3{ font-family:var(--font-sans); font-size:.95rem; font-weight:600; color:var(--text); text-transform:none; letter-spacing:0; border:none; padding:0; margin:.8rem 0 .4rem; }
+  .dl-feature-card p{ font-size:.82rem; color:var(--stone); line-height:1.55; margin:0; }
+
+  .dl-tab-row{ justify-content:center; margin:0 auto 1.6rem; max-width:560px; }
+  .dl-guide-box{ background:var(--surface); border:1px solid var(--border-solid); border-radius:20px; padding:1.6rem; }
+  .dl-guide-grid{ display:grid; grid-template-columns:1fr; gap:1rem; }
+  @media (min-width:760px){ .dl-guide-grid{ grid-template-columns:repeat(4,1fr); } .dl-guide-grid-3{ grid-template-columns:repeat(3,1fr); } }
+  .dl-step{ background:var(--surface-2); border-radius:14px; padding:1.1rem; }
+  .dl-step-num{
+    display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; border-radius:50%;
+    background:var(--surface); color:var(--ember-bright); font-family:var(--font-mono); font-size:.8rem; font-weight:700; margin-bottom:.7rem;
+  }
+  .dl-step h4{ font-family:var(--font-sans); font-size:.85rem; font-weight:600; color:var(--text); margin:0 0 .35rem; }
+  .dl-step p{ font-size:.78rem; color:var(--stone); line-height:1.5; margin:0; }
+
+  .dl-handoff-card{
+    background:linear-gradient(115deg, #171d2c, #1b2336 60%, #141a28); border:1px solid var(--border-solid); border-radius:20px;
+    padding:1.8rem; display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:1.6rem;
+  }
+  .dl-handoff-title{ font-family:var(--font-serif); font-weight:600; font-size:1.35rem; margin:0 0 .45rem; }
+  .dl-handoff-sub{ color:var(--stone); max-width:32em; margin:0 0 1rem; font-size:.88rem; line-height:1.55; }
+  .dl-handoff-link{ display:flex; align-items:center; gap:.55rem; background:var(--surface-2); border-radius:10px; padding:.6rem .9rem; font-family:var(--font-mono); font-size:.78rem; color:var(--text); width:fit-content; }
+  .dl-handoff-actions{ display:flex; gap:.7rem; flex-wrap:wrap; }
+
+  .dl-closing{ position:relative; text-align:center; padding:3rem 1.4rem; border-radius:24px; background:linear-gradient(180deg, var(--surface), var(--surface-2)); overflow:hidden; margin:1rem 0 2rem; }
+  .dl-closing-glow{ position:absolute; top:-8rem; left:50%; transform:translateX(-50%); width:420px; height:420px; border-radius:50%; background:radial-gradient(circle, rgba(246,195,92,.18), transparent 70%); pointer-events:none; }
+  .dl-closing-title{ position:relative; font-family:var(--font-serif); font-weight:600; font-size:clamp(1.9rem,4.2vw,2.5rem); margin:0 0 .8rem; }
+  .dl-closing-title em{ font-style:italic; color:var(--ember-bright); font-weight:500; }
+  .dl-closing-sub{ position:relative; color:var(--stone); max-width:34em; margin:0 auto 1.6rem; line-height:1.65; }
+  .dl-closing .btn-primary{ position:relative; }
+  @media (max-width:600px){ .dl-glow{ display:none; } }
 </style>
 </head>
 <body>
@@ -1442,6 +1542,7 @@
       <li><button class="nav-overlay-item" data-goto="listen"><span class="idx">05</span><span class="label">Sprechen</span><span class="hint">Aussprache üben</span><span class="lock-badge" hidden>🔒 Konto</span></button></li>
       <li><button class="nav-overlay-item" data-goto="calendar"><span class="idx">06</span><span class="label">Kalender</span><span class="hint">Klausuren &amp; Lernplan</span><span class="lock-badge" hidden>🔒 Konto</span></button></li>
       <li><button class="nav-overlay-item" data-goto="settingsPage"><span class="idx">07</span><span class="label">Einstellungen</span><span class="hint">Webseite anpassen</span></button></li>
+      <li><button class="nav-overlay-item" data-goto="appDownload"><span class="idx">08</span><span class="label">App</span><span class="hint">Als App installieren</span></button></li>
     </ul>
   </nav>
 </div>
@@ -2316,6 +2417,136 @@
     <div class="cal-agenda">
       <p class="settings-row-label">Nächste Termine</p>
       <div id="calAgendaList"></div>
+    </div>
+  </section>
+
+  <section id="view-app-download" class="view dl-view" hidden>
+    <div class="dl-glow dl-glow-1" aria-hidden="true"></div>
+    <div class="dl-glow dl-glow-2" aria-hidden="true"></div>
+
+    <div class="dl-hero">
+      <div class="dl-hero-copy">
+        <span class="dl-eyebrow-badge"><span class="dl-pulse-dot"></span>Progressive Web App · Kein App Store nötig</span>
+        <h1 class="dl-hero-title">Lumière. <em>Stets griffbereit,</em> zeitlos kuratiert.</h1>
+        <p class="dl-hero-sub">Lumière wohnt ohne Umwege direkt auf deinem Startbildschirm — volle Offline-Verfügbarkeit, ruhige Typografie und ungestörte Sprachstudien zwischen Berlin und Paris. Ganz ohne Tracking oder Extra-Download.</p>
+        <div class="dl-hero-actions">
+          <button type="button" class="btn btn-primary" id="btnInstallHero">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:-3px; margin-right:.4rem;"><path d="M12 3v13m0 0-4-4m4 4 4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+            Zum Startbildschirm hinzufügen
+          </button>
+          <a href="#dl-anleitung" class="btn btn-secondary" id="btnInstallGuideLink">Anleitung ansehen ↓</a>
+        </div>
+        <div class="dl-trust-row">
+          <span><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z"/></svg>Startet als echte Vollbild-App</span>
+          <span><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9"/><path d="M3 3v6h6"/></svg>Funktioniert auch offline</span>
+        </div>
+      </div>
+      <div class="dl-hero-phone-wrap">
+        <div class="dl-phone">
+          <div class="dl-phone-screen">
+            <div class="dl-phone-status"><span>09:41</span><span class="dl-phone-notch"></span><span>●●●</span></div>
+            <div class="dl-phone-appbar">
+              <span class="dl-phone-brand">Lumière</span>
+              <span class="dl-phone-streak">🔥 14 Tage</span>
+            </div>
+            <div class="dl-phone-card">
+              <span class="dl-phone-tag">Substantif féminin</span>
+              <p class="dl-phone-term">la flânerie</p>
+              <p class="dl-phone-phon">[la flɑ̃.ʁi]</p>
+              <span class="dl-phone-speak">🔊</span>
+              <div class="dl-phone-divider"></div>
+              <p class="dl-phone-de">das ziellose, genussvolle Umherschweifen</p>
+            </div>
+            <div class="dl-phone-progress"><div class="dl-phone-progress-fill"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="dl-section">
+      <p class="dl-section-eyebrow">Architektur &amp; Komfort</p>
+      <h2 class="dl-section-title">Vier Vorzüge der App-Installation</h2>
+      <div class="dl-feature-grid">
+        <div class="dl-feature-card">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="var(--ember-bright)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9"/><path d="M3 3v6h6"/><path d="M12 8v4l2.5 2.5"/></svg>
+          <h3>Offline nutzbar</h3>
+          <p>Vokabelsets und Aussprache stehen im Zug, im Flieger oder ohne WLAN jederzeit zur Verfügung.</p>
+        </div>
+        <div class="dl-feature-card">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="var(--ember-bright)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="2.5" width="12" height="19" rx="2.5"/><path d="M11 18h2"/></svg>
+          <h3>Ein Fingertipp entfernt</h3>
+          <p>Startet direkt vom Homescreen im vollen Format — ohne Adressleiste, ohne Browser-Menüs.</p>
+        </div>
+        <div class="dl-feature-card">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="var(--ember-bright)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z"/></svg>
+          <h3>Kein App Store nötig</h3>
+          <p>Kein Download, keine Berechtigungsfragen, kein Passwort. In Sekunden einsatzbereit.</p>
+        </div>
+        <div class="dl-feature-card">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="var(--ember-bright)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 3v5h-5"/></svg>
+          <h3>Lautlos aktuell</h3>
+          <p>Neue Funktionen und Korrekturen laden sich im Hintergrund, beim nächsten Öffnen sofort da.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="dl-section" id="dl-anleitung">
+      <p class="dl-section-eyebrow" style="text-align:center;">Praktische Begleitung</p>
+      <h2 class="dl-section-title" style="text-align:center;">In wenigen Schritten auf deinem Gerät</h2>
+      <p class="dl-section-sub">Wähl dein Gerät für eine passgenaue Anleitung.</p>
+      <div class="chip-row dl-tab-row" id="dlTabChips">
+        <button type="button" class="chip" data-tab="ios">iOS · Safari</button>
+        <button type="button" class="chip" data-tab="android">Android · Chrome</button>
+        <button type="button" class="chip" data-tab="desktop">Desktop</button>
+      </div>
+      <div class="dl-guide-box">
+        <div class="dl-guide-grid" id="dlGuideIos" hidden>
+          <div class="dl-step"><span class="dl-step-num">1</span><h4>Safari öffnen</h4><p>Öffne diese Seite im Safari-Browser deines iPhones oder iPads.</p></div>
+          <div class="dl-step"><span class="dl-step-num">2</span><h4>„Teilen“ antippen</h4><p>Tippe unten in der Safari-Leiste auf das Symbol mit dem nach oben zeigenden Pfeil.</p></div>
+          <div class="dl-step"><span class="dl-step-num">3</span><h4>Zum Home-Bildschirm</h4><p>Im Menü etwas herunterscrollen und „Zum Home-Bildschirm“ auswählen.</p></div>
+          <div class="dl-step"><span class="dl-step-num">4</span><h4>Bestätigen</h4><p>Oben rechts auf „Hinzufügen“ tippen — das Lumière-Icon erscheint sofort.</p></div>
+        </div>
+        <div class="dl-guide-grid" id="dlGuideAndroid" hidden>
+          <div class="dl-step"><span class="dl-step-num">1</span><h4>Chrome öffnen</h4><p>Ruf diese Seite in Google Chrome auf deinem Android-Gerät auf.</p></div>
+          <div class="dl-step"><span class="dl-step-num">2</span><h4>Menü öffnen</h4><p>Tippe oben rechts auf die drei Punkte (⋮) — oder nutze den Installations-Hinweis unten.</p></div>
+          <div class="dl-step"><span class="dl-step-num">3</span><h4>„App installieren“</h4><p>Wähl im Menü „App installieren“ bzw. „Zum Startbildschirm hinzufügen“.</p></div>
+          <div class="dl-step"><span class="dl-step-num">4</span><h4>Fertig</h4><p>Mit „Installieren“ bestätigen — Lumière landet im App-Drawer.</p></div>
+        </div>
+        <div class="dl-guide-grid dl-guide-grid-3" id="dlGuideDesktop" hidden>
+          <div class="dl-step"><span class="dl-step-num">1</span><h4>Chromium-Browser</h4><p>Öffne Lumière in Chrome, Edge oder Brave unter macOS oder Windows.</p></div>
+          <div class="dl-step"><span class="dl-step-num">2</span><h4>Symbol in der Adressleiste</h4><p>Klick auf das Installations-Symbol ganz rechts in der URL-Leiste (neben dem Lesezeichen-Stern).</p></div>
+          <div class="dl-step"><span class="dl-step-num">3</span><h4>Bestätigen</h4><p>Lumière öffnet sich ab jetzt als eigenes Fenster im Dock bzw. der Taskleiste.</p></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="dl-section">
+      <div class="dl-handoff-card">
+        <div>
+          <span class="dl-eyebrow-badge dl-eyebrow-badge-static">Desktop → Smartphone</span>
+          <h3 class="dl-handoff-title">Auf dem Handy weitermachen</h3>
+          <p class="dl-handoff-sub">Gerade am Rechner? Link kopieren oder direkt ans Handy schicken, um dort zu installieren.</p>
+          <div class="dl-handoff-link">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--ember-bright)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 17H7A5 5 0 0 1 7 7h2"/><path d="M15 7h2a5 5 0 1 1 0 10h-2"/><path d="M8 12h8"/></svg>
+            <span id="dlSiteUrl">vokabeln.stoneuniverse.de</span>
+          </div>
+        </div>
+        <div class="dl-handoff-actions">
+          <button type="button" class="btn btn-secondary" id="btnCopyLink">Link kopieren</button>
+          <button type="button" class="btn btn-secondary" id="btnShareLink" hidden>Teilen</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="dl-closing">
+      <div class="dl-closing-glow" aria-hidden="true"></div>
+      <p class="dl-eyebrow-badge dl-eyebrow-badge-static" style="margin:0 auto 1rem;">L'art de la langue nocturne</p>
+      <h2 class="dl-closing-title">Bereit für das <em>tägliche Ritual?</em></h2>
+      <p class="dl-closing-sub">Verwandle freie Minuten im Alltag in kleine Entdeckungen — mit einem Tastendruck immer griffbereit.</p>
+      <button type="button" class="btn btn-primary" id="btnInstallClosing">Jetzt installieren</button>
+      <div class="dl-trust-row" style="justify-content:center; margin-top:1.4rem;">
+        <span>Kostenfrei</span><span class="dl-dot">·</span><span>Keine Registrierung</span><span class="dl-dot">·</span><span>Volle Datenhoheit</span>
+      </div>
     </div>
   </section>
 
@@ -3662,12 +3893,12 @@ const views = {
   results: document.getElementById('view-results'), listen: document.getElementById('view-listen'),
   grammar: document.getElementById('view-grammar'), game: document.getElementById('view-game'),
   rewards: document.getElementById('view-rewards'), settingsPage: document.getElementById('view-settings'),
-  calendar: document.getElementById('view-calendar'),
+  calendar: document.getElementById('view-calendar'), appDownload: document.getElementById('view-app-download'),
 };
 let currentSetId = null;
 let currentNavId = 'hub';
-const NAV_SUB_LABELS = { hub: 'Startseite', home: 'Lernsets', rewards: 'Belohnungen', grammar: 'Grammatik', listen: 'Sprechen', settingsPage: 'Einstellungen', calendar: 'Kalender' };
-const QUICKNAV_HIDDEN_VIEWS = new Set(['hub', 'practice', 'match', 'results', 'game']);
+const NAV_SUB_LABELS = { hub: 'Startseite', home: 'Lernsets', rewards: 'Belohnungen', grammar: 'Grammatik', listen: 'Sprechen', settingsPage: 'Einstellungen', calendar: 'Kalender', appDownload: 'App installieren' };
+const QUICKNAV_HIDDEN_VIEWS = new Set(['hub', 'practice', 'match', 'results', 'game', 'appDownload']);
 function showView(name){
   Object.values(views).forEach(v => v.hidden = true);
   views[name].hidden = false;
@@ -3675,7 +3906,7 @@ function showView(name){
   const visible = !QUICKNAV_HIDDEN_VIEWS.has(name);
   if(qn) qn.hidden = !visible;
   document.body.classList.toggle('quicknav-visible', visible);
-  document.body.classList.toggle('view-hub-active', name === 'hub');
+  document.body.classList.toggle('wide-view-active', name === 'hub' || name === 'appDownload');
 }
 document.querySelectorAll('[data-nav]').forEach(btn => {
   btn.addEventListener('click', () => {
@@ -3741,6 +3972,7 @@ function goToDestination(target){
   else if(target === 'listen') openGlobalListen();
   else if(target === 'calendar') renderCalendar();
   else if(target === 'settingsPage') openSettingsPage();
+  else if(target === 'appDownload') openAppDownload();
 }
 navOverlay.querySelectorAll('.nav-overlay-item').forEach(item => {
   item.addEventListener('click', () => {
@@ -3773,6 +4005,7 @@ function openGrammar(){
   showView('grammar'); currentNavId = 'grammar'; updateNavActiveStates();
 }
 function openSettingsPage(){ showView('settingsPage'); currentNavId = 'settingsPage'; updateNavActiveStates(); renderSettingsPage(); }
+function openAppDownload(){ showView('appDownload'); currentNavId = 'appDownload'; updateNavActiveStates(); updateInstallUI(); }
 
 // --- HUB (Startseite) -----------------------------------------------------
 // --- Kleine Zahlen-Hochzähl-Animation für Statistiken --------------------
@@ -4826,6 +5059,72 @@ document.getElementById('btnGameBack').addEventListener('click', () => {
 wireSounds(document.body);
 renderHub();
 initAuth();
+
+// --- PWA: "Zum Startbildschirm hinzufügen" -------------------------------
+let deferredInstallPrompt = null;
+let appIsInstalled = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredInstallPrompt = e;
+  updateInstallUI();
+});
+window.addEventListener('appinstalled', () => {
+  appIsInstalled = true;
+  deferredInstallPrompt = null;
+  updateInstallUI();
+  showToast('Lumière ist jetzt installiert.');
+});
+function updateInstallUI(){
+  [document.getElementById('btnInstallHero'), document.getElementById('btnInstallClosing')].forEach(btn => {
+    if(btn && appIsInstalled){ btn.textContent = '✓ Bereits installiert'; btn.disabled = true; }
+  });
+}
+async function triggerInstall(){
+  sndClick();
+  if(deferredInstallPrompt){
+    deferredInstallPrompt.prompt();
+    const choice = await deferredInstallPrompt.userChoice;
+    deferredInstallPrompt = null;
+    if(choice.outcome === 'accepted') showToast('Installation gestartet …');
+  } else {
+    document.getElementById('dl-anleitung').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
+document.getElementById('btnInstallHero').addEventListener('click', triggerInstall);
+document.getElementById('btnInstallClosing').addEventListener('click', triggerInstall);
+
+const DL_GUIDES = { ios: 'dlGuideIos', android: 'dlGuideAndroid', desktop: 'dlGuideDesktop' };
+function switchDlTab(target){
+  document.querySelectorAll('#dlTabChips .chip').forEach(c => c.classList.toggle('selected', c.dataset.tab === target));
+  Object.entries(DL_GUIDES).forEach(([key, id]) => { document.getElementById(id).hidden = key !== target; });
+}
+document.querySelectorAll('#dlTabChips .chip').forEach(chip => {
+  chip.addEventListener('click', () => { sndClick(); switchDlTab(chip.dataset.tab); });
+});
+function detectDefaultDlTab(){
+  const ua = navigator.userAgent || '';
+  if(/iPhone|iPad|iPod/.test(ua)) return 'ios';
+  if(/Android/.test(ua)) return 'android';
+  return 'desktop';
+}
+switchDlTab(detectDefaultDlTab());
+
+document.getElementById('dlSiteUrl').textContent = window.location.hostname + window.location.pathname.replace(/\/index\.html$/, '/');
+document.getElementById('btnCopyLink').addEventListener('click', async () => {
+  sndClick();
+  try{
+    await navigator.clipboard.writeText(window.location.href);
+    showToast('Link kopiert.');
+  }catch(e){ showToast('Kopieren nicht möglich — Link manuell markieren.', true); }
+});
+if(navigator.share){
+  const shareLinkBtn = document.getElementById('btnShareLink');
+  shareLinkBtn.hidden = false;
+  shareLinkBtn.addEventListener('click', () => {
+    sndClick();
+    navigator.share({ title: 'Lumière', text: 'Lumière — Deutsch-Französisch Vokabeltrainer', url: window.location.href }).catch(() => {});
+  });
+}
 
 // --- PWA: Offline-Faehigkeit ueber einen Service Worker ------------------
 if('serviceWorker' in navigator){
