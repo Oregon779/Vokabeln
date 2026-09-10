@@ -136,6 +136,8 @@
     background:radial-gradient(300px circle at var(--cx) var(--cy), rgba(246,195,92,.09), rgba(245,223,166,.04) 45%, transparent 70%);
   }
   @media (hover:none), (pointer:coarse){ .cursor-spotlight{display:none;} }
+  #mouseTrailCanvas{ position:fixed; inset:0; z-index:95; pointer-events:none; }
+  @media (hover:none), (pointer:coarse), (prefers-reduced-motion: reduce){ #mouseTrailCanvas{ display:none; } }
   .vignette{position:fixed; inset:0; z-index:-1; pointer-events:none; box-shadow:inset 0 0 160px 40px rgba(0,0,0,.5);}
   .hover-particle{
     position:fixed; z-index:90; pointer-events:none; border-radius:50%; top:0; left:0;
@@ -1485,6 +1487,112 @@
   .dl-closing-sub{ position:relative; color:var(--stone); max-width:34em; margin:0 auto 1.6rem; line-height:1.65; }
   .dl-closing .btn-primary{ position:relative; }
   @media (max-width:600px){ .dl-glow{ display:none; } }
+
+  /* --- Über uns / Website-Info-Seite (Menü · 09) --- */
+  .info-view{ padding-top:1rem; }
+  .gold-shimmer{
+    background:linear-gradient(120deg, var(--gold-bright), var(--ember-bright) 45%, var(--pop) 100%);
+    -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; color:var(--ember-bright);
+  }
+  .info-hero{ text-align:center; max-width:42em; margin:0 auto 3rem; }
+  .info-hero-title{
+    font-family:var(--font-serif); font-weight:600; font-size:clamp(2.1rem,5vw,3rem); line-height:1.16;
+    letter-spacing:-.01em; margin:0 0 1rem;
+  }
+  .info-hero-title em{ font-style:italic; font-weight:500; }
+  .info-hero-sub{ color:var(--stone); line-height:1.7; margin:0; font-size:1.02rem; }
+
+  .info-security{
+    position:relative; text-align:center; overflow:hidden; margin-bottom:2.4rem; padding:2.6rem 1.6rem 2rem;
+    border-radius:24px; background:linear-gradient(180deg, #1b2336 0%, #171d2c 55%, #10141f 100%);
+    border:1px solid rgba(246,195,92,.34);
+    box-shadow:0 20px 50px -12px rgba(0,0,0,.6), 0 0 45px -8px rgba(246,195,92,.2), inset 0 1px 1px rgba(246,195,92,.2);
+  }
+  @media (min-width:640px){ .info-security{ padding:3.4rem 3rem 2.4rem; } }
+  .info-security::before{
+    content:''; position:absolute; top:0; left:0; right:0; height:2px;
+    background:linear-gradient(90deg, transparent, var(--ember-bright), var(--gold-bright), transparent); opacity:.9;
+  }
+  .info-security-glow{ position:absolute; top:-8rem; left:50%; transform:translateX(-50%); width:480px; height:260px; border-radius:50%; background:radial-gradient(ellipse, rgba(246,195,92,.16), transparent 70%); pointer-events:none; }
+  .info-status-badge{
+    position:relative; z-index:1; display:inline-flex; align-items:center; gap:.6rem; padding:.5rem 1rem; border-radius:999px;
+    background:rgba(246,195,92,.14); border:1px solid rgba(246,195,92,.4); font-family:var(--font-mono); font-size:.68rem;
+    text-transform:uppercase; letter-spacing:.16em; color:var(--ember-bright); font-weight:700; margin-bottom:1.6rem;
+    box-shadow:0 0 18px rgba(246,195,92,.22);
+  }
+  .info-status-ping{ position:relative; width:8px; height:8px; flex-shrink:0; }
+  .info-status-ping span{ position:absolute; inset:0; border-radius:50%; }
+  .info-status-ping span:first-child{ background:var(--ember-bright); opacity:.7; animation:infoPing 1.8s cubic-bezier(0,0,.2,1) infinite; }
+  .info-status-ping span:last-child{ background:var(--ember-bright); }
+  @keyframes infoPing{ 75%,100%{ transform:scale(2.4); opacity:0; } }
+  .info-shield{
+    position:relative; z-index:1; margin:0 auto 1.3rem; width:76px; height:76px; border-radius:20px;
+    background:linear-gradient(180deg, rgba(246,195,92,.28), rgba(246,195,92,.05)); border:1px solid rgba(246,195,92,.5);
+    display:flex; align-items:center; justify-content:center; color:var(--ember-bright);
+    box-shadow:0 0 32px rgba(246,195,92,.35);
+  }
+  .info-security-title{
+    position:relative; z-index:1; font-family:var(--font-serif); font-weight:600; font-size:clamp(1.5rem,3.6vw,2.1rem);
+    margin:0 auto 1.3rem; max-width:34em; line-height:1.3;
+  }
+  .info-trust-badges{ position:relative; z-index:1; display:flex; flex-wrap:wrap; justify-content:center; gap:.8rem; margin-bottom:1.4rem; }
+  .info-trust-badge{
+    display:inline-flex; align-items:center; gap:.5rem; padding:.55rem 1rem; border-radius:12px;
+    background:rgba(255,255,255,.03); border:1px solid rgba(246,195,92,.32); font-family:var(--font-mono); font-size:.7rem;
+    font-weight:700; letter-spacing:.05em; color:var(--text);
+  }
+  .info-security-sentence{ position:relative; z-index:1; max-width:36em; margin:0 auto 1.8rem; color:var(--text); line-height:1.7; font-size:1rem; }
+  .info-security-sentence strong{ color:var(--ember-bright); font-weight:600; }
+  .info-chip-grid{ position:relative; z-index:1; display:grid; grid-template-columns:1fr; gap:.7rem; max-width:44em; margin:0 auto 1.8rem; }
+  @media (min-width:640px){ .info-chip-grid{ grid-template-columns:1fr 1fr; } }
+  @media (min-width:960px){ .info-chip-grid{ grid-template-columns:repeat(4,1fr); } }
+  .info-chip{
+    display:flex; align-items:center; gap:.55rem; padding:.65rem .8rem; border-radius:12px;
+    background:rgba(255,255,255,.02); border:1px solid var(--border-solid); font-size:.76rem; color:var(--stone);
+    font-weight:500; text-align:left; transition:border-color .2s var(--ease);
+  }
+  .info-chip:hover{ border-color:var(--ember-dim); }
+  .info-chip svg{ color:var(--ember-bright); flex-shrink:0; }
+  .info-security-footer{
+    position:relative; z-index:1; display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:.6rem;
+    max-width:44em; margin:0 auto; padding-top:1.4rem; border-top:1px solid rgba(246,195,92,.2);
+    font-family:var(--font-mono); font-size:.68rem; letter-spacing:.06em; color:var(--ember-bright);
+  }
+  .info-security-footer span:first-child{ display:inline-flex; align-items:center; gap:.45rem; }
+  .info-security-footer-meta{ color:var(--stone); text-transform:uppercase; letter-spacing:.14em; font-size:.62rem; }
+
+  .info-card-grid{ display:grid; grid-template-columns:1fr; gap:1rem; margin-bottom:2.6rem; }
+  @media (min-width:860px){ .info-card-grid{ grid-template-columns:repeat(3,1fr); } }
+  .info-card{ background:var(--surface); border:1px solid var(--border-solid); border-radius:16px; padding:1.5rem; display:flex; flex-direction:column; }
+  .info-card-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:1.1rem; }
+  .info-card-icon{
+    width:40px; height:40px; border-radius:11px; background:rgba(246,195,92,.1); border:1px solid rgba(246,195,92,.24);
+    display:flex; align-items:center; justify-content:center; color:var(--ember-bright); flex-shrink:0;
+  }
+  .info-card-eyebrow{ font-family:var(--font-mono); font-size:.6rem; text-transform:uppercase; letter-spacing:.18em; color:var(--stone); }
+  .info-card h3{ font-family:var(--font-serif); font-weight:600; font-size:1.15rem; color:var(--text); text-transform:none; letter-spacing:0; border:none; padding:0; margin:0 0 .6rem; }
+  .info-card p{ font-size:.83rem; color:var(--stone); line-height:1.6; margin:0; flex:1; }
+  .info-card-footer{
+    display:flex; align-items:center; gap:.5rem; margin-top:1.1rem; padding-top:1rem; border-top:1px solid var(--border-solid);
+    font-family:var(--font-mono); font-size:.68rem; color:var(--ember-dim);
+  }
+  .info-card-dot{ width:5px; height:5px; border-radius:50%; background:var(--ember-dim); flex-shrink:0; }
+
+  .info-manifest-divider{ display:flex; align-items:center; justify-content:center; gap:1rem; margin-bottom:2rem; }
+  .info-manifest-divider span:not(.info-manifest-diamond){ height:1px; width:70px; background:linear-gradient(90deg, transparent, var(--border-solid)); }
+  .info-manifest-divider span:last-child:not(.info-manifest-diamond){ background:linear-gradient(270deg, transparent, var(--border-solid)); }
+  .info-manifest-diamond{ width:8px; height:8px; transform:rotate(45deg); border:1px solid var(--ember-dim); background:rgba(246,195,92,.16); }
+  .info-manifest{
+    max-width:42em; margin:0 auto 2.4rem; text-align:center; padding:2.4rem 1.6rem;
+    background:linear-gradient(180deg, rgba(23,29,44,.6), rgba(18,22,34,.9)); border:1px solid var(--border-solid);
+    border-radius:20px; box-shadow:0 20px 45px -18px rgba(0,0,0,.6);
+  }
+  @media (min-width:640px){ .info-manifest{ padding:3rem 3.2rem; } }
+  .info-manifest-eyebrow{ font-family:var(--font-mono); font-size:.65rem; text-transform:uppercase; letter-spacing:.28em; color:var(--ember-dim); margin:0 0 1.3rem; }
+  .info-manifest blockquote{ font-family:var(--font-serif); font-style:italic; font-weight:300; font-size:clamp(1.25rem,2.6vw,1.6rem); line-height:1.5; color:var(--text); margin:0 0 1.2rem; }
+  .info-manifest-body{ color:var(--stone); line-height:1.7; margin:0; font-size:.92rem; }
+  .info-manifest-signature{ display:flex; align-items:center; justify-content:center; gap:.7rem; margin-top:1.6rem; padding-top:1.3rem; border-top:1px solid var(--border-solid); font-family:var(--font-mono); font-size:.72rem; color:var(--stone); text-transform:uppercase; letter-spacing:.08em; }
+  .info-manifest-signature span:first-child{ font-family:var(--font-serif); font-style:italic; color:var(--ember-bright); text-transform:none; letter-spacing:0; font-size:.9rem; }
 </style>
 </head>
 <body>
@@ -1495,6 +1603,7 @@
 <div class="grain"></div>
 <div class="bg-aurora"><div class="aurora-band aurora-1"></div><div class="aurora-band aurora-2"></div><div class="aurora-band aurora-3"></div><div class="aurora-band aurora-4"></div><div class="aurora-band aurora-5"></div></div>
 <div class="cursor-spotlight" id="cursorSpotlight" aria-hidden="true"></div>
+<canvas id="mouseTrailCanvas" aria-hidden="true"></canvas>
 <div class="vignette"></div>
 
 <header class="site-header">
@@ -1543,6 +1652,7 @@
       <li><button class="nav-overlay-item" data-goto="calendar"><span class="idx">06</span><span class="label">Kalender</span><span class="hint">Klausuren &amp; Lernplan</span><span class="lock-badge" hidden>🔒 Konto</span></button></li>
       <li><button class="nav-overlay-item" data-goto="settingsPage"><span class="idx">07</span><span class="label">Einstellungen</span><span class="hint">Webseite anpassen</span></button></li>
       <li><button class="nav-overlay-item" data-goto="appDownload"><span class="idx">08</span><span class="label">App</span><span class="hint">Als App installieren</span></button></li>
+      <li><button class="nav-overlay-item" data-goto="about"><span class="idx">09</span><span class="label">Über uns</span><span class="hint">Zweck, Rechte &amp; Schutz</span></button></li>
     </ul>
   </nav>
 </div>
@@ -2547,6 +2657,82 @@
       <div class="dl-trust-row" style="justify-content:center; margin-top:1.4rem;">
         <span>Kostenfrei</span><span class="dl-dot">·</span><span>Keine Registrierung</span><span class="dl-dot">·</span><span>Volle Datenhoheit</span>
       </div>
+    </div>
+  </section>
+
+  <section id="view-about" class="view info-view" hidden>
+    <div class="info-hero">
+      <span class="dl-eyebrow-badge dl-eyebrow-badge-static"><span class="dl-pulse-dot"></span>Über Lumière</span>
+      <h1 class="info-hero-title">Ein Projekt aus <em>Leidenschaft</em>.</h1>
+      <p class="info-hero-sub">Lumière entstand aus der Begeisterung für die französische Sprache, zeitlose Typografie und ruhiges, ungestörtes Lernen. Diese Seite gibt transparenten Einblick in Zweck, Urheberschaft und den technischen Schutz unseres Vorhabens.</p>
+    </div>
+
+    <div class="info-security">
+      <div class="info-security-glow" aria-hidden="true"></div>
+      <span class="info-status-badge"><span class="info-status-ping"><span></span><span></span></span>Aktiv gesichert</span>
+      <div class="info-shield">
+        <svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="M9 12l2 2 4-4"/></svg>
+      </div>
+      <h2 class="info-security-title">Geschützt durch <span class="gold-shimmer">Cloudflare</span> &amp; <span class="gold-shimmer">Packets-Decreaser</span></h2>
+      <div class="info-trust-badges">
+        <span class="info-trust-badge">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" aria-hidden="true"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96Z"/></svg>
+          Cloudflare CDN &amp; Shield
+        </span>
+        <span class="info-trust-badge">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+          Packets-Decreaser Guard
+        </span>
+      </div>
+      <p class="info-security-sentence">Diese Website wird aktiv durch <strong>Cloudflare</strong> und <strong>Packets-Decreaser</strong> gegen Angriffe und Missbrauch geschützt.</p>
+      <div class="info-chip-grid">
+        <span class="info-chip"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>SSL/TLS-Verschlüsselung</span>
+        <span class="info-chip"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/></svg>DDoS-Schutz</span>
+        <span class="info-chip"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg>Bot- &amp; Rate-Limiting</span>
+        <span class="info-chip"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z"/></svg>Automatische Bedrohungsabwehr</span>
+      </div>
+      <div class="info-security-footer">
+        <span><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 12l2 2 4-4"/><path d="M21 12c0 5.59-3.82 10.29-9 11.62C6.82 22.29 3 17.59 3 12A12 12 0 0 1 12 2.94 12 12 0 0 1 21 9c0 1.04-.13 2.05-.38 3.02"/></svg>Verifizierter Status · Integrität gewährleistet</span>
+        <span class="info-security-footer-meta">EDGE AUDITED · 2025</span>
+      </div>
+    </div>
+
+    <div class="info-card-grid">
+      <div class="info-card">
+        <div class="info-card-head">
+          <span class="info-card-icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/><circle cx="12" cy="16" r="1.3" fill="currentColor" stroke="none"/></svg></span>
+          <span class="info-card-eyebrow">Status · Intern</span>
+        </div>
+        <h3>Kein öffentliches Projekt</h3>
+        <p>Diese Website ist aktuell nicht für die breite Öffentlichkeit gedacht. Sie dient dem internen Austausch, dem persönlichen Sprachstudium und ausgewählten Testläufen im geschlossenen Kreis.</p>
+        <div class="info-card-footer"><span class="info-card-dot"></span>Autorisierter Kreis</div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-head">
+          <span class="info-card-icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M14.5 9.5a3.5 3.5 0 1 0 0 5"/></svg></span>
+          <span class="info-card-eyebrow">Urheberschaft</span>
+        </div>
+        <h3>Alle Rechte beim Eigentümer</h3>
+        <p>Sämtliche Inhalte, kuratierte Wortlisten, grafische Entwürfe, Markenelemente und der Quellcode gehören vollumfänglich dem Betreiber. Weiternutzung bedarf ausdrücklicher Genehmigung.</p>
+        <div class="info-card-footer"><span class="info-card-dot"></span>Originalinhalte · Édition 2025</div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-head">
+          <span class="info-card-icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 14 21 9l-9-5-9 5 9 5Z"/><path d="M12 14v7"/></svg></span>
+          <span class="info-card-eyebrow">Genese · Bildung</span>
+        </div>
+        <h3>Ein Schülerprojekt</h3>
+        <p>Entstanden als persönliches Lernprojekt, nicht als kommerzielles Produkt. Es verbindet moderne Webtechnologien mit humanistischer Freude am bilingualen Wortschatz zwischen Berlin und Paris.</p>
+        <div class="info-card-footer"><span class="info-card-dot"></span>Reines Bildungsprojekt</div>
+      </div>
+    </div>
+
+    <div class="info-manifest-divider" aria-hidden="true"><span></span><span class="info-manifest-diamond"></span><span></span></div>
+    <div class="info-manifest">
+      <p class="info-manifest-eyebrow">Editorial · Zweck &amp; Motivation</p>
+      <blockquote>„Gute Software und lebendige Sprache verlangen dieselbe Tugend: Achtsamkeit für jedes einzelne Detail.“</blockquote>
+      <p class="info-manifest-body">Lumière beweist, dass Bildungs- und Schülerprojekte mit derselben gestalterischen Hingabe und technischen Präzision geschaffen werden können wie weltweite Publikationen. Ein stiller Begleiter auf dem Weg zur Zweisprachigkeit.</p>
+      <div class="info-manifest-signature"><span>L'art du lexique nocturne</span><span class="dl-dot">·</span><span>Berlin / Paris 2025</span></div>
     </div>
   </section>
 
@@ -3847,6 +4033,80 @@ if(!reducedMotionActive()){
   setupBlurReveal(document.querySelector('.hub-manifest-quote'));
 }
 
+// --- Premium Mouse-Trail-Effekt ------------------------------------------
+// Organische, leuchtende Spur statt eines statischen Kreises: pro Bewegung
+// wird ein Punkt mit Zeitstempel gemerkt, jeder Frame zeichnet alle noch
+// "lebenden" Punkte neu und lässt sie mit zunehmendem Alter schrumpfen und
+// ausblenden - vom hellen Goldkern nahe am Cursor zu einem warmen Bronze-Ton
+// am Ende der Spur. Zwei vorgerenderte Glow-Sprites statt Gradient-Neuerzeugung
+// pro Partikel/Frame, damit es auch bei schnellem Wedeln flüssig bleibt.
+(function initMouseTrail(){
+  const canvas = document.getElementById('mouseTrailCanvas');
+  if(!canvas || !window.matchMedia('(hover:hover) and (pointer:fine)').matches) return;
+  const ctx = canvas.getContext('2d');
+  let dpr = 1;
+
+  function resize(){
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = window.innerWidth * dpr;
+    canvas.height = window.innerHeight * dpr;
+    canvas.style.width = window.innerWidth + 'px';
+    canvas.style.height = window.innerHeight + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  function makeSprite(inner, mid, size){
+    const s = document.createElement('canvas');
+    s.width = s.height = size;
+    const sc = s.getContext('2d');
+    const g = sc.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
+    g.addColorStop(0, inner);
+    g.addColorStop(.5, mid);
+    g.addColorStop(1, 'rgba(0,0,0,0)');
+    sc.fillStyle = g;
+    sc.beginPath(); sc.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2); sc.fill();
+    return s;
+  }
+  const SPRITE_SIZE = 96;
+  // Kopf der Spur: helles Gold-Weiss. Schweif: dunkleres Bronze/Gold.
+  const spriteHead = makeSprite('rgba(255,246,222,.95)', 'rgba(246,195,92,.55)', SPRITE_SIZE);
+  const spriteTail = makeSprite('rgba(224,162,61,.75)', 'rgba(140,107,46,.4)', SPRITE_SIZE);
+
+  const MAX_AGE = 550;
+  const MAX_POINTS = 70;
+  let points = [];
+  let rafId = null;
+
+  function onMove(e){
+    if(reducedMotionActive()){ points.length = 0; return; }
+    points.push({ x: e.clientX, y: e.clientY, t: performance.now() });
+    if(points.length > MAX_POINTS) points.shift();
+    if(rafId === null) rafId = requestAnimationFrame(draw);
+  }
+  window.addEventListener('pointermove', onMove, { passive: true });
+
+  function draw(){
+    const now = performance.now();
+    ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+    points = points.filter(p => now - p.t < MAX_AGE);
+    for(let i = 0; i < points.length; i++){
+      const p = points[i];
+      const age = Math.min(1, (now - p.t) / MAX_AGE);
+      const fade = 1 - age;
+      const radius = (SPRITE_SIZE / 2) * 0.34 * (1 - age * 0.7);
+      if(radius <= 0.6 || fade <= 0.02) continue;
+      ctx.globalAlpha = fade * .8 * (1 - age * .6);
+      ctx.drawImage(spriteHead, p.x - radius, p.y - radius, radius * 2, radius * 2);
+      ctx.globalAlpha = fade * .55 * age;
+      ctx.drawImage(spriteTail, p.x - radius * 1.35, p.y - radius * 1.35, radius * 2.7, radius * 2.7);
+    }
+    ctx.globalAlpha = 1;
+    rafId = points.length > 0 ? requestAnimationFrame(draw) : null;
+  }
+})();
+
 // Zerlegt den Text eines Elements in einzeln animierbare Woerter und blendet
 // sie gestaffelt ein (Blur -> scharf), sobald das Element sichtbar wird.
 // Nur einmalig, danach wird der Observer wieder abgehaengt.
@@ -3894,11 +4154,12 @@ const views = {
   grammar: document.getElementById('view-grammar'), game: document.getElementById('view-game'),
   rewards: document.getElementById('view-rewards'), settingsPage: document.getElementById('view-settings'),
   calendar: document.getElementById('view-calendar'), appDownload: document.getElementById('view-app-download'),
+  about: document.getElementById('view-about'),
 };
 let currentSetId = null;
 let currentNavId = 'hub';
-const NAV_SUB_LABELS = { hub: 'Startseite', home: 'Lernsets', rewards: 'Belohnungen', grammar: 'Grammatik', listen: 'Sprechen', settingsPage: 'Einstellungen', calendar: 'Kalender', appDownload: 'App installieren' };
-const QUICKNAV_HIDDEN_VIEWS = new Set(['hub', 'practice', 'match', 'results', 'game', 'appDownload']);
+const NAV_SUB_LABELS = { hub: 'Startseite', home: 'Lernsets', rewards: 'Belohnungen', grammar: 'Grammatik', listen: 'Sprechen', settingsPage: 'Einstellungen', calendar: 'Kalender', appDownload: 'App installieren', about: 'Über uns' };
+const QUICKNAV_HIDDEN_VIEWS = new Set(['hub', 'practice', 'match', 'results', 'game', 'appDownload', 'about']);
 function showView(name){
   Object.values(views).forEach(v => v.hidden = true);
   views[name].hidden = false;
@@ -3973,6 +4234,7 @@ function goToDestination(target){
   else if(target === 'calendar') renderCalendar();
   else if(target === 'settingsPage') openSettingsPage();
   else if(target === 'appDownload') openAppDownload();
+  else if(target === 'about') openAbout();
 }
 navOverlay.querySelectorAll('.nav-overlay-item').forEach(item => {
   item.addEventListener('click', () => {
@@ -4006,6 +4268,7 @@ function openGrammar(){
 }
 function openSettingsPage(){ showView('settingsPage'); currentNavId = 'settingsPage'; updateNavActiveStates(); renderSettingsPage(); }
 function openAppDownload(){ showView('appDownload'); currentNavId = 'appDownload'; updateNavActiveStates(); updateInstallUI(); }
+function openAbout(){ showView('about'); currentNavId = 'about'; updateNavActiveStates(); }
 
 // --- HUB (Startseite) -----------------------------------------------------
 // --- Kleine Zahlen-Hochzähl-Animation für Statistiken --------------------
