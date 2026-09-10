@@ -727,6 +727,9 @@
   .auth-forgot-link:hover{color:var(--ember-bright);}
   #authMessage{background:rgba(246,195,92,.09); border:1px solid var(--border-solid); border-radius:10px; padding:.6rem .8rem; margin:-.3rem 0 1rem;}
   #authMessage.is-error{background:rgba(239,75,87,.1); border-color:rgba(239,75,87,.35); color:#ff9aa2;}
+  .auth-name-row{display:flex; gap:.6rem; align-items:flex-start; margin-bottom:1.1rem;}
+  .auth-name-row .modal-input{margin-bottom:0; flex:1;}
+  .auth-name-row .btn{flex-shrink:0; white-space:nowrap;}
   .menu-lines{position:relative; width:19px; height:14px; flex-shrink:0;}
   .menu-lines span{position:absolute; left:0; width:100%; height:2px; border-radius:2px; background:var(--text); transition:transform .3s var(--ease), opacity .3s var(--ease);}
   .menu-lines span:nth-child(1){top:0;}
@@ -757,6 +760,7 @@
   .nav-overlay-item:nth-child(3){transition-delay:90ms;} .nav-overlay-item:nth-child(4){transition-delay:135ms;}
   .nav-overlay-item:nth-child(5){transition-delay:180ms;} .nav-overlay-item:nth-child(6){transition-delay:225ms;}
   .nav-overlay-item:nth-child(7){transition-delay:270ms;}
+  .nav-overlay-item:nth-child(8){transition-delay:315ms;} .nav-overlay-item:nth-child(9){transition-delay:360ms;}
   .nav-overlay:not(.open) .nav-overlay-item{transition-delay:0ms !important;}
   .nav-overlay-item .idx{width:2rem; flex-shrink:0; font-family:var(--font-mono); font-size:.7rem; color:var(--stone);}
   .nav-overlay-item .label{font-family:var(--font-serif); font-size:1.7rem; letter-spacing:-.01em; transition:transform .3s var(--ease), color .3s var(--ease);}
@@ -1330,6 +1334,16 @@
     transition:opacity .25s var(--ease);
   }
   .btn-secondary:hover::before, .chip:hover::before, .session-opt:hover::before{ opacity:1; }
+  /* App-/Über-uns-Seite: dieselben Spotlight-Kacheln interaktiv machen wie auf der Startseite */
+  .dl-feature-card, .dl-step, .dl-handoff-card, .info-plaque, .info-attr-card, .info-pillar, .info-stamp, .info-security{
+    position:relative; overflow:hidden;
+  }
+  .dl-feature-card::before, .dl-step::before, .dl-handoff-card::before, .info-plaque::before, .info-attr-card::before, .info-pillar::before, .info-stamp::before, .info-security::after{
+    content:''; position:absolute; inset:0; opacity:0; pointer-events:none; z-index:2;
+    background:radial-gradient(120px circle at var(--sx,50%) var(--sy,50%), rgba(246,195,92,.28), transparent 55%);
+    transition:opacity .3s var(--ease);
+  }
+  .dl-feature-card:hover::before, .dl-step:hover::before, .dl-handoff-card:hover::before, .info-plaque:hover::before, .info-attr-card:hover::before, .info-pillar:hover::before, .info-stamp:hover::before, .info-security:hover::after{ opacity:1; }
   .btn-secondary::after, .chip::after{
     content:''; position:absolute; inset:0; opacity:0; pointer-events:none;
     background:linear-gradient(115deg, transparent 30%, rgba(255,223,0,.3), transparent 70%);
@@ -1410,6 +1424,12 @@
   }
   .dl-hero-title em{ font-style:italic; color:var(--ember-bright); font-weight:500; }
   .dl-hero-sub{ color:var(--stone); max-width:38em; line-height:1.7; margin:0 0 1.6rem; font-size:1.02rem; }
+  .dl-warning-note{
+    display:flex; align-items:flex-start; gap:.7rem; padding:.85rem 1rem; margin:0 0 1.6rem; max-width:38em;
+    background:rgba(224,162,61,.08); border:1px solid rgba(224,162,61,.35); border-left:3px solid var(--pop); border-radius:10px;
+  }
+  .dl-warning-note svg{ color:var(--pop); flex-shrink:0; margin-top:.1rem; }
+  .dl-warning-note p{ margin:0; font-size:.84rem; color:var(--text); line-height:1.55; }
   .dl-hero-actions{ display:flex; flex-wrap:wrap; gap:.8rem; margin-bottom:1.8rem; }
   .dl-hero-actions .btn-secondary{ text-decoration:none; display:inline-flex; align-items:center; }
   .dl-trust-row{ display:flex; flex-wrap:wrap; gap:1.4rem; color:var(--stone); font-family:var(--font-mono); font-size:.7rem; letter-spacing:.04em; }
@@ -1681,9 +1701,11 @@
     <button type="button" class="header-nav-item" data-goto="hub">Startseite</button>
     <button type="button" class="header-nav-item" data-goto="home">Lernsets</button>
     <button type="button" class="header-nav-item" data-goto="listen">Aussprache</button>
-    <button type="button" class="header-nav-item" data-goto="rewards">Belohnungen</button>
     <button type="button" class="header-nav-item" data-goto="grammar">Grammatik</button>
+    <button type="button" class="header-nav-item" data-goto="rewards">Belohnungen</button>
     <button type="button" class="header-nav-item" data-goto="calendar">Kalender</button>
+    <button type="button" class="header-nav-item" data-goto="appDownload">App</button>
+    <button type="button" class="header-nav-item" data-goto="about">Über uns</button>
   </nav>
   <div class="header-right">
     <div class="lang-switch" role="group" aria-label="Sprache der Oberfläche">
@@ -1709,9 +1731,9 @@
     <ul class="nav-overlay-list">
       <li><button class="nav-overlay-item" data-goto="hub"><span class="idx">01</span><span class="label">Startseite</span><span class="hint">Willkommen</span></button></li>
       <li><button class="nav-overlay-item" data-goto="home"><span class="idx">02</span><span class="label">Lernsets</span><span class="hint">Eigene Vokabelsets</span></button></li>
-      <li><button class="nav-overlay-item" data-goto="rewards"><span class="idx">03</span><span class="label">Belohnungen</span><span class="hint">Serie &amp; Fortschritt</span><span class="lock-badge" hidden>🔒 Konto</span></button></li>
+      <li><button class="nav-overlay-item" data-goto="listen"><span class="idx">03</span><span class="label">Sprechen</span><span class="hint">Aussprache üben</span><span class="lock-badge" hidden>🔒 Konto</span></button></li>
       <li><button class="nav-overlay-item" data-goto="grammar"><span class="idx">04</span><span class="label">Grammatik</span><span class="hint">Regeln erklärt</span><span class="lock-badge" hidden>🔒 Konto</span></button></li>
-      <li><button class="nav-overlay-item" data-goto="listen"><span class="idx">05</span><span class="label">Sprechen</span><span class="hint">Aussprache üben</span><span class="lock-badge" hidden>🔒 Konto</span></button></li>
+      <li><button class="nav-overlay-item" data-goto="rewards"><span class="idx">05</span><span class="label">Belohnungen</span><span class="hint">Serie &amp; Fortschritt</span><span class="lock-badge" hidden>🔒 Konto</span></button></li>
       <li><button class="nav-overlay-item" data-goto="calendar"><span class="idx">06</span><span class="label">Kalender</span><span class="hint">Klausuren &amp; Lernplan</span><span class="lock-badge" hidden>🔒 Konto</span></button></li>
       <li><button class="nav-overlay-item" data-goto="settingsPage"><span class="idx">07</span><span class="label">Einstellungen</span><span class="hint">Webseite anpassen</span></button></li>
       <li><button class="nav-overlay-item" data-goto="appDownload"><span class="idx">08</span><span class="label">App</span><span class="hint">Als App installieren</span></button></li>
@@ -1811,6 +1833,8 @@
         <button type="button" class="chip" data-tab="signup">Registrieren</button>
       </div>
       <form id="authForm">
+        <label class="ev-label" for="authDisplayName" id="authDisplayNameLabel" hidden>Anzeigename</label>
+        <input type="text" id="authDisplayName" class="modal-input" maxlength="40" autocomplete="nickname" placeholder="Wie sollen wir dich nennen?" hidden>
         <label class="ev-label" for="authEmail">E-Mail</label>
         <input type="email" id="authEmail" class="modal-input" required autocomplete="email">
         <label class="ev-label" for="authPassword">Passwort</label>
@@ -1838,6 +1862,13 @@
     <div id="authLoggedInView" hidden>
       <h3>Konto</h3>
       <p class="hint" style="margin:-.4rem 0 1rem;">Angemeldet als <strong id="authUserEmail"></strong></p>
+      <form id="authNameForm">
+        <label class="ev-label" for="authDisplayNameEdit">Anzeigename</label>
+        <div class="auth-name-row">
+          <input type="text" id="authDisplayNameEdit" class="modal-input" maxlength="40" autocomplete="nickname" placeholder="Wie sollen wir dich nennen?">
+          <button type="submit" class="btn btn-secondary btn-small">Speichern</button>
+        </div>
+      </form>
       <p class="settings-note" style="margin:0 0 1.1rem;">☁️ Deine Vokabeln &amp; dein Fortschritt werden automatisch gesichert und stehen auf allen Geräten zur Verfügung.</p>
       <div class="modal-actions">
         <button type="button" class="btn btn-secondary" id="authCloseBtn">Schließen</button>
@@ -2084,6 +2115,36 @@
             <span class="feature-card-desc">Klausuren eintragen &amp; Lernplan sehen.</span>
           </span>
           <span class="feature-card-footer"><span>Lernplan</span><span class="lock-badge" hidden>🔒 Konto</span><span class="feature-card-arrow">→</span></span>
+        </button>
+
+        <button class="feature-card" id="featCardApp" type="button">
+          <span class="feature-card-head">
+            <span class="feature-card-icon ic-teal">
+              <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2.5" width="12" height="19" rx="2.5"/><path d="M11 18h2"/></svg>
+            </span>
+            <span class="feature-card-num">06</span>
+          </span>
+          <span class="feature-card-body">
+            <span class="feature-card-eyebrow">Zugang</span>
+            <span class="feature-card-title">App installieren</span>
+            <span class="feature-card-desc">Lumière als App auf den Startbildschirm holen.</span>
+          </span>
+          <span class="feature-card-footer"><span>PWA</span><span class="feature-card-arrow">→</span></span>
+        </button>
+
+        <button class="feature-card" id="featCardAbout" type="button">
+          <span class="feature-card-head">
+            <span class="feature-card-icon ic-blue">
+              <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v6"/><circle cx="12" cy="8" r="1" fill="currentColor" stroke="none"/></svg>
+            </span>
+            <span class="feature-card-num">07</span>
+          </span>
+          <span class="feature-card-body">
+            <span class="feature-card-eyebrow">Transparenz</span>
+            <span class="feature-card-title">Über uns</span>
+            <span class="feature-card-desc">Zweck, Rechte &amp; technischer Schutz dieser Seite.</span>
+          </span>
+          <span class="feature-card-footer"><span>Dossier</span><span class="feature-card-arrow">→</span></span>
         </button>
       </div>
     </div>
@@ -2602,6 +2663,10 @@
         <span class="dl-eyebrow-badge"><span class="dl-pulse-dot"></span>Progressive Web App · Kein App Store nötig</span>
         <h1 class="dl-hero-title">Lumière. <em>Stets griffbereit,</em> zeitlos kuratiert.</h1>
         <p class="dl-hero-sub">Lumière wohnt ohne Umwege direkt auf deinem Startbildschirm — volle Offline-Verfügbarkeit, ruhige Typografie und ungestörte Sprachstudien zwischen Berlin und Paris. Ganz ohne Tracking oder Extra-Download.</p>
+        <div class="dl-warning-note">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 9v4"/><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/><circle cx="12" cy="16.5" r=".6" fill="currentColor" stroke="none"/></svg>
+          <p>Aktuell empfehlen wir die Installation als App noch nicht uneingeschränkt — du erhältst möglicherweise nicht zuverlässig automatische Updates. Bis das gelöst ist, ist die normale Nutzung im Browser die sicherere Wahl.</p>
+        </div>
         <div class="dl-hero-actions">
           <button type="button" class="btn btn-primary" id="btnInstallHero">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:-3px; margin-right:.4rem;"><path d="M12 3v13m0 0-4-4m4 4 4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
@@ -3788,10 +3853,12 @@ function updateAccountUI(){
   const loggedInView = document.getElementById('authLoggedInView');
   const resetView = document.getElementById('authResetView');
   if(currentUser){
+    const displayName = (currentUser.user_metadata && currentUser.user_metadata.display_name) || '';
     btn.classList.add('is-logged-in');
-    label.textContent = currentUser.email.split('@')[0];
-    statusText.textContent = `Angemeldet als ${currentUser.email} — deine Daten werden automatisch geräteübergreifend gesichert.`;
+    label.textContent = displayName || currentUser.email.split('@')[0];
+    statusText.textContent = `Angemeldet als ${displayName || currentUser.email} — deine Daten werden automatisch geräteübergreifend gesichert.`;
     document.getElementById('authUserEmail').textContent = currentUser.email;
+    document.getElementById('authDisplayNameEdit').value = displayName;
   } else {
     btn.classList.remove('is-logged-in');
     label.textContent = 'Konto';
@@ -3889,6 +3956,8 @@ document.querySelectorAll('#authTabChips .chip').forEach(chip => {
     document.querySelectorAll('#authTabChips .chip').forEach(c => c.classList.toggle('selected', c === chip));
     document.getElementById('authSubmit').textContent = authTab === 'signup' ? 'Registrieren' : 'Anmelden';
     document.getElementById('authForgotLink').hidden = authTab === 'signup';
+    document.getElementById('authDisplayNameLabel').hidden = authTab !== 'signup';
+    document.getElementById('authDisplayName').hidden = authTab !== 'signup';
     const msg = document.getElementById('authMessage');
     msg.hidden = true; msg.classList.remove('is-error');
   });
@@ -3934,7 +4003,11 @@ document.getElementById('authForm').addEventListener('submit', async (e) => {
   msg.hidden = true; msg.classList.remove('is-error');
   try{
     if(authTab === 'signup'){
-      const { data, error } = await sb.auth.signUp({ email, password });
+      const displayName = document.getElementById('authDisplayName').value.trim();
+      const { data, error } = await sb.auth.signUp({
+        email, password,
+        options: displayName ? { data: { display_name: displayName } } : undefined,
+      });
       if(error) throw error;
       if(data.user && !data.session){
         msg.textContent = 'Fast geschafft — bestätige deine E-Mail-Adresse über den Link, den wir dir geschickt haben.';
@@ -3961,6 +4034,21 @@ document.getElementById('authSignOutBtn').addEventListener('click', async () => 
   if(sb) await sb.auth.signOut();
   closeAccountModal();
   showToast('Abgemeldet — deine Daten bleiben lokal auf diesem Gerät erhalten.');
+});
+document.getElementById('authNameForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  sndClick();
+  const displayName = document.getElementById('authDisplayNameEdit').value.trim();
+  if(!sb || !currentUser) return;
+  try{
+    const { data, error } = await sb.auth.updateUser({ data: { display_name: displayName } });
+    if(error) throw error;
+    currentUser = data.user;
+    updateAccountUI();
+    showToast('Anzeigename gespeichert.');
+  }catch(err){
+    showToast(translateAuthError(err.message), true);
+  }
 });
 document.getElementById('authResetForm').addEventListener('submit', async (e) => {
   e.preventDefault();
@@ -4093,7 +4181,7 @@ if(!reducedMotionActive()){
     // Gold-Glow "zieht" dem Cursor leicht hinterher statt sofort zu springen -
     // zeitnormierter Lerp pro Element (mehrere Karten koennen gleichzeitig
     // "nachziehen"), ein gemeinsamer rAF-Loop fuer alle aktiven.
-    const spotlightSelector = '.set-card, .rewards-card, .streak-hero, .hub-stat, .feature-card, .btn-secondary, .chip, .session-opt';
+    const spotlightSelector = '.set-card, .rewards-card, .streak-hero, .hub-stat, .feature-card, .btn-secondary, .chip, .session-opt, .dl-feature-card, .dl-step, .dl-handoff-card, .info-plaque, .info-attr-card, .info-pillar, .info-stamp, .info-security';
     const spotlightState = new Map();
     let spotlightRafId = null;
     let spotlightLastTick = 0;
@@ -4198,25 +4286,47 @@ if(!reducedMotionActive()){
     const sc = s.getContext('2d');
     const g = sc.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
     g.addColorStop(0, inner);
-    g.addColorStop(.5, mid);
+    g.addColorStop(.45, mid);
     g.addColorStop(1, 'rgba(0,0,0,0)');
     sc.fillStyle = g;
     sc.beginPath(); sc.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2); sc.fill();
     return s;
   }
-  const SPRITE_SIZE = 96;
+  const SPRITE_SIZE = 104;
   // Kopf der Spur: helles Gold-Weiss. Schweif: dunkleres Bronze/Gold.
-  const spriteHead = makeSprite('rgba(255,246,222,.95)', 'rgba(246,195,92,.55)', SPRITE_SIZE);
-  const spriteTail = makeSprite('rgba(224,162,61,.75)', 'rgba(140,107,46,.4)', SPRITE_SIZE);
+  const spriteHead = makeSprite('rgba(255,250,232,1)', 'rgba(255,224,150,.75)', SPRITE_SIZE);
+  const spriteTail = makeSprite('rgba(224,162,61,.8)', 'rgba(140,107,46,.35)', SPRITE_SIZE);
 
-  const MAX_AGE = 550;
-  const MAX_POINTS = 70;
+  // Über diesen Boxen/Bedienelementen pausiert die Spur, damit sie sich nicht mit
+  // deren eigenem Spotlight-/Funken-Hover beisst - nur auf freien Flächen sichtbar.
+  const TRAIL_PAUSE_SELECTOR = 'button, a, input, textarea, select, label, ' +
+    '.feature-card, .dl-feature-card, .dl-step, .dl-handoff-card, .dl-phone, ' +
+    '.info-pillar, .info-attr-card, .info-plaque, .info-stamp, .info-security, ' +
+    '.settings-card, .rewards-card, .streak-hero, .hub-stat, .chip, .session-opt, ' +
+    '.set-card, .modal-box, header, nav, footer, .quick-nav, .hub-manifest, ' +
+    '.match-chip, .cal-grid, .streak-day, .toast';
+
+  const MAX_AGE = 620;
+  const MAX_POINTS = 80;
   let points = [];
+  let lastPoint = null;
   let rafId = null;
 
   function onMove(e){
-    if(reducedMotionActive()){ points.length = 0; return; }
-    points.push({ x: e.clientX, y: e.clientY, t: performance.now() });
+    if(reducedMotionActive()){ points.length = 0; lastPoint = null; return; }
+    if(e.target.closest && e.target.closest(TRAIL_PAUSE_SELECTOR)){ lastPoint = null; return; }
+    const now = performance.now();
+    let angle = lastPoint ? lastPoint.angle : 0, speed = 0;
+    if(lastPoint){
+      const dx = e.clientX - lastPoint.x, dy = e.clientY - lastPoint.y;
+      const dist = Math.hypot(dx, dy);
+      const dt = Math.max(now - lastPoint.t, 1);
+      speed = Math.min(dist / dt, 3);
+      if(dist > 0.6) angle = Math.atan2(dy, dx);
+    }
+    const jitter = 0.82 + Math.random() * 0.32;
+    points.push({ x: e.clientX, y: e.clientY, t: now, angle, speed, jitter });
+    lastPoint = { x: e.clientX, y: e.clientY, t: now, angle };
     if(points.length > MAX_POINTS) points.shift();
     if(rafId === null) rafId = requestAnimationFrame(draw);
   }
@@ -4226,17 +4336,27 @@ if(!reducedMotionActive()){
     const now = performance.now();
     ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
     points = points.filter(p => now - p.t < MAX_AGE);
+    ctx.globalCompositeOperation = 'lighter';
     for(let i = 0; i < points.length; i++){
       const p = points[i];
       const age = Math.min(1, (now - p.t) / MAX_AGE);
-      const fade = 1 - age;
-      const radius = (SPRITE_SIZE / 2) * 0.34 * (1 - age * 0.7);
-      if(radius <= 0.6 || fade <= 0.02) continue;
-      ctx.globalAlpha = fade * .8 * (1 - age * .6);
-      ctx.drawImage(spriteHead, p.x - radius, p.y - radius, radius * 2, radius * 2);
-      ctx.globalAlpha = fade * .55 * age;
-      ctx.drawImage(spriteTail, p.x - radius * 1.35, p.y - radius * 1.35, radius * 2.7, radius * 2.7);
+      const fade = Math.pow(1 - age, 1.35);
+      if(fade <= 0.03) continue;
+      const radius = (SPRITE_SIZE / 2) * 0.3 * p.jitter * (1 - age * 0.55);
+      if(radius <= 0.6) continue;
+      const stretch = 1 + p.speed * 1.3;
+
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.angle);
+      ctx.scale(stretch, 1);
+      ctx.globalAlpha = fade * .85;
+      ctx.drawImage(spriteHead, -radius, -radius, radius * 2, radius * 2);
+      ctx.globalAlpha = fade * .5 * (0.35 + age);
+      ctx.drawImage(spriteTail, -radius * 1.7, -radius * 1.7, radius * 3.4, radius * 3.4);
+      ctx.restore();
     }
+    ctx.globalCompositeOperation = 'source-over';
     ctx.globalAlpha = 1;
     rafId = points.length > 0 ? requestAnimationFrame(draw) : null;
   }
@@ -4437,6 +4557,8 @@ document.getElementById('featCardListen').addEventListener('click', () => openGl
 document.getElementById('featCardRewards').addEventListener('click', () => { sndClick(); renderRewards(); });
 document.getElementById('featCardGrammar').addEventListener('click', () => { sndClick(); openGrammar(); });
 document.getElementById('featCardCalendar').addEventListener('click', () => { sndClick(); renderCalendar(); });
+document.getElementById('featCardApp').addEventListener('click', () => { sndClick(); openAppDownload(); });
+document.getElementById('featCardAbout').addEventListener('click', () => { sndClick(); openAbout(); });
 
 // --- BELOHNUNGEN / STREAK --------------------------------------------------
 function todayKey(d = new Date()){ const x = new Date(d); x.setHours(0,0,0,0); return x.toISOString().slice(0,10); }
