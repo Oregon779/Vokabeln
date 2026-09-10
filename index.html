@@ -4192,7 +4192,10 @@ async function loadOrCreateProfile(){
       .select().single();
     if(error){ console.error('Profil konnte nicht geladen werden:', error.message); return; }
     currentProfile = data;
-    if(data.banned){
+    // Admin-Konten sind immun gegen Sperren (siehe toggleUserBan) - dieselbe
+    // Immunitaet muss auch hier gelten, sonst wuerde ein Admin, dessen
+    // banned-Flag (z.B. vor dieser Aenderung) gesetzt wurde, sich selbst aussperren.
+    if(data.banned && !data.is_admin){
       showToast('Dein Konto wurde gesperrt.', true);
       await sb.auth.signOut();
     }
