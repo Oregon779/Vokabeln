@@ -173,10 +173,14 @@
   }
 
   /* --- Sichtbarer Fokusring für Tastaturnavigation (Accessibility) --- */
+  /* Kein eigenes border-radius hier setzen: das würde die tatsächliche Form des
+     Elements selbst verändern (z.B. ein rundes Pill-Element beim Fokus eckig
+     machen - der eigentliche "Kasten"-Bug). Moderne Browser runden den
+     Fokus-Umriss automatisch passend zum border-radius des Elements selbst. */
   a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible,
   .chip:focus-visible, .session-opt:focus-visible, .set-card:focus-visible,
   .match-chip:focus-visible, .nav-overlay-item:focus-visible{
-    outline:2px solid var(--ember-bright); outline-offset:3px; border-radius:8px;
+    outline:2px solid var(--ember-bright); outline-offset:3px;
   }
   ::selection{ background:rgba(246,195,92,.35); color:var(--text); }
 
@@ -387,7 +391,7 @@
   }
   .chip{
     background:var(--surface); backdrop-filter:blur(14px); border:1.5px solid var(--border-solid); border-radius:999px;
-    padding:.55rem 1rem; font-size:.85rem; font-weight:600; cursor:pointer;
+    padding:.55rem 1rem; font-size:.85rem; font-weight:600; cursor:pointer; color:var(--text); font-family:inherit;
     transition:border-color .2s var(--ease), transform .15s var(--ease-premium), background .2s var(--ease), box-shadow .2s var(--ease);
   }
   .chip:hover{border-color:var(--ember-dim); transform:translateY(-1px);}
@@ -630,6 +634,9 @@
   .grammar-section li{margin-bottom:.5rem; font-size:.92rem; line-height:1.6;}
   .grammar-loading{text-align:center; color:var(--stone); padding:2rem 0; font-family:var(--font-mono); font-size:.85rem;}
   .grammar-loading::after{content:''; display:inline-block; width:16px; height:16px; margin-left:.5rem; border:2px solid var(--border-solid); border-top-color:var(--ember); border-radius:50%; animation:spin .7s linear infinite; vertical-align:middle;}
+  .ai-loading-inline{grid-column:1 / -1; text-align:center; color:var(--stone); padding:1.4rem 0; font-family:var(--font-mono); font-size:.78rem;}
+  .ai-loading-inline::after{content:''; display:inline-block; width:14px; height:14px; margin-left:.5rem; border:2px solid var(--border-solid); border-top-color:var(--ember); border-radius:50%; animation:spin .7s linear infinite; vertical-align:middle;}
+  @media (prefers-reduced-motion: reduce){ .ai-loading-inline::after{animation:none;} }
   .grammar-examples{margin-top:1rem;}
   .grammar-empty{
     display:flex; flex-direction:column; align-items:center; text-align:center; gap:1.1rem;
@@ -818,15 +825,52 @@
   .auth-name-row{display:flex; gap:.6rem; align-items:flex-start; margin-bottom:1.1rem;}
   .auth-name-row .modal-input{margin-bottom:0; flex:1;}
   .auth-name-row .btn{flex-shrink:0; white-space:nowrap;}
-  .account-status-card{ background:var(--surface-2); border:1px solid var(--border-solid); border-radius:12px; padding:.9rem 1rem; margin:0 0 1.1rem; }
-  .status-meter-row{ margin-bottom:.7rem; }
+  .account-status-card{
+    background:#0c1018; border:1px solid rgba(246,195,92,.2); border-radius:12px;
+    padding:1rem 1.1rem; margin:0 0 1.1rem; position:relative; overflow:hidden;
+  }
+  .account-status-card::before{ content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg, transparent, rgba(246,195,92,.35), transparent); }
+  .account-status-card-head{ display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:.4rem; padding-bottom:.7rem; margin-bottom:.7rem; border-bottom:1px solid rgba(255,255,255,.06); }
+  .account-status-live{ display:inline-flex; align-items:center; gap:.4rem; font-family:var(--font-mono); font-size:.6rem; letter-spacing:.1em; text-transform:uppercase; color:var(--stone); }
+  .account-status-live-dot{ width:5px; height:5px; border-radius:50%; background:var(--success); box-shadow:0 0 6px var(--success); }
+  .status-meter-row{ margin-bottom:.9rem; }
   .status-meter-row:last-of-type{ margin-bottom:0; }
-  .status-meter-labels{ display:flex; justify-content:space-between; font-family:var(--font-mono); font-size:.68rem; color:var(--stone); margin-bottom:.35rem; }
-  .status-meter-labels span:last-child{ color:var(--ember-bright); font-weight:700; }
-  .status-meter-track{ height:5px; border-radius:999px; background:rgba(255,255,255,.06); overflow:hidden; }
-  .status-meter-fill{ height:100%; border-radius:999px; background:var(--ember-bright); width:0%; transition:width .4s var(--ease); }
-  .status-meter-fill-alt{ background:var(--pop); }
-  .status-admin-note{ margin:.7rem 0 0; font-family:var(--font-mono); font-size:.68rem; color:var(--ember-bright); text-align:center; }
+  .status-meter-labels{ display:flex; justify-content:space-between; font-size:.78rem; color:var(--text); margin-bottom:.35rem; }
+  .status-meter-labels span:last-child{ font-family:var(--font-mono); color:var(--ember-bright); font-weight:700; }
+  .status-meter-track{ height:8px; border-radius:999px; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.05); overflow:hidden; padding:1px; }
+  .status-meter-fill{
+    height:100%; border-radius:999px; width:0%; transition:width .7s var(--ease); position:relative;
+    background:linear-gradient(90deg, var(--gold), var(--ember-bright) 55%, var(--gold-bright));
+  }
+  .status-meter-fill::after{ content:''; position:absolute; right:0; top:0; bottom:0; width:4px; border-radius:999px; background:#fff; box-shadow:0 0 10px var(--ember-bright), 0 0 4px #fff; }
+  .status-meter-fill-alt{ background:linear-gradient(90deg, #b38343, var(--pop) 55%, #eed39c); }
+  .status-meter-fill-alt::after{ box-shadow:0 0 10px var(--pop), 0 0 4px #fff; }
+  .status-meter-caption{ display:flex; justify-content:space-between; gap:.6rem; margin-top:.3rem; }
+  .status-meter-caption span:first-child{ font-size:.68rem; font-style:italic; color:var(--stone); }
+  .status-meter-caption span:last-child{ font-family:var(--font-mono); font-size:.62rem; color:var(--stone); flex-shrink:0; }
+  .auth-user-row{ display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:.6rem; padding:.6rem; border-radius:12px; background:rgba(14,18,26,.9); border:1px solid rgba(255,255,255,.05); margin:0 0 1.2rem; }
+  .auth-user-row-id{ display:flex; align-items:center; gap:.7rem; min-width:0; }
+  .auth-avatar{
+    position:relative; flex-shrink:0; width:2.5rem; height:2.5rem; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    background:linear-gradient(135deg, #242c3d, #121622); border:1px solid rgba(246,195,92,.4);
+    font-family:var(--font-serif); font-size:.85rem; font-weight:600; color:var(--ember-bright); letter-spacing:.03em;
+  }
+  .auth-avatar-dot{ position:absolute; bottom:-1px; right:-1px; width:.65rem; height:.65rem; border-radius:50%; background:var(--success); border:2px solid #0e121a; }
+  .auth-user-row-text{ display:flex; flex-direction:column; min-width:0; }
+  .auth-user-row-text span:first-child{ font-size:.66rem; color:var(--stone); }
+  .auth-user-row-text strong{ font-size:.85rem; font-weight:500; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:220px; }
+  .auth-admin-tag{
+    display:inline-flex; align-items:center; gap:.4rem; padding:.3rem .65rem; border-radius:8px; flex-shrink:0;
+    background:rgba(246,195,92,.1); border:1px solid rgba(246,195,92,.4); font-family:var(--font-mono); font-size:.62rem; font-weight:600; letter-spacing:.05em; text-transform:uppercase; color:var(--ember-bright);
+  }
+  .auth-field.has-inline-btn{ display:flex; align-items:center; gap:.5rem; padding-right:.35rem; }
+  .auth-field.has-inline-btn .modal-input{ padding-right:.7rem; }
+  .auth-field.has-inline-btn .btn{ flex-shrink:0; white-space:nowrap; }
+  .auth-modal-box .btn-danger{
+    background:linear-gradient(120deg, #2d1217, #220d12); border-color:rgba(127,29,29,.6);
+    box-shadow:0 0 15px rgba(127,29,29,.25);
+  }
+  .auth-modal-box .btn-danger:hover{ background:linear-gradient(120deg, #451218, #2e1016); color:#fff; border-color:rgba(239,68,68,.8); }
 
   /* --- Admin-Panel --- */
   .admin-stat-row{ display:grid; grid-template-columns:repeat(3,1fr); gap:.8rem; margin-bottom:1.6rem; }
@@ -1303,13 +1347,15 @@
   .cal-grid-week{grid-template-columns:repeat(7,1fr);}
   @media (max-width:700px){ .cal-grid-week{grid-template-columns:1fr; gap:.6rem;} }
   .cal-day{
-    position:relative; aspect-ratio:1/1; min-height:44px; background:var(--surface); border:1px solid var(--border-solid); border-radius:12px;
-    color:var(--text); cursor:pointer; padding:.4rem; display:flex; flex-direction:column; align-items:flex-start; gap:.3rem;
+    position:relative; aspect-ratio:1/1; min-height:76px; background:var(--surface); border:1px solid var(--border-solid); border-radius:12px;
+    color:var(--text); cursor:pointer; padding:.4rem; display:flex; flex-direction:column; align-items:flex-start; gap:.3rem; overflow:hidden;
     transition:border-color .2s var(--ease), background .2s var(--ease), transform .15s var(--ease-spring);
   }
   .cal-day:hover{border-color:var(--ember-dim); background:var(--surface-2); transform:translateY(-2px);}
   .cal-day:active{transform:scale(.95);}
   .cal-day.other-month{opacity:.35;}
+  .cal-day.has-events{border-color:rgba(246,195,92,.3);}
+  @media (max-width:480px){ .cal-day{ min-height:56px; } .cal-day-event-pill{ font-size:.52rem; padding:.12rem .3rem; } }
   .cal-day.today{border-color:var(--ember); box-shadow:0 0 0 1px var(--ember), 0 0 14px 1px rgba(246,195,92,.35); animation:todayPulse 3s ease-in-out infinite;}
   @keyframes todayPulse{
     0%,100%{box-shadow:0 0 0 1px var(--ember), 0 0 14px 1px rgba(246,195,92,.35);}
@@ -1322,7 +1368,12 @@
   .cal-grid .cal-day:nth-child(7n+5){animation-delay:.1s;} .cal-grid .cal-day:nth-child(7n+6){animation-delay:.12s;}
   .cal-grid .cal-day:nth-child(7n){animation-delay:.14s;}
   .cal-day-num{font-family:var(--font-mono); font-size:.78rem; font-weight:700;}
-  .cal-day-dots{display:flex; gap:.2rem; flex-wrap:wrap; margin-top:auto;}
+  .cal-day-events{display:flex; flex-direction:column; gap:.2rem; margin-top:auto; width:100%;}
+  .cal-day-event-pill{
+    display:block; width:100%; font-size:.6rem; font-weight:700; padding:.16rem .4rem; border-radius:5px;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:#1c1207; line-height:1.35;
+  }
+  .cal-day-event-more{font-family:var(--font-mono); font-size:.55rem; color:var(--stone); padding-left:.1rem;}
   .cal-dot{width:6px; height:6px; border-radius:50%; flex-shrink:0;}
   .cal-dot-more{font-family:var(--font-mono); font-size:.55rem; color:var(--stone);}
   .cal-dot-lk, .cal-week-event.cal-dot-lk{background:var(--pop);}
@@ -2022,32 +2073,64 @@
       </form>
     </div>
     <div id="authLoggedInView" hidden>
-      <h3>Konto</h3>
-      <p class="hint" style="margin:-.4rem 0 1rem;">Angemeldet als <strong id="authUserEmail"></strong></p>
+      <div class="auth-eyebrow"><span class="auth-eyebrow-dot" aria-hidden="true"></span>Lumière · Kontoverwaltung</div>
+      <h3>Konto <span class="gold-shimmer">&amp; Profil</span></h3>
+
+      <div class="auth-user-row">
+        <div class="auth-user-row-id">
+          <div class="auth-avatar"><span id="authAvatarInitials">–</span><span class="auth-avatar-dot" aria-hidden="true"></span></div>
+          <div class="auth-user-row-text">
+            <span>Angemeldet als</span>
+            <strong id="authUserEmail"></strong>
+          </div>
+        </div>
+        <div class="auth-admin-tag" id="statusAdminBadge" hidden><span aria-hidden="true">👑</span>Admin-Konto</div>
+      </div>
+
       <form id="authNameForm">
         <label class="ev-label" for="authDisplayNameEdit">Anzeigename</label>
-        <div class="auth-name-row">
+        <div class="auth-field has-inline-btn">
+          <span class="auth-field-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg></span>
           <input type="text" id="authDisplayNameEdit" class="modal-input" maxlength="40" autocomplete="nickname" placeholder="Wie sollen wir dich nennen?">
           <button type="submit" class="btn btn-secondary btn-small">Speichern</button>
         </div>
       </form>
+
       <div class="account-status-card" id="accountStatusCard" hidden>
-        <p class="ev-label" style="margin-top:0;">Konto-Status</p>
+        <div class="account-status-card-head">
+          <p class="ev-label" style="margin:0;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="vertical-align:-2px; margin-right:.3em;" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            Konto-Status
+          </p>
+          <span class="account-status-live"><span class="account-status-live-dot"></span>Aktiv · Reset 00:00 UTC</span>
+        </div>
         <div class="status-meter-row">
           <div class="status-meter-labels"><span>KI-Anfragen heute</span><span id="statusAiUsageText">–</span></div>
           <div class="status-meter-track"><div class="status-meter-fill" id="statusAiUsageFill"></div></div>
+          <div class="status-meter-caption"><span>Für Vokabel-Kontexte &amp; grammatikalische Nuancen</span><span id="statusAiUsagePct"></span></div>
         </div>
         <div class="status-meter-row">
           <div class="status-meter-labels"><span>Website-Kapazität heute</span><span id="statusCapacityText">–</span></div>
           <div class="status-meter-track"><div class="status-meter-fill status-meter-fill-alt" id="statusCapacityFill"></div></div>
+          <div class="status-meter-caption"><span>Synchronisations-Bandbreite &amp; Audiowiedergabe</span><span id="statusCapacityPct"></span></div>
         </div>
-        <p class="status-admin-note" id="statusAdminBadge" hidden>👑 Admin-Konto</p>
       </div>
-      <p class="settings-note" style="margin:0 0 1.1rem;">☁️ Deine Vokabeln &amp; dein Fortschritt werden automatisch gesichert und stehen auf allen Geräten zur Verfügung.</p>
+
+      <div class="auth-explainer">
+        <span class="auth-explainer-icon" aria-hidden="true">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"/></svg>
+        </span>
+        <p>Vokabeln, Sammlungen &amp; Lernfortschritt werden automatisch geräteübergreifend gesichert.</p>
+      </div>
+
       <div class="modal-actions">
         <button type="button" class="btn btn-secondary" id="authCloseBtn">Schließen</button>
         <button type="button" class="btn btn-danger" id="authSignOutBtn">Abmelden</button>
       </div>
+      <p class="auth-footnote">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+        Ende-zu-Ende verschlüsselt · Keine Weitergabe an Dritte
+      </p>
     </div>
   </div>
 </div>
@@ -2359,7 +2442,7 @@
         </p>
         <h2 class="hub-manifest-quote">« Die Grenzen meiner Sprache bedeuten die Grenzen meiner Welt. »</h2>
         <p class="hub-manifest-text">Jedes französische Wort trägt ein subtiles Echo seiner Geschichte in sich. Wir ersetzen stures Auswendiglernen durch elegante Assoziationen, phonetische Klarheit und literarische Kontexte, die im Gedächtnis verweilen.</p>
-        <div class="hub-manifest-attrib"><span>Ludwig Wittgenstein · Édition Critique</span><span class="line"></span></div>
+        <div class="hub-manifest-attrib"><span id="hubManifestAttrib">Ludwig Wittgenstein · Tractatus</span><span class="line"></span></div>
       </div>
     </div>
     </div>
@@ -3481,7 +3564,10 @@ function ensureAudioCtx(){
 }
 let masterVolume = 0.7;
 let soundEnabled = true;
-function playTone(freq, duration, type, volume, delay = 0){
+// Jeder Ton läuft durch ein sanftes Tiefpassfilter, das die oberen Obertöne
+// kappt - macht selbst einfache Oszillator-Wellenformen runder/edler statt
+// piepsig, ganz ohne externe Audiodateien laden zu muessen.
+function playTone(freq, duration, type, volume, delay = 0, filterFreq){
   if(!soundEnabled || masterVolume <= 0) return;
   const ctx = ensureAudioCtx();
   if(!ctx) return;
@@ -3489,18 +3575,41 @@ function playTone(freq, duration, type, volume, delay = 0){
   const start = ctx.currentTime + delay;
   const osc = ctx.createOscillator();
   const gain = ctx.createGain();
+  const filter = ctx.createBiquadFilter();
+  filter.type = 'lowpass';
+  filter.frequency.value = filterFreq || freq * 2.4;
+  filter.Q.value = 0.7;
   osc.type = type; osc.frequency.value = freq;
   gain.gain.setValueAtTime(volume * masterVolume, start);
   gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
-  osc.connect(gain); gain.connect(ctx.destination);
+  osc.connect(filter); filter.connect(gain); gain.connect(ctx.destination);
   osc.start(start); osc.stop(start + duration);
 }
-function sndHover(){ playTone(700, 0.05, 'sine', 0.06); }
-function sndClick(){ playTone(420, 0.08, 'triangle', 0.1); }
-function sndCorrect(){ playTone(523, 0.1, 'sine', 0.15); playTone(659, 0.13, 'sine', 0.15, 0.09); playTone(880, 0.2, 'sine', 0.14, 0.18); }
-function sndWrong(){ playTone(220, 0.22, 'sawtooth', 0.08); }
-function sndRetry(){ playTone(330, 0.12, 'triangle', 0.08); }
-function sndComplete(){ [523,659,784,1046].forEach((f,i) => playTone(f, 0.18, 'sine', 0.11, i*0.11)); }
+function sndHover(){ playTone(600, 0.05, 'sine', 0.05); }
+function sndClick(){ playTone(360, 0.09, 'sine', 0.09); }
+function sndCorrect(){ playTone(466, 0.11, 'sine', 0.14); playTone(587, 0.14, 'sine', 0.14, 0.09); playTone(740, 0.22, 'sine', 0.13, 0.18); }
+function sndWrong(){
+  // Sanfter, absinkender "Thud" statt schrillem Sägezahn-Summen - deutlich
+  // spuerbar, aber nicht mehr wie ein Arcade-Fehlerton.
+  if(!soundEnabled || masterVolume <= 0) return;
+  const ctx = ensureAudioCtx();
+  if(!ctx) return;
+  if(ctx.state === 'suspended') ctx.resume();
+  const start = ctx.currentTime;
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  const filter = ctx.createBiquadFilter();
+  filter.type = 'lowpass'; filter.frequency.value = 480; filter.Q.value = 0.6;
+  osc.type = 'triangle';
+  osc.frequency.setValueAtTime(220, start);
+  osc.frequency.exponentialRampToValueAtTime(160, start + 0.24);
+  gain.gain.setValueAtTime(0.09 * masterVolume, start);
+  gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.26);
+  osc.connect(filter); filter.connect(gain); gain.connect(ctx.destination);
+  osc.start(start); osc.stop(start + 0.26);
+}
+function sndRetry(){ playTone(300, 0.11, 'sine', 0.07); }
+function sndComplete(){ [466,587,698,932].forEach((f,i) => playTone(f, 0.2, 'sine', 0.1, i*0.11)); }
 
 const soundIsFine = window.matchMedia('(hover:hover) and (pointer:fine)').matches;
 function wireSounds(root = document){
@@ -3764,9 +3873,9 @@ function renderCalendarGrid(){
       const evs = eventsOnDate(k);
       const cell = document.createElement('button');
       cell.type = 'button';
-      cell.className = 'cal-day' + (inMonth ? '' : ' other-month') + (k === todayK ? ' today' : '');
+      cell.className = 'cal-day' + (inMonth ? '' : ' other-month') + (k === todayK ? ' today' : '') + (evs.length ? ' has-events' : '');
       cell.innerHTML = `<span class="cal-day-num">${d.getDate()}</span>` +
-        (evs.length ? `<span class="cal-day-dots">${evs.slice(0, 3).map(ev => `<span class="cal-dot cal-dot-${evTypeClass(ev.type)}"></span>`).join('')}${evs.length > 3 ? `<span class="cal-dot-more">+${evs.length - 3}</span>` : ''}</span>` : '');
+        (evs.length ? `<span class="cal-day-events">${evs.slice(0, 2).map(ev => `<span class="cal-day-event-pill cal-dot-${evTypeClass(ev.type)}">${escapeHtml(ev.title || ev.type)}</span>`).join('')}${evs.length > 2 ? `<span class="cal-day-event-more">+${evs.length - 2} weitere</span>` : ''}</span>` : '');
       cell.addEventListener('click', () => {
         sndClick();
         if(evs.length === 1) openEventModal(evs[0].id);
@@ -4214,6 +4323,13 @@ async function loadSiteSettings(){
     applyMaintenanceMode();
   }catch(e){ console.error('Website-Einstellungen konnten nicht geladen werden:', e.message); }
 }
+function getInitials(nameOrEmail){
+  const base = nameOrEmail.includes('@') ? nameOrEmail.split('@')[0] : nameOrEmail;
+  const parts = base.trim().split(/[\s._-]+/).filter(Boolean);
+  if(parts.length === 0) return '–';
+  if(parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[1][0]).toUpperCase();
+}
 async function refreshAccountStatus(){
   const card = document.getElementById('accountStatusCard');
   if(!card) return;
@@ -4222,15 +4338,19 @@ async function refreshAccountStatus(){
   const defaultLimit = (siteSettings && siteSettings.ai_daily_limit) || 50;
   const limit = currentProfile.ai_limit_override ?? defaultLimit;
   const used = currentProfile.ai_requests_today || 0;
+  const aiPct = limit ? Math.min(100, Math.round((used / limit) * 100)) : 0;
   document.getElementById('statusAiUsageText').textContent = `${used} / ${limit}`;
-  document.getElementById('statusAiUsageFill').style.width = Math.min(100, (used / limit) * 100) + '%';
+  document.getElementById('statusAiUsageFill').style.width = aiPct + '%';
+  document.getElementById('statusAiUsagePct').textContent = aiPct + '%';
   document.getElementById('statusAdminBadge').hidden = !currentProfile.is_admin;
   if(!sb) return;
   try{
     const { data } = await sb.rpc('get_capacity');
     if(data){
+      const capPct = data.total ? Math.min(100, Math.round((data.used / data.total) * 100)) : 0;
       document.getElementById('statusCapacityText').textContent = `${data.used} / ${data.total}`;
-      document.getElementById('statusCapacityFill').style.width = Math.min(100, (data.used / data.total) * 100) + '%';
+      document.getElementById('statusCapacityFill').style.width = capPct + '%';
+      document.getElementById('statusCapacityPct').textContent = capPct + '%';
     }
   }catch(e){ /* Konto-Status zeigt dann nur die eigene Nutzung */ }
 }
@@ -4309,6 +4429,13 @@ const ADMIN_UNLOCK_CODE = '947213';
 
 document.getElementById('btnAdminUnlock').addEventListener('click', () => {
   sndClick();
+  // Wurde der Code in diesem Browser schon einmal richtig eingegeben, muss er
+  // nicht bei jedem Besuch neu eingetippt werden (localStorage statt sessionStorage,
+  // ueberlebt also auch einen Browser-Neustart) - siehe Hinweis oben: echte
+  // Absicherung kommt ohnehin ausschliesslich vom is_admin-Flag serverseitig.
+  let alreadyUnlocked = false;
+  try{ alreadyUnlocked = localStorage.getItem(ADMIN_UNLOCKED_KEY) === '1'; }catch(e){}
+  if(alreadyUnlocked){ openAdminPanel(); return; }
   document.getElementById('adminCodeInput').value = '';
   const msg = document.getElementById('adminCodeMessage');
   msg.hidden = true; msg.classList.remove('is-error');
@@ -4333,23 +4460,29 @@ document.getElementById('adminCodeForm').addEventListener('submit', (e) => {
     return;
   }
   document.getElementById('adminCodeBackdrop').classList.remove('open');
-  try{ sessionStorage.setItem(ADMIN_UNLOCKED_KEY, '1'); }catch(e){}
+  try{ localStorage.setItem(ADMIN_UNLOCKED_KEY, '1'); }catch(e){}
   openAdminPanel();
 });
 
 function openAdminPanel(){
   showView('admin'); currentNavId = 'admin'; updateNavActiveStates();
+  // Beim (Wieder-)Oeffnen den zuletzt gewaehlten Unter-Tab beibehalten statt
+  // stumpf auf "Uebersicht" zurueckzuspringen (showView() persistiert sonst
+  // kurzzeitig den Default-Tab - hier direkt danach wieder korrigiert).
+  const currentTabBtn = document.querySelector('#adminSubnav .admin-subnav-item.selected');
+  switchAdminTab(currentTabBtn ? currentTabBtn.dataset.adminTab : 'overview');
   loadAdminData();
 }
 
-document.querySelectorAll('#adminSubnav .admin-subnav-item').forEach(btn => {
-  btn.addEventListener('click', () => {
-    sndClick();
-    document.querySelectorAll('#adminSubnav .admin-subnav-item').forEach(b => b.classList.toggle('selected', b === btn));
-    document.querySelectorAll('.admin-tab-panel').forEach(panel => {
-      panel.hidden = panel.dataset.adminPanel !== btn.dataset.adminTab;
-    });
+function switchAdminTab(tabKey){
+  document.querySelectorAll('#adminSubnav .admin-subnav-item').forEach(b => b.classList.toggle('selected', b.dataset.adminTab === tabKey));
+  document.querySelectorAll('.admin-tab-panel').forEach(panel => {
+    panel.hidden = panel.dataset.adminPanel !== tabKey;
   });
+  persistLastView('admin', tabKey);
+}
+document.querySelectorAll('#adminSubnav .admin-subnav-item').forEach(btn => {
+  btn.addEventListener('click', () => { sndClick(); switchAdminTab(btn.dataset.adminTab); });
 });
 
 const ADMIN_FEATURE_LIST = [
@@ -4564,6 +4697,29 @@ document.getElementById('btnSaveGuestFeatures').addEventListener('click', async 
   updateGatedNavUI();
 });
 
+// Supabase erlaubt nur sehr wenige E-Mails pro Stunde/IP (Standard-Kontingent) -
+// bei zu vielen Klicks auf die Test-Buttons drosselt das sonst nicht nur weitere
+// Test-Mails, sondern kurzzeitig auch das ganz normale Einloggen fuer dieselbe
+// IP. Deshalb hier eine client-seitige Abklingzeit pro Button, persistiert in
+// localStorage (uebersteht also auch ein Neuladen der Seite).
+const TEST_EMAIL_COOLDOWN_MS = 3 * 60 * 1000;
+function applyTestEmailCooldown(btnId, storageKey){
+  const btn = document.getElementById(btnId);
+  const until = parseInt(localStorage.getItem(storageKey) || '0', 10);
+  const remaining = until - Date.now();
+  if(remaining <= 0){ btn.disabled = false; btn.dataset.originalLabel && (btn.textContent = btn.dataset.originalLabel); return; }
+  if(!btn.dataset.originalLabel) btn.dataset.originalLabel = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = `Erneut in ${Math.ceil(remaining / 1000)}s möglich`;
+  setTimeout(() => applyTestEmailCooldown(btnId, storageKey), 1000);
+}
+function startTestEmailCooldown(btnId, storageKey){
+  localStorage.setItem(storageKey, String(Date.now() + TEST_EMAIL_COOLDOWN_MS));
+  applyTestEmailCooldown(btnId, storageKey);
+}
+applyTestEmailCooldown('btnSendTestEmail', 'lumiere_test_email_cooldown');
+applyTestEmailCooldown('btnSendTestVerifyEmail', 'lumiere_test_verify_email_cooldown');
+
 document.getElementById('btnSendTestEmail').addEventListener('click', async () => {
   sndClick();
   const msg = document.getElementById('adminTestEmailMessage');
@@ -4578,12 +4734,12 @@ document.getElementById('btnSendTestEmail').addEventListener('click', async () =
       redirectTo: window.location.origin + window.location.pathname,
     });
     if(error) throw error;
-    msg.textContent = `Passwort-Zurücksetzen-E-Mail an ${currentUser.email} verschickt — im Postfach das Template prüfen.`;
+    msg.textContent = `Passwort-Zurücksetzen-E-Mail an ${currentUser.email} verschickt — im Postfach das Template prüfen. Supabase erlaubt nur wenige E-Mails pro Stunde, deshalb ist der Button jetzt kurz gesperrt.`;
     msg.hidden = false;
+    startTestEmailCooldown('btnSendTestEmail', 'lumiere_test_email_cooldown');
   }catch(err){
     msg.textContent = translateAuthError(err.message);
     msg.hidden = false;
-  }finally{
     btn.disabled = false;
   }
 });
@@ -4598,12 +4754,21 @@ document.getElementById('btnSendTestVerifyEmail').addEventListener('click', asyn
   const btn = document.getElementById('btnSendTestVerifyEmail');
   btn.disabled = true;
   try{
-    const { error } = await sb.auth.resend({
-      type: 'signup', email: currentUser.email,
+    // Supabase verschickt die "Bestätige deine E-Mail"-Mail nur an noch
+    // unbestätigte Adressen - das eigene, längst bestätigte Admin-Konto kann
+    // sie also nie direkt bekommen (Fehler "already confirmed"). Workaround:
+    // ein frisches Test-Konto mit einer "+"-Alias-Adresse anlegen, die bei
+    // den meisten Anbietern (Gmail, Outlook, Fastmail, ...) trotzdem im
+    // selben Postfach landet - so kommt wirklich die echte Vorlage an.
+    const [local, domain] = currentUser.email.split('@');
+    if(!domain) throw new Error('E-Mail-Adresse ungültig.');
+    const aliasEmail = `${local}+lumiere-test-${Date.now().toString(36)}@${domain}`;
+    const { error } = await sb.auth.signUp({
+      email: aliasEmail, password: crypto.randomUUID(),
       options: { emailRedirectTo: window.location.origin + window.location.pathname },
     });
     if(error) throw error;
-    msg.textContent = `Verifizierungs-E-Mail an ${currentUser.email} verschickt — im Postfach das Bestätigungs-Template prüfen.`;
+    msg.textContent = `Verifizierungs-E-Mail an ${aliasEmail} verschickt — landet bei den meisten Postfächern (Gmail, Outlook, Fastmail, ...) trotzdem im normalen Posteingang. Funktioniert nicht bei jedem Anbieter (z. B. manchen Firmen-Postfächern ohne "+"-Alias-Unterstützung).`;
     msg.hidden = false;
   }catch(err){
     msg.textContent = translateAuthError(err.message);
@@ -4629,6 +4794,7 @@ function updateAccountUI(){
     statusText.textContent = `Angemeldet als ${displayName || currentUser.email} — deine Daten werden automatisch geräteübergreifend gesichert.`;
     document.getElementById('authUserEmail').textContent = currentUser.email;
     document.getElementById('authDisplayNameEdit').value = displayName;
+    document.getElementById('authAvatarInitials').textContent = getInitials(displayName || currentUser.email);
   } else {
     btn.classList.remove('is-logged-in');
     label.textContent = 'Konto';
@@ -4877,7 +5043,7 @@ function translateAuthError(message){
   if(m.includes('password') && m.includes('character')) return 'Das Passwort muss mindestens 6 Zeichen lang sein.';
   if(m.includes('email') && m.includes('invalid')) return 'Das sieht nicht nach einer gültigen E-Mail-Adresse aus.';
   if(m.includes('email not confirmed')) return 'Bitte bestätige zuerst deine E-Mail-Adresse über den Link, den wir dir geschickt haben.';
-  if(m.includes('security purposes') || m.includes('rate limit')) return 'Zu viele Versuche — bitte warte kurz und versuch es dann erneut.';
+  if(m.includes('security purposes') || m.includes('rate limit')) return 'Zu viele Anfragen kurz hintereinander (z. B. durch mehrfaches Anmelden oder Test-E-Mails) — Supabase drosselt das kurz. Meist geht es nach 15–60 Minuten von selbst wieder.';
   if(m.includes('already confirmed')) return 'Diese E-Mail ist bereits bestätigt — Supabase verschickt die Verifizierungs-Mail nur an unbestätigte Konten. Zum Testen ein neues, noch unbestätigtes Test-Konto registrieren.';
   return message || 'Etwas ist schiefgelaufen. Bitte versuch es erneut.';
 }
@@ -5054,6 +5220,35 @@ if(!reducedMotionActive()){
   setupBlurReveal(document.querySelector('.hub-manifest-quote'));
 }
 
+// --- Manifest: mehrere Zitate, die sich alle 30s abwechseln ---------------
+const HUB_QUOTES = [
+  { text: 'Die Grenzen meiner Sprache bedeuten die Grenzen meiner Welt.', attrib: 'Ludwig Wittgenstein · Tractatus' },
+  { text: 'Wer fremde Sprachen nicht kennt, weiß nichts von seiner eigenen.', attrib: 'Johann Wolfgang von Goethe · Maximen und Reflexionen' },
+  { text: 'Mal nommer les choses, c’est ajouter au malheur du monde.', attrib: 'Albert Camus' },
+  { text: 'Traduire, c’est trahir.', attrib: 'Französisches Sprichwort' },
+];
+let hubQuoteIndex = 0;
+function renderQuoteWords(el, text, stagger = 60){
+  const words = text.trim().split(/\s+/);
+  el.innerHTML = words.map((w, i) => `<span class="blur-word" style="transition-delay:${i * stagger}ms">${escapeHtml(w)}</span>`).join(' ');
+}
+function rotateHubQuote(){
+  const el = document.querySelector('.hub-manifest-quote');
+  const attribEl = document.getElementById('hubManifestAttrib');
+  const hubView = document.getElementById('view-hub');
+  if(!el || !hubView || hubView.hidden) return;
+  el.classList.remove('blur-in');
+  setTimeout(() => {
+    hubQuoteIndex = (hubQuoteIndex + 1) % HUB_QUOTES.length;
+    const q = HUB_QUOTES[hubQuoteIndex];
+    renderQuoteWords(el, `« ${q.text} »`);
+    if(attribEl) attribEl.textContent = q.attrib;
+    void el.offsetWidth;
+    el.classList.add('blur-in');
+  }, 650);
+}
+setInterval(rotateHubQuote, 30000);
+
 // --- Premium Mouse-Trail-Effekt ------------------------------------------
 // Organische, leuchtende Spur statt eines statischen Kreises: pro Bewegung
 // wird ein Punkt mit Zeitstempel gemerkt, jeder Frame zeichnet alle noch
@@ -5219,9 +5414,11 @@ const ADMIN_UNLOCKED_KEY = 'lumiere_admin_unlocked';
 const RESTORABLE_VIEWS = new Set(['hub', 'home', 'set', 'rewards', 'grammar', 'listen', 'calendar', 'settingsPage', 'appDownload', 'about', 'admin']);
 let SAVED_VIEW_ON_LOAD = null;
 try{ SAVED_VIEW_ON_LOAD = JSON.parse(sessionStorage.getItem(LAST_VIEW_KEY) || 'null'); }catch(e){}
-function persistLastView(name){
+function persistLastView(name, adminTab){
   if(!RESTORABLE_VIEWS.has(name)) return;
-  try{ sessionStorage.setItem(LAST_VIEW_KEY, JSON.stringify({ view: name, setId: name === 'set' ? currentSetId : null })); }catch(e){}
+  const payload = { view: name, setId: name === 'set' ? currentSetId : null };
+  if(name === 'admin') payload.adminTab = adminTab || 'overview';
+  try{ sessionStorage.setItem(LAST_VIEW_KEY, JSON.stringify(payload)); }catch(e){}
 }
 function showView(name){
   Object.values(views).forEach(v => v.hidden = true);
@@ -5241,7 +5438,9 @@ function restoreLastView(){
     return;
   }
   if(saved.view === 'admin'){
-    if(sessionStorage.getItem(ADMIN_UNLOCKED_KEY) === '1') openAdminPanel();
+    let unlocked = false;
+    try{ unlocked = localStorage.getItem(ADMIN_UNLOCKED_KEY) === '1'; }catch(e){}
+    if(unlocked){ openAdminPanel(); switchAdminTab(saved.adminTab || 'overview'); }
     return;
   }
   const destinations = { home: renderHome, rewards: renderRewards, grammar: openGrammar, listen: openGlobalListen, calendar: renderCalendar, settingsPage: openSettingsPage, appDownload: openAppDownload, about: openAbout };
@@ -5442,7 +5641,7 @@ function renderRewards(){
 // --- HOME ---------------------------------------------------------------
 function renderHome(){
   if(!requireFeatureAvailable('home', 'Lernsets')) return;
-  showView('home');
+  showView('home'); currentNavId = 'home'; updateNavActiveStates();
   const list = document.getElementById('setsList');
   const empty = document.getElementById('setsEmpty');
   list.innerHTML = '';
@@ -5489,7 +5688,7 @@ document.getElementById('formImport').addEventListener('submit', (e) => {
 // --- SET-DETAIL -----------------------------------------------------------
 function renderSetDetail(setId){
   currentSetId = setId;
-  showView('set');
+  showView('set'); currentNavId = 'home'; updateNavActiveStates();
   const set = getSet(setId);
   document.getElementById('setTitle').textContent = set.name;
   document.getElementById('pairCount').textContent = set.pairs.length;
@@ -6011,8 +6210,10 @@ async function loadNextQuestion(){
     if(mode === 'mc'){
       const optionsBox = document.getElementById('practiceOptions');
       optionsBox.hidden = false;
+      optionsBox.innerHTML = '<p class="ai-loading-inline">Antwortoptionen werden generiert …</p>';
       const distractors = await generateDistractors(questionWord, correctAnswer, answerLanguage, 3);
       if(myToken !== questionToken) return;
+      optionsBox.innerHTML = '';
       const options = [correctAnswer, ...distractors].sort(() => Math.random() - 0.5);
       options.forEach(opt => {
         const btn = document.createElement('button');
