@@ -729,15 +729,92 @@
   .account-btn.is-logged-in{color:var(--text); border-color:var(--ember-dim);}
   .account-btn.is-logged-in .account-dot{background:var(--ember-bright); box-shadow:0 0 6px 1px rgba(246,195,92,.6);}
   @media (max-width:560px){ .account-btn-label{display:none;} .account-btn{padding:.55rem;} }
-  .auth-tab-row{margin-bottom:1.1rem;}
-  .auth-forgot-link{
-    display:block; background:none; border:none; padding:0; margin:-.7rem 0 1.1rem; cursor:pointer;
-    font-family:var(--font-sans); font-size:.78rem; color:var(--stone); text-decoration:underline; text-underline-offset:2px;
-    transition:color .2s var(--ease);
+  /* --- Auth-Modal Redesign (Login/Registrieren) --- */
+  .auth-modal-box{
+    max-width:480px; border-color:rgba(246,195,92,.28);
+    box-shadow:0 25px 60px rgba(0,0,0,.55), 0 0 50px 2px rgba(246,195,92,.12), inset 0 1px 1px rgba(255,255,255,.08);
   }
-  .auth-forgot-link:hover{color:var(--ember-bright);}
-  #authMessage{background:rgba(246,195,92,.09); border:1px solid var(--border-solid); border-radius:10px; padding:.6rem .8rem; margin:-.3rem 0 1rem;}
-  #authMessage.is-error{background:rgba(239,75,87,.1); border-color:rgba(239,75,87,.35); color:#ff9aa2;}
+  .auth-modal-box::before{
+    content:''; display:block; height:2px; margin:-1.4rem -1.4rem 1.3rem;
+    background:linear-gradient(90deg, transparent, var(--ember-bright), transparent); opacity:.85; border-radius:20px 20px 0 0;
+  }
+  .auth-eyebrow{
+    display:inline-flex; align-items:center; gap:.5rem; padding:.35rem .8rem; margin-bottom:.9rem;
+    border-radius:999px; background:rgba(246,195,92,.1); border:1px solid rgba(246,195,92,.22);
+    font-family:var(--font-mono); font-size:.62rem; font-weight:600; letter-spacing:.16em; text-transform:uppercase; color:var(--ember-bright);
+  }
+  .auth-eyebrow-dot{width:6px; height:6px; border-radius:50%; background:var(--ember-bright); animation:authDotPing 1.8s ease-out infinite;}
+  @keyframes authDotPing{0%{box-shadow:0 0 0 0 rgba(246,195,92,.55);} 70%{box-shadow:0 0 0 7px rgba(246,195,92,0);} 100%{box-shadow:0 0 0 0 rgba(246,195,92,0);}}
+  @media (prefers-reduced-motion: reduce){ .auth-eyebrow-dot{animation:none;} }
+  .auth-modal-box h3{
+    font-family:var(--font-serif); font-size:1.85rem; font-weight:500; letter-spacing:-.01em;
+    display:flex; align-items:baseline; gap:.4rem; margin:0 0 .9rem;
+  }
+  .auth-modal-box h3 .gold-shimmer{
+    font-style:italic; font-weight:300; font-size:1.45rem;
+    background:linear-gradient(135deg, var(--gold-bright) 0%, var(--ember-bright) 50%, var(--gold) 100%);
+    -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; color:var(--ember-bright);
+  }
+  .auth-explainer{
+    display:flex; align-items:flex-start; gap:.7rem; margin:0 0 1.2rem; padding:.75rem .85rem;
+    border-radius:12px; background:var(--surface-2); border:1px solid var(--border-solid);
+  }
+  .auth-explainer-icon{
+    flex-shrink:0; width:1.5rem; height:1.5rem; border-radius:50%; margin-top:.1rem;
+    display:flex; align-items:center; justify-content:center; background:rgba(246,195,92,.1); border:1px solid rgba(246,195,92,.25); color:var(--ember-bright);
+  }
+  .auth-explainer p{margin:0; font-size:.78rem; line-height:1.55; color:var(--stone);}
+  .auth-explainer strong{color:var(--text); font-weight:600;}
+  .auth-tab-row{
+    padding:.3rem; border-radius:14px; background:rgba(20,25,36,.7); border:1px solid var(--border-solid);
+    display:flex; gap:.25rem; margin-bottom:1.3rem;
+  }
+  .auth-tab-row .chip{
+    flex:1; display:flex; align-items:center; justify-content:center; gap:.4rem;
+    background:none; border:1px solid transparent; box-shadow:none; padding:.6rem .5rem;
+    font-family:var(--font-sans); text-transform:none; letter-spacing:0; font-weight:600; font-size:.82rem; color:var(--stone);
+  }
+  .auth-tab-row .chip svg{width:14px; height:14px; flex-shrink:0;}
+  .auth-tab-row .chip:hover{color:var(--text); transform:none;}
+  .auth-tab-row .chip.selected{background:rgba(255,255,255,.06); border-color:rgba(246,195,92,.3); color:var(--text); box-shadow:none;}
+  .auth-tab-row .chip.selected svg{color:var(--ember-bright);}
+  .auth-field-label-row{display:flex; align-items:center; justify-content:space-between; margin:1.1rem 0 .5rem;}
+  .auth-field-label-row .ev-label{margin:0;}
+  .auth-field-optional{font-style:italic; font-weight:400; text-transform:none; letter-spacing:0; color:var(--ember-bright); opacity:.85; font-size:.7rem;}
+  .auth-field{position:relative;}
+  .auth-field-icon{
+    position:absolute; left:.85rem; top:50%; transform:translateY(-50%); color:var(--stone); pointer-events:none;
+    display:flex; transition:color .2s var(--ease);
+  }
+  .auth-field:focus-within .auth-field-icon{color:var(--ember-bright);}
+  .auth-field .modal-input{padding-left:2.5rem; margin-bottom:0;}
+  .auth-field .modal-input:focus{outline:none; border-color:var(--ember-bright); box-shadow:0 0 0 1px var(--ember-bright), 0 0 16px rgba(246,195,92,.25);}
+  .auth-field-toggle-pw{
+    position:absolute; right:.5rem; top:50%; transform:translateY(-50%); background:none; border:none; padding:.35rem;
+    color:var(--stone); cursor:pointer; display:flex;
+  }
+  .auth-field-toggle-pw:hover{color:var(--text);}
+  .auth-field.has-toggle .modal-input{padding-right:2.4rem;}
+  .auth-forgot-link{
+    background:none; border:none; padding:0; margin:0; cursor:pointer;
+    font-family:var(--font-mono); font-size:.68rem; color:var(--ember-bright); opacity:.9;
+    transition:opacity .2s var(--ease);
+  }
+  .auth-forgot-link:hover{opacity:1; text-decoration:underline;}
+  #authMessage{
+    display:block; margin:1.1rem 0 0; padding:.75rem .85rem; border-radius:12px;
+    background:rgba(246,195,92,.1); border:1px solid rgba(246,195,92,.3); color:#ffe8a8; font-size:.78rem; line-height:1.5;
+  }
+  #authMessage.is-error{background:rgba(239,75,87,.1); border-color:rgba(239,75,87,.35); color:#ffb3b8;}
+  #authMessage[hidden]{display:none;}
+  .auth-modal-box .modal-actions{margin-top:1.4rem; gap:.6rem;}
+  .auth-modal-box #authCancel{flex:0 0 auto; padding-left:.9rem; padding-right:.9rem; white-space:nowrap;}
+  .auth-modal-box #authSubmit{flex:1;}
+  .auth-footnote{
+    display:flex; align-items:center; justify-content:center; gap:.4rem; margin:1.2rem 0 0; padding-top:1rem;
+    border-top:1px solid var(--border-solid); font-family:var(--font-mono); font-size:.62rem; letter-spacing:.06em; color:var(--stone); text-align:center;
+  }
+  .auth-footnote svg{width:11px; height:11px; color:var(--ember-bright); flex-shrink:0;}
   .auth-name-row{display:flex; gap:.6rem; align-items:flex-start; margin-bottom:1.1rem;}
   .auth-name-row .modal-input{margin-bottom:0; flex:1;}
   .auth-name-row .btn{flex-shrink:0; white-space:nowrap;}
@@ -775,6 +852,10 @@
   .admin-ban-btn.is-banned{ border-color:rgba(239,75,87,.4); color:var(--danger); background:rgba(239,75,87,.1); }
   .admin-empty-note{ color:var(--stone); font-size:.85rem; margin:.8rem 0 0; }
   .admin-feature-toggles{ display:flex; flex-direction:column; gap:.2rem; margin-top:.4rem; }
+  .admin-subnav{ margin:0 0 1.4rem; }
+  .admin-subnav .chip{ font-size:.72rem; }
+  .admin-session-filter{ margin:0 0 .2rem; }
+  .admin-session-filter .chip{ font-size:.7rem; padding:.4rem .8rem; }
   .menu-lines{position:relative; width:19px; height:14px; flex-shrink:0;}
   .menu-lines span{position:absolute; left:0; width:100%; height:2px; border-radius:2px; background:var(--text); transition:transform .3s var(--ease), opacity .3s var(--ease);}
   .menu-lines span:nth-child(1){top:0;}
@@ -792,7 +873,8 @@
   .nav-overlay.open{opacity:1; pointer-events:auto;}
   .nav-overlay-bg{position:absolute; inset:0; background:rgba(10,11,18,.82); backdrop-filter:blur(22px); -webkit-backdrop-filter:blur(22px);}
   .nav-overlay-glow{position:absolute; inset:0; opacity:.5; background:radial-gradient(circle at 82% 18%, rgba(246,195,92,.35), transparent 45%);}
-  .nav-overlay-nav{position:relative; height:100%; max-width:760px; margin:0 auto; display:flex; flex-direction:column; justify-content:center; padding:0 1.5rem;}
+  .nav-overlay-nav{position:relative; height:100%; max-width:760px; margin:0 auto; display:flex; flex-direction:column; justify-content:center; padding:5.5rem 1.5rem 2.5rem; overflow-y:auto; -webkit-overflow-scrolling:touch; overscroll-behavior:contain;}
+  body.nav-overlay-open{overflow:hidden;}
   .nav-overlay-label{margin:0 0 1.3rem .1rem; font-family:var(--font-mono); font-size:.65rem; text-transform:uppercase; letter-spacing:.35em; color:var(--stone);}
   .nav-overlay-list{list-style:none; margin:0; padding:0; display:flex; flex-direction:column;}
   .nav-overlay-item{
@@ -1871,25 +1953,59 @@
 <div class="modal-backdrop" id="authModalBackdrop">
   <div class="modal-box auth-modal-box">
     <div id="authLoggedOutView">
-      <h3>Konto</h3>
-      <p class="hint" style="margin:-.4rem 0 1rem;">Kostenlos nutzbar auf diesem Gerät — mit Konto werden deine Vokabelsets &amp; dein Fortschritt automatisch auf allen Geräten gesichert.</p>
+      <div class="auth-eyebrow"><span class="auth-eyebrow-dot" aria-hidden="true"></span>Lumière · Synchronisation</div>
+      <h3>Konto <span class="gold-shimmer">&amp; Profil</span></h3>
+      <div class="auth-explainer">
+        <span class="auth-explainer-icon" aria-hidden="true">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        </span>
+        <p>Lumière bleibt auf diesem Gerät <strong>dauerhaft kostenfrei</strong> nutzbar. Mit einem Konto synchronisierst du deinen Wortschatz zwischen allen Geräten und schaltest alle Module frei.</p>
+      </div>
       <div class="chip-row auth-tab-row" id="authTabChips">
-        <button type="button" class="chip selected" data-tab="signin">Anmelden</button>
-        <button type="button" class="chip" data-tab="signup">Registrieren</button>
+        <button type="button" class="chip selected" data-tab="signin">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/></svg>
+          <span>Anmelden</span>
+        </button>
+        <button type="button" class="chip" data-tab="signup">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
+          <span>Registrieren</span>
+        </button>
       </div>
       <form id="authForm">
-        <label class="ev-label" for="authDisplayName" id="authDisplayNameLabel" hidden>Anzeigename</label>
-        <input type="text" id="authDisplayName" class="modal-input" maxlength="40" autocomplete="nickname" placeholder="Wie sollen wir dich nennen?" hidden>
-        <label class="ev-label" for="authEmail">E-Mail</label>
-        <input type="email" id="authEmail" class="modal-input" required autocomplete="email">
-        <label class="ev-label" for="authPassword">Passwort</label>
-        <input type="password" id="authPassword" class="modal-input" required minlength="6" autocomplete="current-password">
-        <button type="button" class="auth-forgot-link" id="authForgotLink">Passwort vergessen?</button>
+        <label class="ev-label" for="authDisplayName" id="authDisplayNameLabel" hidden>Anzeigename <span class="auth-field-optional">(optional)</span></label>
+        <div class="auth-field" id="authDisplayNameField" hidden>
+          <span class="auth-field-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg></span>
+          <input type="text" id="authDisplayName" class="modal-input" maxlength="40" autocomplete="nickname" placeholder="Wie sollen wir dich nennen?">
+        </div>
+
+        <label class="ev-label" for="authEmail">E-Mail-Adresse</label>
+        <div class="auth-field">
+          <span class="auth-field-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg></span>
+          <input type="email" id="authEmail" class="modal-input" required autocomplete="email" placeholder="name@beispiel.de">
+        </div>
+
+        <div class="auth-field-label-row">
+          <label class="ev-label" for="authPassword">Passwort</label>
+          <button type="button" class="auth-forgot-link" id="authForgotLink">Passwort vergessen?</button>
+        </div>
+        <div class="auth-field has-toggle">
+          <span class="auth-field-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg></span>
+          <input type="password" id="authPassword" class="modal-input" required minlength="6" autocomplete="current-password" placeholder="••••••••">
+          <button type="button" class="auth-field-toggle-pw" id="authTogglePwVisibility" aria-label="Passwort anzeigen">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+          </button>
+        </div>
+
         <p id="authMessage" hidden></p>
+
         <div class="modal-actions">
           <button type="button" class="btn btn-secondary" id="authCancel">Abbrechen</button>
           <button type="submit" class="btn btn-primary" id="authSubmit">Anmelden</button>
         </div>
+        <p class="auth-footnote">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+          Ende-zu-Ende verschlüsselt · Keine Weitergabe an Dritte
+        </p>
       </form>
     </div>
     <div id="authResetView" hidden>
@@ -3037,65 +3153,101 @@
         <div class="admin-stat"><span id="adminStatOnline">–</span><span>Gerade online</span></div>
       </div>
 
-      <div class="settings-card">
-        <p class="settings-title">📊 Kapazität</p>
-        <p class="settings-desc">KI-Anfragen heute, website-weit.</p>
-        <div class="status-meter-row">
-          <div class="status-meter-labels"><span id="adminCapacityText">– / –</span><span id="adminCapacityPct">–%</span></div>
-          <div class="status-meter-track"><div class="status-meter-fill status-meter-fill-alt" id="adminCapacityFill"></div></div>
-        </div>
-        <label class="settings-row-label" for="adminCapacityInput" style="margin-top:1rem;">Tages-Obergrenze (gesamt)</label>
-        <div class="auth-name-row">
-          <input type="number" id="adminCapacityInput" class="modal-input" min="1">
-          <button type="button" class="btn btn-secondary btn-small" id="btnSaveCapacity">Speichern</button>
-        </div>
-        <label class="settings-row-label" for="adminDefaultLimitInput">Standard-KI-Limit pro Konto/Tag</label>
-        <div class="auth-name-row">
-          <input type="number" id="adminDefaultLimitInput" class="modal-input" min="1">
-          <button type="button" class="btn btn-secondary btn-small" id="btnSaveDefaultLimit">Speichern</button>
+      <div class="chip-row admin-subnav" id="adminSubnav">
+        <button type="button" class="chip admin-subnav-item selected" data-admin-tab="overview">📊 Übersicht</button>
+        <button type="button" class="chip admin-subnav-item" data-admin-tab="sessions">📡 Sitzungen</button>
+        <button type="button" class="chip admin-subnav-item" data-admin-tab="users">👥 Nutzer</button>
+        <button type="button" class="chip admin-subnav-item" data-admin-tab="maintenance">🚧 Wartung &amp; Zugriff</button>
+      </div>
+
+      <div class="admin-tab-panel" data-admin-panel="overview">
+        <div class="settings-card">
+          <p class="settings-title">📊 Kapazität</p>
+          <p class="settings-desc">KI-Anfragen heute, website-weit.</p>
+          <div class="status-meter-row">
+            <div class="status-meter-labels"><span id="adminCapacityText">– / –</span><span id="adminCapacityPct">–%</span></div>
+            <div class="status-meter-track"><div class="status-meter-fill status-meter-fill-alt" id="adminCapacityFill"></div></div>
+          </div>
+          <label class="settings-row-label" for="adminCapacityInput" style="margin-top:1rem;">Tages-Obergrenze (gesamt)</label>
+          <div class="auth-name-row">
+            <input type="number" id="adminCapacityInput" class="modal-input" min="1">
+            <button type="button" class="btn btn-secondary btn-small" id="btnSaveCapacity">Speichern</button>
+          </div>
+          <label class="settings-row-label" for="adminDefaultLimitInput">Standard-KI-Limit pro Konto/Tag</label>
+          <div class="auth-name-row">
+            <input type="number" id="adminDefaultLimitInput" class="modal-input" min="1">
+            <button type="button" class="btn btn-secondary btn-small" id="btnSaveDefaultLimit">Speichern</button>
+          </div>
         </div>
       </div>
 
-      <div class="settings-card">
-        <p class="settings-title">📡 Wer nutzt gerade die App</p>
-        <p class="settings-desc">Zuletzt aktiv in den letzten 5 Minuten (selbst gemeldete IP).</p>
-        <div class="admin-table-wrap">
-          <table class="admin-table" id="adminSessionsTable">
-            <thead><tr><th>Gerät</th><th>IP</th><th>Angemeldet als</th><th>Zuletzt aktiv</th></tr></thead>
-            <tbody></tbody>
-          </table>
-        </div>
-        <p class="admin-empty-note" id="adminSessionsEmpty" hidden>Gerade niemand aktiv.</p>
-      </div>
-
-      <div class="settings-card">
-        <p class="settings-title">👥 Nutzerverwaltung</p>
-        <p class="settings-desc">Sperren, entsperren, individuelles KI-Limit setzen.</p>
-        <div class="admin-table-wrap">
-          <table class="admin-table" id="adminUsersTable">
-            <thead><tr><th>Konto</th><th>KI heute</th><th>Eigenes Limit</th><th>Status</th></tr></thead>
-            <tbody></tbody>
-          </table>
+      <div class="admin-tab-panel" data-admin-panel="sessions" hidden>
+        <div class="settings-card">
+          <p class="settings-title">📡 Wer nutzt gerade die App</p>
+          <p class="settings-desc">Zuletzt aktiv in den letzten 5 Minuten (selbst gemeldete IP).</p>
+          <div class="chip-row admin-session-filter" id="adminSessionFilter">
+            <button type="button" class="chip selected" data-filter="all">Alle</button>
+            <button type="button" class="chip" data-filter="loggedin">Angemeldet</button>
+            <button type="button" class="chip" data-filter="guest">Gäste</button>
+          </div>
+          <div class="admin-table-wrap">
+            <table class="admin-table" id="adminSessionsTable">
+              <thead><tr><th>Gerät</th><th>IP</th><th>Angemeldet als</th><th>Zuletzt aktiv</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <p class="admin-empty-note" id="adminSessionsEmpty" hidden>Gerade niemand aktiv.</p>
         </div>
       </div>
 
-      <div class="settings-card">
-        <p class="settings-title">🚧 Wartungsmodus</p>
-        <p class="settings-desc">Global oder einzelne Bereiche sperren — nur du kommst dann noch rein.</p>
-        <label class="settings-toggle-row" for="adminMaintenanceGlobal">
-          <span>Ganze Website in Wartung</span>
-          <input type="checkbox" id="adminMaintenanceGlobal" class="settings-switch">
-        </label>
-        <label class="settings-row-label" for="adminMaintenanceMessage">Nachricht für Besucher</label>
-        <textarea id="adminMaintenanceMessage" class="modal-input" rows="2"></textarea>
-        <p class="settings-row-label">Einzelne Bereiche</p>
-        <div id="adminFeatureToggles" class="admin-feature-toggles"></div>
-        <div class="btn-group" style="margin-top:1rem;">
-          <button type="button" class="btn btn-primary" id="btnSaveMaintenance">Wartungs-Einstellungen speichern</button>
+      <div class="admin-tab-panel" data-admin-panel="users" hidden>
+        <div class="settings-card">
+          <p class="settings-title">👥 Nutzerverwaltung</p>
+          <p class="settings-desc">Sperren, entsperren, individuelles KI-Limit setzen.</p>
+          <div class="admin-table-wrap">
+            <table class="admin-table" id="adminUsersTable">
+              <thead><tr><th>Konto</th><th>KI heute</th><th>Eigenes Limit</th><th>Status</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
         </div>
       </div>
 
-      <button type="button" class="btn btn-secondary btn-small" id="btnAdminRefresh">↻ Aktualisieren</button>
+      <div class="admin-tab-panel" data-admin-panel="maintenance" hidden>
+        <div class="settings-card">
+          <p class="settings-title">🚧 Wartungsmodus</p>
+          <p class="settings-desc">Global oder einzelne Bereiche sperren — nur du kommst dann noch rein.</p>
+          <label class="settings-toggle-row" for="adminMaintenanceGlobal">
+            <span>Ganze Website in Wartung</span>
+            <input type="checkbox" id="adminMaintenanceGlobal" class="settings-switch">
+          </label>
+          <label class="settings-row-label" for="adminMaintenanceMessage">Nachricht für Besucher</label>
+          <textarea id="adminMaintenanceMessage" class="modal-input" rows="2"></textarea>
+          <p class="settings-row-label">Einzelne Bereiche</p>
+          <div id="adminFeatureToggles" class="admin-feature-toggles"></div>
+          <div class="btn-group" style="margin-top:1rem;">
+            <button type="button" class="btn btn-primary" id="btnSaveMaintenance">Wartungs-Einstellungen speichern</button>
+          </div>
+        </div>
+
+        <div class="settings-card">
+          <p class="settings-title">🔓 Gastzugriff ohne Konto</p>
+          <p class="settings-desc">Welche Bereiche dürfen ohne Anmeldung genutzt werden? Angehakt = Konto nötig.</p>
+          <div id="adminGuestFeatureToggles" class="admin-feature-toggles"></div>
+          <div class="btn-group" style="margin-top:1rem;">
+            <button type="button" class="btn btn-primary" id="btnSaveGuestFeatures">Gastzugriff speichern</button>
+          </div>
+        </div>
+
+        <div class="settings-card">
+          <p class="settings-title">✉️ Test-E-Mail</p>
+          <p class="settings-desc">Schick dir selbst eine Passwort-Zurücksetzen-E-Mail, um zu sehen, wie das E-Mail-Template beim Nutzer ankommt.</p>
+          <button type="button" class="btn btn-secondary" id="btnSendTestEmail">Test-E-Mail an mich senden</button>
+          <p id="adminTestEmailMessage" class="admin-empty-note" hidden></p>
+        </div>
+      </div>
+
+      <button type="button" class="btn btn-secondary btn-small" id="btnAdminRefresh" style="margin-top:1.2rem;">↻ Aktualisieren</button>
     </div>
   </section>
 
@@ -3577,7 +3729,7 @@ function computeStudyPlan(ev){
 let calendarState = { mode: 'month', cursor: new Date() };
 
 function renderCalendar(){
-  if(requireAccountFor('Kalender')) return;
+  if(requireAccountFor('calendar', 'Kalender')) return;
   if(!requireFeatureAvailable('calendar', 'Der Kalender')) return;
   showView('calendar');
   currentNavId = 'calendar';
@@ -4174,6 +4326,7 @@ document.getElementById('adminCodeForm').addEventListener('submit', (e) => {
     return;
   }
   document.getElementById('adminCodeBackdrop').classList.remove('open');
+  try{ sessionStorage.setItem(ADMIN_UNLOCKED_KEY, '1'); }catch(e){}
   openAdminPanel();
 });
 
@@ -4181,6 +4334,16 @@ function openAdminPanel(){
   showView('admin'); currentNavId = 'admin'; updateNavActiveStates();
   loadAdminData();
 }
+
+document.querySelectorAll('#adminSubnav .admin-subnav-item').forEach(btn => {
+  btn.addEventListener('click', () => {
+    sndClick();
+    document.querySelectorAll('#adminSubnav .admin-subnav-item').forEach(b => b.classList.toggle('selected', b === btn));
+    document.querySelectorAll('.admin-tab-panel').forEach(panel => {
+      panel.hidden = panel.dataset.adminPanel !== btn.dataset.adminTab;
+    });
+  });
+});
 
 const ADMIN_FEATURE_LIST = [
   { key: 'home', label: 'Lernsets' },
@@ -4216,7 +4379,7 @@ async function loadAdminData(){
     if(capRes.data) renderAdminCapacity(capRes.data);
     if(!sessRes.error) renderAdminSessions(sessRes.data || []);
     if(!profRes.error) renderAdminUsers(profRes.data || []);
-    if(siteSettings) renderAdminMaintenanceForm();
+    if(siteSettings){ renderAdminMaintenanceForm(); renderAdminGuestFeatureForm(); }
   }catch(e){
     console.error('Admin-Daten konnten nicht geladen werden:', e.message);
     showToast('Admin-Daten konnten nicht geladen werden.', true);
@@ -4232,14 +4395,25 @@ function renderAdminCapacity(cap){
   if(siteSettings) document.getElementById('adminDefaultLimitInput').value = siteSettings.ai_daily_limit;
 }
 
+let adminSessionsCache = [];
+let adminSessionFilter = 'all';
 function renderAdminSessions(sessions){
   const now = Date.now();
-  const active = sessions.filter(s => now - new Date(s.last_seen).getTime() < 5 * 60 * 1000);
-  document.getElementById('adminStatOnline').textContent = active.length;
+  adminSessionsCache = sessions.filter(s => now - new Date(s.last_seen).getTime() < 5 * 60 * 1000);
+  document.getElementById('adminStatOnline').textContent = adminSessionsCache.length;
+  renderFilteredAdminSessions();
+}
+function renderFilteredAdminSessions(){
+  const now = Date.now();
+  const filtered = adminSessionsCache.filter(s => {
+    if(adminSessionFilter === 'loggedin') return !!s.user_id;
+    if(adminSessionFilter === 'guest') return !s.user_id;
+    return true;
+  });
   const tbody = document.querySelector('#adminSessionsTable tbody');
   tbody.innerHTML = '';
-  document.getElementById('adminSessionsEmpty').hidden = active.length > 0;
-  active.forEach(s => {
+  document.getElementById('adminSessionsEmpty').hidden = filtered.length > 0;
+  filtered.forEach(s => {
     const tr = document.createElement('tr');
     const seenAgo = Math.max(0, Math.round((now - new Date(s.last_seen).getTime()) / 1000));
     tr.innerHTML = `
@@ -4250,6 +4424,14 @@ function renderAdminSessions(sessions){
     tbody.appendChild(tr);
   });
 }
+document.querySelectorAll('#adminSessionFilter .chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    sndClick();
+    adminSessionFilter = chip.dataset.filter;
+    document.querySelectorAll('#adminSessionFilter .chip').forEach(c => c.classList.toggle('selected', c === chip));
+    renderFilteredAdminSessions();
+  });
+});
 
 function renderAdminUsers(profiles){
   document.getElementById('adminStatUsers').textContent = profiles.length;
@@ -4331,6 +4513,63 @@ document.getElementById('btnSaveMaintenance').addEventListener('click', async ()
 });
 document.getElementById('btnAdminRefresh').addEventListener('click', () => { sndClick(); loadAdminData(); });
 
+// --- Gastzugriff: welche Bereiche ohne Konto nutzbar sind (Admin-konfigurierbar) ---
+const GUEST_FEATURE_LIST = [
+  { key: 'rewards', label: 'Belohnungen' },
+  { key: 'grammar', label: 'Grammatik' },
+  { key: 'listen', label: 'Aussprache' },
+  { key: 'calendar', label: 'Kalender' },
+];
+function getGuestLockedFeatures(){
+  if(siteSettings && Array.isArray(siteSettings.guest_locked_features)) return siteSettings.guest_locked_features;
+  return GATED_FEATURES_DEFAULT;
+}
+function renderAdminGuestFeatureForm(){
+  const wrap = document.getElementById('adminGuestFeatureToggles');
+  const locked = getGuestLockedFeatures();
+  wrap.innerHTML = GUEST_FEATURE_LIST.map(f => `
+    <label class="settings-toggle-row" for="guestToggle-${f.key}">
+      <span>${escapeHtml(f.label)}</span>
+      <input type="checkbox" id="guestToggle-${f.key}" class="settings-switch" data-feature-key="${f.key}" ${locked.includes(f.key) ? 'checked' : ''}>
+    </label>`).join('');
+}
+document.getElementById('btnSaveGuestFeatures').addEventListener('click', async () => {
+  sndClick();
+  const locked = [];
+  document.querySelectorAll('#adminGuestFeatureToggles input[type="checkbox"]').forEach(cb => {
+    if(cb.checked) locked.push(cb.dataset.featureKey);
+  });
+  const { error } = await sb.from('site_settings').update({ guest_locked_features: locked }).eq('id', 1);
+  if(error){ showToast('Konnte nicht gespeichert werden.', true); return; }
+  showToast('Gastzugriff gespeichert.');
+  await loadSiteSettings();
+  updateGatedNavUI();
+});
+
+document.getElementById('btnSendTestEmail').addEventListener('click', async () => {
+  sndClick();
+  const msg = document.getElementById('adminTestEmailMessage');
+  if(!sb || !currentUser){
+    msg.textContent = 'Nicht angemeldet.'; msg.hidden = false;
+    return;
+  }
+  const btn = document.getElementById('btnSendTestEmail');
+  btn.disabled = true;
+  try{
+    const { error } = await sb.auth.resetPasswordForEmail(currentUser.email, {
+      redirectTo: window.location.origin + window.location.pathname,
+    });
+    if(error) throw error;
+    msg.textContent = `Test-E-Mail an ${currentUser.email} verschickt — im Postfach das Passwort-Zurücksetzen-/Bestätigungs-Template prüfen.`;
+    msg.hidden = false;
+  }catch(err){
+    msg.textContent = translateAuthError(err.message);
+    msg.hidden = false;
+  }finally{
+    btn.disabled = false;
+  }
+});
+
 let authInPasswordRecovery = false;
 
 function updateAccountUI(){
@@ -4364,9 +4603,12 @@ function updateAccountUI(){
 }
 
 // --- Freischaltung: ohne Konto nur "Lernsets" (+ Startseite/Einstellungen) ---
-const GATED_FEATURES = ['rewards', 'grammar', 'listen', 'calendar'];
-function requireAccountFor(label){
+// Standardliste, bis site_settings.guest_locked_features geladen ist (oder falls die
+// Spalte fehlt) — im Admin-Panel unter "Wartung & Zugriff" konfigurierbar.
+const GATED_FEATURES_DEFAULT = ['rewards', 'grammar', 'listen', 'calendar'];
+function requireAccountFor(viewKey, label){
   if(currentUser) return false;
+  if(!getGuestLockedFeatures().includes(viewKey)) return false;
   showToast(`🔒 ${label} ist nur mit Konto verfügbar — kostenlos anmelden.`);
   openAccountModal();
   return true;
@@ -4383,14 +4625,15 @@ function requireFeatureAvailable(viewKey, label){
 }
 function updateGatedNavUI(){
   const locked = !currentUser;
+  const gated = getGuestLockedFeatures();
   document.querySelectorAll('[data-goto]').forEach(el => {
-    const isGated = GATED_FEATURES.includes(el.dataset.goto);
+    const isGated = gated.includes(el.dataset.goto);
     el.classList.toggle('is-locked', isGated && locked);
     const badge = el.querySelector('.lock-badge');
     if(badge) badge.hidden = !(isGated && locked);
   });
   document.querySelectorAll('[data-feature]').forEach(el => {
-    const isGated = GATED_FEATURES.includes(el.dataset.feature);
+    const isGated = gated.includes(el.dataset.feature);
     el.classList.toggle('is-locked', isGated && locked);
     const badge = el.querySelector('.lock-badge');
     if(badge) badge.hidden = !(isGated && locked);
@@ -4459,10 +4702,17 @@ document.querySelectorAll('#authTabChips .chip').forEach(chip => {
     document.getElementById('authSubmit').textContent = authTab === 'signup' ? 'Registrieren' : 'Anmelden';
     document.getElementById('authForgotLink').hidden = authTab === 'signup';
     document.getElementById('authDisplayNameLabel').hidden = authTab !== 'signup';
-    document.getElementById('authDisplayName').hidden = authTab !== 'signup';
+    document.getElementById('authDisplayNameField').hidden = authTab !== 'signup';
     const msg = document.getElementById('authMessage');
     msg.hidden = true; msg.classList.remove('is-error');
   });
+});
+document.getElementById('authTogglePwVisibility').addEventListener('click', () => {
+  const pw = document.getElementById('authPassword');
+  const btn = document.getElementById('authTogglePwVisibility');
+  const showing = pw.type === 'text';
+  pw.type = showing ? 'password' : 'text';
+  btn.setAttribute('aria-label', showing ? 'Passwort anzeigen' : 'Passwort verbergen');
 });
 document.getElementById('authForgotLink').addEventListener('click', async () => {
   sndClick();
@@ -4919,6 +5169,16 @@ let currentSetId = null;
 let currentNavId = 'hub';
 const NAV_SUB_LABELS = { hub: 'Startseite', home: 'Lernsets', rewards: 'Belohnungen', grammar: 'Grammatik', listen: 'Sprechen', settingsPage: 'Einstellungen', calendar: 'Kalender', appDownload: 'App installieren', about: 'Über uns', admin: 'Admin-Panel' };
 const QUICKNAV_HIDDEN_VIEWS = new Set(['hub', 'practice', 'match', 'results', 'game', 'appDownload', 'about', 'admin']);
+// --- Reload-Persistenz: merkt sich die zuletzt besuchte (sinnvoll wiederherstellbare) Ansicht ---
+const LAST_VIEW_KEY = 'lumiere_last_view';
+const ADMIN_UNLOCKED_KEY = 'lumiere_admin_unlocked';
+const RESTORABLE_VIEWS = new Set(['hub', 'home', 'set', 'rewards', 'grammar', 'listen', 'calendar', 'settingsPage', 'appDownload', 'about', 'admin']);
+let SAVED_VIEW_ON_LOAD = null;
+try{ SAVED_VIEW_ON_LOAD = JSON.parse(sessionStorage.getItem(LAST_VIEW_KEY) || 'null'); }catch(e){}
+function persistLastView(name){
+  if(!RESTORABLE_VIEWS.has(name)) return;
+  try{ sessionStorage.setItem(LAST_VIEW_KEY, JSON.stringify({ view: name, setId: name === 'set' ? currentSetId : null })); }catch(e){}
+}
 function showView(name){
   Object.values(views).forEach(v => v.hidden = true);
   views[name].hidden = false;
@@ -4927,6 +5187,22 @@ function showView(name){
   if(qn) qn.hidden = !visible;
   document.body.classList.toggle('quicknav-visible', visible);
   document.body.classList.toggle('wide-view-active', name === 'hub' || name === 'appDownload');
+  persistLastView(name);
+}
+function restoreLastView(){
+  const saved = SAVED_VIEW_ON_LOAD;
+  if(!saved || !saved.view || saved.view === 'hub') return;
+  if(saved.view === 'set'){
+    if(saved.setId && getSet(saved.setId)) renderSetDetail(saved.setId);
+    return;
+  }
+  if(saved.view === 'admin'){
+    if(sessionStorage.getItem(ADMIN_UNLOCKED_KEY) === '1') openAdminPanel();
+    return;
+  }
+  const destinations = { home: renderHome, rewards: renderRewards, grammar: openGrammar, listen: openGlobalListen, calendar: renderCalendar, settingsPage: openSettingsPage, appDownload: openAppDownload, about: openAbout };
+  const fn = destinations[saved.view];
+  if(fn) fn();
 }
 document.querySelectorAll('[data-nav]').forEach(btn => {
   btn.addEventListener('click', () => {
@@ -4968,12 +5244,14 @@ function openNavOverlay(){
   navOverlay.classList.add('open');
   btnMenu.classList.add('open');
   btnMenu.setAttribute('aria-expanded', 'true');
+  document.body.classList.add('nav-overlay-open');
   updateNavActiveStates();
 }
 function closeNavOverlay(){
   navOverlay.classList.remove('open');
   btnMenu.classList.remove('open');
   btnMenu.setAttribute('aria-expanded', 'false');
+  document.body.classList.remove('nav-overlay-open');
 }
 btnMenu.addEventListener('click', () => {
   sndClick();
@@ -5022,7 +5300,7 @@ document.getElementById('quickNavMenu').addEventListener('click', () => {
 });
 
 function openGrammar(){
-  if(requireAccountFor('Grammatik')) return;
+  if(requireAccountFor('grammar', 'Grammatik')) return;
   if(!requireFeatureAvailable('grammar', 'Die Grammatik')) return;
   showView('grammar'); currentNavId = 'grammar'; updateNavActiveStates();
 }
@@ -5096,7 +5374,7 @@ function computeCurrentStreak(){
   return streak;
 }
 function renderRewards(){
-  if(requireAccountFor('Belohnungen')) return;
+  if(requireAccountFor('rewards', 'Belohnungen')) return;
   if(!requireFeatureAvailable('rewards', 'Belohnungen')) return;
   showView('rewards');
   currentNavId = 'rewards';
@@ -5434,7 +5712,7 @@ document.getElementById('btnGoListen').addEventListener('click', () => {
 
 function openGlobalListen(){
   sndClick();
-  if(requireAccountFor('Aussprache')) return;
+  if(requireAccountFor('listen', 'Aussprache')) return;
   if(!requireFeatureAvailable('listen', 'Aussprache')) return;
   const allPairs = store.sets.flatMap(s => s.pairs);
   if(allPairs.length === 0){ showToast('Leg zuerst ein paar Vokabeln an.', true); return; }
@@ -6092,7 +6370,7 @@ document.getElementById('btnGameBack').addEventListener('click', () => {
 
 wireSounds(document.body);
 renderHub();
-initAuth();
+initAuth().then(restoreLastView);
 loadSiteSettings();
 sendSessionHeartbeat();
 setInterval(() => {
