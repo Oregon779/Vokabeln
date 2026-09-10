@@ -137,6 +137,17 @@
   }
   @media (hover:none), (pointer:coarse){ .cursor-spotlight{display:none;} }
   #mouseTrailCanvas{ position:fixed; inset:0; z-index:95; pointer-events:none; }
+  .maintenance-overlay{
+    position:fixed; inset:0; z-index:38; display:flex; align-items:center; justify-content:center; padding:1.5rem;
+    background:rgba(6,8,13,.92); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+  }
+  .maintenance-box{
+    max-width:420px; text-align:center; background:var(--surface); border:1px solid rgba(246,195,92,.35);
+    border-radius:20px; padding:2.2rem 1.8rem; box-shadow:0 20px 50px rgba(0,0,0,.6), var(--shadow-glow);
+  }
+  .maintenance-icon{ font-size:2.4rem; display:block; margin-bottom:1rem; }
+  .maintenance-box h2{ font-family:var(--font-serif); font-weight:600; font-size:1.5rem; margin:0 0 .8rem; }
+  .maintenance-box p{ color:var(--stone); line-height:1.65; margin:0 0 1.4rem; }
   @media (hover:none), (pointer:coarse), (prefers-reduced-motion: reduce){ #mouseTrailCanvas{ display:none; } }
   .vignette{position:fixed; inset:0; z-index:-1; pointer-events:none; box-shadow:inset 0 0 160px 40px rgba(0,0,0,.5);}
   .hover-particle{
@@ -730,6 +741,40 @@
   .auth-name-row{display:flex; gap:.6rem; align-items:flex-start; margin-bottom:1.1rem;}
   .auth-name-row .modal-input{margin-bottom:0; flex:1;}
   .auth-name-row .btn{flex-shrink:0; white-space:nowrap;}
+  .account-status-card{ background:var(--surface-2); border:1px solid var(--border-solid); border-radius:12px; padding:.9rem 1rem; margin:0 0 1.1rem; }
+  .status-meter-row{ margin-bottom:.7rem; }
+  .status-meter-row:last-of-type{ margin-bottom:0; }
+  .status-meter-labels{ display:flex; justify-content:space-between; font-family:var(--font-mono); font-size:.68rem; color:var(--stone); margin-bottom:.35rem; }
+  .status-meter-labels span:last-child{ color:var(--ember-bright); font-weight:700; }
+  .status-meter-track{ height:5px; border-radius:999px; background:rgba(255,255,255,.06); overflow:hidden; }
+  .status-meter-fill{ height:100%; border-radius:999px; background:var(--ember-bright); width:0%; transition:width .4s var(--ease); }
+  .status-meter-fill-alt{ background:var(--pop); }
+  .status-admin-note{ margin:.7rem 0 0; font-family:var(--font-mono); font-size:.68rem; color:var(--ember-bright); text-align:center; }
+
+  /* --- Admin-Panel --- */
+  .admin-stat-row{ display:grid; grid-template-columns:repeat(3,1fr); gap:.8rem; margin-bottom:1.6rem; }
+  .admin-stat{
+    background:var(--surface); border:1px solid var(--border-solid); border-radius:14px; padding:1rem;
+    display:flex; flex-direction:column; gap:.3rem; text-align:center;
+  }
+  .admin-stat span:first-child{ font-family:var(--font-serif); font-size:1.8rem; font-weight:600; color:var(--ember-bright); }
+  .admin-stat span:last-child{ font-family:var(--font-mono); font-size:.62rem; text-transform:uppercase; letter-spacing:.1em; color:var(--stone); }
+  .admin-table-wrap{ overflow-x:auto; margin-top:.8rem; }
+  .admin-table{ width:100%; border-collapse:collapse; font-size:.8rem; }
+  .admin-table th{ text-align:left; font-family:var(--font-mono); font-size:.6rem; text-transform:uppercase; letter-spacing:.1em; color:var(--stone); padding:.4rem .6rem; border-bottom:1px solid var(--border-solid); white-space:nowrap; }
+  .admin-table td{ padding:.5rem .6rem; border-bottom:1px solid var(--border-solid); vertical-align:middle; }
+  .admin-table tbody tr:last-child td{ border-bottom:none; }
+  .admin-table input[type="number"]{
+    width:70px; font:inherit; font-size:.78rem; color:var(--text); padding:.3rem .5rem;
+    border:1px solid var(--border-solid); border-radius:6px; background:var(--surface-2);
+  }
+  .admin-user-name{ display:flex; flex-direction:column; }
+  .admin-user-name span:first-child{ color:var(--text); font-weight:600; }
+  .admin-user-name span:last-child{ font-family:var(--font-mono); font-size:.68rem; color:var(--stone); }
+  .admin-ban-btn{ font-family:var(--font-mono); font-size:.65rem; text-transform:uppercase; letter-spacing:.06em; padding:.3rem .6rem; border-radius:999px; border:1px solid var(--border-solid); background:var(--surface-2); color:var(--stone); cursor:pointer; }
+  .admin-ban-btn.is-banned{ border-color:rgba(239,75,87,.4); color:var(--danger); background:rgba(239,75,87,.1); }
+  .admin-empty-note{ color:var(--stone); font-size:.85rem; margin:.8rem 0 0; }
+  .admin-feature-toggles{ display:flex; flex-direction:column; gap:.2rem; margin-top:.4rem; }
   .menu-lines{position:relative; width:19px; height:14px; flex-shrink:0;}
   .menu-lines span{position:absolute; left:0; width:100%; height:2px; border-radius:2px; background:var(--text); transition:transform .3s var(--ease), opacity .3s var(--ease);}
   .menu-lines span:nth-child(1){top:0;}
@@ -1869,12 +1914,48 @@
           <button type="submit" class="btn btn-secondary btn-small">Speichern</button>
         </div>
       </form>
+      <div class="account-status-card" id="accountStatusCard" hidden>
+        <p class="ev-label" style="margin-top:0;">Konto-Status</p>
+        <div class="status-meter-row">
+          <div class="status-meter-labels"><span>KI-Anfragen heute</span><span id="statusAiUsageText">–</span></div>
+          <div class="status-meter-track"><div class="status-meter-fill" id="statusAiUsageFill"></div></div>
+        </div>
+        <div class="status-meter-row">
+          <div class="status-meter-labels"><span>Website-Kapazität heute</span><span id="statusCapacityText">–</span></div>
+          <div class="status-meter-track"><div class="status-meter-fill status-meter-fill-alt" id="statusCapacityFill"></div></div>
+        </div>
+        <p class="status-admin-note" id="statusAdminBadge" hidden>👑 Admin-Konto</p>
+      </div>
       <p class="settings-note" style="margin:0 0 1.1rem;">☁️ Deine Vokabeln &amp; dein Fortschritt werden automatisch gesichert und stehen auf allen Geräten zur Verfügung.</p>
       <div class="modal-actions">
         <button type="button" class="btn btn-secondary" id="authCloseBtn">Schließen</button>
         <button type="button" class="btn btn-danger" id="authSignOutBtn">Abmelden</button>
       </div>
     </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="adminCodeBackdrop">
+  <div class="modal-box">
+    <h3>Erweiterter Zugriff</h3>
+    <p class="hint" style="margin:-.4rem 0 1rem;">Code eingeben, um das Admin-Panel zu öffnen.</p>
+    <form id="adminCodeForm">
+      <input type="text" id="adminCodeInput" class="modal-input" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="6-stelliger Code" autocomplete="off">
+      <p id="adminCodeMessage" hidden></p>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" id="adminCodeCancel">Abbrechen</button>
+        <button type="submit" class="btn btn-primary">Freischalten</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="maintenance-overlay" id="maintenanceOverlay" hidden>
+  <div class="maintenance-box">
+    <span class="maintenance-icon" aria-hidden="true">🛠️</span>
+    <h2>Kurz im Wartungsmodus</h2>
+    <p id="maintenanceMessage">Lumière ist gerade kurz im Wartungsmodus. Schau gleich wieder vorbei.</p>
+    <button type="button" class="btn btn-secondary" id="btnMaintenanceAdminLogin">Ich bin Admin — anmelden</button>
   </div>
 </div>
 
@@ -2611,6 +2692,14 @@
       </div>
       <input type="file" id="importAllFile" accept="application/json" hidden>
     </div>
+
+    <div class="settings-card">
+      <p class="settings-title">🔐 Erweiterter Zugriff</p>
+      <p class="settings-desc">Nur relevant für Betreiber dieser Seite.</p>
+      <div class="btn-group">
+        <button type="button" class="btn btn-secondary btn-small" id="btnAdminUnlock">Code eingeben</button>
+      </div>
+    </div>
   </section>
 
   <section id="view-calendar" class="view" hidden>
@@ -2936,6 +3025,80 @@
     </div>
   </section>
 
+  <section id="view-admin" class="view" hidden>
+    <p class="page-eyebrow">Admin-Panel</p>
+    <h2 class="page-title" style="margin-bottom:.6rem;">Betreiber-Ansicht</h2>
+    <p class="page-sub" id="adminAccessNote">Prüfe Berechtigung …</p>
+
+    <div id="adminContent" hidden>
+      <div class="admin-stat-row">
+        <div class="admin-stat"><span id="adminStatUsers">–</span><span>Registrierte Konten</span></div>
+        <div class="admin-stat"><span id="adminStatBanned">–</span><span>Gesperrt</span></div>
+        <div class="admin-stat"><span id="adminStatOnline">–</span><span>Gerade online</span></div>
+      </div>
+
+      <div class="settings-card">
+        <p class="settings-title">📊 Kapazität</p>
+        <p class="settings-desc">KI-Anfragen heute, website-weit.</p>
+        <div class="status-meter-row">
+          <div class="status-meter-labels"><span id="adminCapacityText">– / –</span><span id="adminCapacityPct">–%</span></div>
+          <div class="status-meter-track"><div class="status-meter-fill status-meter-fill-alt" id="adminCapacityFill"></div></div>
+        </div>
+        <label class="settings-row-label" for="adminCapacityInput" style="margin-top:1rem;">Tages-Obergrenze (gesamt)</label>
+        <div class="auth-name-row">
+          <input type="number" id="adminCapacityInput" class="modal-input" min="1">
+          <button type="button" class="btn btn-secondary btn-small" id="btnSaveCapacity">Speichern</button>
+        </div>
+        <label class="settings-row-label" for="adminDefaultLimitInput">Standard-KI-Limit pro Konto/Tag</label>
+        <div class="auth-name-row">
+          <input type="number" id="adminDefaultLimitInput" class="modal-input" min="1">
+          <button type="button" class="btn btn-secondary btn-small" id="btnSaveDefaultLimit">Speichern</button>
+        </div>
+      </div>
+
+      <div class="settings-card">
+        <p class="settings-title">📡 Wer nutzt gerade die App</p>
+        <p class="settings-desc">Zuletzt aktiv in den letzten 5 Minuten (selbst gemeldete IP).</p>
+        <div class="admin-table-wrap">
+          <table class="admin-table" id="adminSessionsTable">
+            <thead><tr><th>Gerät</th><th>IP</th><th>Angemeldet als</th><th>Zuletzt aktiv</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <p class="admin-empty-note" id="adminSessionsEmpty" hidden>Gerade niemand aktiv.</p>
+      </div>
+
+      <div class="settings-card">
+        <p class="settings-title">👥 Nutzerverwaltung</p>
+        <p class="settings-desc">Sperren, entsperren, individuelles KI-Limit setzen.</p>
+        <div class="admin-table-wrap">
+          <table class="admin-table" id="adminUsersTable">
+            <thead><tr><th>Konto</th><th>KI heute</th><th>Eigenes Limit</th><th>Status</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="settings-card">
+        <p class="settings-title">🚧 Wartungsmodus</p>
+        <p class="settings-desc">Global oder einzelne Bereiche sperren — nur du kommst dann noch rein.</p>
+        <label class="settings-toggle-row" for="adminMaintenanceGlobal">
+          <span>Ganze Website in Wartung</span>
+          <input type="checkbox" id="adminMaintenanceGlobal" class="settings-switch">
+        </label>
+        <label class="settings-row-label" for="adminMaintenanceMessage">Nachricht für Besucher</label>
+        <textarea id="adminMaintenanceMessage" class="modal-input" rows="2"></textarea>
+        <p class="settings-row-label">Einzelne Bereiche</p>
+        <div id="adminFeatureToggles" class="admin-feature-toggles"></div>
+        <div class="btn-group" style="margin-top:1rem;">
+          <button type="button" class="btn btn-primary" id="btnSaveMaintenance">Wartungs-Einstellungen speichern</button>
+        </div>
+      </div>
+
+      <button type="button" class="btn btn-secondary btn-small" id="btnAdminRefresh">↻ Aktualisieren</button>
+    </div>
+  </section>
+
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -3011,7 +3174,25 @@ async function callClaude(prompt){
 // Ruft zuerst Gemini auf. Schlägt das fehl (z.B. weil Gemini gerade sein
 // Anfragelimit erreicht hat, der Key ungültig ist oder ein Netzwerkfehler
 // auftritt) und ist ein Claude-Key hinterlegt, springt Claude als Ersatz-KI ein.
+// Weiches Tageslimit pro Konto (siehe increment_ai_usage-Funktion in Supabase) -
+// Gaeste und Nutzer ohne erreichbares Supabase werden aktuell nicht gezaehlt/limitiert.
+async function checkAiUsageAllowed(){
+  if(!sb || !currentUser) return { allowed: true };
+  try{
+    const { data, error } = await sb.rpc('increment_ai_usage');
+    if(error){ console.error('KI-Nutzungscheck fehlgeschlagen:', error.message); return { allowed: true }; }
+    if(currentProfile && typeof data.used === 'number') currentProfile.ai_requests_today = data.used;
+    return data;
+  }catch(e){ console.error('KI-Nutzungscheck fehlgeschlagen:', e.message); return { allowed: true }; }
+}
+
 async function callAI(prompt, jsonMode = true){
+  const usage = await checkAiUsageAllowed();
+  if(!usage.allowed){
+    if(usage.reason === 'banned') showToast('Dein Konto ist gesperrt.', true);
+    else if(usage.reason === 'limit_reached') showToast(`Tageslimit für KI-Anfragen erreicht (${usage.used}/${usage.limit}) — morgen geht's weiter.`, true);
+    return null;
+  }
   const geminiResult = await callGemini(prompt, jsonMode);
   if(geminiResult !== null) return geminiResult;
   return await callClaude(prompt);
@@ -3397,6 +3578,7 @@ let calendarState = { mode: 'month', cursor: new Date() };
 
 function renderCalendar(){
   if(requireAccountFor('Kalender')) return;
+  if(!requireFeatureAvailable('calendar', 'Der Kalender')) return;
   showView('calendar');
   currentNavId = 'calendar';
   updateNavActiveStates();
@@ -3801,6 +3983,7 @@ const sb = (typeof window.supabase !== 'undefined' && window.supabase.createClie
   : null;
 
 let currentUser = null;
+let currentProfile = null;
 let cloudSyncTimer = null;
 let authTab = 'signin';
 
@@ -3843,6 +4026,311 @@ async function pullCloudData(){
   }catch(e){ console.error('Cloud-Sync (Laden) fehlgeschlagen:', e.message); }
 }
 
+// --- Profil (Konto-Status, Sperren, KI-Limit) -----------------------------
+async function loadOrCreateProfile(){
+  if(!sb || !currentUser){ currentProfile = null; return; }
+  try{
+    const displayName = (currentUser.user_metadata && currentUser.user_metadata.display_name) || null;
+    const { data, error } = await sb.from('profiles')
+      .upsert({ user_id: currentUser.id, email: currentUser.email, display_name: displayName }, { onConflict: 'user_id' })
+      .select().single();
+    if(error){ console.error('Profil konnte nicht geladen werden:', error.message); return; }
+    currentProfile = data;
+    if(data.banned){
+      showToast('Dein Konto wurde gesperrt.', true);
+      await sb.auth.signOut();
+    }
+    applyMaintenanceMode();
+  }catch(e){ console.error('Profil konnte nicht geladen werden:', e.message); }
+}
+
+// --- Website-Einstellungen (Wartungsmodus, KI-Limits) - siehe site_settings ---
+let siteSettings = null;
+async function loadSiteSettings(){
+  if(!sb) return;
+  try{
+    const { data, error } = await sb.from('site_settings').select('*').eq('id', 1).maybeSingle();
+    if(error){ console.error('Website-Einstellungen konnten nicht geladen werden:', error.message); return; }
+    siteSettings = data;
+    applyMaintenanceMode();
+  }catch(e){ console.error('Website-Einstellungen konnten nicht geladen werden:', e.message); }
+}
+async function refreshAccountStatus(){
+  const card = document.getElementById('accountStatusCard');
+  if(!card) return;
+  if(!currentUser || !currentProfile){ card.hidden = true; return; }
+  card.hidden = false;
+  const defaultLimit = (siteSettings && siteSettings.ai_daily_limit) || 50;
+  const limit = currentProfile.ai_limit_override ?? defaultLimit;
+  const used = currentProfile.ai_requests_today || 0;
+  document.getElementById('statusAiUsageText').textContent = `${used} / ${limit}`;
+  document.getElementById('statusAiUsageFill').style.width = Math.min(100, (used / limit) * 100) + '%';
+  document.getElementById('statusAdminBadge').hidden = !currentProfile.is_admin;
+  if(!sb) return;
+  try{
+    const { data } = await sb.rpc('get_capacity');
+    if(data){
+      document.getElementById('statusCapacityText').textContent = `${data.used} / ${data.total}`;
+      document.getElementById('statusCapacityFill').style.width = Math.min(100, (data.used / data.total) * 100) + '%';
+    }
+  }catch(e){ /* Konto-Status zeigt dann nur die eigene Nutzung */ }
+}
+
+// --- Aktive Sitzungen (fuer Admin-Panel: "wer nutzt gerade die App") ------
+const SESSION_ID_KEY = 'lumiere_session_id';
+function getSessionId(){
+  let id = sessionStorage.getItem(SESSION_ID_KEY);
+  if(!id){ id = crypto.randomUUID(); sessionStorage.setItem(SESSION_ID_KEY, id); }
+  return id;
+}
+function detectDeviceLabel(){
+  const ua = navigator.userAgent || '';
+  let os = 'Unbekanntes Gerät';
+  if(/Windows/.test(ua)) os = 'Windows';
+  else if(/Mac OS X/.test(ua)) os = 'macOS';
+  else if(/Android/.test(ua)) os = 'Android';
+  else if(/iPhone|iPad|iPod/.test(ua)) os = 'iOS';
+  else if(/Linux/.test(ua)) os = 'Linux';
+  let browser = 'Browser';
+  if(/Edg\//.test(ua)) browser = 'Edge';
+  else if(/Chrome\//.test(ua) && !/Chromium/.test(ua)) browser = 'Chrome';
+  else if(/Firefox\//.test(ua)) browser = 'Firefox';
+  else if(/Safari\//.test(ua) && !/Chrome/.test(ua)) browser = 'Safari';
+  return `${browser} auf ${os}`;
+}
+let cachedOwnIp = null;
+// Selbst gemeldete IP ueber einen oeffentlichen Dienst - funktioniert ohne eigenes
+// Backend, ist aber vom Nutzer theoretisch faelschbar (siehe Absprache mit Nutzer).
+async function getOwnIp(){
+  if(cachedOwnIp) return cachedOwnIp;
+  try{
+    const res = await fetch('https://api.ipify.org?format=json');
+    if(!res.ok) return null;
+    const data = await res.json();
+    cachedOwnIp = data.ip;
+    return cachedOwnIp;
+  }catch(e){ return null; }
+}
+async function sendSessionHeartbeat(){
+  if(!sb) return;
+  try{
+    const ip = await getOwnIp();
+    const label = (currentProfile && currentProfile.display_name) || (currentUser && currentUser.email) || 'Gast';
+    await sb.from('active_sessions').upsert({
+      id: getSessionId(),
+      user_id: currentUser ? currentUser.id : null,
+      display_label: label,
+      ip_address: ip,
+      device_label: detectDeviceLabel(),
+      last_seen: new Date().toISOString(),
+    });
+  }catch(e){ console.error('Sitzungs-Heartbeat fehlgeschlagen:', e.message); }
+}
+
+function applyMaintenanceMode(){
+  const overlay = document.getElementById('maintenanceOverlay');
+  if(!overlay || !siteSettings) return;
+  const isAdmin = !!(currentProfile && currentProfile.is_admin);
+  if(siteSettings.maintenance_mode && !isAdmin){
+    overlay.hidden = false;
+    document.getElementById('maintenanceMessage').textContent =
+      siteSettings.maintenance_message || 'Lumière ist gerade kurz im Wartungsmodus. Schau gleich wieder vorbei.';
+  } else {
+    overlay.hidden = true;
+  }
+}
+
+// --- Admin-Panel -----------------------------------------------------------
+// WICHTIG: Dieser Code ist nur eine Bedienoberflaeche ("Tuer"), keine echte
+// Absicherung - jeder Text im Browser-Quelltext ist einsehbar. Die eigentliche
+// Berechtigung kommt ausschliesslich vom is_admin-Flag in der profiles-Tabelle,
+// serverseitig per Row-Level-Security geprueft. Ohne is_admin=true am eigenen
+// Konto bleibt das Panel leer, selbst wenn jemand den Code hier ausliest.
+const ADMIN_UNLOCK_CODE = '947213';
+
+document.getElementById('btnAdminUnlock').addEventListener('click', () => {
+  sndClick();
+  document.getElementById('adminCodeInput').value = '';
+  const msg = document.getElementById('adminCodeMessage');
+  msg.hidden = true; msg.classList.remove('is-error');
+  document.getElementById('adminCodeBackdrop').classList.add('open');
+  setTimeout(() => document.getElementById('adminCodeInput').focus(), 60);
+});
+document.getElementById('adminCodeCancel').addEventListener('click', () => {
+  sndClick();
+  document.getElementById('adminCodeBackdrop').classList.remove('open');
+});
+document.getElementById('adminCodeBackdrop').addEventListener('click', (e) => {
+  if(e.target.id === 'adminCodeBackdrop') document.getElementById('adminCodeBackdrop').classList.remove('open');
+});
+document.getElementById('adminCodeForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  sndClick();
+  const val = document.getElementById('adminCodeInput').value.trim();
+  const msg = document.getElementById('adminCodeMessage');
+  if(val !== ADMIN_UNLOCK_CODE){
+    msg.textContent = 'Falscher Code.';
+    msg.hidden = false; msg.classList.add('is-error');
+    return;
+  }
+  document.getElementById('adminCodeBackdrop').classList.remove('open');
+  openAdminPanel();
+});
+
+function openAdminPanel(){
+  showView('admin'); currentNavId = 'admin'; updateNavActiveStates();
+  loadAdminData();
+}
+
+const ADMIN_FEATURE_LIST = [
+  { key: 'home', label: 'Lernsets' },
+  { key: 'listen', label: 'Aussprache' },
+  { key: 'rewards', label: 'Belohnungen' },
+  { key: 'grammar', label: 'Grammatik' },
+  { key: 'calendar', label: 'Kalender' },
+  { key: 'appDownload', label: 'App-Seite' },
+  { key: 'about', label: 'Über uns' },
+];
+
+async function loadAdminData(){
+  const note = document.getElementById('adminAccessNote');
+  const content = document.getElementById('adminContent');
+  if(!sb || !currentUser){
+    note.textContent = 'Bitte zuerst mit deinem Admin-Konto anmelden.';
+    content.hidden = true;
+    return;
+  }
+  if(!currentProfile || !currentProfile.is_admin){
+    note.textContent = 'Dieses Konto hat keine Admin-Berechtigung.';
+    content.hidden = true;
+    return;
+  }
+  note.textContent = `Angemeldet als ${currentUser.email}.`;
+  content.hidden = false;
+  try{
+    const [capRes, sessRes, profRes] = await Promise.all([
+      sb.rpc('get_capacity'),
+      sb.from('active_sessions').select('*').order('last_seen', { ascending: false }),
+      sb.from('profiles').select('*').order('created_at', { ascending: false }),
+    ]);
+    if(capRes.data) renderAdminCapacity(capRes.data);
+    if(!sessRes.error) renderAdminSessions(sessRes.data || []);
+    if(!profRes.error) renderAdminUsers(profRes.data || []);
+    if(siteSettings) renderAdminMaintenanceForm();
+  }catch(e){
+    console.error('Admin-Daten konnten nicht geladen werden:', e.message);
+    showToast('Admin-Daten konnten nicht geladen werden.', true);
+  }
+}
+
+function renderAdminCapacity(cap){
+  document.getElementById('adminCapacityText').textContent = `${cap.used} / ${cap.total}`;
+  const pct = cap.total ? Math.min(100, Math.round((cap.used / cap.total) * 100)) : 0;
+  document.getElementById('adminCapacityPct').textContent = pct + '%';
+  document.getElementById('adminCapacityFill').style.width = pct + '%';
+  document.getElementById('adminCapacityInput').value = cap.total;
+  if(siteSettings) document.getElementById('adminDefaultLimitInput').value = siteSettings.ai_daily_limit;
+}
+
+function renderAdminSessions(sessions){
+  const now = Date.now();
+  const active = sessions.filter(s => now - new Date(s.last_seen).getTime() < 5 * 60 * 1000);
+  document.getElementById('adminStatOnline').textContent = active.length;
+  const tbody = document.querySelector('#adminSessionsTable tbody');
+  tbody.innerHTML = '';
+  document.getElementById('adminSessionsEmpty').hidden = active.length > 0;
+  active.forEach(s => {
+    const tr = document.createElement('tr');
+    const seenAgo = Math.max(0, Math.round((now - new Date(s.last_seen).getTime()) / 1000));
+    tr.innerHTML = `
+      <td>${escapeHtml(s.device_label || '–')}</td>
+      <td>${escapeHtml(s.ip_address || '–')}</td>
+      <td>${escapeHtml(s.display_label || 'Gast')}</td>
+      <td>vor ${seenAgo}s</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function renderAdminUsers(profiles){
+  document.getElementById('adminStatUsers').textContent = profiles.length;
+  document.getElementById('adminStatBanned').textContent = profiles.filter(p => p.banned).length;
+  const tbody = document.querySelector('#adminUsersTable tbody');
+  tbody.innerHTML = '';
+  profiles.forEach(p => {
+    const tr = document.createElement('tr');
+    const name = escapeHtml(p.display_name || p.email || p.user_id);
+    const email = escapeHtml(p.email || '');
+    tr.innerHTML = `
+      <td><span class="admin-user-name"><span>${name}</span><span>${email}</span></span></td>
+      <td>${p.ai_requests_today ?? 0}</td>
+      <td><input type="number" min="1" class="admin-limit-input" value="${p.ai_limit_override ?? ''}" placeholder="Standard"></td>
+      <td><button type="button" class="admin-ban-btn${p.banned ? ' is-banned' : ''}">${p.banned ? 'Gesperrt' : 'Aktiv'}</button></td>`;
+    tr.querySelector('.admin-limit-input').addEventListener('change', (ev) => saveUserLimit(p.user_id, ev.target.value));
+    tr.querySelector('.admin-ban-btn').addEventListener('click', () => toggleUserBan(p.user_id, !p.banned));
+    tbody.appendChild(tr);
+  });
+}
+
+async function saveUserLimit(userId, value){
+  const limit = value === '' ? null : Math.max(1, parseInt(value, 10) || 1);
+  const { error } = await sb.from('profiles').update({ ai_limit_override: limit }).eq('user_id', userId);
+  if(error){ showToast('Limit konnte nicht gespeichert werden.', true); return; }
+  showToast('Limit gespeichert.');
+  loadAdminData();
+}
+async function toggleUserBan(userId, banned){
+  const { error } = await sb.from('profiles').update({ banned }).eq('user_id', userId);
+  if(error){ showToast('Status konnte nicht geändert werden.', true); return; }
+  showToast(banned ? 'Nutzer gesperrt.' : 'Nutzer entsperrt.');
+  loadAdminData();
+}
+
+function renderAdminMaintenanceForm(){
+  document.getElementById('adminMaintenanceGlobal').checked = !!siteSettings.maintenance_mode;
+  document.getElementById('adminMaintenanceMessage').value = siteSettings.maintenance_message || '';
+  const wrap = document.getElementById('adminFeatureToggles');
+  const fm = siteSettings.feature_maintenance || {};
+  wrap.innerHTML = ADMIN_FEATURE_LIST.map(f => `
+    <label class="settings-toggle-row" for="fmToggle-${f.key}">
+      <span>${escapeHtml(f.label)}</span>
+      <input type="checkbox" id="fmToggle-${f.key}" class="settings-switch" data-feature-key="${f.key}" ${fm[f.key] ? 'checked' : ''}>
+    </label>`).join('');
+}
+
+document.getElementById('btnSaveCapacity').addEventListener('click', async () => {
+  sndClick();
+  const total = Math.max(1, parseInt(document.getElementById('adminCapacityInput').value, 10) || 1);
+  const { error } = await sb.from('site_settings').update({ ai_capacity_total: total }).eq('id', 1);
+  if(error){ showToast('Konnte nicht gespeichert werden.', true); return; }
+  showToast('Kapazität gespeichert.');
+  await loadSiteSettings();
+  loadAdminData();
+});
+document.getElementById('btnSaveDefaultLimit').addEventListener('click', async () => {
+  sndClick();
+  const limit = Math.max(1, parseInt(document.getElementById('adminDefaultLimitInput').value, 10) || 1);
+  const { error } = await sb.from('site_settings').update({ ai_daily_limit: limit }).eq('id', 1);
+  if(error){ showToast('Konnte nicht gespeichert werden.', true); return; }
+  showToast('Standard-Limit gespeichert.');
+  await loadSiteSettings();
+});
+document.getElementById('btnSaveMaintenance').addEventListener('click', async () => {
+  sndClick();
+  const globalOn = document.getElementById('adminMaintenanceGlobal').checked;
+  const message = document.getElementById('adminMaintenanceMessage').value.trim();
+  const fm = {};
+  document.querySelectorAll('#adminFeatureToggles input[type="checkbox"]').forEach(cb => {
+    fm[cb.dataset.featureKey] = cb.checked;
+  });
+  const { error } = await sb.from('site_settings').update({
+    maintenance_mode: globalOn, maintenance_message: message, feature_maintenance: fm,
+  }).eq('id', 1);
+  if(error){ showToast('Konnte nicht gespeichert werden.', true); return; }
+  showToast('Wartungs-Einstellungen gespeichert.');
+  await loadSiteSettings();
+});
+document.getElementById('btnAdminRefresh').addEventListener('click', () => { sndClick(); loadAdminData(); });
+
 let authInPasswordRecovery = false;
 
 function updateAccountUI(){
@@ -3872,6 +4360,7 @@ function updateAccountUI(){
     loggedOutView.hidden = false; loggedInView.hidden = true; resetView.hidden = true;
   }
   updateGatedNavUI();
+  refreshAccountStatus();
 }
 
 // --- Freischaltung: ohne Konto nur "Lernsets" (+ Startseite/Einstellungen) ---
@@ -3880,6 +4369,16 @@ function requireAccountFor(label){
   if(currentUser) return false;
   showToast(`🔒 ${label} ist nur mit Konto verfügbar — kostenlos anmelden.`);
   openAccountModal();
+  return true;
+}
+
+// --- Wartungsmodus (global + pro Feature, siehe Admin-Panel) --------------
+function requireFeatureAvailable(viewKey, label){
+  if(currentProfile && currentProfile.is_admin) return true;
+  if(siteSettings && siteSettings.feature_maintenance && siteSettings.feature_maintenance[viewKey]){
+    showToast(`🛠️ ${label} ist gerade in Wartung — schau später wieder vorbei.`, true);
+    return false;
+  }
   return true;
 }
 function updateGatedNavUI(){
@@ -3908,7 +4407,7 @@ async function initAuth(){
     const { data } = await sb.auth.getSession();
     if(data.session){
       currentUser = data.session.user;
-      await pullCloudData();
+      await Promise.all([pullCloudData(), loadOrCreateProfile()]);
     }
   }catch(e){ console.error('Auth-Session konnte nicht geladen werden:', e.message); }
   updateAccountUI();
@@ -3921,10 +4420,11 @@ async function initAuth(){
       openAccountModal();
     } else if(event === 'SIGNED_IN' && session && (!currentUser || currentUser.id !== session.user.id)){
       currentUser = session.user;
-      pullCloudData().then(updateAccountUI);
+      Promise.all([pullCloudData(), loadOrCreateProfile()]).then(updateAccountUI);
       updateAccountUI();
     } else if(event === 'SIGNED_OUT'){
       currentUser = null;
+      currentProfile = null;
       authInPasswordRecovery = false;
       updateAccountUI();
     }
@@ -3933,6 +4433,7 @@ async function initAuth(){
 
 function openAccountModal(){
   document.getElementById('authModalBackdrop').classList.add('open');
+  refreshAccountStatus();
 }
 function closeAccountModal(){
   document.getElementById('authModalBackdrop').classList.remove('open');
@@ -3944,6 +4445,7 @@ function closeAccountModal(){
 }
 document.getElementById('btnAccount').addEventListener('click', () => { sndClick(); openAccountModal(); });
 document.getElementById('btnAccountSettings').addEventListener('click', () => { sndClick(); openAccountModal(); });
+document.getElementById('btnMaintenanceAdminLogin').addEventListener('click', () => { sndClick(); openAccountModal(); });
 document.getElementById('authCancel').addEventListener('click', () => { sndClick(); closeAccountModal(); });
 document.getElementById('authCloseBtn').addEventListener('click', () => { sndClick(); closeAccountModal(); });
 document.getElementById('authModalBackdrop').addEventListener('click', (e) => {
@@ -4044,6 +4546,8 @@ document.getElementById('authNameForm').addEventListener('submit', async (e) => 
     const { data, error } = await sb.auth.updateUser({ data: { display_name: displayName } });
     if(error) throw error;
     currentUser = data.user;
+    await sb.from('profiles').update({ display_name: displayName }).eq('user_id', currentUser.id);
+    if(currentProfile) currentProfile.display_name = displayName;
     updateAccountUI();
     showToast('Anzeigename gespeichert.');
   }catch(err){
@@ -4409,12 +4913,12 @@ const views = {
   grammar: document.getElementById('view-grammar'), game: document.getElementById('view-game'),
   rewards: document.getElementById('view-rewards'), settingsPage: document.getElementById('view-settings'),
   calendar: document.getElementById('view-calendar'), appDownload: document.getElementById('view-app-download'),
-  about: document.getElementById('view-about'),
+  about: document.getElementById('view-about'), admin: document.getElementById('view-admin'),
 };
 let currentSetId = null;
 let currentNavId = 'hub';
-const NAV_SUB_LABELS = { hub: 'Startseite', home: 'Lernsets', rewards: 'Belohnungen', grammar: 'Grammatik', listen: 'Sprechen', settingsPage: 'Einstellungen', calendar: 'Kalender', appDownload: 'App installieren', about: 'Über uns' };
-const QUICKNAV_HIDDEN_VIEWS = new Set(['hub', 'practice', 'match', 'results', 'game', 'appDownload', 'about']);
+const NAV_SUB_LABELS = { hub: 'Startseite', home: 'Lernsets', rewards: 'Belohnungen', grammar: 'Grammatik', listen: 'Sprechen', settingsPage: 'Einstellungen', calendar: 'Kalender', appDownload: 'App installieren', about: 'Über uns', admin: 'Admin-Panel' };
+const QUICKNAV_HIDDEN_VIEWS = new Set(['hub', 'practice', 'match', 'results', 'game', 'appDownload', 'about', 'admin']);
 function showView(name){
   Object.values(views).forEach(v => v.hidden = true);
   views[name].hidden = false;
@@ -4519,11 +5023,18 @@ document.getElementById('quickNavMenu').addEventListener('click', () => {
 
 function openGrammar(){
   if(requireAccountFor('Grammatik')) return;
+  if(!requireFeatureAvailable('grammar', 'Die Grammatik')) return;
   showView('grammar'); currentNavId = 'grammar'; updateNavActiveStates();
 }
 function openSettingsPage(){ showView('settingsPage'); currentNavId = 'settingsPage'; updateNavActiveStates(); renderSettingsPage(); }
-function openAppDownload(){ showView('appDownload'); currentNavId = 'appDownload'; updateNavActiveStates(); updateInstallUI(); }
-function openAbout(){ showView('about'); currentNavId = 'about'; updateNavActiveStates(); }
+function openAppDownload(){
+  if(!requireFeatureAvailable('appDownload', 'Die App-Seite')) return;
+  showView('appDownload'); currentNavId = 'appDownload'; updateNavActiveStates(); updateInstallUI();
+}
+function openAbout(){
+  if(!requireFeatureAvailable('about', 'Die Über-uns-Seite')) return;
+  showView('about'); currentNavId = 'about'; updateNavActiveStates();
+}
 
 // --- HUB (Startseite) -----------------------------------------------------
 // --- Kleine Zahlen-Hochzähl-Animation für Statistiken --------------------
@@ -4586,6 +5097,7 @@ function computeCurrentStreak(){
 }
 function renderRewards(){
   if(requireAccountFor('Belohnungen')) return;
+  if(!requireFeatureAvailable('rewards', 'Belohnungen')) return;
   showView('rewards');
   currentNavId = 'rewards';
   updateNavActiveStates();
@@ -4607,6 +5119,7 @@ function renderRewards(){
 
 // --- HOME ---------------------------------------------------------------
 function renderHome(){
+  if(!requireFeatureAvailable('home', 'Lernsets')) return;
   showView('home');
   const list = document.getElementById('setsList');
   const empty = document.getElementById('setsEmpty');
@@ -4922,6 +5435,7 @@ document.getElementById('btnGoListen').addEventListener('click', () => {
 function openGlobalListen(){
   sndClick();
   if(requireAccountFor('Aussprache')) return;
+  if(!requireFeatureAvailable('listen', 'Aussprache')) return;
   const allPairs = store.sets.flatMap(s => s.pairs);
   if(allPairs.length === 0){ showToast('Leg zuerst ein paar Vokabeln an.', true); return; }
   listenReturnView = 'hub';
@@ -5579,6 +6093,12 @@ document.getElementById('btnGameBack').addEventListener('click', () => {
 wireSounds(document.body);
 renderHub();
 initAuth();
+loadSiteSettings();
+sendSessionHeartbeat();
+setInterval(() => {
+  sendSessionHeartbeat();
+  if(currentUser) loadOrCreateProfile();
+}, 90000);
 
 // --- PWA: "Zum Startbildschirm hinzufügen" -------------------------------
 let deferredInstallPrompt = null;
