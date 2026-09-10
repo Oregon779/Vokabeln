@@ -691,6 +691,20 @@
   .lang-opt.is-active{background:var(--ember); color:#1c1207; font-weight:700;}
   .lang-opt:not(.is-active):hover{color:var(--text);}
   @media (max-width:480px){ .lang-switch{display:none;} }
+  .account-btn{
+    display:flex; align-items:center; gap:.5rem; background:var(--surface); border:1px solid var(--border-solid);
+    backdrop-filter:blur(14px); border-radius:999px; padding:.5rem .9rem .5rem .7rem; cursor:pointer;
+    font-family:var(--font-mono); font-size:.68rem; text-transform:uppercase; letter-spacing:.14em; color:var(--stone);
+    transition:border-color .2s var(--ease), color .2s var(--ease);
+  }
+  .account-btn:hover{border-color:var(--ember-dim); color:var(--text);}
+  .account-dot{width:6px; height:6px; border-radius:50%; background:var(--stone); flex-shrink:0; transition:background .2s var(--ease), box-shadow .2s var(--ease);}
+  .account-btn.is-logged-in{color:var(--text); border-color:var(--ember-dim);}
+  .account-btn.is-logged-in .account-dot{background:var(--ember-bright); box-shadow:0 0 6px 1px rgba(246,195,92,.6);}
+  @media (max-width:560px){ .account-btn-label{display:none;} .account-btn{padding:.55rem;} }
+  .auth-tab-row{margin-bottom:1.1rem;}
+  #authMessage{background:rgba(246,195,92,.09); border:1px solid var(--border-solid); border-radius:10px; padding:.6rem .8rem; margin:-.3rem 0 1rem;}
+  #authMessage.is-error{background:rgba(239,75,87,.1); border-color:rgba(239,75,87,.35); color:#ff9aa2;}
   .menu-lines{position:relative; width:19px; height:14px; flex-shrink:0;}
   .menu-lines span{position:absolute; left:0; width:100%; height:2px; border-radius:2px; background:var(--text); transition:transform .3s var(--ease), opacity .3s var(--ease);}
   .menu-lines span:nth-child(1){top:0;}
@@ -1384,6 +1398,10 @@
       <button type="button" class="lang-opt is-active" id="langDe" data-lang="de">DE</button>
       <button type="button" class="lang-opt" id="langEn" data-lang="en">EN</button>
     </div>
+    <button class="account-btn" id="btnAccount" type="button" aria-label="Konto &amp; Cloud-Sync">
+      <span class="account-dot" id="accountDot" aria-hidden="true"></span>
+      <span class="account-btn-label" id="accountBtnLabel">Konto</span>
+    </button>
     <button class="menu-btn" id="btnMenu" type="button" aria-expanded="false" aria-label="Menü öffnen">
       <span class="menu-btn-text">Menü</span>
       <span class="menu-lines"><span></span><span></span><span></span></span>
@@ -1486,6 +1504,39 @@
         </div>
       </div>
     </form>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="authModalBackdrop">
+  <div class="modal-box auth-modal-box">
+    <div id="authLoggedOutView">
+      <h3>Konto</h3>
+      <p class="hint" style="margin:-.4rem 0 1rem;">Kostenlos nutzbar auf diesem Gerät — mit Konto werden deine Vokabelsets &amp; dein Fortschritt automatisch auf allen Geräten gesichert.</p>
+      <div class="chip-row auth-tab-row" id="authTabChips">
+        <button type="button" class="chip selected" data-tab="signin">Anmelden</button>
+        <button type="button" class="chip" data-tab="signup">Registrieren</button>
+      </div>
+      <form id="authForm">
+        <label class="ev-label" for="authEmail">E-Mail</label>
+        <input type="email" id="authEmail" class="modal-input" required autocomplete="email">
+        <label class="ev-label" for="authPassword">Passwort</label>
+        <input type="password" id="authPassword" class="modal-input" required minlength="6" autocomplete="current-password">
+        <p id="authMessage" hidden></p>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" id="authCancel">Abbrechen</button>
+          <button type="submit" class="btn btn-primary" id="authSubmit">Anmelden</button>
+        </div>
+      </form>
+    </div>
+    <div id="authLoggedInView" hidden>
+      <h3>Konto</h3>
+      <p class="hint" style="margin:-.4rem 0 1rem;">Angemeldet als <strong id="authUserEmail"></strong></p>
+      <p class="settings-note" style="margin:0 0 1.1rem;">☁️ Deine Vokabeln &amp; dein Fortschritt werden automatisch gesichert und stehen auf allen Geräten zur Verfügung.</p>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" id="authCloseBtn">Schließen</button>
+        <button type="button" class="btn btn-danger" id="authSignOutBtn">Abmelden</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -2090,6 +2141,14 @@
     <p class="page-sub">Lernziele, Ton, Erinnerungen und Design nach deinem Geschmack.</p>
 
     <div class="settings-card">
+      <p class="settings-title">☁️ Konto &amp; Cloud-Sync</p>
+      <p class="settings-desc" id="accountStatusText">Nicht angemeldet — deine Daten bleiben nur auf diesem Gerät.</p>
+      <div class="btn-group">
+        <button type="button" class="btn btn-secondary" id="btnAccountSettings">Konto öffnen</button>
+      </div>
+    </div>
+
+    <div class="settings-card">
       <p class="settings-title">🎯 Tagesziel</p>
       <p class="settings-desc">Wie viele Vokabeln möchtest du pro Tag üben?</p>
       <div class="chip-row" id="dailyGoalChips">
@@ -2229,6 +2288,7 @@
 
 </main>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 /* ============================================================
    ANPASSEN: Hier deinen Gemini-API-Key eintragen
@@ -3075,9 +3135,188 @@ function loadData(){
     return seeded;
   }catch(e){ return { sets: [] }; }
 }
-function saveData(data){ localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
+function saveData(data){ localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); scheduleCloudSync(); }
 function uid(){ return crypto.randomUUID(); }
 let store = loadData();
+
+// --- Supabase Cloud-Sync (optionales Konto) -------------------------------
+// Der Publishable Key ist bewusst oeffentlich im Browser-Code - die eigentliche
+// Sicherheit kommt aus den Row-Level-Security-Policies in Supabase (jeder Nutzer
+// sieht/aendert nur seine eigene Zeile in public.user_data).
+const SUPABASE_URL = 'https://imjlrfemiptuwobliydq.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_IKRB3DyOe0j99GsZUAlkOw_hH3rD8Ih';
+const sb = (typeof window.supabase !== 'undefined' && window.supabase.createClient)
+  ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+  : null;
+
+let currentUser = null;
+let cloudSyncTimer = null;
+let authTab = 'signin';
+
+function scheduleCloudSync(){
+  if(!sb || !currentUser) return;
+  clearTimeout(cloudSyncTimer);
+  cloudSyncTimer = setTimeout(pushCloudData, 1200);
+}
+
+async function pushCloudData(){
+  if(!sb || !currentUser) return;
+  try{
+    const { error } = await sb.from('user_data').upsert({
+      user_id: currentUser.id, data: store, updated_at: new Date().toISOString(),
+    });
+    if(error) console.error('Cloud-Sync (Speichern) fehlgeschlagen:', error.message);
+  }catch(e){ console.error('Cloud-Sync (Speichern) fehlgeschlagen:', e.message); }
+}
+
+async function pullCloudData(){
+  if(!sb || !currentUser) return;
+  try{
+    const { data, error } = await sb.from('user_data').select('data').eq('user_id', currentUser.id).maybeSingle();
+    if(error){ console.error('Cloud-Daten laden fehlgeschlagen:', error.message); return; }
+    if(data && data.data && Array.isArray(data.data.sets) && data.data.sets.length){
+      // Konto hat bereits Daten (z.B. von einem anderen Geraet) -> diese uebernehmen.
+      store = data.data;
+      store.settings = Object.assign({}, DEFAULT_SETTINGS, store.settings || {});
+      if(!Array.isArray(store.examEvents)) store.examEvents = [];
+      if(!store.dailyProgress || typeof store.dailyProgress !== 'object') store.dailyProgress = {};
+      if(!Array.isArray(store.streakDates)) store.streakDates = [];
+      store.sets.forEach(s => s.pairs.forEach(ensurePairStats));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(store));
+      applySettingsToUI();
+      renderHub();
+    } else {
+      // Erstes Login auf diesem Konto -> lokale Daten hochladen.
+      await pushCloudData();
+    }
+  }catch(e){ console.error('Cloud-Sync (Laden) fehlgeschlagen:', e.message); }
+}
+
+function updateAccountUI(){
+  const btn = document.getElementById('btnAccount');
+  const label = document.getElementById('accountBtnLabel');
+  const statusText = document.getElementById('accountStatusText');
+  const loggedOutView = document.getElementById('authLoggedOutView');
+  const loggedInView = document.getElementById('authLoggedInView');
+  if(currentUser){
+    btn.classList.add('is-logged-in');
+    label.textContent = currentUser.email.split('@')[0];
+    statusText.textContent = `Angemeldet als ${currentUser.email} — deine Daten werden automatisch geräteübergreifend gesichert.`;
+    loggedOutView.hidden = true;
+    loggedInView.hidden = false;
+    document.getElementById('authUserEmail').textContent = currentUser.email;
+  } else {
+    btn.classList.remove('is-logged-in');
+    label.textContent = 'Konto';
+    statusText.textContent = 'Nicht angemeldet — deine Daten bleiben nur auf diesem Gerät.';
+    loggedOutView.hidden = false;
+    loggedInView.hidden = true;
+  }
+}
+
+async function initAuth(){
+  if(!sb){
+    console.warn('Supabase nicht erreichbar (Skript blockiert oder offline) — Cloud-Sync deaktiviert, App läuft normal lokal weiter.');
+    updateAccountUI();
+    return;
+  }
+  try{
+    const { data } = await sb.auth.getSession();
+    if(data.session){
+      currentUser = data.session.user;
+      await pullCloudData();
+    }
+  }catch(e){ console.error('Auth-Session konnte nicht geladen werden:', e.message); }
+  updateAccountUI();
+  sb.auth.onAuthStateChange((event, session) => {
+    if(event === 'SIGNED_IN' && session && (!currentUser || currentUser.id !== session.user.id)){
+      currentUser = session.user;
+      pullCloudData().then(updateAccountUI);
+      updateAccountUI();
+    } else if(event === 'SIGNED_OUT'){
+      currentUser = null;
+      updateAccountUI();
+    }
+  });
+}
+
+function openAccountModal(){
+  document.getElementById('authModalBackdrop').classList.add('open');
+}
+function closeAccountModal(){
+  document.getElementById('authModalBackdrop').classList.remove('open');
+  const msg = document.getElementById('authMessage');
+  msg.hidden = true; msg.classList.remove('is-error');
+}
+document.getElementById('btnAccount').addEventListener('click', () => { sndClick(); openAccountModal(); });
+document.getElementById('btnAccountSettings').addEventListener('click', () => { sndClick(); openAccountModal(); });
+document.getElementById('authCancel').addEventListener('click', () => { sndClick(); closeAccountModal(); });
+document.getElementById('authCloseBtn').addEventListener('click', () => { sndClick(); closeAccountModal(); });
+document.getElementById('authModalBackdrop').addEventListener('click', (e) => {
+  if(e.target.id === 'authModalBackdrop') closeAccountModal();
+});
+document.querySelectorAll('#authTabChips .chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    sndClick();
+    authTab = chip.dataset.tab;
+    document.querySelectorAll('#authTabChips .chip').forEach(c => c.classList.toggle('selected', c === chip));
+    document.getElementById('authSubmit').textContent = authTab === 'signup' ? 'Registrieren' : 'Anmelden';
+    const msg = document.getElementById('authMessage');
+    msg.hidden = true; msg.classList.remove('is-error');
+  });
+});
+document.getElementById('authForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const email = document.getElementById('authEmail').value.trim();
+  const password = document.getElementById('authPassword').value;
+  const msg = document.getElementById('authMessage');
+  const submitBtn = document.getElementById('authSubmit');
+  if(!sb){
+    msg.textContent = 'Cloud-Sync ist gerade nicht erreichbar (offline oder blockiert). Bitte später erneut versuchen.';
+    msg.hidden = false; msg.classList.add('is-error');
+    return;
+  }
+  submitBtn.disabled = true;
+  msg.hidden = true; msg.classList.remove('is-error');
+  try{
+    if(authTab === 'signup'){
+      const { data, error } = await sb.auth.signUp({ email, password });
+      if(error) throw error;
+      if(data.user && !data.session){
+        msg.textContent = 'Fast geschafft — bestätige deine E-Mail-Adresse über den Link, den wir dir geschickt haben.';
+        msg.hidden = false;
+      } else {
+        closeAccountModal();
+        showToast('Willkommen! Dein Konto ist eingerichtet.');
+      }
+    } else {
+      const { error } = await sb.auth.signInWithPassword({ email, password });
+      if(error) throw error;
+      closeAccountModal();
+      showToast('Angemeldet — deine Daten werden jetzt gesichert.');
+    }
+  }catch(err){
+    msg.textContent = translateAuthError(err.message);
+    msg.hidden = false; msg.classList.add('is-error');
+  }finally{
+    submitBtn.disabled = false;
+  }
+});
+document.getElementById('authSignOutBtn').addEventListener('click', async () => {
+  sndClick();
+  if(sb) await sb.auth.signOut();
+  closeAccountModal();
+  showToast('Abgemeldet — deine Daten bleiben lokal auf diesem Gerät erhalten.');
+});
+function translateAuthError(message){
+  const m = (message || '').toLowerCase();
+  if(m.includes('invalid login credentials')) return 'E-Mail oder Passwort ist falsch.';
+  if(m.includes('user already registered')) return 'Für diese E-Mail existiert bereits ein Konto — versuch dich stattdessen anzumelden.';
+  if(m.includes('password') && m.includes('character')) return 'Das Passwort muss mindestens 6 Zeichen lang sein.';
+  if(m.includes('email') && m.includes('invalid')) return 'Das sieht nicht nach einer gültigen E-Mail-Adresse aus.';
+  if(m.includes('email not confirmed')) return 'Bitte bestätige zuerst deine E-Mail-Adresse über den Link, den wir dir geschickt haben.';
+  return message || 'Etwas ist schiefgelaufen. Bitte versuch es erneut.';
+}
 
 // --- Einstellungen, Kalender & Tagesfortschritt: Standardwerte & Migration ---
 const DEFAULT_SETTINGS = {
@@ -4454,6 +4693,7 @@ document.getElementById('btnGameBack').addEventListener('click', () => {
 
 wireSounds(document.body);
 renderHub();
+initAuth();
 
 // --- PWA: Offline-Faehigkeit ueber einen Service Worker ------------------
 if('serviceWorker' in navigator){
