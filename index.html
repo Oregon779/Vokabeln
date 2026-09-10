@@ -850,6 +850,7 @@
   .admin-user-name span:last-child{ font-family:var(--font-mono); font-size:.68rem; color:var(--stone); }
   .admin-ban-btn{ font-family:var(--font-mono); font-size:.65rem; text-transform:uppercase; letter-spacing:.06em; padding:.3rem .6rem; border-radius:999px; border:1px solid var(--border-solid); background:var(--surface-2); color:var(--stone); cursor:pointer; }
   .admin-ban-btn.is-banned{ border-color:rgba(239,75,87,.4); color:var(--danger); background:rgba(239,75,87,.1); }
+  .admin-ban-btn.is-immune{ border-color:rgba(246,195,92,.35); color:var(--ember-bright); background:rgba(246,195,92,.1); cursor:default; display:inline-block; }
   .admin-empty-note{ color:var(--stone); font-size:.85rem; margin:.8rem 0 0; }
   .admin-feature-toggles{ display:flex; flex-direction:column; gap:.2rem; margin-top:.4rem; }
   .admin-subnav{ margin:0 0 1.4rem; }
@@ -3240,9 +3241,12 @@
         </div>
 
         <div class="settings-card">
-          <p class="settings-title">✉️ Test-E-Mail</p>
-          <p class="settings-desc">Schick dir selbst eine Passwort-Zurücksetzen-E-Mail, um zu sehen, wie das E-Mail-Template beim Nutzer ankommt.</p>
-          <button type="button" class="btn btn-secondary" id="btnSendTestEmail">Test-E-Mail an mich senden</button>
+          <p class="settings-title">✉️ Test-E-Mails</p>
+          <p class="settings-desc">Schick dir selbst die E-Mails, die Nutzer bekommen, um die Templates zu prüfen.</p>
+          <div class="btn-group">
+            <button type="button" class="btn btn-secondary" id="btnSendTestEmail">Passwort-Zurücksetzen testen</button>
+            <button type="button" class="btn btn-secondary" id="btnSendTestVerifyEmail">Verifizierungs-E-Mail testen</button>
+          </div>
           <p id="adminTestEmailMessage" class="admin-empty-note" hidden></p>
         </div>
       </div>
@@ -4433,7 +4437,11 @@ document.querySelectorAll('#adminSessionFilter .chip').forEach(chip => {
   });
 });
 
+// Admin-Konten sind immun gegen Sperren (auch gegen sich selbst) - sowohl im UI
+// (kein Sperr-Button, nur ein Abzeichen) als auch defensiv in toggleUserBan().
+let adminUsersCache = [];
 function renderAdminUsers(profiles){
+  adminUsersCache = profiles;
   document.getElementById('adminStatUsers').textContent = profiles.length;
   document.getElementById('adminStatBanned').textContent = profiles.filter(p => p.banned).length;
   const tbody = document.querySelector('#adminUsersTable tbody');
@@ -4442,13 +4450,18 @@ function renderAdminUsers(profiles){
     const tr = document.createElement('tr');
     const name = escapeHtml(p.display_name || p.email || p.user_id);
     const email = escapeHtml(p.email || '');
+    const banCell = p.is_admin
+      ? `<span class="admin-ban-btn is-immune" title="Admin-Konten sind immun gegen Sperren">🛡️ Admin</span>`
+      : `<button type="button" class="admin-ban-btn${p.banned ? ' is-banned' : ''}">${p.banned ? 'Gesperrt' : 'Aktiv'}</button>`;
     tr.innerHTML = `
       <td><span class="admin-user-name"><span>${name}</span><span>${email}</span></span></td>
       <td>${p.ai_requests_today ?? 0}</td>
       <td><input type="number" min="1" class="admin-limit-input" value="${p.ai_limit_override ?? ''}" placeholder="Standard"></td>
-      <td><button type="button" class="admin-ban-btn${p.banned ? ' is-banned' : ''}">${p.banned ? 'Gesperrt' : 'Aktiv'}</button></td>`;
+      <td>${banCell}</td>`;
     tr.querySelector('.admin-limit-input').addEventListener('change', (ev) => saveUserLimit(p.user_id, ev.target.value));
-    tr.querySelector('.admin-ban-btn').addEventListener('click', () => toggleUserBan(p.user_id, !p.banned));
+    if(!p.is_admin){
+      tr.querySelector('.admin-ban-btn').addEventListener('click', () => toggleUserBan(p.user_id, !p.banned));
+    }
     tbody.appendChild(tr);
   });
 }
@@ -4461,6 +4474,8 @@ async function saveUserLimit(userId, value){
   loadAdminData();
 }
 async function toggleUserBan(userId, banned){
+  const target = adminUsersCache.find(p => p.user_id === userId);
+  if(target && target.is_admin){ showToast('Admin-Konten sind immun gegen Sperren.', true); return; }
   const { error } = await sb.from('profiles').update({ banned }).eq('user_id', userId);
   if(error){ showToast('Status konnte nicht geändert werden.', true); return; }
   showToast(banned ? 'Nutzer gesperrt.' : 'Nutzer entsperrt.');
@@ -4560,7 +4575,32 @@ document.getElementById('btnSendTestEmail').addEventListener('click', async () =
       redirectTo: window.location.origin + window.location.pathname,
     });
     if(error) throw error;
-    msg.textContent = `Test-E-Mail an ${currentUser.email} verschickt — im Postfach das Passwort-Zurücksetzen-/Bestätigungs-Template prüfen.`;
+    msg.textContent = `Passwort-Zurücksetzen-E-Mail an ${currentUser.email} verschickt — im Postfach das Template prüfen.`;
+    msg.hidden = false;
+  }catch(err){
+    msg.textContent = translateAuthError(err.message);
+    msg.hidden = false;
+  }finally{
+    btn.disabled = false;
+  }
+});
+
+document.getElementById('btnSendTestVerifyEmail').addEventListener('click', async () => {
+  sndClick();
+  const msg = document.getElementById('adminTestEmailMessage');
+  if(!sb || !currentUser){
+    msg.textContent = 'Nicht angemeldet.'; msg.hidden = false;
+    return;
+  }
+  const btn = document.getElementById('btnSendTestVerifyEmail');
+  btn.disabled = true;
+  try{
+    const { error } = await sb.auth.resend({
+      type: 'signup', email: currentUser.email,
+      options: { emailRedirectTo: window.location.origin + window.location.pathname },
+    });
+    if(error) throw error;
+    msg.textContent = `Verifizierungs-E-Mail an ${currentUser.email} verschickt — im Postfach das Bestätigungs-Template prüfen.`;
     msg.hidden = false;
   }catch(err){
     msg.textContent = translateAuthError(err.message);
@@ -4835,6 +4875,7 @@ function translateAuthError(message){
   if(m.includes('email') && m.includes('invalid')) return 'Das sieht nicht nach einer gültigen E-Mail-Adresse aus.';
   if(m.includes('email not confirmed')) return 'Bitte bestätige zuerst deine E-Mail-Adresse über den Link, den wir dir geschickt haben.';
   if(m.includes('security purposes') || m.includes('rate limit')) return 'Zu viele Versuche — bitte warte kurz und versuch es dann erneut.';
+  if(m.includes('already confirmed')) return 'Diese E-Mail ist bereits bestätigt — Supabase verschickt die Verifizierungs-Mail nur an unbestätigte Konten. Zum Testen ein neues, noch unbestätigtes Test-Konto registrieren.';
   return message || 'Etwas ist schiefgelaufen. Bitte versuch es erneut.';
 }
 
