@@ -811,12 +811,17 @@
     position:relative; padding:.3rem; border-radius:14px; background:rgba(20,25,36,.7); border:1px solid var(--border-solid);
     display:flex; gap:.25rem; margin-bottom:1.3rem;
   }
+  /* Bewusst ueber left statt transform verschoben: translateX(100%) rechnet gegen
+     die EIGENE Breite des Indikators, die hier selbst prozentual vom Elternelement
+     kommt. Solange die noch nicht final steht, ergibt 100% schlicht 0 - der Reiter
+     blieb dann kurz auf "Anmelden" stehen und sprang erst verspaetet herueber.
+     left-Prozente loesen gegen das Elternelement auf und sind dadurch stabil. */
   .auth-tab-indicator{
     position:absolute; top:.3rem; bottom:.3rem; left:.3rem; width:calc(50% - .425rem);
     background:rgba(255,255,255,.06); border:1px solid rgba(246,195,92,.3); border-radius:10px;
-    transition:transform .4s var(--ease-spring); z-index:0;
+    transition:left .4s var(--ease-spring); z-index:0;
   }
-  .auth-tab-row.tab-signup .auth-tab-indicator{ transform:translateX(calc(100% + .25rem)); }
+  .auth-tab-row.tab-signup .auth-tab-indicator{ left:calc(50% + .125rem); }
   @media (prefers-reduced-motion: reduce){ .auth-tab-indicator{ transition:none; } }
   .auth-tab-row .chip{
     position:relative; z-index:1; flex:1; display:flex; align-items:center; justify-content:center; gap:.4rem;
@@ -2348,7 +2353,10 @@
           <span class="hud-tag"><span class="hud-dot"></span><span>Nocturne Relief · 48.85°N / 52.52°N</span></span>
           <span class="hud-tag accent"><span>Axis Trans-Européen</span></span>
         </div>
-        <img class="hub-map-photo" src="map-europe.jpg" alt="Nächtliche Satellitenkarte von Westeuropa mit hervorgehobenen Grenzen von Frankreich und Deutschland" loading="lazy">
+        <!-- Laedt das Satellitenfoto nicht (z.B. index.html ohne Bilddateien daneben
+             geoeffnet), wird es ausgeblendet statt den Alt-Text quer ueber die Karte
+             zu legen. Die SVG-Karte darunter traegt die Darstellung dann allein. -->
+        <img class="hub-map-photo" src="map-europe.jpg" alt="Nächtliche Satellitenkarte von Westeuropa mit hervorgehobenen Grenzen von Frankreich und Deutschland" loading="lazy" onerror="this.hidden=true">
         <svg class="hub-map-svg" viewBox="0 0 1408 768" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
           <defs>
             <filter id="mapSuperGlow" x="-70%" y="-70%" width="240%" height="240%">
@@ -2468,7 +2476,7 @@
           <span class="feature-card-body">
             <span class="feature-card-eyebrow">Kollektion</span>
             <span class="feature-card-title">Lernsets</span>
-            <span class="feature-card-desc">Eigene Vokabeln anlegen &amp; mit KI übersetzen.</span>
+            <span class="feature-card-desc">Lege eigene Vokabelsets an und lass dir Übersetzungen von der KI vorschlagen — importieren und exportieren kannst du sie auch.</span>
           </span>
           <span class="feature-card-footer"><span>Eigene Sets</span><span class="feature-card-arrow">→</span></span>
         </button>
@@ -2483,7 +2491,7 @@
           <span class="feature-card-body">
             <span class="feature-card-eyebrow">Akustik</span>
             <span class="feature-card-title">Aussprache</span>
-            <span class="feature-card-desc">Wörter anhören &amp; Aussprache trainieren.</span>
+            <span class="feature-card-desc">Hör dir jedes Wort in sauberem Französisch an und übe die Aussprache so oft nach, wie du möchtest.</span>
           </span>
           <span class="feature-card-footer"><span>Text-to-Speech</span><span class="lock-badge" hidden>🔒 Konto</span><span class="feature-card-arrow">→</span></span>
         </button>
@@ -2498,7 +2506,7 @@
           <span class="feature-card-body">
             <span class="feature-card-eyebrow">Insignien</span>
             <span class="feature-card-title">Belohnungen</span>
-            <span class="feature-card-desc">Serie halten &amp; Fortschritt sehen.</span>
+            <span class="feature-card-desc">Halte deine Lernserie am Laufen, sammle Abzeichen und behalte deinen Fortschritt über die Wochen im Blick.</span>
           </span>
           <span class="feature-card-footer"><span>Serie &amp; Badges</span><span class="lock-badge" hidden>🔒 Konto</span><span class="feature-card-arrow">→</span></span>
         </button>
@@ -2513,7 +2521,7 @@
           <span class="feature-card-body">
             <span class="feature-card-eyebrow">Struktur</span>
             <span class="feature-card-title">Grammatik</span>
-            <span class="feature-card-desc">Regeln von der KI erklärt bekommen.</span>
+            <span class="feature-card-desc">Stell eine Frage zur französischen Grammatik und bekomm Regeln, Beispiele und Ausnahmen verständlich erklärt.</span>
           </span>
           <span class="feature-card-footer"><span>KI erklärt</span><span class="lock-badge" hidden>🔒 Konto</span><span class="feature-card-arrow">→</span></span>
         </button>
@@ -2528,7 +2536,7 @@
           <span class="feature-card-body">
             <span class="feature-card-eyebrow">Rhythmus</span>
             <span class="feature-card-title">Kalender</span>
-            <span class="feature-card-desc">Klausuren eintragen &amp; Lernplan sehen.</span>
+            <span class="feature-card-desc">Trag Klausuren und Termine ein — Lumière erinnert dich rechtzeitig und baut daraus deinen Lernplan.</span>
           </span>
           <span class="feature-card-footer"><span>Lernplan</span><span class="lock-badge" hidden>🔒 Konto</span><span class="feature-card-arrow">→</span></span>
         </button>
@@ -2543,7 +2551,7 @@
           <span class="feature-card-body">
             <span class="feature-card-eyebrow">Zugang</span>
             <span class="feature-card-title">App installieren</span>
-            <span class="feature-card-desc">Lumière als App auf den Startbildschirm holen.</span>
+            <span class="feature-card-desc">Leg Lumière als App auf deinen Startbildschirm und öffne sie wie jede andere App, auch ohne Browser.</span>
           </span>
           <span class="feature-card-footer"><span>PWA</span><span class="feature-card-arrow">→</span></span>
         </button>
@@ -2558,7 +2566,7 @@
           <span class="feature-card-body">
             <span class="feature-card-eyebrow">Transparenz</span>
             <span class="feature-card-title">Über uns</span>
-            <span class="feature-card-desc">Zweck, Rechte &amp; technischer Schutz dieser Seite.</span>
+            <span class="feature-card-desc">Wer hinter Lumière steckt, wofür die Seite gedacht ist und wie deine Daten technisch geschützt werden.</span>
           </span>
           <span class="feature-card-footer"><span>Dossier</span><span class="feature-card-arrow">→</span></span>
         </button>
