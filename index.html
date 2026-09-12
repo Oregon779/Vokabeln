@@ -864,9 +864,17 @@
   }
   /* --- Auth-Modal Redesign (Login/Registrieren) --- */
   .auth-modal-box{
-    max-width:480px; border-color:rgba(246,195,92,.28);
+    position:relative; max-width:480px; border-color:rgba(246,195,92,.28);
     box-shadow:0 25px 60px rgba(0,0,0,.55), 0 0 50px 2px rgba(246,195,92,.12), inset 0 1px 1px rgba(255,255,255,.08);
   }
+  .auth-modal-close{
+    position:absolute; top:1.1rem; right:1.1rem; z-index:2; width:2rem; height:2rem; border-radius:50%;
+    display:flex; align-items:center; justify-content:center; background:none; border:1px solid rgba(255,255,255,.08);
+    color:var(--stone); cursor:pointer; padding:0; transition:color .2s var(--ease), border-color .2s var(--ease), background .2s var(--ease), transform .2s var(--ease);
+  }
+  .auth-modal-close:hover{ color:var(--ember-bright); border-color:rgba(246,195,92,.35); background:rgba(246,195,92,.08); }
+  .auth-modal-close svg{ transition:transform .2s var(--ease); }
+  .auth-modal-close:hover svg{ transform:rotate(90deg); }
   .auth-modal-box::before{
     content:''; display:block; height:2px; margin:-1.4rem -1.4rem 1.3rem;
     background:linear-gradient(90deg, transparent, var(--ember-bright), transparent); opacity:.85; border-radius:20px 20px 0 0;
@@ -1032,17 +1040,62 @@
     background:linear-gradient(135deg, #242c3d, #121622); border:1px solid rgba(246,195,92,.4);
     font-family:var(--font-serif); font-size:.85rem; font-weight:600; color:var(--ember-bright); letter-spacing:.03em;
   }
-  .auth-avatar-dot{ position:absolute; bottom:-1px; right:-1px; width:.65rem; height:.65rem; border-radius:50%; background:var(--success); border:2px solid #0e121a; }
-  .auth-user-row-text{ display:flex; flex-direction:column; min-width:0; }
+  /* Gestrichelter Rahmen-Ring um den Avatar, wie bei den Orb-Icons anderswo im
+     Auth-Modal - hier statisch (keine Rotation), da es ein Rahmen ist und kein
+     eigenstaendiges dekoratives Symbol. */
+  .auth-avatar::before{
+    content:''; position:absolute; inset:-4px; border-radius:50%; border:1px dashed rgba(246,195,92,.3); pointer-events:none;
+  }
+  .auth-avatar-dot{ position:absolute; bottom:-1px; right:-1px; width:.65rem; height:.65rem; border-radius:50%; background:var(--success); border:2px solid #0e121a; box-shadow:0 0 6px rgba(74,222,128,.6); }
+  .auth-user-row-text{ display:flex; flex-direction:column; min-width:0; gap:.15rem; }
   .auth-user-row-text span:first-child{ font-size:.66rem; color:var(--stone); }
   .auth-user-row-text strong{ font-size:.85rem; font-weight:500; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:220px; }
+  .auth-user-row-meta{ font-size:.66rem; color:var(--stone); opacity:.85; }
   .auth-admin-tag{
-    display:inline-flex; align-items:center; gap:.4rem; padding:.3rem .65rem; border-radius:8px; flex-shrink:0;
-    background:rgba(246,195,92,.1); border:1px solid rgba(246,195,92,.4); font-family:var(--font-mono); font-size:.62rem; font-weight:600; letter-spacing:.05em; text-transform:uppercase; color:var(--ember-bright);
+    display:inline-flex; align-items:center; gap:.4rem; padding:.35rem .7rem; border-radius:10px; flex-shrink:0;
+    background:linear-gradient(135deg, rgba(246,195,92,.16), rgba(184,134,47,.1)); border:1px solid rgba(246,195,92,.4);
+    font-family:var(--font-mono); font-size:.62rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--ember-bright);
+    box-shadow:0 0 12px rgba(246,195,92,.12);
   }
   .auth-field.has-inline-btn{ display:flex; align-items:center; gap:.5rem; padding-right:.35rem; }
   .auth-field.has-inline-btn .modal-input{ padding-right:.7rem; }
   .auth-field.has-inline-btn .btn{ flex-shrink:0; white-space:nowrap; }
+  .auth-field-caption{ margin:.5rem 0 0; font-size:.72rem; color:var(--stone); opacity:.85; }
+  .auth-name-saved{
+    display:inline-flex; align-items:center; gap:.3rem; flex-shrink:0; white-space:nowrap;
+    font-family:var(--font-mono); font-size:.68rem; font-weight:600; color:var(--success);
+    opacity:0; transform:translateX(-4px); transition:opacity .3s var(--ease), transform .3s var(--ease-premium);
+  }
+  .auth-name-saved.is-visible{ opacity:1; transform:translateX(0); }
+  /* --- Konto-Status: zwei eigenstaendige Mini-Karten statt einer Liste aus
+     Balken, nach demselben Prinzip wie die Admin-Stat-Karten. --- */
+  .account-status-grid{ display:grid; grid-template-columns:1fr 1fr; gap:.8rem; }
+  @media (max-width:420px){ .account-status-grid{ grid-template-columns:1fr; } }
+  .account-status-mini{
+    display:flex; flex-direction:column; gap:.4rem; padding:.8rem; border-radius:12px;
+    background:rgba(14,18,26,.7); border:1px solid rgba(255,255,255,.06);
+  }
+  .account-status-mini-head{ display:flex; align-items:center; justify-content:space-between; }
+  .account-status-mini-icon{
+    width:1.6rem; height:1.6rem; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    background:rgba(246,195,92,.1); border:1px solid rgba(246,195,92,.25); color:var(--ember-bright);
+  }
+  .account-status-mini-pct{
+    font-family:var(--font-mono); font-size:.62rem; font-weight:700; color:var(--ember-bright);
+    background:rgba(246,195,92,.1); border:1px solid rgba(246,195,92,.25); border-radius:999px; padding:.15rem .5rem;
+  }
+  .account-status-mini-label{ font-family:var(--font-mono); font-size:.6rem; text-transform:uppercase; letter-spacing:.08em; color:var(--stone); }
+  .account-status-mini-value{ font-family:var(--font-serif); font-size:1.3rem; font-weight:600; color:var(--text); }
+  .account-status-mini .status-meter-track{ height:6px; }
+  .account-status-mini-caption{ font-size:.66rem; font-style:italic; color:var(--stone); line-height:1.4; }
+  /* --- Explainer als umrahmte Karte + optionale zweite Zeile fuer den
+     Sync-Status (echte Daten, siehe refreshAccountStatus). --- */
+  .auth-explainer-boxed{ background:rgba(14,18,26,.7); border-color:rgba(255,255,255,.07); }
+  .auth-explainer-sync{
+    margin:.4rem 0 0 !important; display:flex; align-items:center; gap:.4rem;
+    font-size:.7rem !important; color:var(--stone) !important;
+  }
+  .auth-explainer-sync-dot{ width:.4rem; height:.4rem; border-radius:50%; background:var(--success); box-shadow:0 0 5px rgba(74,222,128,.6); flex-shrink:0; }
   .auth-modal-box .btn-danger{
     background:linear-gradient(120deg, #2d1217, #220d12); border-color:rgba(127,29,29,.6);
     box-shadow:0 0 15px rgba(127,29,29,.25);
@@ -2619,6 +2672,9 @@
 
 <div class="modal-backdrop" id="authModalBackdrop">
   <div class="modal-box auth-modal-box">
+    <button type="button" class="auth-modal-close" id="authModalCloseBtn" aria-label="Schließen">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+    </button>
     <div id="authLoggedOutView">
       <div class="auth-eyebrow"><span class="auth-eyebrow-dot" aria-hidden="true"></span>Lumière · Synchronisation</div>
       <h3>Konto <span class="gold-shimmer">&amp; Profil</span></h3>
@@ -2713,6 +2769,7 @@
           <div class="auth-user-row-text">
             <span>Angemeldet als</span>
             <strong id="authUserEmail"></strong>
+            <span class="auth-user-row-meta" id="authUserSince" hidden></span>
           </div>
         </div>
         <div class="auth-admin-tag" id="statusAdminBadge" hidden><span aria-hidden="true">👑</span>Admin-Konto</div>
@@ -2723,8 +2780,13 @@
         <div class="auth-field has-inline-btn">
           <span class="auth-field-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg></span>
           <input type="text" id="authDisplayNameEdit" class="modal-input" maxlength="40" autocomplete="nickname" placeholder="Wie sollen wir dich nennen?">
-          <button type="submit" class="btn btn-secondary btn-small">Speichern</button>
+          <span class="auth-name-saved" id="authNameSaved" hidden aria-hidden="true">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4 10-10"/></svg>
+            Gespeichert
+          </span>
+          <button type="submit" class="btn btn-secondary btn-small" id="authNameSaveBtn">Speichern</button>
         </div>
+        <p class="auth-field-caption">Wird für deine Sets, Statistiken und die Kontoübersicht verwendet.</p>
       </form>
 
       <div class="account-status-card" id="accountStatusCard" hidden>
@@ -2735,23 +2797,38 @@
           </p>
           <span class="account-status-live"><span class="account-status-live-dot"></span>Aktiv · Reset 00:00 UTC</span>
         </div>
-        <div class="status-meter-row">
-          <div class="status-meter-labels"><span>KI-Anfragen heute</span><span id="statusAiUsageText">–</span></div>
-          <div class="status-meter-track"><div class="status-meter-fill" id="statusAiUsageFill"></div></div>
-          <div class="status-meter-caption"><span>Für Vokabel-Kontexte &amp; grammatikalische Nuancen</span><span id="statusAiUsagePct"></span></div>
-        </div>
-        <div class="status-meter-row">
-          <div class="status-meter-labels"><span>Website-Kapazität heute</span><span id="statusCapacityText">–</span></div>
-          <div class="status-meter-track"><div class="status-meter-fill status-meter-fill-alt" id="statusCapacityFill"></div></div>
-          <div class="status-meter-caption"><span>Synchronisations-Bandbreite &amp; Audiowiedergabe</span><span id="statusCapacityPct"></span></div>
+        <div class="account-status-grid">
+          <div class="account-status-mini">
+            <div class="account-status-mini-head">
+              <span class="account-status-mini-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg></span>
+              <span class="account-status-mini-pct" id="statusAiUsagePct">–%</span>
+            </div>
+            <span class="account-status-mini-label">KI-Anfragen heute</span>
+            <span class="account-status-mini-value" id="statusAiUsageText">–</span>
+            <div class="status-meter-track"><div class="status-meter-fill" id="statusAiUsageFill"></div></div>
+            <span class="account-status-mini-caption">Für Vokabel-Kontexte &amp; grammatikalische Nuancen</span>
+          </div>
+          <div class="account-status-mini">
+            <div class="account-status-mini-head">
+              <span class="account-status-mini-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"/></svg></span>
+              <span class="account-status-mini-pct" id="statusCapacityPct">–%</span>
+            </div>
+            <span class="account-status-mini-label">Website-Kapazität heute</span>
+            <span class="account-status-mini-value" id="statusCapacityText">–</span>
+            <div class="status-meter-track"><div class="status-meter-fill status-meter-fill-alt" id="statusCapacityFill"></div></div>
+            <span class="account-status-mini-caption">Synchronisations-Bandbreite &amp; Audiowiedergabe</span>
+          </div>
         </div>
       </div>
 
-      <div class="auth-explainer">
+      <div class="auth-explainer auth-explainer-boxed">
         <span class="auth-explainer-icon" aria-hidden="true">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"/></svg>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v4m0 8v4m8-8h-4M8 12H4m12.95-4.95-2.83 2.83M8.88 15.12l-2.83 2.83m0-12.02 2.83 2.83m6.24 6.24 2.83 2.83"/></svg>
         </span>
-        <p>Vokabeln, Sammlungen &amp; Lernfortschritt werden automatisch geräteübergreifend gesichert.</p>
+        <div>
+          <p>Vokabeln, Sammlungen &amp; Lernfortschritt werden automatisch geräteübergreifend gesichert.</p>
+          <p class="auth-explainer-sync" id="authSyncStatus" hidden><span class="auth-explainer-sync-dot"></span><span id="authSyncStatusText"></span></p>
+        </div>
       </div>
 
       <div class="modal-actions">
@@ -5231,6 +5308,12 @@ let currentUser = null;
 let currentProfile = null;
 let cloudSyncTimer = null;
 let authTab = 'signin';
+// Zeitpunkt der letzten erfolgreichen Cloud-Synchronisation (echte Daten fuer
+// die "Zuletzt synchronisiert"-Zeile in der Kontouebersicht, siehe
+// refreshAccountStatus). Bewusst kein erfundener Geraete-Zaehler dazu, da wir
+// dafuer keine zuverlaessige Datenquelle im Client haben.
+let lastCloudSyncAt = null;
+let authNameSavedTimer = null;
 
 function scheduleCloudSync(){
   if(!sb || !currentUser) return;
@@ -5244,14 +5327,16 @@ async function pushCloudData(){
     const { error } = await sb.from('user_data').upsert({
       user_id: currentUser.id, data: store, updated_at: new Date().toISOString(),
     });
-    if(error) console.error('Cloud-Sync (Speichern) fehlgeschlagen:', error.message);
+    if(error){ console.error('Cloud-Sync (Speichern) fehlgeschlagen:', error.message); return; }
+    lastCloudSyncAt = new Date();
+    updateSyncStatusUI();
   }catch(e){ console.error('Cloud-Sync (Speichern) fehlgeschlagen:', e.message); }
 }
 
 async function pullCloudData(){
   if(!sb || !currentUser) return;
   try{
-    const { data, error } = await sb.from('user_data').select('data').eq('user_id', currentUser.id).maybeSingle();
+    const { data, error } = await sb.from('user_data').select('data, updated_at').eq('user_id', currentUser.id).maybeSingle();
     if(error){ console.error('Cloud-Daten laden fehlgeschlagen:', error.message); return; }
     if(data && data.data && Array.isArray(data.data.sets) && data.data.sets.length){
       // Konto hat bereits Daten (z.B. von einem anderen Geraet) -> diese uebernehmen.
@@ -5264,11 +5349,31 @@ async function pullCloudData(){
       writeStoreToDisk(store);
       applySettingsToUI();
       renderHub();
+      lastCloudSyncAt = data.updated_at ? new Date(data.updated_at) : new Date();
     } else {
       // Erstes Login auf diesem Konto -> lokale Daten hochladen.
       await pushCloudData();
     }
+    updateSyncStatusUI();
   }catch(e){ console.error('Cloud-Sync (Laden) fehlgeschlagen:', e.message); }
+}
+
+// Aktualisiert nur die "Zuletzt synchronisiert"-Zeile in der Kontouebersicht -
+// eigene Funktion, damit sie sowohl nach push/pull als auch beim Oeffnen des
+// Kontomodals (in refreshAccountStatus) aufgerufen werden kann.
+function updateSyncStatusUI(){
+  const row = document.getElementById('authSyncStatus');
+  const text = document.getElementById('authSyncStatusText');
+  if(!row || !text) return;
+  if(!lastCloudSyncAt){ row.hidden = true; return; }
+  const seconds = Math.max(0, Math.round((Date.now() - lastCloudSyncAt.getTime()) / 1000));
+  let ago;
+  if(seconds < 60) ago = 'gerade eben';
+  else if(seconds < 3600) ago = `vor ${Math.round(seconds / 60)} Min.`;
+  else if(seconds < 86400) ago = `vor ${Math.round(seconds / 3600)} Std.`;
+  else ago = `vor ${Math.round(seconds / 86400)} Tag${Math.round(seconds / 86400) === 1 ? '' : 'en'}`;
+  text.textContent = `Zuletzt synchronisiert ${ago}`;
+  row.hidden = false;
 }
 
 // --- Profil (Konto-Status, Sperren, KI-Limit) -----------------------------
@@ -5323,6 +5428,7 @@ async function refreshAccountStatus(){
   document.getElementById('statusAiUsageFill').style.width = aiPct + '%';
   document.getElementById('statusAiUsagePct').textContent = aiPct + '%';
   document.getElementById('statusAdminBadge').hidden = !currentProfile.is_admin;
+  updateSyncStatusUI();
   if(!sb) return;
   try{
     const { data } = await sb.rpc('get_capacity');
@@ -6057,6 +6163,11 @@ function updateAccountUI(){
     document.getElementById('authUserEmail').textContent = currentUser.email;
     document.getElementById('authDisplayNameEdit').value = displayName;
     document.getElementById('authAvatarInitials').textContent = getInitials(displayName || currentUser.email);
+    const sinceEl = document.getElementById('authUserSince');
+    if(currentUser.created_at){
+      sinceEl.textContent = 'Mitglied seit ' + new Date(currentUser.created_at).toLocaleDateString('de-DE', { month: 'long', year: 'numeric' });
+      sinceEl.hidden = false;
+    } else sinceEl.hidden = true;
   } else {
     btn.classList.remove('is-logged-in');
     label.textContent = 'Konto';
@@ -6164,6 +6275,7 @@ document.getElementById('btnAccountSettings').addEventListener('click', () => { 
 document.getElementById('btnMaintenanceAdminLogin').addEventListener('click', () => { sndClick(); openAccountModal(); });
 document.getElementById('authCancel').addEventListener('click', () => { sndClick(); closeAccountModal(); });
 document.getElementById('authCloseBtn').addEventListener('click', () => { sndClick(); closeAccountModal(); });
+document.getElementById('authModalCloseBtn').addEventListener('click', () => { sndClick(); closeAccountModal(); });
 document.getElementById('authModalBackdrop').addEventListener('click', (e) => {
   if(e.target.id === 'authModalBackdrop') closeAccountModal();
 });
@@ -6327,6 +6439,14 @@ document.getElementById('authNameForm').addEventListener('submit', async (e) => 
     if(currentProfile) currentProfile.display_name = displayName;
     updateAccountUI();
     showToast('Anzeigename gespeichert.');
+    const saved = document.getElementById('authNameSaved');
+    saved.hidden = false;
+    requestAnimationFrame(() => saved.classList.add('is-visible'));
+    clearTimeout(authNameSavedTimer);
+    authNameSavedTimer = setTimeout(() => {
+      saved.classList.remove('is-visible');
+      setTimeout(() => { saved.hidden = true; }, 300);
+    }, 2200);
   }catch(err){
     showToast(translateAuthError(err.message), true);
   }
