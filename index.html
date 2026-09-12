@@ -880,8 +880,12 @@
   @keyframes authDotPing{0%{box-shadow:0 0 0 0 rgba(246,195,92,.55);} 70%{box-shadow:0 0 0 7px rgba(246,195,92,0);} 100%{box-shadow:0 0 0 0 rgba(246,195,92,0);}}
   @media (prefers-reduced-motion: reduce){ .auth-eyebrow-dot{animation:none;} }
   .auth-modal-box h3{
-    font-family:var(--font-serif); font-size:1.85rem; font-weight:500; letter-spacing:-.01em;
+    position:relative; font-family:var(--font-serif); font-size:1.85rem; font-weight:500; letter-spacing:-.01em;
     display:flex; align-items:baseline; gap:.4rem; margin:0 0 .9rem;
+  }
+  .auth-modal-box h3::before{
+    content:''; position:absolute; top:-16px; left:-8px; width:160px; height:64px; z-index:-1;
+    background:radial-gradient(ellipse, rgba(246,195,92,.16), transparent 70%); filter:blur(16px); pointer-events:none;
   }
   .auth-modal-box h3 .gold-shimmer{
     font-style:italic; font-weight:300; font-size:1.45rem;
@@ -893,9 +897,18 @@
     border-radius:12px; background:var(--surface-2); border:1px solid var(--border-solid);
   }
   .auth-explainer-icon{
-    flex-shrink:0; width:1.5rem; height:1.5rem; border-radius:50%; margin-top:.1rem;
+    position:relative; flex-shrink:0; width:1.5rem; height:1.5rem; border-radius:50%; margin-top:.1rem;
     display:flex; align-items:center; justify-content:center; background:rgba(246,195,92,.1); border:1px solid rgba(246,195,92,.25); color:var(--ember-bright);
   }
+  /* Rotierender gestrichelter Ring nach dem uebergebenen "Signature Orb"-Icon -
+     dasselbe Prinzip wie die Feature-Card-Orbs, hier klein und dauerhaft
+     langsam rotierend statt nur bei Hover. */
+  .auth-explainer-icon::before{
+    content:''; position:absolute; inset:-5px; border-radius:50%; border:1px dashed rgba(246,195,92,.4);
+    animation:authOrbSpin 22s linear infinite;
+  }
+  @keyframes authOrbSpin{ to{ transform:rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce){ .auth-explainer-icon::before{ animation:none; } }
   .auth-explainer p{margin:0; font-size:.78rem; line-height:1.55; color:var(--stone);}
   .auth-explainer strong{color:var(--text); font-weight:600;}
   .auth-tab-row{
@@ -952,6 +965,20 @@
     transition:opacity .2s var(--ease);
   }
   .auth-forgot-link:hover{opacity:1; text-decoration:underline;}
+  /* Passwort-Staerke: nur beim Registrieren sichtbar (siehe JS), rein visuelles
+     Feedback ohne den Nutzer zu blockieren. */
+  .auth-pw-strength{margin:.6rem 0 0;}
+  .auth-pw-strength-row{display:flex; align-items:center; justify-content:space-between; font-family:var(--font-mono); font-size:.62rem; color:var(--stone); margin-bottom:.4rem;}
+  .auth-pw-strength-row span:last-child{color:var(--ember-bright); font-weight:600;}
+  .auth-pw-strength-track{display:grid; grid-template-columns:repeat(3,1fr); gap:.35rem; height:4px;}
+  .auth-pw-strength-seg{border-radius:999px; background:var(--surface-2); transition:background .25s var(--ease);}
+  .auth-pw-strength-seg.is-filled{background:var(--ember-bright); box-shadow:0 0 6px rgba(246,195,92,.5);}
+  /* Absenden-Button: Spinner ersetzt den Pfeil waehrend der Anfrage laeuft. */
+  .auth-submit-spinner{display:none; width:15px; height:15px; margin-right:.5rem; flex-shrink:0; animation:authSpin .7s linear infinite;}
+  #authSubmit.is-loading .auth-submit-spinner{display:inline-block;}
+  #authSubmit{display:flex; align-items:center; justify-content:center;}
+  @keyframes authSpin{to{transform:rotate(360deg);}}
+  @media (prefers-reduced-motion: reduce){ .auth-submit-spinner{animation:none;} }
   #authMessage{
     display:block; margin:1.1rem 0 0; padding:.75rem .85rem; border-radius:12px;
     background:rgba(246,195,92,.1); border:1px solid rgba(246,195,92,.3); color:#ffe8a8; font-size:.78rem; line-height:1.5;
@@ -2640,12 +2667,23 @@
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
           </button>
         </div>
+        <div class="auth-pw-strength" id="authPwStrength" hidden>
+          <div class="auth-pw-strength-row"><span>Passwortsicherheit</span><span id="authPwStrengthLabel">–</span></div>
+          <div class="auth-pw-strength-track">
+            <span class="auth-pw-strength-seg"></span>
+            <span class="auth-pw-strength-seg"></span>
+            <span class="auth-pw-strength-seg"></span>
+          </div>
+        </div>
 
         <p id="authMessage" hidden></p>
 
         <div class="modal-actions">
           <button type="button" class="btn btn-secondary" id="authCancel">Abbrechen</button>
-          <button type="submit" class="btn btn-primary" id="authSubmit">Anmelden</button>
+          <button type="submit" class="btn btn-primary" id="authSubmit">
+            <svg class="auth-submit-spinner" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2.5" opacity=".3"/><path d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+            <span id="authSubmitLabel">Anmelden</span>
+          </button>
         </div>
         <p class="auth-footnote">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
@@ -6135,12 +6173,32 @@ document.querySelectorAll('#authTabChips .chip').forEach(chip => {
     authTab = chip.dataset.tab;
     document.querySelectorAll('#authTabChips .chip').forEach(c => c.classList.toggle('selected', c === chip));
     document.getElementById('authTabChips').classList.toggle('tab-signup', authTab === 'signup');
-    document.getElementById('authSubmit').textContent = authTab === 'signup' ? 'Registrieren' : 'Anmelden';
+    document.getElementById('authSubmitLabel').textContent = authTab === 'signup' ? 'Registrieren' : 'Anmelden';
     document.getElementById('authForgotLink').hidden = authTab === 'signup';
     document.getElementById('authDisplayNameGroup').classList.toggle('is-open', authTab === 'signup');
+    document.getElementById('authPwStrength').hidden = authTab !== 'signup';
+    if(authTab === 'signup') updateAuthPwStrength();
     const msg = document.getElementById('authMessage');
     msg.hidden = true; msg.classList.remove('is-error');
   });
+});
+// Rein visuelles Feedback beim Registrieren - blockiert das Absenden nicht,
+// hilft nur bei der Einschaetzung des gewaehlten Passworts.
+function authPwStrengthScore(pw){
+  let score = 0;
+  if(pw.length >= 6) score = 1;
+  if(pw.length >= 8 && /[0-9]/.test(pw) && /[a-zA-Z]/.test(pw)) score = 2;
+  if(pw.length >= 12 && /[0-9]/.test(pw) && /[a-z]/.test(pw) && /[A-Z]/.test(pw)) score = 3;
+  return score;
+}
+function updateAuthPwStrength(){
+  const score = authPwStrengthScore(document.getElementById('authPassword').value);
+  const labels = ['–', 'Schwach', 'Mittel', 'Stark'];
+  document.getElementById('authPwStrengthLabel').textContent = labels[score];
+  document.querySelectorAll('#authPwStrength .auth-pw-strength-seg').forEach((seg, i) => seg.classList.toggle('is-filled', i < score));
+}
+document.getElementById('authPassword').addEventListener('input', () => {
+  if(authTab === 'signup') updateAuthPwStrength();
 });
 document.getElementById('authTogglePwVisibility').addEventListener('click', () => {
   const pw = document.getElementById('authPassword');
@@ -6181,12 +6239,15 @@ document.getElementById('authForm').addEventListener('submit', async (e) => {
   const password = document.getElementById('authPassword').value;
   const msg = document.getElementById('authMessage');
   const submitBtn = document.getElementById('authSubmit');
+  const submitLabel = document.getElementById('authSubmitLabel');
   if(!sb){
     msg.textContent = 'Cloud-Sync ist gerade nicht erreichbar (offline oder blockiert). Bitte später erneut versuchen.';
     msg.hidden = false; msg.classList.add('is-error');
     return;
   }
-  submitBtn.disabled = true;
+  const restLabel = submitLabel.textContent;
+  submitBtn.disabled = true; submitBtn.classList.add('is-loading');
+  submitLabel.textContent = authTab === 'signup' ? 'Erstelle Konto …' : 'Authentifiziere …';
   msg.hidden = true; msg.classList.remove('is-error');
   try{
     if(authTab === 'signup'){
@@ -6213,7 +6274,8 @@ document.getElementById('authForm').addEventListener('submit', async (e) => {
     msg.textContent = translateAuthError(err.message);
     msg.hidden = false; msg.classList.add('is-error');
   }finally{
-    submitBtn.disabled = false;
+    submitBtn.disabled = false; submitBtn.classList.remove('is-loading');
+    submitLabel.textContent = restLabel;
   }
 });
 document.getElementById('authSignOutBtn').addEventListener('click', async () => {
