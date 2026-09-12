@@ -261,6 +261,14 @@
   }
   .toast.show{opacity:1; transform:translate(-50%, 0);}
   .toast.toast-error{border-color:rgba(239,75,87,.5);}
+  /* Meldung mit Symbol je nach Art - eine rote Zeile allein sagt nicht, ob
+     etwas geklappt hat oder schiefging. Das Symbol traegt die Bedeutung mit. */
+  .toast{ display:flex; align-items:flex-start; gap:.6rem; text-align:left; }
+  .toast-icon{ flex-shrink:0; width:17px; height:17px; margin-top:.06rem; }
+  .toast-success .toast-icon{ color:var(--success); }
+  .toast-error .toast-icon{ color:var(--danger); }
+  .toast-info .toast-icon{ color:var(--ember-bright); }
+  .toast-success{ border-color:rgba(74,222,128,.4); }
 
   #app{position:relative; z-index:1; max-width:880px; margin:0 auto; padding:6.2rem 1.2rem 4rem;}
   @media (min-width:700px){ #app{padding:6.6rem 2rem 4rem;} }
@@ -376,6 +384,31 @@
   }
   .empty-state svg{opacity:.55;}
   .empty-state p{color:var(--stone); font-style:normal; margin:0; font-size:.92rem; max-width:28em;}
+
+  /* --- Leerzustaende mit gefaecherten Symbolen + Handlungsaufforderung -----
+     Nach dem uebergebenen "interactive empty state": drei Kacheln liegen
+     leicht gedreht uebereinander und faechern beim Hovern auseinander, darunter
+     Titel, Erklaerung und ein Button, der direkt weiterhilft. Wichtig ist der
+     Button - eine leere Seite ohne naechsten Schritt laesst Leute ratlos. */
+  .empty-fan{ display:flex; align-items:center; justify-content:center; isolation:isolate; margin-bottom:1.1rem; }
+  .empty-fan-icon{
+    position:relative; display:grid; place-items:center; width:52px; height:52px; border-radius:16px;
+    background:var(--surface-2); border:1px solid var(--border-solid); color:var(--stone);
+    transition:transform .45s var(--ease-premium), background .3s var(--ease), border-color .3s var(--ease), color .3s var(--ease);
+  }
+  .empty-fan-icon svg{ width:22px; height:22px; opacity:1; }
+  .empty-fan-icon:nth-child(1){ transform:translateX(12px) rotate(-8deg); z-index:1; }
+  .empty-fan-icon:nth-child(2){ z-index:3; box-shadow:0 6px 18px rgba(0,0,0,.35); }
+  .empty-fan-icon:nth-child(3){ transform:translateX(-12px) rotate(8deg); z-index:2; }
+  .empty-state:hover .empty-fan-icon:nth-child(1){ transform:translateX(-6px) translateY(-3px) rotate(-14deg); }
+  .empty-state:hover .empty-fan-icon:nth-child(2){ transform:translateY(-5px); }
+  .empty-state:hover .empty-fan-icon:nth-child(3){ transform:translateX(6px) translateY(-3px) rotate(14deg); }
+  .empty-state:hover .empty-fan-icon{ border-color:var(--ember-dim); color:var(--ember-bright); }
+  @media (prefers-reduced-motion: reduce){
+    .empty-fan-icon, .empty-state:hover .empty-fan-icon{ transition:none; }
+  }
+  .empty-state-title{ font-family:var(--font-sans); font-weight:700; font-size:1.02rem; color:var(--text); margin:0; }
+  .empty-state-action{ margin-top:1.1rem; }
 
   .box{margin-top:2.2rem; padding:1.3rem 1.4rem; background:var(--surface); -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px); border:1px dashed var(--border-solid); border-radius:20px;}
   .box h3{margin-top:0;}
@@ -1030,6 +1063,14 @@
     mask-image:linear-gradient(180deg, #000 0%, rgba(0,0,0,.55) 55%, transparent 92%);
   }
   .hero-shader.is-live{ opacity:.5; }
+  /* Magnetische Buttons: bewusst ueber die eigenstaendige translate-Eigenschaft
+     statt ueber transform. Die Buttons haben bereits eigene transform-Regeln
+     (Anheben bei :hover) und eine laufende Animation - beides gewinnt in der
+     Kaskade gegen eine normale transform-Regel. translate wird dagegen separat
+     ausgewertet und mit transform kombiniert, dadurch gibt es gar keinen
+     Konflikt und der Hover-Effekt bleibt unveraendert erhalten. */
+  .is-magnetic{ translate:var(--mag-x, 0px) var(--mag-y, 0px); }
+  .is-magnetic.mag-settle{ transition:translate .45s var(--ease-spring); }
   @media (hover:none), (pointer:coarse), (prefers-reduced-motion: reduce){ .hero-shader{ display:none; } }
   .hub-grid{position:relative; z-index:1; display:grid; grid-template-columns:1fr; gap:2.6rem; align-items:center; padding-top:1rem; max-width:1280px; margin:0 auto;}
   @media (min-width:980px){ .hub-grid{ grid-template-columns:1.05fr .95fr; gap:3.2rem; } }
@@ -2674,8 +2715,17 @@
     </div>
     <div id="setsList" class="sets-grid"></div>
     <div id="setsEmpty" class="empty-state" hidden>
-      <svg viewBox="0 0 24 24" width="34" height="34" aria-hidden="true" fill="none" stroke="var(--stone)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5V5.5Z"/><path d="M4 18.5A2.5 2.5 0 0 1 6.5 16H20"/><path d="M9 9h6M9 12.5h4"/></svg>
-      <p>Du hast noch kein Lernset. Leg dein erstes an!</p>
+      <div class="empty-fan" aria-hidden="true">
+        <span class="empty-fan-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.5c-1.8-1.3-4.2-2-7-2v13c2.8 0 5.2.7 7 2 1.8-1.3 4.2-2 7-2v-13c-2.8 0-5.2.7-7 2Z"/><path d="M12 6.5v13"/></svg></span>
+        <span class="empty-fan-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5V5.5Z"/><path d="M4 18.5A2.5 2.5 0 0 1 6.5 16H20"/><path d="M9 9h6M9 12.5h4"/></svg></span>
+        <span class="empty-fan-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 5.5L19 10l-5.2 1.5L12 17l-1.8-5.5L5 10l5.2-1.5L12 3Z"/></svg></span>
+      </div>
+      <p class="empty-state-title">Noch kein Lernset</p>
+      <p>Leg dein erstes Set an — Vokabeln kannst du selbst eintragen oder von der KI zu einem Thema erzeugen lassen.</p>
+      <button type="button" class="btn btn-primary empty-state-action" id="emptySetsAction">
+        <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+        Erstes Lernset anlegen
+      </button>
     </div>
 
     <div class="box">
@@ -2724,8 +2774,17 @@
       <tbody id="pairsBody"></tbody>
     </table>
     <div id="pairsEmpty" class="empty-state" hidden>
-      <svg viewBox="0 0 24 24" width="34" height="34" aria-hidden="true" fill="none" stroke="var(--stone)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4" width="17" height="16" rx="3"/><path d="M8 9h8M8 13h5"/></svg>
-      <p>Noch keine Vokabeln – füg unten die erste hinzu.</p>
+      <div class="empty-fan" aria-hidden="true">
+        <span class="empty-fan-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h13M13 4l4 4-4 4"/><path d="M20 16H7M11 12l-4 4 4 4"/></svg></span>
+        <span class="empty-fan-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4" width="17" height="16" rx="3"/><path d="M8 9h8M8 13h5"/></svg></span>
+        <span class="empty-fan-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9H4Z"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/></svg></span>
+      </div>
+      <p class="empty-state-title">Noch keine Vokabeln</p>
+      <p>Trag unten dein erstes Wortpaar ein — die Übersetzung kann die KI für dich ergänzen.</p>
+      <button type="button" class="btn btn-primary empty-state-action" id="emptyPairsAction">
+        <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+        Erste Vokabel eintragen
+      </button>
     </div>
 
     <form id="formAddPair" class="inline-form pair-form">
@@ -4409,10 +4468,23 @@ function customConfirm(title, message, confirmLabel = 'Löschen'){
 }
 
 let toastTimer = null;
-function showToast(message, isError = false){
+// Zweites Argument bleibt abwaertskompatibel: true = Fehler. Zusaetzlich sind
+// jetzt 'success' und 'info' moeglich, jeweils mit passendem Symbol.
+const TOAST_ICONS = {
+  success: '<path d="M20 6 9 17l-5-5"/>',
+  error: '<circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.01"/>',
+  info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.5v.01"/>',
+};
+function showToast(message, type = 'success'){
   const toast = document.getElementById('toast');
-  toast.textContent = message;
-  toast.classList.toggle('toast-error', isError);
+  if(type === true) type = 'error';
+  else if(type === false) type = 'success';
+  if(!TOAST_ICONS[type]) type = 'info';
+  toast.className = 'toast toast-' + type;
+  toast.innerHTML =
+    `<svg class="toast-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${TOAST_ICONS[type]}</svg>` +
+    `<span>${escapeHtml(message)}</span>`;
+  void toast.offsetWidth;
   toast.classList.add('show');
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => toast.classList.remove('show'), 2600);
@@ -5660,6 +5732,59 @@ setInterval(rotateHubQuote, 30000);
   }
 })();
 
+// --- Magnetische Buttons ---------------------------------------------------
+// Nach der uebergebenen Magnetic-Komponente: ein Button zieht sich zum Zeiger,
+// sobald dieser in seine Reichweite kommt, und federt beim Verlassen zurueck.
+// Umgesetzt mit einem einzigen globalen pointermove statt eines Listeners pro
+// Button - bei vielen Buttons ist das deutlich sparsamer. Nur fuer Maus-Zeiger
+// und ohne reduzierte Bewegung; auf Touch passiert nichts.
+(function initMagneticButtons(){
+  if(!window.matchMedia('(hover:hover) and (pointer:fine)').matches) return;
+  if(reducedMotionActive()) return;
+
+  const SELECTOR = '.btn-primary, #btnHubListen, .empty-state-action, .site-footer-card';
+  const RANGE = 90;        // ab dieser Entfernung (px) reagiert der Button
+  const INTENSITY = 0.28;  // wie stark er dem Zeiger folgt
+  const active = new Set();
+
+  function release(el){
+    el.classList.add('mag-settle');
+    el.style.setProperty('--mag-x', '0px');
+    el.style.setProperty('--mag-y', '0px');
+    active.delete(el);
+    setTimeout(() => {
+      if(!active.has(el)){ el.classList.remove('is-magnetic', 'mag-settle'); }
+    }, 460);
+  }
+
+  window.addEventListener('pointermove', (e) => {
+    document.querySelectorAll(SELECTOR).forEach(el => {
+      if(el.disabled || el.hidden) return;
+      const r = el.getBoundingClientRect();
+      if(!r.width) return;
+      const cx = r.left + r.width / 2;
+      const cy = r.top + r.height / 2;
+      const dx = e.clientX - cx;
+      const dy = e.clientY - cy;
+      // Reichweite ab dem Rand des Buttons, nicht ab seiner Mitte.
+      const dist = Math.hypot(Math.max(0, Math.abs(dx) - r.width / 2), Math.max(0, Math.abs(dy) - r.height / 2));
+      if(dist < RANGE){
+        const falloff = 1 - dist / RANGE;
+        el.classList.remove('mag-settle');
+        el.classList.add('is-magnetic');
+        active.add(el);
+        el.style.setProperty('--mag-x', (dx * INTENSITY * falloff).toFixed(1) + 'px');
+        el.style.setProperty('--mag-y', (dy * INTENSITY * falloff).toFixed(1) + 'px');
+      } else if(active.has(el)){
+        release(el);
+      }
+    });
+  }, { passive:true });
+
+  // Verlaesst der Zeiger das Fenster, bleiben die Buttons sonst verschoben stehen.
+  document.addEventListener('pointerleave', () => { active.forEach(release); });
+})();
+
 // --- Hero-Shader (WebGL2) --------------------------------------------------
 // Animierter Wolken-/Lichtschleier hinter der Startseiten-Ueberschrift.
 // Fragment-Shader von Matthias Hurrle (@atzedent), hier leicht erweitert um eine
@@ -6147,6 +6272,15 @@ function renderHome(){
   wireSounds();
 }
 
+// Die Leerzustaende sollen nicht nur erklaeren, sondern direkt weiterhelfen:
+// ihre Buttons loesen dieselbe Aktion aus wie die regulaeren Bedienelemente.
+document.getElementById('emptySetsAction').addEventListener('click', () => {
+  document.getElementById('btnNewSet').click();
+});
+document.getElementById('emptyPairsAction').addEventListener('click', () => {
+  const field = document.getElementById('pairDe');
+  if(field){ field.scrollIntoView({ block:'center', behavior: reducedMotionActive() ? 'auto' : 'smooth' }); field.focus(); }
+});
 document.getElementById('btnNewSet').addEventListener('click', async () => {
   const name = await customPrompt('Name für das neue Lernset', '');
   if(!name) return;
