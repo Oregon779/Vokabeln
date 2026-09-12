@@ -4424,12 +4424,71 @@ function playTone(freq, duration, type, volume, delay = 0, filterFreq){
   osc.connect(filter); filter.connect(gain); gain.connect(ctx.destination);
   osc.start(start); osc.stop(start + duration);
 }
-function sndHover(){ playTone(600, 0.05, 'sine', 0.05); }
-function sndClick(){ playTone(360, 0.09, 'sine', 0.09); }
-function sndCorrect(){ playTone(466, 0.11, 'sine', 0.14); playTone(587, 0.14, 'sine', 0.14, 0.09); playTone(740, 0.22, 'sine', 0.13, 0.18); }
+// --- Echte Sound-Dateien (optional) ---------------------------------------
+// Liegt eine Datei unter ./sounds/ (siehe SOUND_FILES), wird sie abgespielt;
+// fehlt sie oder laesst sie sich nicht laden, bleibt der bisherige
+// synthetische Ton als Rueckfallebene. Dadurch laeuft die Seite auch ohne
+// Sound-Ordner unveraendert weiter.
+// Lautstaerke pro Datei, damit man einzelne Sounds nachjustieren kann, ohne
+// die Datei selbst neu zu exportieren.
+const SOUND_FILES = {
+  hover:    { src: 'sounds/hover.mp3',    gain: 0.35 },
+  click:    { src: 'sounds/click.mp3',    gain: 0.6 },
+  correct:  { src: 'sounds/correct.mp3',  gain: 0.7 },
+  wrong:    { src: 'sounds/wrong.mp3',    gain: 0.6 },
+  retry:    { src: 'sounds/retry.mp3',    gain: 0.5 },
+  complete: { src: 'sounds/complete.mp3', gain: 0.8 },
+};
+const soundBuffers = {};
+let soundPreloadStarted = false;
+
+// Erst beim ersten Antippen/Klick laden: davor ist der AudioContext auf vielen
+// Geraeten (v.a. iOS) ohnehin blockiert, und ungenutzte Dateien kosten sonst
+// unnoetig Ladezeit.
+function preloadSounds(){
+  if(soundPreloadStarted) return;
+  soundPreloadStarted = true;
+  const ctx = ensureAudioCtx();
+  if(!ctx) return;
+  Object.keys(SOUND_FILES).forEach(name => {
+    fetch(SOUND_FILES[name].src)
+      .then(res => res.ok ? res.arrayBuffer() : Promise.reject(new Error('nicht gefunden')))
+      .then(buf => new Promise((resolve, reject) => ctx.decodeAudioData(buf, resolve, reject)))
+      .then(decoded => { soundBuffers[name] = decoded; })
+      .catch(() => { /* keine Datei vorhanden - synthetischer Ton bleibt aktiv */ });
+  });
+}
+document.addEventListener('pointerdown', preloadSounds, { once: true, passive: true });
+document.addEventListener('keydown', preloadSounds, { once: true });
+
+// Spielt eine geladene Datei ab. Gibt false zurueck, wenn es sie (noch) nicht
+// gibt - der Aufrufer faellt dann auf den synthetischen Ton zurueck.
+function playSample(name){
+  if(!soundEnabled || masterVolume <= 0) return true; // Ton ist aus: nichts abspielen, aber auch keinen Ersatzton
+  const buffer = soundBuffers[name];
+  if(!buffer) return false;
+  const ctx = ensureAudioCtx();
+  if(!ctx) return false;
+  if(ctx.state === 'suspended') ctx.resume();
+  const src = ctx.createBufferSource();
+  const gain = ctx.createGain();
+  src.buffer = buffer;
+  gain.gain.value = masterVolume * (SOUND_FILES[name].gain || 1);
+  src.connect(gain); gain.connect(ctx.destination);
+  src.start();
+  return true;
+}
+
+function sndHover(){ if(playSample('hover')) return; playTone(600, 0.05, 'sine', 0.05); }
+function sndClick(){ if(playSample('click')) return; playTone(360, 0.09, 'sine', 0.09); }
+function sndCorrect(){
+  if(playSample('correct')) return;
+  playTone(466, 0.11, 'sine', 0.14); playTone(587, 0.14, 'sine', 0.14, 0.09); playTone(740, 0.22, 'sine', 0.13, 0.18);
+}
 function sndWrong(){
   // Sanfter, absinkender "Thud" statt schrillem Sägezahn-Summen - deutlich
   // spuerbar, aber nicht mehr wie ein Arcade-Fehlerton.
+  if(playSample('wrong')) return;
   if(!soundEnabled || masterVolume <= 0) return;
   const ctx = ensureAudioCtx();
   if(!ctx) return;
@@ -4447,8 +4506,11 @@ function sndWrong(){
   osc.connect(filter); filter.connect(gain); gain.connect(ctx.destination);
   osc.start(start); osc.stop(start + 0.26);
 }
-function sndRetry(){ playTone(300, 0.11, 'sine', 0.07); }
-function sndComplete(){ [466,587,698,932].forEach((f,i) => playTone(f, 0.2, 'sine', 0.1, i*0.11)); }
+function sndRetry(){ if(playSample('retry')) return; playTone(300, 0.11, 'sine', 0.07); }
+function sndComplete(){
+  if(playSample('complete')) return;
+  [466,587,698,932].forEach((f,i) => playTone(f, 0.2, 'sine', 0.1, i*0.11));
+}
 
 const soundIsFine = window.matchMedia('(hover:hover) and (pointer:fine)').matches;
 function wireSounds(root = document){
