@@ -1276,6 +1276,61 @@
   .admin-row-menu-btn:hover{ background:rgba(246,195,92,.1); color:var(--ember-bright); border-color:rgba(246,195,92,.25); }
   .admin-empty-note{ color:var(--stone); font-size:.85rem; margin:.9rem 0 0; }
   .admin-feature-toggles{ display:flex; flex-direction:column; gap:.2rem; margin-top:.4rem; }
+
+  /* Grosse Bildschirme: die Konsole darf deutlich mehr Raum einnehmen - sonst
+     klebt sie als kleiner Kasten mitten auf einem breiten Monitor. Der Block
+     steht bewusst hinter allen Admin-Grundregeln, damit er sie ueberschreibt
+     (gleiche Spezifitaet - es gewinnt die spaetere Regel). */
+  @media (min-width:1100px){
+    .admin-shell{ border-radius:24px; }
+    .admin-sidebar{ width:268px; padding:1rem; }
+    .admin-ws{ gap:.8rem; padding:.6rem .5rem; margin-bottom:1.3rem; }
+    .admin-ws-avatar{ width:38px; height:38px; border-radius:11px; font-size:1.1rem; }
+    .admin-ws-text strong{ font-size:.92rem; }
+    .admin-ws-text span{ font-size:.66rem; }
+    .admin-nav{ gap:1.4rem; }
+    .admin-nav-heading{ font-size:.62rem; padding-bottom:.45rem; }
+    .admin-nav-item{ font-size:.92rem; padding:.62rem .7rem; gap:.7rem; border-radius:10px; }
+    .admin-nav-item svg{ width:18px; height:18px; }
+    .admin-nav-badge{ min-width:22px; height:20px; font-size:.66rem; }
+    .admin-topbar{ min-height:62px; padding:.85rem 1.4rem; gap:1rem; }
+    .admin-sidebar-toggle{ width:36px; height:36px; }
+    .admin-crumb{ font-size:.92rem; gap:.55rem; }
+    .admin-topbar .pill{ font-size:.68rem; padding:.35rem .75rem; }
+    .admin-panels{ padding:1.8rem; }
+    .admin-panels .settings-card{ padding:1.8rem; }
+    .admin-panels .settings-card + .settings-card{ margin-top:1.6rem; }
+    .admin-panels .settings-title{ font-size:1.35rem; }
+    .admin-panels .settings-desc{ font-size:.92rem; }
+    .admin-stat-row{ grid-template-columns:repeat(auto-fit, minmax(230px, 1fr)); gap:1.1rem; }
+    .admin-stat{ padding:1.4rem; border-radius:18px; gap:.7rem; }
+    .admin-stat-icon{ width:36px; height:36px; border-radius:11px; }
+    .admin-stat-icon svg{ width:18px; height:18px; }
+    .admin-stat-label{ font-size:.66rem; }
+    .admin-stat-value{ font-size:2.6rem; }
+    .admin-stat-note{ font-size:.82rem; }
+    .admin-toolbar{ gap:.8rem; margin-top:1.3rem; }
+    .admin-search{ padding:.6rem .9rem; border-radius:12px; }
+    .admin-search input{ font-size:.92rem; }
+    .admin-search svg{ width:17px; height:17px; }
+    .admin-toolbar-btn{ font-size:.88rem; padding:.6rem .95rem; border-radius:12px; }
+    .admin-table{ font-size:.92rem; }
+    .admin-table th{ font-size:.64rem; padding:.7rem .85rem; }
+    .admin-table td{ padding:.85rem; }
+    .admin-table input[type="number"]{ width:108px; font-size:.88rem; padding:.45rem .65rem; }
+    .admin-user-name span:last-child{ font-size:.76rem; }
+    .admin-row-menu-btn{ width:34px; height:34px; }
+    .admin-panels .pill{ font-size:.68rem; padding:.34rem .7rem; }
+    .admin-empty-note{ font-size:.92rem; }
+    .admin-panels .pagination-btn{ min-width:34px; height:34px; font-size:.78rem; }
+  }
+  /* Zusaetzliche Spezifitaet (.admin-view-active.wide-view-active), damit diese
+     Breite die allgemeine 1280px-Regel fuer weite Ansichten sicher schlaegt. */
+  @media (min-width:1500px){
+    body.admin-view-active.wide-view-active #app{ max-width:1560px; }
+    .admin-panels{ padding:2.2rem; }
+    .admin-sidebar{ width:290px; }
+  }
   .menu-lines{position:relative; width:19px; height:14px; flex-shrink:0;}
   .menu-lines span{position:absolute; left:0; width:100%; height:2px; border-radius:2px; background:var(--text); transition:transform .3s var(--ease), opacity .3s var(--ease);}
   .menu-lines span:nth-child(1){top:0;}
@@ -6970,6 +7025,7 @@ function showView(name){
   if(qn) qn.hidden = !visible;
   document.body.classList.toggle('quicknav-visible', visible);
   document.body.classList.toggle('wide-view-active', name === 'hub' || name === 'appDownload' || name === 'admin');
+  document.body.classList.toggle('admin-view-active', name === 'admin');
   persistLastView(name);
   // Signal fuer Effekte, die nur auf bestimmten Seiten laufen sollen (Hero-Shader).
   window.dispatchEvent(new CustomEvent('lumiere:viewchange', { detail: { view: name } }));
