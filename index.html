@@ -194,6 +194,64 @@
   }
   @media (prefers-reduced-motion: reduce){ .hover-particle{ display:none; } }
 
+  /* --- Klick-Rueckmeldung ------------------------------------------------
+     Beim Klicken gab es bisher nur einen Ton, aber nichts Sichtbares. Hier ein
+     aufgehender Goldring plus ein paar Funken an der Klickstelle. Liegt ueber
+     allem, faengt aber keine Klicks ab (pointer-events:none) und raeumt sich
+     nach der Animation selbst wieder ab. */
+  .click-ring{
+    position:fixed; z-index:120; pointer-events:none; top:0; left:0;
+    width:18px; height:18px; margin:-9px 0 0 -9px; border-radius:50%;
+    border:1.5px solid rgba(246,195,92,.85);
+    animation:clickRingOut .5s var(--ease-premium) forwards;
+  }
+  @keyframes clickRingOut{
+    0%{ opacity:.9; transform:scale(.35); }
+    100%{ opacity:0; transform:scale(3.4); }
+  }
+  .click-spark{
+    position:fixed; z-index:121; pointer-events:none; top:0; left:0;
+    width:4px; height:4px; margin:-2px 0 0 -2px; border-radius:50%;
+    background:radial-gradient(circle, #fff6e0, var(--ember-bright) 60%, transparent 75%);
+    box-shadow:0 0 5px 1px rgba(246,195,92,.65);
+    animation:clickSparkOut .45s var(--ease) forwards;
+  }
+  @keyframes clickSparkOut{
+    0%{ opacity:1; transform:translate(0,0) scale(1); }
+    100%{ opacity:0; transform:translate(var(--sx), var(--sy)) scale(.3); }
+  }
+  @media (prefers-reduced-motion: reduce){ .click-ring, .click-spark{ display:none; } }
+
+  /* --- Eigener Mauszeiger -------------------------------------------------
+     Punkt folgt exakt, Ring zieht leicht nach. Der native Zeiger wird erst
+     ausgeblendet, wenn der eigene nachweislich laeuft (Klasse kommt aus dem
+     Skript) - faellt das Skript aus, bleibt der normale Zeiger sichtbar. */
+  .cursor-dot, .cursor-ring{
+    position:fixed; top:0; left:0; z-index:130; pointer-events:none; border-radius:50%;
+    opacity:0; transition:opacity .25s var(--ease);
+  }
+  .cursor-dot{ width:6px; height:6px; margin:-3px 0 0 -3px; background:var(--ember-bright); }
+  .cursor-ring{
+    width:30px; height:30px; margin:-15px 0 0 -15px;
+    border:1.5px solid rgba(246,195,92,.5);
+    transition:opacity .25s var(--ease), width .22s var(--ease-premium), height .22s var(--ease-premium),
+               margin .22s var(--ease-premium), border-color .22s var(--ease), background .22s var(--ease);
+  }
+  body.custom-cursor-on .cursor-dot, body.custom-cursor-on .cursor-ring{ opacity:1; }
+  body.custom-cursor-on, body.custom-cursor-on *{ cursor:none !important; }
+  /* In Textfeldern bleibt der Schreib-Cursor sichtbar - ohne ihn sieht man beim
+     Tippen nicht mehr, wo man im Text steht. */
+  body.custom-cursor-on input, body.custom-cursor-on textarea{ cursor:text !important; }
+  /* Ueber Bedienelementen wird der Ring groesser und deutlicher. */
+  .cursor-ring.is-hot{
+    width:46px; height:46px; margin:-23px 0 0 -23px;
+    border-color:var(--ember-bright); background:rgba(246,195,92,.08);
+  }
+  .cursor-ring.is-press{ width:22px; height:22px; margin:-11px 0 0 -11px; }
+  @media (hover:none), (pointer:coarse), (prefers-reduced-motion: reduce){
+    .cursor-dot, .cursor-ring{ display:none; }
+  }
+
   /* --- Kritischer Fix: [hidden] muss IMMER gewinnen, auch gegen eigene display-Regeln --- */
   [hidden]{display:none !important;}
 
@@ -1439,6 +1497,54 @@
   @keyframes streakShimmer{ 0%{transform:translateX(-100%);} 60%,100%{transform:translateX(220%);} }
   @media (prefers-reduced-motion: reduce){ .streak-day.active:last-child{animation:none;} .streak-day.active:last-child::after{animation:none; display:none;} }
   .rewards-side{display:flex; flex-direction:column; gap:1rem;}
+  /* --- Aktivitaets-Diagramm (Vokabeln pro Tag) ----------------------------
+     Eine einzige Datenreihe, deshalb keine Legende - die Ueberschrift benennt
+     sie. Balkenfarbe ist --gold: von den Marken-Goldtoenen der einzige, der
+     Helligkeitsband, Farbsaettigung UND Kontrast gegen den dunklen Untergrund
+     besteht. Das helle --ember-bright ist dem aktiven Balken vorbehalten. */
+  .stat-card-head{ display:flex; align-items:flex-start; justify-content:space-between; gap:1rem; flex-wrap:wrap; }
+  .stat-hero{ display:flex; align-items:baseline; gap:.6rem; margin:.5rem 0 .1rem; }
+  .stat-hero-num{ font-family:var(--font-serif); font-size:clamp(2rem,5vw,2.6rem); font-weight:600; color:var(--text); line-height:1; }
+  .stat-hero-unit{ font-size:.85rem; color:var(--stone); }
+  .stat-change{
+    display:inline-flex; align-items:center; gap:.3rem; border-radius:999px; padding:.2rem .55rem;
+    font-family:var(--font-mono); font-size:.68rem; font-weight:700; letter-spacing:.04em;
+  }
+  .stat-change.is-up{ color:var(--success); background:rgba(74,222,128,.12); }
+  .stat-change.is-flat{ color:var(--stone); background:rgba(167,156,136,.12); }
+  .stat-change svg{ width:12px; height:12px; }
+  .chart-bars{
+    display:flex; align-items:flex-end; gap:2px; height:96px; margin-top:1.2rem;
+  }
+  .chart-bar{
+    position:relative; flex:1 1 0; min-width:0; height:100%; background:none; border:none; padding:0;
+    display:flex; align-items:flex-end; cursor:default;
+  }
+  /* Hintergrundspur, damit auch leere Tage als Tag sichtbar bleiben. */
+  .chart-bar::before{
+    content:''; position:absolute; top:0; right:0; bottom:0; left:0;
+    background:rgba(255,220,150,.05); border-radius:4px;
+  }
+  .chart-bar-fill{
+    position:relative; width:100%; border-radius:4px; background:var(--gold);
+    min-height:3px; transition:background .2s var(--ease), box-shadow .2s var(--ease);
+  }
+  .chart-bar:hover .chart-bar-fill, .chart-bar:focus-visible .chart-bar-fill{
+    background:var(--ember-bright); box-shadow:0 0 10px 1px rgba(246,195,92,.5);
+  }
+  .chart-bar-tip{
+    position:absolute; bottom:calc(100% + 8px); left:50%; transform:translateX(-50%);
+    white-space:nowrap; background:rgba(9,13,21,.96); border:1px solid var(--border-solid);
+    border-radius:8px; padding:.35rem .55rem; font-family:var(--font-mono); font-size:.66rem;
+    color:var(--text); opacity:0; pointer-events:none; transition:opacity .15s var(--ease); z-index:3;
+  }
+  .chart-bar:hover .chart-bar-tip, .chart-bar:focus-visible .chart-bar-tip{ opacity:1; }
+  .chart-axis{
+    display:flex; justify-content:space-between; margin-top:.5rem;
+    font-family:var(--font-mono); font-size:.62rem; color:var(--stone);
+  }
+  .chart-empty{ color:var(--stone); font-size:.85rem; margin:1.2rem 0 0; }
+
   .rewards-card{
     position:relative; overflow:hidden; background:var(--surface); -webkit-backdrop-filter:blur(18px); backdrop-filter:blur(18px); border:1px solid var(--border-solid);
     border-radius:24px; padding:1.6rem; box-shadow:var(--shadow-sm);
@@ -3047,6 +3153,22 @@
           <p class="desc" style="margin-top:0;">Nach jeder abgeschlossenen Übungsrunde wartet eine Runde 🎈 Ballon-Pop als kleine Belohnung.</p>
         </div>
       </div>
+    </div>
+
+    <div class="rewards-card" style="margin-top:1.4rem;">
+      <div class="stat-card-head">
+        <div>
+          <p class="label">Geübte Vokabeln · letzte 14 Tage</p>
+          <div class="stat-hero">
+            <span class="stat-hero-num" id="statWordsTotal">0</span>
+            <span class="stat-hero-unit">Vokabeln</span>
+          </div>
+        </div>
+        <span class="stat-change is-flat" id="statChange" hidden></span>
+      </div>
+      <div class="chart-bars" id="activityChart" role="img" aria-label="Balkendiagramm: geübte Vokabeln pro Tag der letzten 14 Tage"></div>
+      <div class="chart-axis" id="activityAxis" aria-hidden="true"></div>
+      <p class="chart-empty" id="activityEmpty" hidden>Noch keine Übungsrunde abgeschlossen — sobald du übst, erscheint hier dein Verlauf.</p>
     </div>
   </section>
 
@@ -5732,6 +5854,116 @@ setInterval(rotateHubQuote, 30000);
   }
 })();
 
+// --- Eigener Mauszeiger ----------------------------------------------------
+// Punkt folgt dem Zeiger direkt, der Ring zieht weich nach (Lerp). Nur auf
+// Maus-Geraeten und ohne reduzierte Bewegung. Der native Zeiger wird bewusst
+// erst nach dem ersten gezeichneten Bild ausgeblendet - startet das hier nicht,
+// bleibt der gewohnte Zeiger erhalten statt gar keiner.
+(function initCustomCursor(){
+  if(!window.matchMedia('(hover:hover) and (pointer:fine)').matches) return;
+  if(reducedMotionActive()) return;
+
+  const dot = document.createElement('div');
+  dot.className = 'cursor-dot';
+  const ring = document.createElement('div');
+  ring.className = 'cursor-ring';
+  dot.setAttribute('aria-hidden', 'true');
+  ring.setAttribute('aria-hidden', 'true');
+  document.body.appendChild(dot);
+  document.body.appendChild(ring);
+
+  const HOT = 'a, button, input, textarea, select, label, [role="button"], [data-goto], .set-card, .feature-card, .chip, .session-opt, .match-chip, .chart-bar';
+  const LERP = 0.22;
+  let px = innerWidth / 2, py = innerHeight / 2;   // Zeigerposition
+  let rx = px, ry = py;                             // Ringposition (zieht nach)
+  let rafId = null, gestartet = false;
+
+  function frame(){
+    rx += (px - rx) * LERP;
+    ry += (py - ry) * LERP;
+    dot.style.transform = `translate3d(${px}px, ${py}px, 0)`;
+    ring.style.transform = `translate3d(${rx}px, ${ry}px, 0)`;
+    if(!gestartet){
+      gestartet = true;
+      document.body.classList.add('custom-cursor-on');
+    }
+    // Weiterlaufen, solange der Ring den Punkt noch nicht eingeholt hat.
+    if(Math.abs(px - rx) > 0.1 || Math.abs(py - ry) > 0.1){
+      rafId = requestAnimationFrame(frame);
+    } else {
+      rafId = null;
+    }
+  }
+  function anstossen(){ if(rafId === null) rafId = requestAnimationFrame(frame); }
+
+  window.addEventListener('pointermove', (e) => {
+    if(e.pointerType && e.pointerType !== 'mouse') return;
+    px = e.clientX; py = e.clientY;
+    ring.classList.toggle('is-hot', !!(e.target.closest && e.target.closest(HOT)));
+    anstossen();
+  }, { passive:true });
+
+  window.addEventListener('pointerdown', () => { ring.classList.add('is-press'); }, { passive:true });
+  window.addEventListener('pointerup', () => { ring.classList.remove('is-press'); }, { passive:true });
+
+  // Verlaesst der Zeiger das Fenster, beide ausblenden und den normalen
+  // Zeiger zurueckgeben - sonst klebt ein Punkt am Rand.
+  document.addEventListener('pointerleave', () => {
+    document.body.classList.remove('custom-cursor-on');
+  });
+  document.addEventListener('pointerenter', () => {
+    if(gestartet) document.body.classList.add('custom-cursor-on');
+  });
+  // Beim Tippen auf einem Touchscreen (Hybrid-Geraet) wieder zum normalen Zeiger.
+  window.addEventListener('pointerdown', (e) => {
+    if(e.pointerType && e.pointerType !== 'mouse') document.body.classList.remove('custom-cursor-on');
+  }, { passive:true });
+
+  anstossen();
+})();
+
+// --- Klick-Rueckmeldung ----------------------------------------------------
+// Sichtbare Bestaetigung an der Klickstelle: ein aufgehender Ring und einige
+// Funken. Laeuft auch auf Touch (dort ist es sogar hilfreicher als am Desktop).
+// Bewusst an pointerdown statt click: fuehlt sich unmittelbarer an und kommt
+// auch dann, wenn der Klick ins Leere geht.
+(function initClickFeedback(){
+  const SPARKS = 5;
+  let last = 0;
+
+  document.addEventListener('pointerdown', (e) => {
+    if(reducedMotionActive()) return;
+    if(e.button !== undefined && e.button !== 0) return;  // nur linke Taste / Tippen
+    // Bei sehr schnellem Klicken nicht jedes Mal neu aufbauen.
+    const now = performance.now();
+    if(now - last < 70) return;
+    last = now;
+
+    const frag = document.createDocumentFragment();
+
+    const ring = document.createElement('span');
+    ring.className = 'click-ring';
+    ring.style.left = e.clientX + 'px';
+    ring.style.top = e.clientY + 'px';
+    ring.addEventListener('animationend', () => ring.remove(), { once:true });
+    frag.appendChild(ring);
+
+    for(let i = 0; i < SPARKS; i++){
+      const s = document.createElement('span');
+      s.className = 'click-spark';
+      const angle = (Math.PI * 2 * i) / SPARKS + Math.random() * 0.7;
+      const dist = 14 + Math.random() * 16;
+      s.style.left = e.clientX + 'px';
+      s.style.top = e.clientY + 'px';
+      s.style.setProperty('--sx', (Math.cos(angle) * dist).toFixed(1) + 'px');
+      s.style.setProperty('--sy', (Math.sin(angle) * dist).toFixed(1) + 'px');
+      s.addEventListener('animationend', () => s.remove(), { once:true });
+      frag.appendChild(s);
+    }
+    document.body.appendChild(frag);
+  }, { passive:true });
+})();
+
 // --- Magnetische Buttons ---------------------------------------------------
 // Nach der uebergebenen Magnetic-Komponente: ein Button zieht sich zum Zeiger,
 // sobald dieser in seine Reichweite kommt, und federt beim Verlassen zurueck.
@@ -6251,7 +6483,76 @@ function renderRewards(){
     span.title = d.toLocaleDateString('de-DE', { weekday: 'short', day: 'numeric', month: 'numeric' });
     bar.appendChild(span);
   }
+  renderActivityChart();
   wireSounds();
+}
+
+// Geuebte Vokabeln pro Tag der letzten 14 Tage. Eine Datenreihe, deshalb ohne
+// Legende; nur der hoechste Balken wird direkt beschriftet, alle anderen zeigen
+// ihren Wert beim Hovern - eine Zahl ueber jedem Balken waere nur Rauschen.
+const ACTIVITY_DAYS = 14;
+function renderActivityChart(){
+  const chart = document.getElementById('activityChart');
+  const axis = document.getElementById('activityAxis');
+  const empty = document.getElementById('activityEmpty');
+  const progress = store.dailyProgress || {};
+
+  const days = [];
+  for(let i = ACTIVITY_DAYS - 1; i >= 0; i--){
+    const d = new Date(); d.setDate(d.getDate() - i);
+    days.push({ date: d, key: todayKey(d), value: progress[todayKey(d)] || 0 });
+  }
+
+  const total = days.reduce((s, d) => s + d.value, 0);
+  animateNumber(document.getElementById('statWordsTotal'), total);
+
+  // Vergleich: letzte 7 Tage gegen die 7 davor.
+  const jetzt = days.slice(7).reduce((s, d) => s + d.value, 0);
+  const davor = days.slice(0, 7).reduce((s, d) => s + d.value, 0);
+  const diff = jetzt - davor;
+  const badge = document.getElementById('statChange');
+  if(total > 0 && diff !== 0){
+    const hoch = diff > 0;
+    badge.className = 'stat-change ' + (hoch ? 'is-up' : 'is-flat');
+    badge.innerHTML =
+      `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">` +
+      (hoch ? '<path d="M6 17 17 6M9 6h8v8"/>' : '<path d="M6 6l11 11M17 9v8H9"/>') +
+      `</svg><span>${hoch ? '+' : ''}${diff} vs. Vorwoche</span>`;
+    badge.hidden = false;
+  } else {
+    badge.hidden = true;
+  }
+
+  chart.hidden = total === 0;
+  axis.hidden = total === 0;
+  empty.hidden = total > 0;
+  chart.innerHTML = '';
+  axis.innerHTML = '';
+  if(total === 0) return;
+
+  const max = Math.max(...days.map(d => d.value));
+  const bestIdx = days.findIndex(d => d.value === max);
+  days.forEach((d, i) => {
+    const label = d.date.toLocaleDateString('de-DE', { weekday: 'short', day: 'numeric', month: 'numeric' });
+    const wrap = document.createElement('div');
+    wrap.className = 'chart-bar';
+    wrap.tabIndex = 0;
+    wrap.setAttribute('aria-label', `${label}: ${d.value} Vokabeln`);
+    const fill = document.createElement('div');
+    fill.className = 'chart-bar-fill';
+    fill.style.height = d.value === 0 ? '3px' : Math.max(8, Math.round((d.value / max) * 100)) + '%';
+    const tip = document.createElement('span');
+    tip.className = 'chart-bar-tip';
+    tip.textContent = `${label} · ${d.value}`;
+    // Nur der Bestwert bekommt eine dauerhaft sichtbare Beschriftung.
+    if(i === bestIdx) tip.style.opacity = '1';
+    wrap.appendChild(fill);
+    wrap.appendChild(tip);
+    chart.appendChild(wrap);
+  });
+
+  const fmt = (d) => d.toLocaleDateString('de-DE', { day: 'numeric', month: 'numeric' });
+  axis.innerHTML = `<span>${fmt(days[0].date)}</span><span>heute</span>`;
 }
 
 // --- HOME ---------------------------------------------------------------
