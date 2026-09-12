@@ -1022,35 +1022,260 @@
   }
   .auth-modal-box .btn-danger:hover{ background:linear-gradient(120deg, #451218, #2e1016); color:#fff; border-color:rgba(239,68,68,.8); }
 
-  /* --- Admin-Panel --- */
-  .admin-stat-row{ display:grid; grid-template-columns:repeat(3,1fr); gap:.8rem; margin-bottom:1.6rem; }
+  /* --- Wiederverwendbare Bausteine (Pill, Dropdown, Dialog, Tooltip,
+     Pagination, Skeleton) - nach den uebergebenen shadcn-Komponenten, aber in
+     unserer Gold/Navy-Sprache. Werden vor allem im Admin-Panel benutzt. --- */
+  .pill{
+    display:inline-flex; align-items:center; gap:.4rem; padding:.28rem .6rem; border-radius:999px; white-space:nowrap;
+    background:var(--surface-2); border:1px solid var(--border-solid);
+    font-family:var(--font-mono); font-size:.62rem; font-weight:600; letter-spacing:.06em; color:var(--stone);
+  }
+  .pill-indicator{ width:7px; height:7px; border-radius:50%; background:var(--stone); flex-shrink:0; }
+  .pill-indicator.ok{ background:var(--success); box-shadow:0 0 7px rgba(74,222,128,.7); }
+  .pill-indicator.err{ background:var(--danger); box-shadow:0 0 7px rgba(239,75,87,.7); }
+  .pill-indicator.gold{ background:var(--ember-bright); box-shadow:0 0 7px rgba(246,195,92,.7); }
+  @media (prefers-reduced-motion: no-preference){ .pill-indicator.pulse{ animation:dotPulse 2s ease-in-out infinite; } }
+  .pill.is-ok{ border-color:rgba(74,222,128,.35); color:var(--success); background:rgba(74,222,128,.08); }
+  .pill.is-err{ border-color:rgba(239,75,87,.4); color:var(--danger); background:rgba(239,75,87,.1); }
+  .pill.is-gold{ border-color:rgba(246,195,92,.35); color:var(--ember-bright); background:rgba(246,195,92,.1); }
+  .pill-delta{ display:inline-flex; align-items:center; gap:.15rem; }
+  .pill-delta.up{ color:var(--success); }
+  .pill-delta.down{ color:var(--danger); }
+
+  .dd{ position:relative; display:inline-flex; }
+  .dd-menu{
+    position:absolute; top:calc(100% + .4rem); right:0; z-index:30; min-width:190px; padding:.35rem;
+    display:flex; flex-direction:column; gap:.1rem; border-radius:12px;
+    background:rgba(16,20,30,.97); -webkit-backdrop-filter:blur(16px); backdrop-filter:blur(16px);
+    border:1px solid var(--border-solid); box-shadow:var(--shadow-lg);
+    opacity:0; transform:translateY(-4px) scale(.97); pointer-events:none;
+    transition:opacity .16s var(--ease), transform .16s var(--ease-premium);
+  }
+  .dd.open .dd-menu{ opacity:1; transform:translateY(0) scale(1); pointer-events:auto; }
+  .dd-menu.align-left{ right:auto; left:0; }
+  .dd-label{ font-family:var(--font-mono); font-size:.58rem; text-transform:uppercase; letter-spacing:.14em; color:var(--stone); padding:.45rem .6rem .3rem; }
+  .dd-sep{ height:1px; margin:.25rem .35rem; background:var(--border-solid); }
+  .dd-item{
+    display:flex; align-items:center; gap:.55rem; width:100%; text-align:left; cursor:pointer;
+    padding:.45rem .6rem; border-radius:8px; border:none; background:none; color:var(--text);
+    font:inherit; font-size:.8rem; transition:background .18s var(--ease), color .18s var(--ease);
+  }
+  .dd-item:hover{ background:rgba(246,195,92,.1); color:var(--ember-bright); }
+  .dd-item.danger:hover{ background:rgba(239,75,87,.12); color:var(--danger); }
+  .dd-item .dd-check{ width:14px; flex-shrink:0; color:var(--ember-bright); opacity:0; }
+  .dd-item.is-checked .dd-check{ opacity:1; }
+  .dd-item .dd-shortcut{ margin-left:auto; font-family:var(--font-mono); font-size:.62rem; color:var(--stone); }
+
+  .confirm-backdrop{
+    position:fixed; top:0; right:0; bottom:0; left:0; inset:0; z-index:60; display:flex; align-items:center; justify-content:center; padding:1.2rem;
+    background:rgba(8,10,16,.72); -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
+    opacity:0; pointer-events:none; transition:opacity .25s var(--ease);
+  }
+  .confirm-backdrop.open{ opacity:1; pointer-events:auto; }
+  .confirm-box{
+    width:100%; max-width:420px; padding:1.5rem; border-radius:18px;
+    background:linear-gradient(150deg, #171d2c, #12161f); border:1px solid var(--border-solid); box-shadow:var(--shadow-lg);
+    transform:translateY(10px) scale(.97); transition:transform .3s var(--ease-premium);
+  }
+  .confirm-backdrop.open .confirm-box{ transform:translateY(0) scale(1); }
+  .confirm-head{ display:flex; gap:.9rem; align-items:flex-start; }
+  .confirm-icon{
+    width:38px; height:38px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center;
+    border:1px solid var(--border-solid); color:var(--ember-bright);
+  }
+  .confirm-box.danger .confirm-icon{ border-color:rgba(239,75,87,.45); color:var(--danger); }
+  .confirm-title{ font-family:var(--font-serif); font-weight:600; font-size:1.15rem; margin:0 0 .35rem; color:var(--text); }
+  .confirm-text{ margin:0; font-size:.87rem; line-height:1.6; color:var(--stone); }
+  .confirm-actions{ display:flex; justify-content:flex-end; gap:.6rem; margin-top:1.4rem; flex-wrap:wrap; }
+
+  [data-tip]{ position:relative; }
+  [data-tip]::after{
+    content:attr(data-tip); position:absolute; bottom:calc(100% + .45rem); left:50%; transform:translateX(-50%) translateY(3px);
+    z-index:40; padding:.3rem .55rem; border-radius:7px; white-space:nowrap; pointer-events:none;
+    background:rgba(16,20,30,.97); border:1px solid var(--border-solid); box-shadow:var(--shadow-md);
+    font-family:var(--font-mono); font-size:.62rem; letter-spacing:.04em; color:var(--text);
+    opacity:0; transition:opacity .18s var(--ease), transform .18s var(--ease-premium);
+  }
+  [data-tip]:hover::after, [data-tip]:focus-visible::after{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+  .pagination{ display:flex; align-items:center; justify-content:center; gap:.3rem; margin-top:1rem; flex-wrap:wrap; }
+  .pagination-btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:.3rem; min-width:30px; height:30px; padding:0 .55rem;
+    border-radius:8px; border:1px solid var(--border-solid); background:var(--surface-2); color:var(--stone);
+    font-family:var(--font-mono); font-size:.68rem; cursor:pointer;
+    transition:background .2s var(--ease), color .2s var(--ease), border-color .2s var(--ease);
+  }
+  .pagination-btn:hover:not(:disabled){ color:var(--ember-bright); border-color:var(--ember-dim); }
+  .pagination-btn:disabled{ opacity:.35; cursor:default; }
+  .pagination-btn.is-active{ background:rgba(246,195,92,.14); border-color:rgba(246,195,92,.4); color:var(--ember-bright); }
+
+  .skeleton{ display:block; border-radius:8px; background:var(--surface-2); position:relative; overflow:hidden; }
+  .skeleton::after{
+    content:''; position:absolute; top:0; right:0; bottom:0; left:0; inset:0;
+    background:linear-gradient(90deg, transparent, rgba(246,195,92,.09), transparent);
+    transform:translateX(-100%);
+  }
+  @media (prefers-reduced-motion: no-preference){ .skeleton::after{ animation:skeletonSweep 1.4s ease-in-out infinite; } }
+  @keyframes skeletonSweep{ to{ transform:translateX(100%); } }
+  .skeleton-row{ display:flex; align-items:center; gap:.8rem; padding:.55rem 0; }
+  .skeleton-stack{ display:flex; flex-direction:column; gap:.45rem; flex:1; }
+
+  /* --- Admin-Panel: Konsolen-Layout (Seitenleiste + Inhalt) --- */
+  .admin-shell{
+    display:grid; grid-template-columns:auto 1fr; align-items:stretch; gap:0; margin-top:1.6rem;
+    border:1px solid var(--border-solid); border-radius:20px; overflow:hidden;
+    background:linear-gradient(160deg, rgba(23,29,44,.5), rgba(15,19,28,.5));
+    -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px);
+  }
+  .admin-sidebar{
+    width:236px; flex-shrink:0; display:flex; flex-direction:column; padding:.8rem;
+    border-right:1px solid var(--border-solid); background:rgba(12,16,24,.4);
+    transition:width .3s var(--ease-premium), opacity .3s var(--ease), padding .3s var(--ease-premium);
+  }
+  .admin-shell.sidebar-collapsed .admin-sidebar{ width:0; padding-left:0; padding-right:0; opacity:0; overflow:hidden; border-right:none; }
+  .admin-ws{ display:flex; align-items:center; gap:.7rem; padding:.5rem .45rem; margin-bottom:1rem; }
+  .admin-ws-avatar{
+    width:32px; height:32px; border-radius:9px; flex-shrink:0; display:flex; align-items:center; justify-content:center;
+    background:linear-gradient(140deg, var(--ember), var(--gold)); color:#1a1206;
+    font-family:var(--font-serif); font-weight:700; font-size:.95rem; box-shadow:0 2px 10px rgba(246,195,92,.3);
+  }
+  .admin-ws-text{ display:flex; flex-direction:column; gap:.15rem; min-width:0; }
+  .admin-ws-text strong{ font-size:.82rem; font-weight:600; color:var(--text); line-height:1; }
+  .admin-ws-text span{ font-family:var(--font-mono); font-size:.6rem; letter-spacing:.08em; color:var(--stone); line-height:1; }
+  .admin-nav{ display:flex; flex-direction:column; gap:1.1rem; flex:1; }
+  .admin-nav-group{ display:flex; flex-direction:column; gap:.15rem; }
+  .admin-nav-heading{
+    font-family:var(--font-mono); font-size:.58rem; font-weight:700; text-transform:uppercase; letter-spacing:.16em;
+    color:var(--stone); opacity:.65; padding:0 .6rem .35rem;
+  }
+  .admin-nav-item{
+    display:flex; align-items:center; gap:.6rem; width:100%; text-align:left; cursor:pointer;
+    padding:.5rem .6rem; border-radius:8px; border:1px solid transparent; background:none; color:var(--stone);
+    font:inherit; font-size:.82rem;
+    transition:background .2s var(--ease), color .2s var(--ease), border-color .2s var(--ease);
+  }
+  .admin-nav-item svg{ width:16px; height:16px; flex-shrink:0; opacity:.8; }
+  .admin-nav-item:hover{ background:rgba(246,195,92,.07); color:var(--text); }
+  .admin-nav-item.is-active{ background:rgba(246,195,92,.13); border-color:rgba(246,195,92,.28); color:var(--ember-bright); font-weight:600; }
+  .admin-nav-item.is-active svg{ opacity:1; }
+  .admin-nav-badge{
+    margin-left:auto; min-width:20px; height:18px; padding:0 .35rem; border-radius:999px;
+    display:inline-flex; align-items:center; justify-content:center;
+    background:rgba(246,195,92,.14); color:var(--ember-bright); font-family:var(--font-mono); font-size:.6rem; font-weight:700;
+  }
+  .admin-sidebar-foot{ margin-top:auto; padding-top:.8rem; border-top:1px solid var(--border-solid); }
+  .admin-main{ min-width:0; display:flex; flex-direction:column; }
+  .admin-topbar{
+    display:flex; align-items:center; gap:.8rem; padding:.7rem .9rem; min-height:52px;
+    border-bottom:1px solid var(--border-solid); background:rgba(12,16,24,.3);
+  }
+  .admin-sidebar-toggle{
+    width:32px; height:32px; flex-shrink:0; border-radius:8px; display:flex; align-items:center; justify-content:center;
+    border:1px solid var(--border-solid); background:var(--surface-2); color:var(--stone); cursor:pointer; padding:0;
+    transition:color .2s var(--ease), border-color .2s var(--ease);
+  }
+  .admin-sidebar-toggle:hover{ color:var(--ember-bright); border-color:var(--ember-dim); }
+  .admin-crumb{ display:flex; align-items:center; gap:.45rem; font-size:.8rem; color:var(--stone); min-width:0; }
+  .admin-crumb strong{ color:var(--text); font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .admin-topbar .pill{ margin-left:auto; }
+  .admin-panels{ padding:1.2rem; min-width:0; }
+  .admin-panels .settings-card{ margin-top:0; }
+  .admin-panels .settings-card + .settings-card{ margin-top:1.2rem; }
+  /* Schmale Bildschirme: die Seitenleiste wird zu einer kompakten, seitlich
+     scrollbaren Leiste ueber dem Inhalt - sonst frisst sie den halben Screen. */
+  @media (max-width:860px){
+    .admin-shell{ grid-template-columns:1fr; }
+    .admin-sidebar{
+      width:auto; flex-direction:row; align-items:center; gap:.5rem; padding:.6rem;
+      border-right:none; border-bottom:1px solid var(--border-solid); overflow-x:auto; scrollbar-width:none;
+    }
+    .admin-sidebar::-webkit-scrollbar{ display:none; }
+    .admin-shell.sidebar-collapsed .admin-sidebar{ width:auto; height:0; padding-top:0; padding-bottom:0; border-bottom:none; }
+    .admin-ws{ margin-bottom:0; padding:0 .3rem 0 0; flex-shrink:0; }
+    .admin-ws-text{ display:none; }
+    .admin-nav{ flex-direction:row; gap:.4rem; flex:0 0 auto; }
+    .admin-nav-group{ flex-direction:row; gap:.4rem; flex:0 0 auto; }
+    .admin-nav-heading{ display:none; }
+    /* width:100% aus der Grundregel wuerde hier die Buttons auf Gruppenbreite
+       aufblasen - sie wuerden sich dann gegenseitig ueberlappen. */
+    .admin-nav-item{ width:auto; white-space:nowrap; flex:0 0 auto; padding:.45rem .7rem; }
+    .admin-sidebar-foot{ margin-top:0; margin-left:auto; padding-top:0; border-top:none; flex-shrink:0; }
+    .admin-panels{ padding:1rem .8rem; }
+  }
+
+  /* Stat-Karten nach dem uebergebenen StatsCard-Entwurf: Kopfzeile mit Symbol,
+     grosse Zahl, erklaerende Zeile darunter, optional ein Mini-Balkendiagramm. */
+  .admin-stat-row{ display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:.9rem; margin-bottom:0; }
   .admin-stat{
-    background:var(--surface); border:1px solid var(--border-solid); border-radius:14px; padding:1rem;
-    display:flex; flex-direction:column; gap:.3rem; text-align:center;
+    position:relative; overflow:hidden; padding:1.1rem; border-radius:16px; text-align:left;
+    background:var(--surface); border:1px solid var(--border-solid);
+    display:flex; flex-direction:column; gap:.55rem;
+    transition:border-color .25s var(--ease), box-shadow .25s var(--ease);
   }
-  .admin-stat span:first-child{ font-family:var(--font-serif); font-size:1.8rem; font-weight:600; color:var(--ember-bright); }
-  .admin-stat span:last-child{ font-family:var(--font-mono); font-size:.62rem; text-transform:uppercase; letter-spacing:.1em; color:var(--stone); }
-  .admin-table-wrap{ overflow-x:auto; margin-top:.8rem; }
+  .admin-stat:hover{ border-color:rgba(246,195,92,.3); box-shadow:var(--shadow-sm); }
+  .admin-stat-head{ display:flex; align-items:center; gap:.55rem; }
+  .admin-stat-icon{
+    width:30px; height:30px; border-radius:9px; flex-shrink:0; display:flex; align-items:center; justify-content:center;
+    background:rgba(246,195,92,.12); border:1px solid rgba(246,195,92,.25); color:var(--ember-bright);
+  }
+  .admin-stat-icon svg{ width:15px; height:15px; }
+  .admin-stat-label{ font-family:var(--font-mono); font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--stone); }
+  .admin-stat-value{ font-family:var(--font-serif); font-size:2rem; font-weight:600; line-height:1; color:var(--text); font-variant-numeric:tabular-nums; }
+  .admin-stat-note{ font-size:.74rem; color:var(--stone); line-height:1.45; margin:0; }
+  .admin-stat-bars{ display:flex; align-items:flex-end; gap:3px; height:30px; margin-top:.15rem; }
+  .admin-stat-bars span{ flex:1; border-radius:3px 3px 0 0; background:rgba(246,195,92,.22); transition:background .25s var(--ease); }
+  .admin-stat-bars span.is-peak{ background:var(--ember-bright); }
+
+  /* Tabellen-Werkzeugleiste + Tabelle */
+  .admin-toolbar{ display:flex; align-items:center; gap:.6rem; flex-wrap:wrap; margin-top:1rem; }
+  .admin-search{
+    flex:1 1 180px; min-width:0; display:flex; align-items:center; gap:.5rem; padding:.45rem .7rem;
+    border-radius:10px; border:1px solid var(--border-solid); background:var(--surface-2); color:var(--stone);
+    transition:border-color .2s var(--ease);
+  }
+  .admin-search:focus-within{ border-color:var(--ember-dim); }
+  .admin-search svg{ width:15px; height:15px; flex-shrink:0; }
+  .admin-search input{
+    flex:1; min-width:0; border:none; background:none; outline:none; color:var(--text); font:inherit; font-size:.82rem; padding:0;
+  }
+  .admin-search input::placeholder{ color:var(--stone); opacity:.7; }
+  .admin-toolbar-btn{
+    display:inline-flex; align-items:center; gap:.45rem; padding:.45rem .75rem; border-radius:10px; cursor:pointer;
+    border:1px solid var(--border-solid); background:var(--surface-2); color:var(--stone); font:inherit; font-size:.78rem;
+    transition:color .2s var(--ease), border-color .2s var(--ease);
+  }
+  .admin-toolbar-btn:hover{ color:var(--ember-bright); border-color:var(--ember-dim); }
+  .admin-toolbar-btn svg{ width:14px; height:14px; }
+  .admin-table-wrap{ overflow-x:auto; margin-top:.9rem; }
   .admin-table{ width:100%; border-collapse:collapse; font-size:.8rem; }
-  .admin-table th{ text-align:left; font-family:var(--font-mono); font-size:.6rem; text-transform:uppercase; letter-spacing:.1em; color:var(--stone); padding:.4rem .6rem; border-bottom:1px solid var(--border-solid); white-space:nowrap; }
-  .admin-table td{ padding:.5rem .6rem; border-bottom:1px solid var(--border-solid); vertical-align:middle; }
-  .admin-table tbody tr:last-child td{ border-bottom:none; }
-  .admin-table input[type="number"]{
-    width:70px; font:inherit; font-size:.78rem; color:var(--text); padding:.3rem .5rem;
-    border:1px solid var(--border-solid); border-radius:6px; background:var(--surface-2);
+  .admin-table th{
+    text-align:left; font-family:var(--font-mono); font-size:.58rem; text-transform:uppercase; letter-spacing:.12em; color:var(--stone);
+    padding:.5rem .6rem; border-bottom:1px solid var(--border-solid); white-space:nowrap; background:rgba(12,16,24,.35);
   }
-  .admin-user-name{ display:flex; flex-direction:column; }
+  .admin-table th:first-child{ border-top-left-radius:8px; }
+  .admin-table th:last-child{ border-top-right-radius:8px; }
+  .admin-table td{ padding:.6rem; border-bottom:1px solid var(--border-solid); vertical-align:middle; }
+  .admin-table tbody tr{ transition:background .18s var(--ease); }
+  .admin-table tbody tr:hover{ background:rgba(246,195,92,.05); }
+  .admin-table tbody tr:last-child td{ border-bottom:none; }
+  .admin-table td.right{ text-align:right; }
+  .admin-table input[type="number"]{
+    width:92px; font:inherit; font-size:.78rem; color:var(--text); padding:.32rem .5rem;
+    border:1px solid var(--border-solid); border-radius:7px; background:var(--surface-2);
+    transition:border-color .2s var(--ease);
+  }
+  .admin-table input[type="number"]:focus{ outline:none; border-color:var(--ember-dim); }
+  .admin-user-name{ display:flex; flex-direction:column; gap:.1rem; }
   .admin-user-name span:first-child{ color:var(--text); font-weight:600; }
-  .admin-user-name span:last-child{ font-family:var(--font-mono); font-size:.68rem; color:var(--stone); }
-  .admin-ban-btn{ font-family:var(--font-mono); font-size:.65rem; text-transform:uppercase; letter-spacing:.06em; padding:.3rem .6rem; border-radius:999px; border:1px solid var(--border-solid); background:var(--surface-2); color:var(--stone); cursor:pointer; }
-  .admin-ban-btn.is-banned{ border-color:rgba(239,75,87,.4); color:var(--danger); background:rgba(239,75,87,.1); }
-  .admin-ban-btn.is-immune{ border-color:rgba(246,195,92,.35); color:var(--ember-bright); background:rgba(246,195,92,.1); cursor:default; display:inline-block; }
-  .admin-empty-note{ color:var(--stone); font-size:.85rem; margin:.8rem 0 0; }
+  .admin-user-name span:last-child{ font-family:var(--font-mono); font-size:.66rem; color:var(--stone); }
+  .admin-row-menu-btn{
+    width:28px; height:28px; border-radius:8px; display:inline-flex; align-items:center; justify-content:center;
+    border:1px solid transparent; background:none; color:var(--stone); cursor:pointer; padding:0;
+    transition:background .2s var(--ease), color .2s var(--ease), border-color .2s var(--ease);
+  }
+  .admin-row-menu-btn:hover{ background:rgba(246,195,92,.1); color:var(--ember-bright); border-color:rgba(246,195,92,.25); }
+  .admin-empty-note{ color:var(--stone); font-size:.85rem; margin:.9rem 0 0; }
   .admin-feature-toggles{ display:flex; flex-direction:column; gap:.2rem; margin-top:.4rem; }
-  .admin-subnav{ margin:0 0 1.4rem; }
-  .admin-subnav .chip{ font-size:.72rem; }
-  .admin-session-filter{ margin:0 0 .2rem; }
-  .admin-session-filter .chip{ font-size:.7rem; padding:.4rem .8rem; }
   .menu-lines{position:relative; width:19px; height:14px; flex-shrink:0;}
   .menu-lines span{position:absolute; left:0; width:100%; height:2px; border-radius:2px; background:var(--text); transition:transform .3s var(--ease), opacity .3s var(--ease);}
   .menu-lines span:nth-child(1){top:0;}
@@ -1597,17 +1822,27 @@
     display:flex; align-items:center; justify-content:space-between; gap:1rem; margin:1.3rem 0 0;
     cursor:pointer; font-size:.9rem; color:var(--text);
   }
+  /* Feder-Schalter nach dem uebergebenen PremiumToggle: der Knopf zieht sich
+     beim Umlegen kurz in die Länge (Squash) und federt dann in Position. */
   .settings-switch{
     -webkit-appearance:none; appearance:none; width:42px; height:24px; border-radius:999px; flex-shrink:0;
     background:var(--surface-2); border:1px solid var(--border-solid); position:relative; cursor:pointer; margin:0;
     transition:background .2s var(--ease), border-color .2s var(--ease);
   }
   .settings-switch::before{
-    content:''; position:absolute; top:2px; left:2px; width:18px; height:18px; border-radius:50%; background:var(--stone);
-    transition:transform .25s var(--ease-spring), background .2s var(--ease);
+    content:''; position:absolute; top:2px; left:2px; width:18px; height:18px; border-radius:999px; background:var(--stone);
+    transform-origin:center;
+    transition:transform .38s var(--ease-spring), width .28s var(--ease-spring), background .2s var(--ease), box-shadow .2s var(--ease);
   }
+  .settings-switch:active::before{ width:24px; }
   .settings-switch:checked{background:rgba(246,195,92,.28); border-color:var(--ember);}
   .settings-switch:checked::before{transform:translateX(18px); background:var(--ember-bright); box-shadow:0 0 8px 1px rgba(246,195,92,.6);}
+  .settings-switch:checked:active::before{ width:24px; transform:translateX(12px); }
+  @media (prefers-reduced-motion: reduce){
+    .settings-switch::before{ transition:transform .12s linear, background .12s linear; }
+    .settings-switch:active::before, .settings-switch:checked:active::before{ width:18px; }
+    .settings-switch:checked:active::before{ transform:translateX(18px); }
+  }
   .settings-note{font-size:.8rem; color:var(--stone); margin:.8rem 0 0;}
   .goal-progress{margin-top:1.3rem;}
   .goal-progress-track{height:8px; border-radius:4px; background:var(--surface-2); overflow:hidden;}
@@ -3652,112 +3887,238 @@
     <p class="page-sub" id="adminAccessNote">Prüfe Berechtigung …</p>
 
     <div id="adminContent" hidden>
-      <div class="admin-stat-row">
-        <div class="admin-stat"><span id="adminStatUsers">–</span><span>Registrierte Konten</span></div>
-        <div class="admin-stat"><span id="adminStatBanned">–</span><span>Gesperrt</span></div>
-        <div class="admin-stat"><span id="adminStatOnline">–</span><span>Gerade online</span></div>
-      </div>
-
-      <div class="chip-row admin-subnav" id="adminSubnav">
-        <button type="button" class="chip admin-subnav-item selected" data-admin-tab="overview">📊 Übersicht</button>
-        <button type="button" class="chip admin-subnav-item" data-admin-tab="sessions">📡 Sitzungen</button>
-        <button type="button" class="chip admin-subnav-item" data-admin-tab="users">👥 Nutzer</button>
-        <button type="button" class="chip admin-subnav-item" data-admin-tab="maintenance">🚧 Wartung &amp; Zugriff</button>
-      </div>
-
-      <div class="admin-tab-panel" data-admin-panel="overview">
-        <div class="settings-card">
-          <p class="settings-title">📊 Kapazität</p>
-          <p class="settings-desc">KI-Anfragen heute, website-weit.</p>
-          <div class="status-meter-row">
-            <div class="status-meter-labels"><span id="adminCapacityText">– / –</span><span id="adminCapacityPct">–%</span></div>
-            <div class="status-meter-track"><div class="status-meter-fill status-meter-fill-alt" id="adminCapacityFill"></div></div>
+      <div class="admin-shell" id="adminShell">
+        <aside class="admin-sidebar">
+          <div class="admin-ws">
+            <span class="admin-ws-avatar" aria-hidden="true">L</span>
+            <span class="admin-ws-text"><strong>Lumière</strong><span>Admin-Konsole</span></span>
           </div>
-          <label class="settings-row-label" for="adminCapacityInput" style="margin-top:1rem;">Tages-Obergrenze (gesamt)</label>
-          <div class="auth-name-row">
-            <input type="number" id="adminCapacityInput" class="modal-input" min="1">
-            <button type="button" class="btn btn-secondary btn-small" id="btnSaveCapacity">Speichern</button>
+          <nav class="admin-nav" id="adminSubnav">
+            <div class="admin-nav-group">
+              <span class="admin-nav-heading">Überblick</span>
+              <button type="button" class="admin-nav-item is-active" data-admin-tab="overview">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+                Übersicht
+              </button>
+              <button type="button" class="admin-nav-item" data-admin-tab="sessions">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5a9 9 0 0 1 14 0"/><path d="M8.5 16a4.5 4.5 0 0 1 7 0"/><circle cx="12" cy="19.5" r="1" fill="currentColor" stroke="none"/><path d="M2 9a13 13 0 0 1 20 0"/></svg>
+                Sitzungen
+                <span class="admin-nav-badge" id="adminNavBadgeSessions" hidden>0</span>
+              </button>
+              <button type="button" class="admin-nav-item" data-admin-tab="users">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M3 19a6 6 0 0 1 12 0"/><path d="M16 5.5a3 3 0 0 1 0 5.5"/><path d="M17.5 14.5A5.5 5.5 0 0 1 21 19"/></svg>
+                Nutzer
+                <span class="admin-nav-badge" id="adminNavBadgeUsers" hidden>0</span>
+              </button>
+            </div>
+            <div class="admin-nav-group">
+              <span class="admin-nav-heading">Steuerung</span>
+              <button type="button" class="admin-nav-item" data-admin-tab="maintenance">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.7 6.3a4 4 0 0 1-5 5L5 16v3h3l4.7-4.7a4 4 0 0 0 5-5l-2.4 2.4-2.1-2.1 2.5-2.3Z"/></svg>
+                Wartung &amp; Zugriff
+              </button>
+              <button type="button" class="admin-nav-item" data-admin-tab="email">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="m3.5 7 8.5 6 8.5-6"/></svg>
+                Test-E-Mails
+              </button>
+            </div>
+          </nav>
+          <div class="admin-sidebar-foot">
+            <button type="button" class="admin-nav-item" id="btnAdminRefresh">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 6"/><path d="M20 5v6h-6"/></svg>
+              Aktualisieren
+            </button>
           </div>
-          <label class="settings-row-label" for="adminDefaultLimitInput">Standard-KI-Limit pro Konto/Tag</label>
-          <div class="auth-name-row">
-            <input type="number" id="adminDefaultLimitInput" class="modal-input" min="1">
-            <button type="button" class="btn btn-secondary btn-small" id="btnSaveDefaultLimit">Speichern</button>
+        </aside>
+
+        <div class="admin-main">
+          <div class="admin-topbar">
+            <button type="button" class="admin-sidebar-toggle" id="adminSidebarToggle" aria-label="Seitenleiste ein-/ausblenden" data-tip="Seitenleiste">
+              <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M9.5 4v16"/></svg>
+            </button>
+            <div class="admin-crumb"><span>Admin</span><span>/</span><strong id="adminCrumbTitle">Übersicht</strong></div>
+            <span class="pill is-ok" data-tip="Daten werden bei jedem Öffnen neu geladen"><span class="pill-indicator ok pulse"></span>Live</span>
+          </div>
+
+          <div class="admin-panels">
+            <div class="admin-tab-panel" data-admin-panel="overview">
+              <div class="admin-stat-row">
+                <div class="admin-stat">
+                  <div class="admin-stat-head">
+                    <span class="admin-stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M5 20a7 7 0 0 1 14 0"/></svg></span>
+                    <span class="admin-stat-label">Konten</span>
+                  </div>
+                  <span class="admin-stat-value" id="adminStatUsers">–</span>
+                  <p class="admin-stat-note" id="adminStatUsersNote">Registrierte Konten insgesamt.</p>
+                </div>
+                <div class="admin-stat">
+                  <div class="admin-stat-head">
+                    <span class="admin-stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m5.6 5.6 12.8 12.8"/></svg></span>
+                    <span class="admin-stat-label">Gesperrt</span>
+                  </div>
+                  <span class="admin-stat-value" id="adminStatBanned">–</span>
+                  <p class="admin-stat-note" id="adminStatBannedNote">Konten ohne Zugriff.</p>
+                </div>
+                <div class="admin-stat">
+                  <div class="admin-stat-head">
+                    <span class="admin-stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12h4l2.5-6 4 13 2.5-7h5"/></svg></span>
+                    <span class="admin-stat-label">Online</span>
+                  </div>
+                  <span class="admin-stat-value" id="adminStatOnline">–</span>
+                  <p class="admin-stat-note" id="adminStatOnlineNote">Aktiv in den letzten 5 Minuten.</p>
+                </div>
+              </div>
+
+              <div class="settings-card" style="margin-top:1.2rem;">
+                <p class="settings-title">📊 Kapazität</p>
+                <p class="settings-desc">KI-Anfragen heute, website-weit.</p>
+                <div class="status-meter-row">
+                  <div class="status-meter-labels"><span id="adminCapacityText">– / –</span><span id="adminCapacityPct">–%</span></div>
+                  <div class="status-meter-track"><div class="status-meter-fill status-meter-fill-alt" id="adminCapacityFill"></div></div>
+                </div>
+                <label class="settings-row-label" for="adminCapacityInput" style="margin-top:1rem;">Tages-Obergrenze (gesamt)</label>
+                <div class="auth-name-row">
+                  <input type="number" id="adminCapacityInput" class="modal-input" min="1">
+                  <button type="button" class="btn btn-secondary btn-small" id="btnSaveCapacity">Speichern</button>
+                </div>
+                <label class="settings-row-label" for="adminDefaultLimitInput">Standard-KI-Limit pro Konto/Tag</label>
+                <div class="auth-name-row">
+                  <input type="number" id="adminDefaultLimitInput" class="modal-input" min="1">
+                  <button type="button" class="btn btn-secondary btn-small" id="btnSaveDefaultLimit">Speichern</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="admin-tab-panel" data-admin-panel="sessions" hidden>
+              <div class="settings-card">
+                <p class="settings-title">📡 Wer nutzt gerade die App</p>
+                <p class="settings-desc">Zuletzt aktiv in den letzten 5 Minuten (selbst gemeldete IP).</p>
+                <div class="admin-toolbar">
+                  <label class="admin-search">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+                    <input type="search" id="adminSessionSearch" placeholder="Gerät, IP oder Name suchen …" aria-label="Sitzungen durchsuchen">
+                  </label>
+                  <div class="dd" id="adminSessionFilterDd">
+                    <button type="button" class="admin-toolbar-btn" data-dd-trigger>
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4"/></svg>
+                      <span id="adminSessionFilterLabel">Alle</span>
+                    </button>
+                    <div class="dd-menu">
+                      <span class="dd-label">Nach Status filtern</span>
+                      <div class="dd-sep"></div>
+                      <button type="button" class="dd-item is-checked" data-filter="all"><svg class="dd-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 13 4 4 10-10"/></svg>Alle</button>
+                      <button type="button" class="dd-item" data-filter="loggedin"><svg class="dd-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 13 4 4 10-10"/></svg>Angemeldet</button>
+                      <button type="button" class="dd-item" data-filter="guest"><svg class="dd-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 13 4 4 10-10"/></svg>Gäste</button>
+                    </div>
+                  </div>
+                </div>
+                <div class="admin-table-wrap">
+                  <table class="admin-table" id="adminSessionsTable">
+                    <thead><tr><th>Gerät</th><th>IP</th><th>Angemeldet als</th><th>Zuletzt aktiv</th></tr></thead>
+                    <tbody></tbody>
+                  </table>
+                </div>
+                <p class="admin-empty-note" id="adminSessionsEmpty" hidden>Gerade niemand aktiv.</p>
+                <div class="pagination" id="adminSessionsPagination" hidden></div>
+              </div>
+            </div>
+
+            <div class="admin-tab-panel" data-admin-panel="users" hidden>
+              <div class="settings-card">
+                <p class="settings-title">👥 Nutzerverwaltung</p>
+                <p class="settings-desc">Sperren, entsperren, individuelles KI-Limit setzen.</p>
+                <div class="admin-toolbar">
+                  <label class="admin-search">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+                    <input type="search" id="adminUserSearch" placeholder="Name oder E-Mail suchen …" aria-label="Nutzer durchsuchen">
+                  </label>
+                  <div class="dd" id="adminUserFilterDd">
+                    <button type="button" class="admin-toolbar-btn" data-dd-trigger>
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4"/></svg>
+                      <span id="adminUserFilterLabel">Alle</span>
+                    </button>
+                    <div class="dd-menu">
+                      <span class="dd-label">Nach Status filtern</span>
+                      <div class="dd-sep"></div>
+                      <button type="button" class="dd-item is-checked" data-filter="all"><svg class="dd-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 13 4 4 10-10"/></svg>Alle</button>
+                      <button type="button" class="dd-item" data-filter="active"><svg class="dd-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 13 4 4 10-10"/></svg>Aktiv</button>
+                      <button type="button" class="dd-item" data-filter="banned"><svg class="dd-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 13 4 4 10-10"/></svg>Gesperrt</button>
+                      <button type="button" class="dd-item" data-filter="admin"><svg class="dd-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 13 4 4 10-10"/></svg>Admins</button>
+                    </div>
+                  </div>
+                </div>
+                <div class="admin-table-wrap">
+                  <table class="admin-table" id="adminUsersTable">
+                    <thead><tr><th>Konto</th><th>KI heute</th><th>Eigenes Limit</th><th>Status</th><th></th></tr></thead>
+                    <tbody></tbody>
+                  </table>
+                </div>
+                <p class="admin-empty-note" id="adminUsersEmpty" hidden>Keine Konten gefunden.</p>
+                <div class="pagination" id="adminUsersPagination" hidden></div>
+              </div>
+            </div>
+
+            <div class="admin-tab-panel" data-admin-panel="maintenance" hidden>
+              <div class="settings-card">
+                <p class="settings-title">🚧 Wartungsmodus</p>
+                <p class="settings-desc">Global oder einzelne Bereiche sperren — nur du kommst dann noch rein.</p>
+                <label class="settings-toggle-row" for="adminMaintenanceGlobal">
+                  <span>Ganze Website in Wartung</span>
+                  <input type="checkbox" id="adminMaintenanceGlobal" class="settings-switch">
+                </label>
+                <label class="settings-row-label" for="adminMaintenanceMessage">Nachricht für Besucher</label>
+                <textarea id="adminMaintenanceMessage" class="modal-input" rows="2"></textarea>
+                <p class="settings-row-label">Einzelne Bereiche</p>
+                <div id="adminFeatureToggles" class="admin-feature-toggles"></div>
+                <div class="btn-group" style="margin-top:1rem;">
+                  <button type="button" class="btn btn-primary" id="btnSaveMaintenance">Wartungs-Einstellungen speichern</button>
+                </div>
+              </div>
+
+              <div class="settings-card">
+                <p class="settings-title">🔓 Gastzugriff ohne Konto</p>
+                <p class="settings-desc">Welche Bereiche dürfen ohne Anmeldung genutzt werden? Angehakt = Konto nötig.</p>
+                <div id="adminGuestFeatureToggles" class="admin-feature-toggles"></div>
+                <div class="btn-group" style="margin-top:1rem;">
+                  <button type="button" class="btn btn-primary" id="btnSaveGuestFeatures">Gastzugriff speichern</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="admin-tab-panel" data-admin-panel="email" hidden>
+              <div class="settings-card">
+                <p class="settings-title">✉️ Test-E-Mails</p>
+                <p class="settings-desc">Schick dir selbst die E-Mails, die Nutzer bekommen, um die Templates zu prüfen.</p>
+                <div class="btn-group">
+                  <button type="button" class="btn btn-secondary" id="btnSendTestEmail">Passwort-Zurücksetzen testen</button>
+                  <button type="button" class="btn btn-secondary" id="btnSendTestVerifyEmail">Verifizierungs-E-Mail testen</button>
+                </div>
+                <p id="adminTestEmailMessage" class="admin-empty-note" hidden></p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-
-      <div class="admin-tab-panel" data-admin-panel="sessions" hidden>
-        <div class="settings-card">
-          <p class="settings-title">📡 Wer nutzt gerade die App</p>
-          <p class="settings-desc">Zuletzt aktiv in den letzten 5 Minuten (selbst gemeldete IP).</p>
-          <div class="chip-row admin-session-filter" id="adminSessionFilter">
-            <button type="button" class="chip selected" data-filter="all">Alle</button>
-            <button type="button" class="chip" data-filter="loggedin">Angemeldet</button>
-            <button type="button" class="chip" data-filter="guest">Gäste</button>
-          </div>
-          <div class="admin-table-wrap">
-            <table class="admin-table" id="adminSessionsTable">
-              <thead><tr><th>Gerät</th><th>IP</th><th>Angemeldet als</th><th>Zuletzt aktiv</th></tr></thead>
-              <tbody></tbody>
-            </table>
-          </div>
-          <p class="admin-empty-note" id="adminSessionsEmpty" hidden>Gerade niemand aktiv.</p>
-        </div>
-      </div>
-
-      <div class="admin-tab-panel" data-admin-panel="users" hidden>
-        <div class="settings-card">
-          <p class="settings-title">👥 Nutzerverwaltung</p>
-          <p class="settings-desc">Sperren, entsperren, individuelles KI-Limit setzen.</p>
-          <div class="admin-table-wrap">
-            <table class="admin-table" id="adminUsersTable">
-              <thead><tr><th>Konto</th><th>KI heute</th><th>Eigenes Limit</th><th>Status</th></tr></thead>
-              <tbody></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <div class="admin-tab-panel" data-admin-panel="maintenance" hidden>
-        <div class="settings-card">
-          <p class="settings-title">🚧 Wartungsmodus</p>
-          <p class="settings-desc">Global oder einzelne Bereiche sperren — nur du kommst dann noch rein.</p>
-          <label class="settings-toggle-row" for="adminMaintenanceGlobal">
-            <span>Ganze Website in Wartung</span>
-            <input type="checkbox" id="adminMaintenanceGlobal" class="settings-switch">
-          </label>
-          <label class="settings-row-label" for="adminMaintenanceMessage">Nachricht für Besucher</label>
-          <textarea id="adminMaintenanceMessage" class="modal-input" rows="2"></textarea>
-          <p class="settings-row-label">Einzelne Bereiche</p>
-          <div id="adminFeatureToggles" class="admin-feature-toggles"></div>
-          <div class="btn-group" style="margin-top:1rem;">
-            <button type="button" class="btn btn-primary" id="btnSaveMaintenance">Wartungs-Einstellungen speichern</button>
-          </div>
-        </div>
-
-        <div class="settings-card">
-          <p class="settings-title">🔓 Gastzugriff ohne Konto</p>
-          <p class="settings-desc">Welche Bereiche dürfen ohne Anmeldung genutzt werden? Angehakt = Konto nötig.</p>
-          <div id="adminGuestFeatureToggles" class="admin-feature-toggles"></div>
-          <div class="btn-group" style="margin-top:1rem;">
-            <button type="button" class="btn btn-primary" id="btnSaveGuestFeatures">Gastzugriff speichern</button>
-          </div>
-        </div>
-
-        <div class="settings-card">
-          <p class="settings-title">✉️ Test-E-Mails</p>
-          <p class="settings-desc">Schick dir selbst die E-Mails, die Nutzer bekommen, um die Templates zu prüfen.</p>
-          <div class="btn-group">
-            <button type="button" class="btn btn-secondary" id="btnSendTestEmail">Passwort-Zurücksetzen testen</button>
-            <button type="button" class="btn btn-secondary" id="btnSendTestVerifyEmail">Verifizierungs-E-Mail testen</button>
-          </div>
-          <p id="adminTestEmailMessage" class="admin-empty-note" hidden></p>
-        </div>
-      </div>
-
-      <button type="button" class="btn btn-secondary btn-small" id="btnAdminRefresh" style="margin-top:1.2rem;">↻ Aktualisieren</button>
     </div>
   </section>
+
+  <div class="confirm-backdrop" id="confirmBackdrop" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+    <div class="confirm-box" id="confirmBox">
+      <div class="confirm-head">
+        <span class="confirm-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5"/><circle cx="12" cy="16.5" r="1" fill="currentColor" stroke="none"/></svg>
+        </span>
+        <div>
+          <p class="confirm-title" id="confirmTitle">Bist du sicher?</p>
+          <p class="confirm-text" id="confirmText"></p>
+        </div>
+      </div>
+      <div class="confirm-actions">
+        <button type="button" class="btn btn-secondary btn-small" id="confirmCancel">Abbrechen</button>
+        <button type="button" class="btn btn-primary btn-small" id="confirmOk">Bestätigen</button>
+      </div>
+    </div>
+  </div>
 
 </main>
 
@@ -4939,21 +5300,146 @@ function openAdminPanel(){
   // Beim (Wieder-)Oeffnen den zuletzt gewaehlten Unter-Tab beibehalten statt
   // stumpf auf "Uebersicht" zurueckzuspringen (showView() persistiert sonst
   // kurzzeitig den Default-Tab - hier direkt danach wieder korrigiert).
-  const currentTabBtn = document.querySelector('#adminSubnav .admin-subnav-item.selected');
+  const currentTabBtn = document.querySelector('#adminSubnav .admin-nav-item.is-active');
   switchAdminTab(currentTabBtn ? currentTabBtn.dataset.adminTab : 'overview');
   loadAdminData();
 }
 
 function switchAdminTab(tabKey){
-  document.querySelectorAll('#adminSubnav .admin-subnav-item').forEach(b => b.classList.toggle('selected', b.dataset.adminTab === tabKey));
+  let label = '';
+  document.querySelectorAll('#adminSubnav .admin-nav-item').forEach(b => {
+    const active = b.dataset.adminTab === tabKey;
+    b.classList.toggle('is-active', active);
+    // Nur die eigenen Textknoten lesen - sonst landet die Badge-Zahl mit im Titel.
+    if(active){
+      label = Array.from(b.childNodes)
+        .filter(n => n.nodeType === Node.TEXT_NODE)
+        .map(n => n.textContent)
+        .join(' ')
+        .trim();
+    }
+  });
   document.querySelectorAll('.admin-tab-panel').forEach(panel => {
     panel.hidden = panel.dataset.adminPanel !== tabKey;
   });
+  const crumb = document.getElementById('adminCrumbTitle');
+  if(crumb && label) crumb.textContent = label;
   persistLastView('admin', tabKey);
 }
-document.querySelectorAll('#adminSubnav .admin-subnav-item').forEach(btn => {
+document.querySelectorAll('#adminSubnav .admin-nav-item').forEach(btn => {
   btn.addEventListener('click', () => { sndClick(); switchAdminTab(btn.dataset.adminTab); });
 });
+document.getElementById('adminSidebarToggle').addEventListener('click', () => {
+  sndClick();
+  document.getElementById('adminShell').classList.toggle('sidebar-collapsed');
+});
+
+// --- Dropdown-Menues (.dd mit [data-dd-trigger]) ---------------------------
+// Ein einziger globaler Klick-Handler statt eines Listeners pro Menue: oeffnet
+// das angeklickte Menue und schliesst dabei alle anderen.
+document.addEventListener('click', (e) => {
+  const trigger = e.target.closest('[data-dd-trigger]');
+  const clickedDd = trigger ? trigger.closest('.dd') : null;
+  document.querySelectorAll('.dd.open').forEach(dd => { if(dd !== clickedDd) dd.classList.remove('open'); });
+  if(clickedDd) clickedDd.classList.toggle('open');
+});
+document.addEventListener('keydown', (e) => {
+  if(e.key === 'Escape') document.querySelectorAll('.dd.open').forEach(dd => dd.classList.remove('open'));
+});
+
+// --- Bestaetigungs-Dialog ---------------------------------------------------
+// Ersetzt ein blindes Sofort-Ausfuehren bei kritischen Aktionen (z.B. Sperren).
+// Gibt ein Promise zurueck, das true liefert, wenn bestaetigt wurde.
+function confirmAction({ title = 'Bist du sicher?', text = '', confirmLabel = 'Bestätigen', danger = false } = {}){
+  const backdrop = document.getElementById('confirmBackdrop');
+  const box = document.getElementById('confirmBox');
+  const okBtn = document.getElementById('confirmOk');
+  const cancelBtn = document.getElementById('confirmCancel');
+  if(!backdrop) return Promise.resolve(true);
+
+  document.getElementById('confirmTitle').textContent = title;
+  document.getElementById('confirmText').textContent = text;
+  okBtn.textContent = confirmLabel;
+  box.classList.toggle('danger', !!danger);
+  backdrop.classList.add('open');
+  okBtn.focus();
+
+  return new Promise(resolve => {
+    function finish(result){
+      backdrop.classList.remove('open');
+      okBtn.removeEventListener('click', onOk);
+      cancelBtn.removeEventListener('click', onCancel);
+      backdrop.removeEventListener('click', onBackdrop);
+      document.removeEventListener('keydown', onKey);
+      resolve(result);
+    }
+    function onOk(){ sndClick(); finish(true); }
+    function onCancel(){ sndClick(); finish(false); }
+    function onBackdrop(ev){ if(ev.target === backdrop) finish(false); }
+    function onKey(ev){ if(ev.key === 'Escape') finish(false); }
+    okBtn.addEventListener('click', onOk);
+    cancelBtn.addEventListener('click', onCancel);
+    backdrop.addEventListener('click', onBackdrop);
+    document.addEventListener('keydown', onKey);
+  });
+}
+
+// Lade-Platzhalter (Skeleton) fuer eine Tabelle, solange die Daten kommen.
+function renderTableSkeleton(tbody, rows, cols){
+  if(!tbody) return;
+  tbody.innerHTML = '';
+  for(let r = 0; r < rows; r++){
+    const tr = document.createElement('tr');
+    for(let c = 0; c < cols; c++){
+      const td = document.createElement('td');
+      const sk = document.createElement('span');
+      sk.className = 'skeleton';
+      sk.style.height = '12px';
+      sk.style.width = c === 0 ? '70%' : '45%';
+      td.appendChild(sk);
+      tr.appendChild(td);
+    }
+    tbody.appendChild(tr);
+  }
+}
+
+// Seiten-Navigation unter einer Tabelle. Baut die Buttons neu auf und ruft
+// onChange(seite) auf, wenn geblaettert wird.
+function renderPagination(container, page, totalPages, onChange){
+  if(!container) return;
+  container.innerHTML = '';
+  container.hidden = totalPages <= 1;
+  if(totalPages <= 1) return;
+
+  function addBtn(label, targetPage, { disabled = false, active = false, ariaLabel } = {}){
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'pagination-btn' + (active ? ' is-active' : '');
+    btn.textContent = label;
+    btn.disabled = disabled;
+    if(ariaLabel) btn.setAttribute('aria-label', ariaLabel);
+    if(!disabled && !active) btn.addEventListener('click', () => { sndClick(); onChange(targetPage); });
+    container.appendChild(btn);
+  }
+
+  addBtn('‹', page - 1, { disabled: page <= 1, ariaLabel: 'Vorherige Seite' });
+  for(let p = 1; p <= totalPages; p++){
+    // Bei vielen Seiten nur Anfang, Ende und die direkte Umgebung zeigen.
+    if(totalPages > 7 && p !== 1 && p !== totalPages && Math.abs(p - page) > 1){
+      if(p === 2 || p === totalPages - 1){
+        const dots = document.createElement('span');
+        dots.className = 'pagination-btn';
+        dots.style.border = 'none';
+        dots.style.background = 'none';
+        dots.textContent = '…';
+        container.appendChild(dots);
+      }
+      continue;
+    }
+    addBtn(String(p), p, { active: p === page });
+  }
+  addBtn('›', page + 1, { disabled: page >= totalPages, ariaLabel: 'Nächste Seite' });
+}
 
 const ADMIN_FEATURE_LIST = [
   { key: 'home', label: 'Lernsets' },
@@ -4980,6 +5466,8 @@ async function loadAdminData(){
   }
   note.textContent = `Angemeldet als ${currentUser.email}.`;
   content.hidden = false;
+  renderTableSkeleton(document.querySelector('#adminSessionsTable tbody'), 4, 4);
+  renderTableSkeleton(document.querySelector('#adminUsersTable tbody'), 4, 5);
   try{
     const [capRes, sessRes, profRes] = await Promise.all([
       sb.rpc('get_capacity'),
@@ -5006,72 +5494,217 @@ function renderAdminCapacity(cap){
   if(siteSettings) document.getElementById('adminDefaultLimitInput').value = siteSettings.ai_daily_limit;
 }
 
+const ADMIN_ROWS_PER_PAGE = 8;
+
 let adminSessionsCache = [];
 let adminSessionFilter = 'all';
+let adminSessionSearch = '';
+let adminSessionPage = 1;
 function renderAdminSessions(sessions){
   const now = Date.now();
   adminSessionsCache = sessions.filter(s => now - new Date(s.last_seen).getTime() < 5 * 60 * 1000);
   document.getElementById('adminStatOnline').textContent = adminSessionsCache.length;
+  const guests = adminSessionsCache.filter(s => !s.user_id).length;
+  document.getElementById('adminStatOnlineNote').textContent =
+    `${adminSessionsCache.length - guests} angemeldet · ${guests} als Gast.`;
+  setAdminNavBadge('adminNavBadgeSessions', adminSessionsCache.length);
   renderFilteredAdminSessions();
+}
+function filteredAdminSessions(){
+  const q = adminSessionSearch.trim().toLowerCase();
+  return adminSessionsCache.filter(s => {
+    if(adminSessionFilter === 'loggedin' && !s.user_id) return false;
+    if(adminSessionFilter === 'guest' && s.user_id) return false;
+    if(!q) return true;
+    return [s.device_label, s.ip_address, s.display_label]
+      .some(v => (v || '').toLowerCase().includes(q));
+  });
 }
 function renderFilteredAdminSessions(){
   const now = Date.now();
-  const filtered = adminSessionsCache.filter(s => {
-    if(adminSessionFilter === 'loggedin') return !!s.user_id;
-    if(adminSessionFilter === 'guest') return !s.user_id;
-    return true;
-  });
+  const filtered = filteredAdminSessions();
+  const totalPages = Math.max(1, Math.ceil(filtered.length / ADMIN_ROWS_PER_PAGE));
+  if(adminSessionPage > totalPages) adminSessionPage = totalPages;
+  const pageRows = filtered.slice((adminSessionPage - 1) * ADMIN_ROWS_PER_PAGE, adminSessionPage * ADMIN_ROWS_PER_PAGE);
+
   const tbody = document.querySelector('#adminSessionsTable tbody');
   tbody.innerHTML = '';
   document.getElementById('adminSessionsEmpty').hidden = filtered.length > 0;
-  filtered.forEach(s => {
+  pageRows.forEach(s => {
     const tr = document.createElement('tr');
     const seenAgo = Math.max(0, Math.round((now - new Date(s.last_seen).getTime()) / 1000));
+    const whoPill = s.user_id
+      ? `<span class="pill is-gold"><span class="pill-indicator gold"></span>${escapeHtml(s.display_label || 'Angemeldet')}</span>`
+      : `<span class="pill">Gast</span>`;
+    const freshPill = seenAgo < 60
+      ? `<span class="pill is-ok"><span class="pill-indicator ok pulse"></span>vor ${seenAgo}s</span>`
+      : `<span class="pill">vor ${Math.round(seenAgo / 60)} min</span>`;
     tr.innerHTML = `
       <td>${escapeHtml(s.device_label || '–')}</td>
-      <td>${escapeHtml(s.ip_address || '–')}</td>
-      <td>${escapeHtml(s.display_label || 'Gast')}</td>
-      <td>vor ${seenAgo}s</td>`;
+      <td style="font-family:var(--font-mono); font-size:.74rem;">${escapeHtml(s.ip_address || '–')}</td>
+      <td>${whoPill}</td>
+      <td>${freshPill}</td>`;
     tbody.appendChild(tr);
   });
-}
-document.querySelectorAll('#adminSessionFilter .chip').forEach(chip => {
-  chip.addEventListener('click', () => {
-    sndClick();
-    adminSessionFilter = chip.dataset.filter;
-    document.querySelectorAll('#adminSessionFilter .chip').forEach(c => c.classList.toggle('selected', c === chip));
+
+  renderPagination(document.getElementById('adminSessionsPagination'), adminSessionPage, totalPages, (p) => {
+    adminSessionPage = p;
     renderFilteredAdminSessions();
   });
-});
+}
 
 // Admin-Konten sind immun gegen Sperren (auch gegen sich selbst) - sowohl im UI
-// (kein Sperr-Button, nur ein Abzeichen) als auch defensiv in toggleUserBan().
+// (kein Sperr-Eintrag, nur ein Abzeichen) als auch defensiv in toggleUserBan().
 let adminUsersCache = [];
+let adminUserFilter = 'all';
+let adminUserSearch = '';
+let adminUserPage = 1;
 function renderAdminUsers(profiles){
   adminUsersCache = profiles;
+  const banned = profiles.filter(p => p.banned).length;
+  const admins = profiles.filter(p => p.is_admin).length;
   document.getElementById('adminStatUsers').textContent = profiles.length;
-  document.getElementById('adminStatBanned').textContent = profiles.filter(p => p.banned).length;
+  document.getElementById('adminStatBanned').textContent = banned;
+  document.getElementById('adminStatUsersNote').textContent =
+    `Davon ${admins} ${admins === 1 ? 'Admin-Konto' : 'Admin-Konten'}.`;
+  document.getElementById('adminStatBannedNote').textContent = banned
+    ? `${Math.round((banned / Math.max(1, profiles.length)) * 100)}% aller Konten.`
+    : 'Aktuell ist niemand gesperrt.';
+  setAdminNavBadge('adminNavBadgeUsers', profiles.length);
+  renderFilteredAdminUsers();
+}
+function filteredAdminUsers(){
+  const q = adminUserSearch.trim().toLowerCase();
+  return adminUsersCache.filter(p => {
+    if(adminUserFilter === 'active' && (p.banned || p.is_admin)) return false;
+    if(adminUserFilter === 'banned' && !p.banned) return false;
+    if(adminUserFilter === 'admin' && !p.is_admin) return false;
+    if(!q) return true;
+    return [p.display_name, p.email].some(v => (v || '').toLowerCase().includes(q));
+  });
+}
+function renderFilteredAdminUsers(){
+  const filtered = filteredAdminUsers();
+  const totalPages = Math.max(1, Math.ceil(filtered.length / ADMIN_ROWS_PER_PAGE));
+  if(adminUserPage > totalPages) adminUserPage = totalPages;
+  const pageRows = filtered.slice((adminUserPage - 1) * ADMIN_ROWS_PER_PAGE, adminUserPage * ADMIN_ROWS_PER_PAGE);
+
   const tbody = document.querySelector('#adminUsersTable tbody');
   tbody.innerHTML = '';
-  profiles.forEach(p => {
+  document.getElementById('adminUsersEmpty').hidden = filtered.length > 0;
+  pageRows.forEach(p => {
     const tr = document.createElement('tr');
     const name = escapeHtml(p.display_name || p.email || p.user_id);
     const email = escapeHtml(p.email || '');
-    const banCell = p.is_admin
-      ? `<span class="admin-ban-btn is-immune" title="Admin-Konten sind immun gegen Sperren">🛡️ Admin</span>`
-      : `<button type="button" class="admin-ban-btn${p.banned ? ' is-banned' : ''}">${p.banned ? 'Gesperrt' : 'Aktiv'}</button>`;
+    const statusPill = p.is_admin
+      ? `<span class="pill is-gold" data-tip="Admin-Konten sind immun gegen Sperren"><span class="pill-indicator gold"></span>Admin</span>`
+      : p.banned
+        ? `<span class="pill is-err"><span class="pill-indicator err"></span>Gesperrt</span>`
+        : `<span class="pill is-ok"><span class="pill-indicator ok"></span>Aktiv</span>`;
     tr.innerHTML = `
       <td><span class="admin-user-name"><span>${name}</span><span>${email}</span></span></td>
       <td>${p.ai_requests_today === null || p.ai_requests_today === undefined ? 0 : p.ai_requests_today}</td>
-      <td><input type="number" min="1" class="admin-limit-input" value="${p.ai_limit_override === null || p.ai_limit_override === undefined ? '' : p.ai_limit_override}" placeholder="Standard"></td>
-      <td>${banCell}</td>`;
+      <td><input type="number" min="1" class="admin-limit-input" value="${p.ai_limit_override === null || p.ai_limit_override === undefined ? '' : p.ai_limit_override}" placeholder="Standard" aria-label="Eigenes KI-Limit"></td>
+      <td>${statusPill}</td>
+      <td class="right">
+        <div class="dd">
+          <button type="button" class="admin-row-menu-btn" data-dd-trigger aria-label="Aktionen für ${name}">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg>
+          </button>
+          <div class="dd-menu">
+            <span class="dd-label">${name}</span>
+            <div class="dd-sep"></div>
+            ${email ? `<button type="button" class="dd-item" data-action="copy-email">E-Mail kopieren</button>` : ''}
+            <button type="button" class="dd-item" data-action="reset-limit">Limit zurücksetzen</button>
+            ${p.is_admin ? '' : `<div class="dd-sep"></div><button type="button" class="dd-item${p.banned ? '' : ' danger'}" data-action="toggle-ban">${p.banned ? 'Entsperren' : 'Konto sperren'}</button>`}
+          </div>
+        </div>
+      </td>`;
+
     tr.querySelector('.admin-limit-input').addEventListener('change', (ev) => saveUserLimit(p.user_id, ev.target.value));
-    if(!p.is_admin){
-      tr.querySelector('.admin-ban-btn').addEventListener('click', () => toggleUserBan(p.user_id, !p.banned));
-    }
+    tr.querySelectorAll('.dd-item').forEach(item => {
+      item.addEventListener('click', () => {
+        item.closest('.dd').classList.remove('open');
+        const action = item.dataset.action;
+        if(action === 'copy-email'){
+          if(navigator.clipboard && navigator.clipboard.writeText){
+            navigator.clipboard.writeText(p.email || '').then(
+              () => showToast('E-Mail kopiert.'),
+              () => showToast('Kopieren nicht möglich.', 'error')
+            );
+          } else showToast('Kopieren nicht möglich.', 'error');
+        } else if(action === 'reset-limit'){
+          saveUserLimit(p.user_id, '');
+        } else if(action === 'toggle-ban'){
+          requestToggleUserBan(p, !p.banned);
+        }
+      });
+    });
     tbody.appendChild(tr);
   });
+
+  renderPagination(document.getElementById('adminUsersPagination'), adminUserPage, totalPages, (page) => {
+    adminUserPage = page;
+    renderFilteredAdminUsers();
+  });
 }
+
+function setAdminNavBadge(id, count){
+  const badge = document.getElementById(id);
+  if(!badge) return;
+  badge.textContent = count;
+  badge.hidden = !count;
+}
+
+// Sperren ist nicht rueckgaengig zu machen, ohne dass der Nutzer es merkt -
+// deshalb vorher nachfragen statt direkt auszufuehren.
+async function requestToggleUserBan(profile, banned){
+  const label = profile.display_name || profile.email || 'Dieses Konto';
+  const ok = await confirmAction({
+    title: banned ? 'Konto sperren?' : 'Konto entsperren?',
+    text: banned
+      ? `${label} kann sich danach nicht mehr anmelden und verliert sofort den Zugriff.`
+      : `${label} bekommt den vollen Zugriff auf die Website zurück.`,
+    confirmLabel: banned ? 'Sperren' : 'Entsperren',
+    danger: banned,
+  });
+  if(ok) toggleUserBan(profile.user_id, banned);
+}
+
+// Such- und Filterleisten der beiden Tabellen.
+document.getElementById('adminSessionSearch').addEventListener('input', (e) => {
+  adminSessionSearch = e.target.value;
+  adminSessionPage = 1;
+  renderFilteredAdminSessions();
+});
+document.getElementById('adminUserSearch').addEventListener('input', (e) => {
+  adminUserSearch = e.target.value;
+  adminUserPage = 1;
+  renderFilteredAdminUsers();
+});
+function wireAdminFilterDropdown(ddId, labelId, onPick){
+  const dd = document.getElementById(ddId);
+  if(!dd) return;
+  dd.querySelectorAll('.dd-item').forEach(item => {
+    item.addEventListener('click', () => {
+      sndClick();
+      dd.querySelectorAll('.dd-item').forEach(i => i.classList.toggle('is-checked', i === item));
+      document.getElementById(labelId).textContent = item.textContent.trim();
+      dd.classList.remove('open');
+      onPick(item.dataset.filter);
+    });
+  });
+}
+wireAdminFilterDropdown('adminSessionFilterDd', 'adminSessionFilterLabel', (filter) => {
+  adminSessionFilter = filter;
+  adminSessionPage = 1;
+  renderFilteredAdminSessions();
+});
+wireAdminFilterDropdown('adminUserFilterDd', 'adminUserFilterLabel', (filter) => {
+  adminUserFilter = filter;
+  adminUserPage = 1;
+  renderFilteredAdminUsers();
+});
 
 async function saveUserLimit(userId, value){
   const limit = value === '' ? null : Math.max(1, parseInt(value, 10) || 1);
@@ -6336,7 +6969,7 @@ function showView(name){
   const visible = !QUICKNAV_HIDDEN_VIEWS.has(name);
   if(qn) qn.hidden = !visible;
   document.body.classList.toggle('quicknav-visible', visible);
-  document.body.classList.toggle('wide-view-active', name === 'hub' || name === 'appDownload');
+  document.body.classList.toggle('wide-view-active', name === 'hub' || name === 'appDownload' || name === 'admin');
   persistLastView(name);
   // Signal fuer Effekte, die nur auf bestimmten Seiten laufen sollen (Hero-Shader).
   window.dispatchEvent(new CustomEvent('lumiere:viewchange', { detail: { view: name } }));
