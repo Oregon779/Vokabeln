@@ -1012,6 +1012,20 @@
      Trennlinie unter dem Header bleibt, Rest ist die einheitliche Hintergrundfarbe. */
   .hub-hero-bg{position:absolute; top:0; right:0; bottom:0; left:0; inset:0; z-index:0; overflow:hidden; pointer-events:none;}
   .hub-hero-bg .hairline{position:absolute; top:0; left:5%; right:5%; height:1px; background:linear-gradient(90deg, transparent, rgba(246,195,92,.2), transparent);}
+  /* Shader-Schleier hinter dem Hero (siehe initHeroShader). Bewusst sehr dezent
+     und nach unten ausgeblendet, damit Titel und Karte lesbar bleiben. Wird nur
+     auf Zeigergeraeten mit WebGL2 ueberhaupt eingeschaltet. */
+  /* Hoehe bewusst begrenzt: .hub-hero-bg spannt sich ueber den gesamten Hub
+     (Hero + Karten + Manifest + Footer). Der Schleier soll aber nur hinter dem
+     Hero liegen - sonst rechnet der Shader vollflaechig ueber die ganze Seite. */
+  .hero-shader{
+    position:absolute; top:0; left:0; right:0; width:100%; height:clamp(420px, 92vh, 900px);
+    opacity:0; transition:opacity 1.2s var(--ease-premium); pointer-events:none;
+    -webkit-mask-image:linear-gradient(180deg, #000 0%, rgba(0,0,0,.55) 55%, transparent 92%);
+    mask-image:linear-gradient(180deg, #000 0%, rgba(0,0,0,.55) 55%, transparent 92%);
+  }
+  .hero-shader.is-live{ opacity:.5; }
+  @media (hover:none), (pointer:coarse), (prefers-reduced-motion: reduce){ .hero-shader{ display:none; } }
   .hub-grid{position:relative; z-index:1; display:grid; grid-template-columns:1fr; gap:2.6rem; align-items:center; padding-top:1rem; max-width:1280px; margin:0 auto;}
   @media (min-width:980px){ .hub-grid{ grid-template-columns:1.05fr .95fr; gap:3.2rem; } }
   .hub-copy{display:flex; flex-direction:column; justify-content:flex-start;}
@@ -1212,9 +1226,23 @@
     transition:transform .25s var(--ease-premium), color .25s var(--ease);
   }
   .feature-card:hover .feature-card-arrow{transform:translateX(4px); color:var(--ember-bright);}
+  /* Orb-Form nach dem uebergebenen Cards-Entwurf: runder Koerper, gestrichelter
+     Ring, zusaetzliche Kontur mit Abstand und ein weiches Leuchten dahinter.
+     Das Leuchten liegt hinter dem Symbol (z-index), damit nichts verdeckt wird. */
   .feature-card-icon{
-    position:relative; width:44px; height:44px; border-radius:13px; display:flex; align-items:center; justify-content:center; flex-shrink:0;
+    position:relative; width:52px; height:52px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0;
+    border:1px dashed var(--border-solid); outline:1px solid var(--border-solid); outline-offset:4px;
+    transition:outline-color .3s var(--ease), border-color .3s var(--ease), transform .3s var(--ease-premium);
   }
+  .feature-card-icon > svg{ position:relative; z-index:2; }
+  .feature-card-icon::before{
+    content:''; position:absolute; top:-18%; right:-18%; bottom:-18%; left:-18%; z-index:1; border-radius:50%;
+    background:radial-gradient(circle, rgba(246,195,92,.3), rgba(246,195,92,.07) 55%, transparent 72%);
+    filter:blur(9px); opacity:0; transition:opacity .35s var(--ease);
+  }
+  .feature-card:hover .feature-card-icon{ transform:translateY(-2px); outline-color:var(--ember-dim); border-color:var(--ember-dim); }
+  .feature-card:hover .feature-card-icon::before{ opacity:1; }
+  @media (prefers-reduced-motion: reduce){ .feature-card:hover .feature-card-icon{ transform:none; } }
   .feature-card-icon::after{ content:''; position:absolute; left:50%; bottom:-.65rem; width:1px; height:.55rem; opacity:.7; }
   .feature-card-icon.ic-teal{ color:var(--ember-bright); background:rgba(246,195,92,.16); box-shadow:inset 0 0 0 1px rgba(246,195,92,.35); }
   .feature-card-icon.ic-teal::after{ background:linear-gradient(var(--ember-bright), transparent); }
@@ -1265,6 +1293,52 @@
   .hub-manifest-attrib span:first-child{font-family:var(--font-serif); font-style:italic; font-size:.85rem; color:var(--gold-bright); white-space:nowrap;}
   .hub-manifest-attrib .line{flex:1; max-width:9rem; height:1px; background:linear-gradient(90deg, var(--border-solid), transparent);}
 
+  /* --- Seiten-Footer (Startseite) ----------------------------------------
+     Aufbau nach dem uebergebenen Footer-Entwurf: Lichtschein oben in der Mitte,
+     durchgezogenes Spaltenraster mit Trennlinien, je Spalte eine grosse
+     "Sprungkarte" plus eine Gruppe kleiner Links, unten eine Copyright-Leiste.
+     Verlinkt ausschliesslich real existierende Ziele (data-goto). */
+  .site-footer{
+    position:relative; margin-top:5rem; border-top:1px solid var(--border-solid);
+    background:radial-gradient(35% 128px at 50% 0%, rgba(246,195,92,.09), transparent);
+  }
+  .site-footer-inner{ position:relative; margin:0 auto; max-width:64rem; padding:0 1rem; }
+  .site-footer-grid{
+    position:relative; display:grid; grid-template-columns:1fr;
+    border-left:1px solid var(--border-solid); border-right:1px solid var(--border-solid);
+  }
+  @media (min-width:760px){ .site-footer-grid{ grid-template-columns:repeat(4, 1fr); } }
+  @media (min-width:760px){ .site-footer-col + .site-footer-col{ border-left:1px solid var(--border-solid); } }
+  .site-footer-card{
+    display:flex; width:100%; align-items:center; justify-content:space-between; gap:.6rem;
+    border:none; border-top:1px solid var(--border-solid); border-bottom:1px solid var(--border-solid);
+    background:none; padding:.75rem .9rem; cursor:pointer; text-align:left;
+    font-family:inherit; font-size:.92rem; font-weight:600; color:var(--text);
+    transition:background .2s var(--ease), color .2s var(--ease);
+  }
+  @media (min-width:760px){ .site-footer-card{ border-top:none; } }
+  .site-footer-card:hover{ background:var(--surface-2); color:var(--ember-bright); }
+  .site-footer-card svg{ width:16px; height:16px; flex-shrink:0; transition:transform .25s var(--ease-premium); }
+  .site-footer-card:hover svg{ transform:translateX(3px); }
+  .site-footer-group{ padding:.6rem .9rem 1.1rem; }
+  .site-footer-group h3{
+    margin:.6rem 0 .9rem; font-family:var(--font-mono); font-size:.63rem; font-weight:600;
+    text-transform:uppercase; letter-spacing:.18em; color:var(--stone);
+  }
+  .site-footer-group ul{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:.45rem; }
+  .site-footer-link{
+    background:none; border:none; padding:0; cursor:pointer; font-family:inherit;
+    font-size:.78rem; color:var(--stone); text-align:left;
+    transition:color .2s var(--ease);
+  }
+  .site-footer-link:hover{ color:var(--text); }
+  .site-footer-link .lock-badge{ margin-left:.4rem; }
+  .site-footer-bar{
+    display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:.5rem .9rem;
+    border-top:1px solid var(--border-solid); padding:.85rem 1rem;
+    font-family:var(--font-mono); font-size:.66rem; letter-spacing:.08em; color:var(--stone);
+  }
+  .site-footer-bar .dot{ width:4px; height:4px; border-radius:50%; background:var(--ember-dim); display:inline-block; }
 
   /* --- Belohnungen --- */
   .rewards-grid{display:grid; grid-template-columns:1fr; gap:1rem; margin-top:1.6rem;}
@@ -2225,7 +2299,7 @@
 <main id="app">
 
   <section id="view-hub" class="view">
-    <div class="hub-hero-bg" aria-hidden="true"><span class="hairline"></span></div>
+    <div class="hub-hero-bg" aria-hidden="true"><canvas id="heroShader" class="hero-shader"></canvas><span class="hairline"></span></div>
     <div class="exam-banner" id="examBanner" hidden>
       <span class="exam-banner-icon">⏰</span>
       <p class="exam-banner-text" id="examBannerText"></p>
@@ -2507,6 +2581,75 @@
       </div>
     </div>
     </div>
+
+    <footer class="site-footer">
+      <div class="site-footer-inner">
+        <div class="site-footer-grid">
+          <div class="site-footer-col">
+            <button type="button" class="site-footer-card" data-goto="home">
+              <span>Lernsets</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M13 6l6 6-6 6"/></svg>
+            </button>
+            <div class="site-footer-group">
+              <h3>Üben</h3>
+              <ul>
+                <li><button type="button" class="site-footer-link" data-goto="listen">Aussprache<span class="lock-badge" hidden>🔒</span></button></li>
+                <li><button type="button" class="site-footer-link" data-goto="grammar">Grammatik<span class="lock-badge" hidden>🔒</span></button></li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="site-footer-col">
+            <button type="button" class="site-footer-card" data-goto="rewards">
+              <span>Fortschritt</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M13 6l6 6-6 6"/></svg>
+            </button>
+            <div class="site-footer-group">
+              <h3>Planung</h3>
+              <ul>
+                <li><button type="button" class="site-footer-link" data-goto="calendar">Kalender<span class="lock-badge" hidden>🔒</span></button></li>
+                <li><button type="button" class="site-footer-link" data-goto="settingsPage">Einstellungen</button></li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="site-footer-col">
+            <button type="button" class="site-footer-card" data-goto="appDownload">
+              <span>Die App</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M13 6l6 6-6 6"/></svg>
+            </button>
+            <div class="site-footer-group">
+              <h3>Projekt</h3>
+              <ul>
+                <li><button type="button" class="site-footer-link" data-goto="about">Über uns</button></li>
+                <li><button type="button" class="site-footer-link" data-goto="hub">Startseite</button></li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="site-footer-col">
+            <button type="button" class="site-footer-card" id="footerAccountCard">
+              <span>Konto</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M13 6l6 6-6 6"/></svg>
+            </button>
+            <div class="site-footer-group">
+              <h3>Zugang</h3>
+              <ul>
+                <li><button type="button" class="site-footer-link" data-auth-tab="signin">Anmelden</button></li>
+                <li><button type="button" class="site-footer-link" data-auth-tab="signup">Registrieren</button></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="site-footer-bar">
+        <span id="footerCopyright">© Lumière</span>
+        <span class="dot" aria-hidden="true"></span>
+        <span>Deutsch · Français</span>
+        <span class="dot" aria-hidden="true"></span>
+        <span>Berlin / Paris</span>
+      </div>
+    </footer>
   </section>
 
   <section id="view-home" class="view" hidden>
@@ -3425,7 +3568,9 @@ async function callGemini(prompt, jsonMode = true){
     });
     if(!res.ok){ console.error('Gemini Fehler', res.status, await res.text()); return null; }
     const data = await res.json();
-    return data?.candidates?.[0]?.content?.parts?.[0]?.text || null;
+    const cand = data && data.candidates && data.candidates[0];
+    const part = cand && cand.content && cand.content.parts && cand.content.parts[0];
+    return (part && part.text) || null;
   }catch(err){
     console.error('Gemini Aufruf fehlgeschlagen:', err.message);
     return null;
@@ -3463,8 +3608,8 @@ async function callClaude(prompt){
     });
     if(!res.ok){ console.error('Claude Fehler', res.status, await res.text()); return null; }
     const data = await res.json();
-    const textBlock = (data?.content || []).find(b => b.type === 'text');
-    return textBlock?.text || null;
+    const textBlock = ((data && data.content) || []).find(b => b.type === 'text');
+    return (textBlock && textBlock.text) || null;
   }catch(err){
     console.error('Claude Aufruf fehlgeschlagen:', err.message);
     return null;
@@ -4425,7 +4570,7 @@ async function refreshAccountStatus(){
   if(!currentUser || !currentProfile){ card.hidden = true; return; }
   card.hidden = false;
   const defaultLimit = (siteSettings && siteSettings.ai_daily_limit) || 50;
-  const limit = currentProfile.ai_limit_override ?? defaultLimit;
+  const limit = currentProfile.ai_limit_override === null || currentProfile.ai_limit_override === undefined ? defaultLimit : currentProfile.ai_limit_override;
   const used = currentProfile.ai_requests_today || 0;
   const aiPct = limit ? Math.min(100, Math.round((used / limit) * 100)) : 0;
   document.getElementById('statusAiUsageText').textContent = `${used} / ${limit}`;
@@ -4687,8 +4832,8 @@ function renderAdminUsers(profiles){
       : `<button type="button" class="admin-ban-btn${p.banned ? ' is-banned' : ''}">${p.banned ? 'Gesperrt' : 'Aktiv'}</button>`;
     tr.innerHTML = `
       <td><span class="admin-user-name"><span>${name}</span><span>${email}</span></span></td>
-      <td>${p.ai_requests_today ?? 0}</td>
-      <td><input type="number" min="1" class="admin-limit-input" value="${p.ai_limit_override ?? ''}" placeholder="Standard"></td>
+      <td>${p.ai_requests_today === null || p.ai_requests_today === undefined ? 0 : p.ai_requests_today}</td>
+      <td><input type="number" min="1" class="admin-limit-input" value="${p.ai_limit_override === null || p.ai_limit_override === undefined ? '' : p.ai_limit_override}" placeholder="Standard"></td>
       <td>${banCell}</td>`;
     tr.querySelector('.admin-limit-input').addEventListener('change', (ev) => saveUserLimit(p.user_id, ev.target.value));
     if(!p.is_admin){
@@ -5507,6 +5652,166 @@ setInterval(rotateHubQuote, 30000);
   }
 })();
 
+// --- Hero-Shader (WebGL2) --------------------------------------------------
+// Animierter Wolken-/Lichtschleier hinter der Startseiten-Ueberschrift.
+// Fragment-Shader von Matthias Hurrle (@atzedent), hier leicht erweitert um eine
+// sanfte Maus-Parallaxe. Bewusst defensiv: ohne WebGL2, auf Touch-Geraeten oder
+// bei reduzierter Bewegung passiert gar nichts, dann bleibt der bisherige
+// Hero-Hintergrund unveraendert stehen. Laeuft nur, solange die Startseite
+// sichtbar und der Tab im Vordergrund ist - sonst wird die Schleife angehalten.
+(function initHeroShader(){
+  const canvas = document.getElementById('heroShader');
+  if(!canvas) return;
+  if(!window.matchMedia('(hover:hover) and (pointer:fine)').matches) return;
+  if(reducedMotionActive()) return;
+
+  let gl = null;
+  try{ gl = canvas.getContext('webgl2', { antialias:false, alpha:true, powerPreference:'low-power' }); }catch(e){}
+  if(!gl) return;
+
+  const vertSrc = `#version 300 es
+precision highp float;
+in vec4 position;
+void main(){ gl_Position = position; }`;
+
+  const fragSrc = `#version 300 es
+precision highp float;
+out vec4 O;
+uniform vec2 resolution;
+uniform float time;
+uniform vec2 touch;
+#define FC gl_FragCoord.xy
+#define T time
+#define R resolution
+#define MN min(R.x,R.y)
+float rnd(vec2 p){ p=fract(p*vec2(12.9898,78.233)); p+=dot(p,p+34.56); return fract(p.x*p.y); }
+float noise(in vec2 p){
+  vec2 i=floor(p), f=fract(p), u=f*f*(3.-2.*f);
+  float a=rnd(i), b=rnd(i+vec2(1,0)), c=rnd(i+vec2(0,1)), d=rnd(i+1.);
+  return mix(mix(a,b,u.x),mix(c,d,u.x),u.y);
+}
+float fbm(vec2 p){
+  float t=.0, a=1.; mat2 m=mat2(1.,-.5,.2,1.2);
+  for(int i=0;i<5;i++){ t+=a*noise(p); p*=2.*m; a*=.5; }
+  return t;
+}
+float clouds(vec2 p){
+  float d=1., t=.0;
+  for(float i=.0;i<3.;i++){
+    float a=d*fbm(i*10.+p.x*.2+.2*(1.+i)*p.y+d+i*i+p);
+    t=mix(t,d,a); d=a; p*=2./(i+1.);
+  }
+  return t;
+}
+void main(void){
+  vec2 uv=(FC-.5*R)/MN, st=uv*vec2(2,1);
+  uv += touch*.12;
+  vec3 col=vec3(0);
+  float bg=clouds(vec2(st.x+T*.5,-st.y));
+  uv*=1.-.3*(sin(T*.2)*.5+.5);
+  for(float i=1.;i<12.;i++){
+    uv+=.1*cos(i*vec2(.1+.01*i,.8)+i*i+T*.5+.1*uv.x);
+    vec2 p=uv;
+    float d=length(p);
+    col+=.00125/d*(cos(sin(i)*vec3(1,2,3))+1.);
+    float b=noise(i+p+bg*1.731);
+    col+=.002*b/length(max(p,vec2(b*p.x*.02,p.y)));
+    col=mix(col,vec3(bg*.25,bg*.137,bg*.05),d);
+  }
+  O=vec4(col,1);
+}`;
+
+  function compile(type, src){
+    const sh = gl.createShader(type);
+    gl.shaderSource(sh, src);
+    gl.compileShader(sh);
+    if(!gl.getShaderParameter(sh, gl.COMPILE_STATUS)){
+      console.error('Hero-Shader:', gl.getShaderInfoLog(sh));
+      gl.deleteShader(sh);
+      return null;
+    }
+    return sh;
+  }
+  const vs = compile(gl.VERTEX_SHADER, vertSrc);
+  const fs = compile(gl.FRAGMENT_SHADER, fragSrc);
+  if(!vs || !fs) return;
+
+  const prog = gl.createProgram();
+  gl.attachShader(prog, vs);
+  gl.attachShader(prog, fs);
+  gl.linkProgram(prog);
+  if(!gl.getProgramParameter(prog, gl.LINK_STATUS)){
+    console.error('Hero-Shader Link:', gl.getProgramInfoLog(prog));
+    return;
+  }
+
+  const buf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,1,-1,-1,1,1,1,-1]), gl.STATIC_DRAW);
+  const posLoc = gl.getAttribLocation(prog, 'position');
+  gl.enableVertexAttribArray(posLoc);
+  gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 0, 0);
+
+  const uRes = gl.getUniformLocation(prog, 'resolution');
+  const uTime = gl.getUniformLocation(prog, 'time');
+  const uTouch = gl.getUniformLocation(prog, 'touch');
+
+  // Aufloesung bewusst gedeckelt: der Shader ist fuellratenlastig, vollflaechig
+  // in nativer Retina-Aufloesung waere er reine Verschwendung fuer einen Schleier.
+  function resize(){
+    const rect = canvas.getBoundingClientRect();
+    if(!rect.width || !rect.height) return;
+    const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+    const w = Math.max(1, Math.round(rect.width * dpr));
+    const h = Math.max(1, Math.round(rect.height * dpr));
+    if(canvas.width === w && canvas.height === h) return;
+    canvas.width = w; canvas.height = h;
+    gl.viewport(0, 0, w, h);
+  }
+
+  const touch = [0, 0];
+  window.addEventListener('pointermove', (e) => {
+    touch[0] = e.clientX / window.innerWidth - .5;
+    touch[1] = .5 - e.clientY / window.innerHeight;
+  }, { passive:true });
+  window.addEventListener('resize', resize);
+
+  let rafId = null;
+  const start = performance.now();
+  function frame(now){
+    resize();
+    gl.useProgram(prog);
+    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    gl.uniform2f(uRes, canvas.width, canvas.height);
+    gl.uniform1f(uTime, (now - start) * 1e-3);
+    gl.uniform2f(uTouch, touch[0], touch[1]);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    rafId = requestAnimationFrame(frame);
+  }
+  function play(){
+    if(rafId !== null) return;
+    resize();
+    rafId = requestAnimationFrame(frame);
+  }
+  function pause(){
+    if(rafId === null) return;
+    cancelAnimationFrame(rafId);
+    rafId = null;
+  }
+  // Nur laufen lassen, wenn die Startseite wirklich zu sehen ist.
+  function syncPlayState(){
+    const hub = document.getElementById('view-hub');
+    if(!document.hidden && hub && !hub.hidden) play();
+    else pause();
+  }
+  document.addEventListener('visibilitychange', syncPlayState);
+  window.addEventListener('lumiere:viewchange', syncPlayState);
+
+  resize();
+  canvas.classList.add('is-live');
+  syncPlayState();
+})();
+
 // Zerlegt den Text eines Elements in einzeln animierbare Woerter und blendet
 // sie gestaffelt ein (Blur -> scharf), sobald das Element sichtbar wird.
 // Nur einmalig, danach wird der Observer wieder abgehaengt.
@@ -5581,6 +5886,8 @@ function showView(name){
   document.body.classList.toggle('quicknav-visible', visible);
   document.body.classList.toggle('wide-view-active', name === 'hub' || name === 'appDownload');
   persistLastView(name);
+  // Signal fuer Effekte, die nur auf bestimmten Seiten laufen sollen (Hero-Shader).
+  window.dispatchEvent(new CustomEvent('lumiere:viewchange', { detail: { view: name } }));
 }
 function restoreLastView(){
   const saved = SAVED_VIEW_ON_LOAD;
@@ -5693,6 +6000,30 @@ document.getElementById('quickNavMenu').addEventListener('click', () => {
   sndClick();
   openNavOverlay();
 });
+
+// --- Seiten-Footer ---------------------------------------------------------
+// Nutzt dieselbe goToDestination()-Navigation wie Kopfzeile und Menue; die
+// Schloss-Abzeichen kommen automatisch ueber updateGatedNavUI(), weil die
+// Buttons data-goto tragen.
+document.querySelectorAll('.site-footer [data-goto]').forEach(el => {
+  el.addEventListener('click', () => {
+    sndClick();
+    goToDestination(el.dataset.goto);
+  });
+});
+document.getElementById('footerAccountCard').addEventListener('click', () => {
+  sndClick();
+  openAccountModal();
+});
+document.querySelectorAll('.site-footer [data-auth-tab]').forEach(el => {
+  el.addEventListener('click', () => {
+    sndClick();
+    openAccountModal();
+    const chip = document.querySelector(`#authTabChips .chip[data-tab="${el.dataset.authTab}"]`);
+    if(chip) chip.click();
+  });
+});
+document.getElementById('footerCopyright').textContent = '© ' + new Date().getFullYear() + ' Lumière';
 
 function openGrammar(){
   if(requireAccountFor('grammar', 'Grammatik')) return;
@@ -6057,7 +6388,8 @@ document.getElementById('btnExportSet').addEventListener('click', () => {
 document.getElementById('btnCopyExport').addEventListener('click', () => {
   const ta = document.getElementById('exportText');
   ta.select();
-  navigator.clipboard?.writeText(ta.value).catch(() => document.execCommand('copy'));
+  if(navigator.clipboard) navigator.clipboard.writeText(ta.value).catch(() => document.execCommand('copy'));
+  else document.execCommand('copy');
 });
 document.getElementById('btnCsvExport').addEventListener('click', () => {
   const set = getSet(currentSetId);
@@ -6679,13 +7011,13 @@ document.getElementById('formGrammar').addEventListener('submit', async (e) => {
   }
 
   let html = `<h3 style="margin-top:0;">${escapeHtml(data.title || question)}</h3>`;
-  if(data.rules?.length){
+  if(data.rules && data.rules.length){
     html += `<div class="grammar-section"><h4>📐 Regeln</h4><ul>${data.rules.map(r => `<li>${escapeHtml(r)}</li>`).join('')}</ul></div>`;
   }
-  if(data.examples?.length){
+  if(data.examples && data.examples.length){
     html += `<div class="grammar-section"><h4>💬 Beispiele</h4><ul>${data.examples.map(r => `<li>${escapeHtml(r)}</li>`).join('')}</ul></div>`;
   }
-  if(data.exceptions?.length){
+  if(data.exceptions && data.exceptions.length){
     html += `<div class="grammar-section"><h4>⚠️ Ausnahmen</h4><ul>${data.exceptions.map(r => `<li>${escapeHtml(r)}</li>`).join('')}</ul></div>`;
   }
   result.innerHTML = html;
