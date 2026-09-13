@@ -364,6 +364,8 @@
   h3{font-family:var(--font-mono); font-size:.78rem; text-transform:uppercase; letter-spacing:.08em; color:var(--ember-bright); margin:2.2rem 0 .9rem; padding-top:1.6rem; border-top:1px solid var(--border-solid);}
   h3:first-child{padding-top:0; border-top:none; margin-top:.5rem;}
   .row-between{display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap;}
+  .sets-header-copy{ max-width:38em; }
+  @media (min-width:521px){ .sets-header-row{ align-items:flex-end; } }
   @media (max-width:520px){
     .row-between{flex-direction:column; align-items:stretch;}
     .row-between .btn-group{justify-content:stretch;}
@@ -415,24 +417,62 @@
   .btn-small{padding:.35rem .6rem; font-size:.72rem;}
   .btn-group{display:flex; gap:.5rem; flex-wrap:wrap;}
 
-  .sets-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(200px,1fr)); gap:.9rem; margin-top:1rem;}
+  .sets-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(260px,1fr)); gap:1.1rem; margin-top:1rem;}
   .set-card{
-    position:relative; overflow:hidden; background:var(--surface); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
-    border:1px solid var(--border-solid); border-radius:20px; padding:1.2rem 1.3rem; cursor:pointer;
+    position:relative; overflow:hidden; display:flex; flex-direction:column; justify-content:space-between;
+    background:var(--surface); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+    border:1px solid var(--border-solid); border-radius:20px; padding:1.4rem; cursor:pointer;
     box-shadow:var(--shadow-sm);
-    transition:transform .2s var(--ease-spring), border-color .2s var(--ease), box-shadow .2s var(--ease);
+    transition:transform .2s var(--ease-spring), border-color .2s var(--ease), box-shadow .2s var(--ease), background .2s var(--ease);
   }
   .set-card::before{
     content:''; position:absolute; top:0; right:0; bottom:0; left:0; inset:0; opacity:0; pointer-events:none;
     background:radial-gradient(110px circle at var(--sx,50%) var(--sy,0%), rgba(246,195,92,.3), transparent 55%);
     transition:opacity .3s var(--ease);
   }
-  .set-card:hover{transform:translateY(-5px) scale(1.015); border-color:var(--ember-dim); box-shadow:var(--shadow-md), var(--shadow-glow);}
+  .set-card:hover{transform:translateY(-5px) scale(1.015); border-color:var(--ember-dim); box-shadow:var(--shadow-md), var(--shadow-glow); background:var(--surface-2);}
   .set-card:hover::before{opacity:1;}
   .set-card:active{transform:scale(.97);}
-  .set-card h3, .set-card p{position:relative;}
-  .set-card h3{margin:0 0 .3rem; font-size:1rem; color:var(--text); font-family:var(--font-sans); font-weight:700; text-transform:none; letter-spacing:0;}
-  .set-card p{margin:0; color:var(--stone); font-size:.82rem;}
+  .set-card > *{position:relative;}
+  .set-card h3{margin:0 0 .3rem; font-size:1.15rem; color:var(--text); font-family:var(--font-serif); font-weight:600; text-transform:none; letter-spacing:0; transition:color .2s var(--ease);}
+  .set-card:hover h3{ color:var(--ember-bright); }
+  .set-card-top{ display:flex; align-items:center; justify-content:space-between; gap:.5rem; margin-bottom:.9rem; flex-wrap:wrap; }
+  .set-card-langs{
+    display:inline-flex; align-items:center; gap:.3rem; padding:.28rem .55rem; border-radius:999px;
+    background:rgba(255,255,255,.04); font-family:var(--font-mono); font-size:.6rem; font-weight:600; letter-spacing:.08em;
+    text-transform:uppercase; color:var(--ember-bright);
+  }
+  .set-card-langs .arrow{ color:var(--stone); }
+  .set-card-due{
+    display:inline-flex; align-items:center; gap:.3rem; padding:.28rem .6rem; border-radius:999px;
+    background:rgba(246,195,92,.1); color:var(--ember-bright); font-size:.68rem; font-weight:600;
+    box-shadow:0 0 10px rgba(246,195,92,.12);
+  }
+  .set-card-due svg{ width:12px; height:12px; flex-shrink:0; }
+  .set-card-status{ font-family:var(--font-mono); font-size:.62rem; letter-spacing:.1em; text-transform:uppercase; color:var(--stone); opacity:.75; }
+  .set-card-meta{ margin:0; color:var(--stone); font-size:.8rem; display:flex; align-items:center; gap:.5rem; flex-wrap:wrap; }
+  .set-card-meta .sep{ width:3px; height:3px; border-radius:50%; background:rgba(167,156,136,.5); flex-shrink:0; }
+  .set-card-progress{ margin-top:1.6rem; padding-top:1rem; border-top:1px solid rgba(255,255,255,.06); }
+  .set-card-progress-head{ display:flex; justify-content:space-between; align-items:center; font-family:var(--font-mono); font-size:.62rem; text-transform:uppercase; letter-spacing:.08em; color:var(--stone); margin-bottom:.5rem; }
+  .set-card-progress-head .pct{ color:var(--ember-bright); font-weight:700; }
+  .set-card-bar{ display:grid; grid-template-columns:repeat(6,1fr); gap:.22rem; height:6px; }
+  .set-card-bar span{ height:100%; border-radius:999px; background:var(--surface-2); }
+  .set-card-bar span.filled{ background:linear-gradient(90deg, var(--gold), var(--ember-bright)); }
+  .set-card-foot{ display:flex; align-items:center; justify-content:space-between; gap:.6rem; margin-top:.9rem; }
+  .set-card-foot .dim{ font-size:.72rem; color:var(--stone); }
+  .set-card-open{ display:inline-flex; align-items:center; gap:.25rem; font-size:.78rem; font-weight:600; color:var(--ember-bright); }
+  .set-card-open svg{ width:13px; height:13px; transition:transform .2s var(--ease); }
+  .set-card:hover .set-card-open svg{ transform:translateX(3px); }
+  .set-card-add{
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.6rem; text-align:center;
+    border:1px dashed var(--border-solid); background:rgba(255,255,255,.015);
+  }
+  .set-card-add:hover{ border-color:var(--ember-dim); background:rgba(246,195,92,.05); }
+  .set-card-add-icon{
+    width:2.6rem; height:2.6rem; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    background:var(--surface-2); color:var(--ember-bright); box-shadow:0 4px 16px rgba(0,0,0,.3);
+  }
+  .set-card-add p{ margin:0; color:var(--stone); font-size:.78rem; max-width:16em; line-height:1.5; }
 
   .empty-hint{color:var(--stone); font-style:italic; margin:1rem 0;}
   .empty-state{
@@ -710,35 +750,72 @@
   .game-final .num{font-family:var(--font-mono); font-weight:700; font-size:2.8rem; color:var(--ember);}
 
   /* --- Pronunciation / Listening --- */
-  .listen-list{display:flex; flex-direction:column; gap:.6rem; margin-top:1rem;}
-  .listen-row{
-    display:flex; align-items:center; gap:.8rem; background:var(--surface); -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px);
-    border:1px solid var(--border-solid); border-radius:12px; padding:.8rem 1rem;
+  .listen-free-box{
+    position:relative; overflow:hidden; border-radius:18px; background:var(--surface-2); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+    border:1px solid var(--border-solid); padding:1.3rem 1.4rem; margin:0 0 1.8rem;
   }
-  .listen-word{flex:1; display:flex; flex-direction:column; gap:.15rem;}
-  .listen-word .de{color:var(--saphir-bright); font-weight:700;}
-  .listen-word .fr{color:var(--ember-bright); font-weight:700;}
-  .speak-btn{
-    position:relative; width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center;
-    background:var(--surface-2); border:1px solid var(--border-solid); cursor:pointer; font-size:1rem; flex-shrink:0;
-    transition:background .2s var(--ease), transform .15s var(--ease-premium), border-color .2s var(--ease);
+  .listen-free-box::before{ content:''; position:absolute; inset:0; pointer-events:none; background:linear-gradient(135deg, rgba(246,195,92,.08), transparent 60%); }
+  .listen-free-head{ position:relative; display:flex; align-items:center; justify-content:space-between; gap:.6rem; margin-bottom:1rem; flex-wrap:wrap; }
+  .listen-free-label{
+    display:inline-flex; align-items:center; gap:.5rem; font-family:var(--font-mono); font-size:.68rem; font-weight:600;
+    text-transform:uppercase; letter-spacing:.14em; color:var(--ember-bright);
   }
-  .speak-btn:hover{background:rgba(246,195,92,.18); border-color:var(--ember-dim);}
-  .speak-btn:active{transform:scale(.9);}
-  .speak-btn.speaking{background:rgba(246,195,92,.24); border-color:var(--ember-bright); box-shadow:0 0 0 1px rgba(246,195,92,.3), 0 0 16px 3px rgba(246,195,92,.4);}
-  .speak-btn.speaking::before, .speak-btn.speaking::after{
-    content:''; position:absolute; top:-4px; right:-4px; bottom:-4px; left:-4px; inset:-4px; border-radius:50%; border:1.5px solid var(--ember-bright); pointer-events:none;
-    animation:orbitPulse 1.2s ease-out infinite;
+  .listen-free-label svg{ color:var(--ember-bright); flex-shrink:0; }
+  .listen-free-tag{ font-family:var(--font-mono); font-size:.6rem; text-transform:uppercase; letter-spacing:.16em; color:var(--stone); opacity:.75; }
+  .listen-free-box .inline-form{ position:relative; }
+  .listen-free-btn{
+    display:inline-flex; align-items:center; gap:.4rem; padding:.55rem 1.1rem; border-radius:999px;
+    background:rgba(255,255,255,.05); border:1px solid var(--border-solid);
+    color:var(--text); font-family:var(--font-sans); font-size:.78rem; font-weight:600; cursor:pointer;
+    transition:background .2s var(--ease), border-color .2s var(--ease), color .2s var(--ease);
   }
-  .speak-btn.speaking::after{animation-delay:.5s;}
-  @keyframes orbitPulse{ 0%{opacity:.75; transform:scale(.7);} 100%{opacity:0; transform:scale(1.8);} }
-  @media (prefers-reduced-motion: reduce){ .speak-btn.speaking::before, .speak-btn.speaking::after{animation:none; display:none;} }
-  .btn.speaking{animation:btnSpeakGlow 1s ease-in-out infinite;}
+  .listen-free-btn:hover{ background:rgba(246,195,92,.14); border-color:var(--ember-dim); color:var(--ember-bright); }
+  .listen-free-btn.speaking{ animation:btnSpeakGlow 1s ease-in-out infinite; color:var(--ember-bright); border-color:var(--ember-bright); }
   @keyframes btnSpeakGlow{
     0%,100%{box-shadow:0 0 0 1px rgba(246,195,92,.3), 0 8px 20px rgba(246,195,92,.22);}
     50%{box-shadow:0 0 0 1px rgba(246,195,92,.55), 0 10px 26px rgba(246,195,92,.45);}
   }
-  @media (prefers-reduced-motion: reduce){ .btn.speaking{animation:none;} }
+  @media (prefers-reduced-motion: reduce){ .listen-free-btn.speaking{animation:none;} }
+  .listen-section-head{
+    display:flex; flex-wrap:wrap; align-items:baseline; justify-content:space-between; gap:.4rem .8rem;
+    padding-top:1rem; margin-top:.4rem; border-top:1px solid transparent;
+    background:linear-gradient(90deg, transparent, rgba(246,195,92,.35), transparent) top/100% 1px no-repeat;
+  }
+  .listen-section-head h3{ margin:0; }
+  .listen-section-head .hint{ margin:0; }
+  .listen-list{display:flex; flex-direction:column; gap:.6rem; margin-top:1rem;}
+  .listen-row{
+    position:relative; display:flex; align-items:center; justify-content:space-between; gap:.8rem; flex-wrap:wrap;
+    background:var(--surface); -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px);
+    border:1px solid var(--border-solid); border-radius:14px; padding:1rem 1.2rem;
+    transition:background .2s var(--ease);
+  }
+  .listen-row:hover{ background:var(--surface-2); }
+  .listen-word{flex:1; display:flex; align-items:baseline; flex-wrap:wrap; gap:.15rem .7rem; min-width:0;}
+  .listen-word .de{color:var(--text); font-family:var(--font-serif); font-size:1.05rem; font-weight:600;}
+  .listen-word .sep{ color:var(--stone); font-size:.75rem; }
+  .listen-word .fr{color:var(--ember-bright); font-family:var(--font-serif); font-style:italic; font-size:1.3rem; font-weight:400;}
+  .speak-btn{
+    position:relative; display:inline-flex; align-items:center; gap:.35rem; height:36px; padding:0 .8rem; border-radius:999px;
+    background:rgba(255,255,255,.05); border:1px solid var(--border-solid); cursor:pointer; color:var(--stone);
+    font-family:var(--font-mono); font-size:.66rem; font-weight:600; letter-spacing:.06em; flex-shrink:0;
+    transition:background .2s var(--ease), transform .15s var(--ease-premium), border-color .2s var(--ease), color .2s var(--ease);
+  }
+  .speak-btn:hover{background:rgba(246,195,92,.14); border-color:var(--ember-dim); color:var(--text);}
+  .speak-btn:active{transform:scale(.94);}
+  .speak-btn .eq{ display:none; align-items:flex-end; gap:1.5px; width:12px; height:11px; }
+  .speak-btn .eq span{ width:2px; border-radius:1px; background:currentColor; animation:eqBounce .8s ease-in-out infinite; }
+  .speak-btn .eq span:nth-child(1){ height:40%; animation-delay:0s; }
+  .speak-btn .eq span:nth-child(2){ height:100%; animation-delay:.15s; }
+  .speak-btn .eq span:nth-child(3){ height:65%; animation-delay:.3s; }
+  @keyframes eqBounce{ 0%,100%{ transform:scaleY(.5); } 50%{ transform:scaleY(1); } }
+  .speak-btn.speaking{
+    background:linear-gradient(135deg, var(--gold-bright), var(--ember-bright) 60%, var(--pop)); border-color:transparent;
+    color:#1c1207; font-weight:700; box-shadow:0 0 20px rgba(246,195,92,.45);
+  }
+  .speak-btn.speaking .icon{ display:none; }
+  .speak-btn.speaking .eq{ display:inline-flex; }
+  @media (prefers-reduced-motion: reduce){ .speak-btn .eq span{ animation:none; } }
 
   /* --- Grammatik --- */
   .grammar-result{margin-top:1.5rem;}
@@ -1795,46 +1872,68 @@
      "Sprungkarte" plus eine Gruppe kleiner Links, unten eine Copyright-Leiste.
      Verlinkt ausschliesslich real existierende Ziele (data-goto). */
   .site-footer{
-    position:relative; margin-top:5rem; border-top:1px solid var(--border-solid);
+    position:relative; margin-top:5rem; border-top:1px solid rgba(246,195,92,.15);
     background:radial-gradient(35% 128px at 50% 0%, rgba(246,195,92,.09), transparent);
   }
-  .site-footer-inner{ position:relative; margin:0 auto; max-width:64rem; padding:0 1rem; }
-  .site-footer-grid{
-    position:relative; display:grid; grid-template-columns:1fr;
-    border-left:1px solid var(--border-solid); border-right:1px solid var(--border-solid);
+  .site-footer::before{
+    content:''; position:absolute; top:-1px; left:10%; right:10%; height:1px;
+    background:linear-gradient(90deg, transparent, rgba(246,195,92,.6), transparent);
+    box-shadow:0 0 16px rgba(246,195,92,.3);
   }
+  .site-footer-inner{ position:relative; margin:0 auto; max-width:64rem; padding:2.6rem 1rem 0; }
+  .site-footer-grid{ position:relative; display:grid; grid-template-columns:1fr; }
   @media (min-width:760px){ .site-footer-grid{ grid-template-columns:repeat(4, 1fr); } }
-  @media (min-width:760px){ .site-footer-col + .site-footer-col{ border-left:1px solid var(--border-solid); } }
+  .site-footer-col{ position:relative; padding:1.2rem .9rem; display:flex; flex-direction:column; justify-content:space-between; }
+  .site-footer-col + .site-footer-col{ border-top:1px solid var(--border-solid); }
+  @media (min-width:760px){
+    .site-footer-col + .site-footer-col{
+      border-top:none; border-left:1px solid transparent;
+      border-image:linear-gradient(180deg, transparent, rgba(246,195,92,.22) 25%, rgba(246,195,92,.22) 75%, transparent) 1;
+    }
+  }
+  .site-footer-kicker{
+    margin:0 0 .55rem; font-family:var(--font-mono); font-size:.6rem; font-weight:600;
+    text-transform:uppercase; letter-spacing:.24em; color:var(--stone);
+  }
   .site-footer-card{
-    display:flex; width:100%; align-items:center; justify-content:space-between; gap:.6rem;
-    border:none; border-top:1px solid var(--border-solid); border-bottom:1px solid var(--border-solid);
-    background:none; padding:.75rem .9rem; cursor:pointer; text-align:left;
-    font-family:inherit; font-size:.92rem; font-weight:600; color:var(--text);
-    transition:background .2s var(--ease), color .2s var(--ease);
-  }
-  @media (min-width:760px){ .site-footer-card{ border-top:none; } }
-  .site-footer-card:hover{ background:var(--surface-2); color:var(--ember-bright); }
-  .site-footer-card svg{ width:16px; height:16px; flex-shrink:0; transition:transform .25s var(--ease-premium); }
-  .site-footer-card:hover svg{ transform:translateX(3px); }
-  .site-footer-group{ padding:.6rem .9rem 1.1rem; }
-  .site-footer-group h3{
-    margin:.6rem 0 .9rem; font-family:var(--font-mono); font-size:.63rem; font-weight:600;
-    text-transform:uppercase; letter-spacing:.18em; color:var(--stone);
-  }
-  .site-footer-group ul{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:.45rem; }
-  .site-footer-link{
-    background:none; border:none; padding:0; cursor:pointer; font-family:inherit;
-    font-size:.78rem; color:var(--stone); text-align:left;
+    display:inline-flex; width:auto; align-items:center; gap:.45rem;
+    border:none; background:none; padding:0; margin:0 0 1.1rem; cursor:pointer; text-align:left;
+    font-family:var(--font-serif); font-size:1.1rem; font-weight:600; color:var(--text);
     transition:color .2s var(--ease);
   }
-  .site-footer-link:hover{ color:var(--text); }
+  .site-footer-card:hover{ color:var(--ember-bright); }
+  .site-footer-card svg{ width:14px; height:14px; flex-shrink:0; color:var(--ember-bright); transition:transform .25s var(--ease-premium); }
+  .site-footer-card:hover svg{ transform:translateX(3px); }
+  .site-footer-group ul{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:.5rem; }
+  .site-footer-link{
+    background:none; border:none; padding:0; cursor:pointer; font-family:inherit;
+    font-size:.8rem; font-weight:300; color:var(--stone); text-align:left;
+    transition:color .2s var(--ease);
+  }
+  .site-footer-link:hover{ color:var(--ember-bright); }
   .site-footer-link .lock-badge{ margin-left:.4rem; }
+  .site-footer-index{
+    display:block; margin-top:1.3rem; font-family:var(--font-mono); font-size:.6rem;
+    letter-spacing:.16em; text-transform:uppercase; color:rgba(167,156,136,.55);
+  }
+  .site-footer-colophon{
+    display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:1rem;
+    border-top:1px solid var(--border-solid); margin-top:.4rem; padding:1.1rem 1rem;
+  }
+  .site-footer-wordmark{
+    display:inline-flex; align-items:center; gap:.6rem; font-family:var(--font-serif); font-style:italic; font-size:1.1rem; color:var(--text);
+  }
+  .site-footer-wordmark .dot{ width:5px; height:5px; border-radius:50%; background:var(--ember-bright); box-shadow:0 0 6px rgba(246,195,92,.6); }
+  .site-footer-wordmark-tag{
+    padding-left:.6rem; border-left:1px solid rgba(246,195,92,.25);
+    font-family:var(--font-mono); font-size:.62rem; font-weight:600; letter-spacing:.16em; text-transform:uppercase; color:var(--stone); font-style:normal;
+  }
   .site-footer-bar{
     display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:.5rem .9rem;
-    border-top:1px solid var(--border-solid); padding:.85rem 1rem;
     font-family:var(--font-mono); font-size:.66rem; letter-spacing:.08em; color:var(--stone);
   }
-  .site-footer-bar .dot{ width:4px; height:4px; border-radius:50%; background:var(--ember-dim); display:inline-block; }
+  .site-footer-bar .dot{ width:4px; height:4px; border-radius:50%; background:var(--ember-bright); display:inline-block; }
+  .site-footer-bar .site-footer-version{ color:var(--gold-bright); font-weight:600; }
 
   /* --- Belohnungen --- */
   .rewards-grid{display:grid; grid-template-columns:1fr; gap:1rem; margin-top:1.6rem;}
@@ -2129,6 +2228,12 @@
   .page-eyebrow{font-family:var(--font-mono); font-size:.65rem; text-transform:uppercase; letter-spacing:.3em; color:var(--stone); margin:0 0 .8rem;}
   .page-title{font-family:var(--font-serif); font-weight:600; font-size:clamp(1.9rem,4.6vw,2.7rem); margin:0 0 .6rem; letter-spacing:-.01em;}
   .page-sub{color:var(--stone); max-width:36em; line-height:1.6; margin:0 0 1.8rem;}
+  /* Eyebrow mit vorangestelltem gluehenden Punkt - Ergaenzung zu .page-eyebrow
+     fuer die Seiten, die dem Stitch-Redesign (Lernsets/Aussprache) folgen;
+     bestehende Seiten mit reinem .page-eyebrow bleiben unveraendert. */
+  .page-eyebrow-row{ display:flex; align-items:center; gap:.5rem; margin:0 0 .7rem; }
+  .page-eyebrow-row .page-eyebrow{ margin:0; }
+  .eyebrow-dot{ width:6px; height:6px; border-radius:50%; background:var(--ember-bright); box-shadow:0 0 8px rgba(246,195,92,.6); flex-shrink:0; }
 
   /* --- Fällig-Badge & Statistik (Set-Detail) --- */
   .srs-row{display:flex; align-items:center; gap:.6rem; flex-wrap:wrap; margin:.9rem 0;}
@@ -3155,70 +3260,86 @@
       <div class="site-footer-inner">
         <div class="site-footer-grid">
           <div class="site-footer-col">
-            <button type="button" class="site-footer-card" data-goto="home">
-              <span>Lernsets</span>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M13 6l6 6-6 6"/></svg>
-            </button>
-            <div class="site-footer-group">
-              <h3>Üben</h3>
-              <ul>
-                <li><button type="button" class="site-footer-link" data-goto="listen">Aussprache<span class="lock-badge" hidden>🔒</span></button></li>
-                <li><button type="button" class="site-footer-link" data-goto="grammar">Grammatik<span class="lock-badge" hidden>🔒</span></button></li>
-              </ul>
+            <div>
+              <p class="site-footer-kicker">Üben</p>
+              <button type="button" class="site-footer-card" data-goto="home">
+                <span>Lernsets</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M13 6l6 6-6 6"/></svg>
+              </button>
+              <div class="site-footer-group">
+                <ul>
+                  <li><button type="button" class="site-footer-link" data-goto="listen">Aussprache<span class="lock-badge" hidden>🔒</span></button></li>
+                  <li><button type="button" class="site-footer-link" data-goto="grammar">Grammatik<span class="lock-badge" hidden>🔒</span></button></li>
+                </ul>
+              </div>
             </div>
+            <span class="site-footer-index">Index 01</span>
           </div>
 
           <div class="site-footer-col">
-            <button type="button" class="site-footer-card" data-goto="rewards">
-              <span>Fortschritt</span>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M13 6l6 6-6 6"/></svg>
-            </button>
-            <div class="site-footer-group">
-              <h3>Planung</h3>
-              <ul>
-                <li><button type="button" class="site-footer-link" data-goto="calendar">Kalender<span class="lock-badge" hidden>🔒</span></button></li>
-                <li><button type="button" class="site-footer-link" data-goto="settingsPage">Einstellungen</button></li>
-              </ul>
+            <div>
+              <p class="site-footer-kicker">Planung</p>
+              <button type="button" class="site-footer-card" data-goto="rewards">
+                <span>Fortschritt</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M13 6l6 6-6 6"/></svg>
+              </button>
+              <div class="site-footer-group">
+                <ul>
+                  <li><button type="button" class="site-footer-link" data-goto="calendar">Kalender<span class="lock-badge" hidden>🔒</span></button></li>
+                  <li><button type="button" class="site-footer-link" data-goto="settingsPage">Einstellungen</button></li>
+                </ul>
+              </div>
             </div>
+            <span class="site-footer-index">Index 02</span>
           </div>
 
           <div class="site-footer-col">
-            <button type="button" class="site-footer-card" data-goto="appDownload">
-              <span>Die App</span>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M13 6l6 6-6 6"/></svg>
-            </button>
-            <div class="site-footer-group">
-              <h3>Projekt</h3>
-              <ul>
-                <li><button type="button" class="site-footer-link" data-goto="about">Über uns</button></li>
-                <li><button type="button" class="site-footer-link" data-goto="hub">Startseite</button></li>
-              </ul>
+            <div>
+              <p class="site-footer-kicker">Projekt</p>
+              <button type="button" class="site-footer-card" data-goto="appDownload">
+                <span>Die App</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M13 6l6 6-6 6"/></svg>
+              </button>
+              <div class="site-footer-group">
+                <ul>
+                  <li><button type="button" class="site-footer-link" data-goto="about">Über uns</button></li>
+                  <li><button type="button" class="site-footer-link" data-goto="hub">Startseite</button></li>
+                </ul>
+              </div>
             </div>
+            <span class="site-footer-index">Index 03</span>
           </div>
 
           <div class="site-footer-col">
-            <button type="button" class="site-footer-card" id="footerAccountCard">
-              <span>Konto</span>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M13 6l6 6-6 6"/></svg>
-            </button>
-            <div class="site-footer-group">
-              <h3>Zugang</h3>
-              <ul>
-                <li><button type="button" class="site-footer-link" data-auth-tab="signin">Anmelden</button></li>
-                <li><button type="button" class="site-footer-link" data-auth-tab="signup">Registrieren</button></li>
-              </ul>
+            <div>
+              <p class="site-footer-kicker">Zugang</p>
+              <button type="button" class="site-footer-card" id="footerAccountCard">
+                <span>Konto</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M13 6l6 6-6 6"/></svg>
+              </button>
+              <div class="site-footer-group">
+                <ul>
+                  <li><button type="button" class="site-footer-link" data-auth-tab="signin">Anmelden</button></li>
+                  <li><button type="button" class="site-footer-link" data-auth-tab="signup">Registrieren</button></li>
+                </ul>
+              </div>
             </div>
+            <span class="site-footer-index">Index 04</span>
           </div>
         </div>
-      </div>
-      <div class="site-footer-bar">
-        <span id="footerCopyright">© Lumière</span>
-        <span class="dot" aria-hidden="true"></span>
-        <span>Deutsch · Français</span>
-        <span class="dot" aria-hidden="true"></span>
-        <span>Berlin / Paris</span>
-        <span class="dot" aria-hidden="true"></span>
-        <span>Version 2</span>
+
+        <div class="site-footer-colophon">
+          <span class="site-footer-wordmark">Lumière<span class="dot" aria-hidden="true"></span><span class="site-footer-wordmark-tag">Édition Atelier</span></span>
+          <div class="site-footer-bar">
+            <span id="footerCopyright">© Lumière</span>
+            <span class="dot" aria-hidden="true"></span>
+            <span>Deutsch · Français</span>
+            <span class="dot" aria-hidden="true"></span>
+            <span>Berlin / Paris</span>
+            <span class="dot" aria-hidden="true"></span>
+            <span class="site-footer-version">Version 2</span>
+          </div>
+        </div>
       </div>
     </footer>
   </section>
@@ -3231,8 +3352,12 @@
       <span class="page-motif" style="top:32%; left:10%; width:20px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 3l1.8 5.5L19 10l-5.2 1.5L12 17l-1.8-5.5L5 10l5.2-1.5L12 3Z"/></svg></span>
       <span class="page-motif" style="top:55%; right:8%; width:30px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3" y="5" width="18" height="13" rx="2"/><path d="M3 9h18M8 13h4"/></svg></span>
     </div>
-    <div class="row-between">
-      <h2>Meine Lernsets</h2>
+    <div class="row-between sets-header-row">
+      <div class="sets-header-copy">
+        <div class="page-eyebrow-row"><span class="eyebrow-dot" aria-hidden="true"></span><p class="page-eyebrow">Lernsets · 02</p></div>
+        <h2 class="page-title" style="margin-bottom:.5rem;">Meine <em class="gold-shimmer" style="font-style:italic;">Lernsets</em></h2>
+        <p class="page-sub" id="homeSubtitle" style="margin-bottom:0;">Leg dein erstes Set an, um loszulegen.</p>
+      </div>
       <button id="btnNewSet" class="btn btn-primary">+ Neues Set</button>
     </div>
     <div id="setsList" class="sets-grid"></div>
@@ -3250,9 +3375,12 @@
       </button>
     </div>
 
-    <div class="box">
-      <h3>Set übernehmen</h3>
-      <p class="hint">Hat dir jemand einen Export-Code geschickt? Hier einfügen.</p>
+    <div class="listen-free-box" style="margin-top:1.6rem;">
+      <div class="listen-free-head">
+        <span class="listen-free-label"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 12v7a1 1 0 001 1h14a1 1 0 001-1v-7M16 6l-4-4-4 4M12 2v13"/></svg>Set übernehmen</span>
+        <span class="listen-free-tag">Kollaborative Synchronisation</span>
+      </div>
+      <p class="hint" style="margin:0 0 .8rem;">Hat dir jemand einen Export-Code geschickt? Hier einfügen, um das Vokabular direkt zu übernehmen.</p>
       <form id="formImport" class="inline-form">
         <input type="text" id="importCode" placeholder="Code hier einfügen" required>
         <button type="submit" class="btn btn-secondary">Übernehmen</button>
@@ -3480,21 +3608,28 @@
       <span class="page-motif" style="top:48%; left:8%; width:18px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 3l1.8 5.5L19 10l-5.2 1.5L12 17l-1.8-5.5L5 10l5.2-1.5L12 3Z"/></svg></span>
     </div>
     <button class="btn btn-link" id="btnListenBack">← Zurück</button>
-    <h2 id="listenTitle">Aussprache üben</h2>
+    <div class="page-eyebrow-row"><span class="eyebrow-dot" aria-hidden="true"></span><p class="page-eyebrow">Aussprache · 03</p></div>
+    <h2 id="listenTitle" class="page-title">Aussprache <em class="gold-shimmer" style="font-style:italic;">üben</em></h2>
+    <p class="page-sub">Hör dir jedes Wort in klarem Französisch und Deutsch an und sprich es nach — im Atelier der artikulierten Nuancen.</p>
 
-    <div class="box">
-      <h3>Eigenes Wort anhören</h3>
+    <div class="listen-free-box">
+      <div class="listen-free-head">
+        <span class="listen-free-label"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 10v4M7 7v10M11 4v16M15 7v10M19 10v4"/></svg>Eigenes Wort oder Satz anhören</span>
+        <span class="listen-free-tag">Atelier Phonétique</span>
+      </div>
       <form id="formListenFree" class="inline-form">
         <input type="text" id="listenFreeText" placeholder="Wort oder Satz eintippen …" required>
       </form>
-      <div class="btn-group" style="margin-top:.6rem;">
-        <button id="btnListenFreeDe" class="btn btn-secondary btn-small">🔊 Deutsch</button>
-        <button id="btnListenFreeFr" class="btn btn-secondary btn-small">🔊 Français</button>
+      <div class="btn-group" style="margin-top:.7rem;">
+        <button id="btnListenFreeDe" type="button" class="listen-free-btn">🔊 Deutsch</button>
+        <button id="btnListenFreeFr" type="button" class="listen-free-btn">🔊 Français</button>
       </div>
     </div>
 
-    <h3 id="listenListLabel">Vokabeln</h3>
-    <p class="hint">Tipp auf einen Lautsprecher, um dir das Wort vorlesen zu lassen.</p>
+    <div class="listen-section-head">
+      <h3 id="listenListLabel">Vokabeln</h3>
+      <p class="hint">Tipp auf einen Lautsprecher, um dir das Wort vorlesen zu lassen.</p>
+    </div>
     <div class="listen-list" id="listenList"></div>
   </section>
 
@@ -6493,9 +6628,10 @@ checkExamReminders();
 // --- Spaced Repetition (vereinfachtes Leitner-System) ---------------------
 // Box 0-5: je höher die Box, desto länger das Wiederholungsintervall.
 const SRS_INTERVALS = [0, 1, 2, 4, 7, 14];
-function defaultPairStats(){ return { box: 0, due: todayKey(), correct: 0, wrong: 0, seen: 0 }; }
+function defaultPairStats(){ return { box: 0, due: todayKey(), correct: 0, wrong: 0, seen: 0, lastSeen: null }; }
 function ensurePairStats(pair){
   if(!pair.stats || typeof pair.stats !== 'object') pair.stats = defaultPairStats();
+  if(pair.stats.lastSeen === undefined) pair.stats.lastSeen = null;
   return pair.stats;
 }
 function isPairDue(pair){ return ensurePairStats(pair).due <= todayKey(); }
@@ -6507,11 +6643,47 @@ function addDaysKey(baseKey, days){
 function recordPairResult(pair, isCorrect){
   const s = ensurePairStats(pair);
   s.seen++;
+  s.lastSeen = Date.now();
   if(isCorrect){ s.correct++; s.box = Math.min(s.box + 1, SRS_INTERVALS.length - 1); }
   else { s.wrong++; s.box = 0; }
   s.due = addDaysKey(todayKey(), SRS_INTERVALS[s.box]);
 }
 function makePair(de, fr){ return { id: uid(), de, fr, stats: defaultPairStats() }; }
+
+// Fasst den Leitner-Fortschritt eines Sets fuer die Lernsets-Uebersicht
+// zusammen (Kartenraster) - reine Ableitung aus den echten pair.stats,
+// nichts davon wird separat gespeichert.
+function computeSetProgress(set){
+  const pairs = set.pairs;
+  const n = pairs.length;
+  if(n === 0) return { dueCount: 0, pct: 0, stage: 0, lastSeenTs: null, started: false };
+  const dueCount = pairs.filter(isPairDue).length;
+  const totalBox = pairs.reduce((sum, p) => sum + ensurePairStats(p).box, 0);
+  const avgBox = totalBox / n; // 0..5
+  const pct = Math.round((avgBox / (SRS_INTERVALS.length - 1)) * 100);
+  const stage = Math.min(SRS_INTERVALS.length, Math.round(avgBox) + 1); // 1..6
+  const started = pairs.some(p => ensurePairStats(p).seen > 0);
+  const lastSeenTs = pairs.reduce((max, p) => {
+    const t = ensurePairStats(p).lastSeen;
+    return t && t > max ? t : max;
+  }, 0) || null;
+  return { dueCount, pct, stage, lastSeenTs, started };
+}
+
+// "Zuletzt geübt: Heute 14:20 / Gestern / Vor 3 Tagen" - selbe Groessenordnungs-
+// Logik wie updateSyncStatusUI, nur auf Tagesbasis statt Minuten/Stunden formatiert.
+function formatStudyTime(ts){
+  if(!ts) return null;
+  const d = new Date(ts);
+  const now = new Date();
+  const dayMs = 86400000;
+  const startOfDay = (date) => new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
+  const dayDiff = Math.round((startOfDay(now) - startOfDay(d)) / dayMs);
+  const time = d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+  if(dayDiff <= 0) return `Heute ${time}`;
+  if(dayDiff === 1) return 'Gestern';
+  return `Vor ${dayDiff} Tagen`;
+}
 // Migration: aeltere Sets hatten noch keine pair.stats
 store.sets.forEach(s => s.pairs.forEach(ensurePairStats));
 
@@ -7562,15 +7734,55 @@ function renderHome(){
   showView('home'); currentNavId = 'home'; updateNavActiveStates();
   const list = document.getElementById('setsList');
   const empty = document.getElementById('setsEmpty');
+  const subtitle = document.getElementById('homeSubtitle');
   list.innerHTML = '';
   empty.hidden = store.sets.length > 0;
+  if(store.sets.length === 0){
+    subtitle.textContent = 'Leg dein erstes Set an, um loszulegen.';
+  }else{
+    const n = store.sets.length;
+    subtitle.textContent = `${n} aktive${n === 1 ? 's' : ''} Sammlung${n === 1 ? '' : 'en'} — dein Lernfortschritt nach dem Leitner-System wird kontinuierlich gespeichert.`;
+  }
+  const dueIcon = '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l2.5 2.5M12 3a9 9 0 100 18 9 9 0 000-18Z"/></svg>';
+  const openIcon = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M13 6l6 6-6 6"/></svg>';
   store.sets.forEach(set => {
+    const progress = computeSetProgress(set);
     const card = document.createElement('div');
     card.className = 'set-card';
-    card.innerHTML = `<h3>${escapeHtml(set.name)}</h3><p>${set.pairs.length} Vokabel${set.pairs.length === 1 ? '' : 'n'}</p>`;
+    const statusHtml = progress.dueCount > 0
+      ? `<span class="set-card-due">${dueIcon}${progress.dueCount} heute fällig</span>`
+      : `<span class="set-card-status">${progress.started ? 'In Ruhe' : 'Neu begonnen'}</span>`;
+    const bar = Array.from({ length: 6 }, (_, i) => `<span class="${i < progress.stage ? 'filled' : ''}"></span>`).join('');
+    const lastText = formatStudyTime(progress.lastSeenTs) || 'Noch nicht geübt';
+    card.innerHTML = `
+      <div>
+        <div class="set-card-top">
+          <span class="set-card-langs">DE <span class="arrow">⇄</span> FR</span>
+          ${statusHtml}
+        </div>
+        <h3>${escapeHtml(set.name)}</h3>
+        <p class="set-card-meta">${set.pairs.length} Vokabel${set.pairs.length === 1 ? '' : 'n'}${set.pairs.length ? `<span class="sep"></span><span>Stufe ${progress.stage}/6</span>` : ''}</p>
+      </div>
+      <div class="set-card-progress">
+        <div class="set-card-progress-head"><span>Leitner Reifegrad</span><span class="pct">${progress.pct}%</span></div>
+        <div class="set-card-bar">${bar}</div>
+        <div class="set-card-foot">
+          <span class="dim">Zuletzt geübt: ${lastText}</span>
+          <span class="set-card-open">Öffnen ${openIcon}</span>
+        </div>
+      </div>`;
     card.addEventListener('click', () => renderSetDetail(set.id));
     list.appendChild(card);
   });
+  if(store.sets.length > 0){
+    const addTile = document.createElement('div');
+    addTile.className = 'set-card set-card-add';
+    addTile.innerHTML = `
+      <span class="set-card-add-icon"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></span>
+      <p>Ein neues Set anlegen und Vokabeln selbst eintragen oder von der KI erzeugen lassen.</p>`;
+    addTile.addEventListener('click', () => document.getElementById('btnNewSet').click());
+    list.appendChild(addTile);
+  }
   wireSounds();
 }
 
@@ -7860,10 +8072,13 @@ function renderListenRows(pairs){
   pairs.forEach(pair => {
     const row = document.createElement('div');
     row.className = 'listen-row';
+    const speakIcon = '<svg class="icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4V5Z"/><path d="M16 8.5a5 5 0 0 1 0 7"/></svg><span class="eq" aria-hidden="true"><span></span><span></span><span></span></span>';
     row.innerHTML = `
-      <div class="listen-word"><span class="de">${escapeHtml(pair.de)}</span><span class="fr">${escapeHtml(pair.fr)}</span></div>
-      <button class="speak-btn" data-speak="de" title="Deutsch anhören">🔊 DE</button>
-      <button class="speak-btn" data-speak="fr" title="Französisch anhören">🔊 FR</button>`;
+      <div class="listen-word"><span class="de">${escapeHtml(pair.de)}</span><span class="sep">—</span><span class="fr">${escapeHtml(pair.fr)}</span></div>
+      <div style="display:flex; gap:.5rem; flex-shrink:0;">
+        <button class="speak-btn" data-speak="de" title="Deutsch anhören">${speakIcon}DE</button>
+        <button class="speak-btn" data-speak="fr" title="Französisch anhören">${speakIcon}FR</button>
+      </div>`;
     row.querySelector('[data-speak="de"]').addEventListener('click', (e) => speak(pair.de, 'de-DE', e.currentTarget));
     row.querySelector('[data-speak="fr"]').addEventListener('click', (e) => speak(pair.fr, 'fr-FR', e.currentTarget));
     list.appendChild(row);
@@ -7874,8 +8089,7 @@ document.getElementById('btnGoListen').addEventListener('click', () => {
   const set = getSet(currentSetId);
   if(set.pairs.length === 0){ showToast('Dieses Set hat noch keine Vokabeln.', true); return; }
   listenReturnView = 'set';
-  document.getElementById('listenTitle').textContent = 'Aussprache üben: ' + set.name;
-  document.getElementById('listenListLabel').textContent = 'Vokabeln aus diesem Set';
+  document.getElementById('listenListLabel').textContent = 'Vokabeln aus „' + set.name + '“';
   renderListenRows(set.pairs);
   showView('listen');
   wireSounds();
@@ -7888,7 +8102,6 @@ function openGlobalListen(){
   const allPairs = store.sets.flatMap(s => s.pairs);
   if(allPairs.length === 0){ showToast('Leg zuerst ein paar Vokabeln an.', true); return; }
   listenReturnView = 'hub';
-  document.getElementById('listenTitle').textContent = 'Aussprache üben';
   document.getElementById('listenListLabel').textContent = 'Alle deine Vokabeln';
   renderListenRows(allPairs);
   showView('listen');
