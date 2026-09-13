@@ -67,6 +67,23 @@
   body{margin:0; background:var(--bg); color:var(--text); font-family:var(--font-sans); line-height:1.5; -webkit-font-smoothing:antialiased; overflow-x:hidden; overflow-anchor:none;}
   code{font-family:var(--font-mono);}
 
+  /* Performance auf Touch-Geraeten (iPad/Handy): backdrop-filter kommt an die
+     ~80 Glas-Karten/Panels/Modals der Seite ueberall unbedingt zum Einsatz und
+     ist auf schwaecheren mobilen GPUs sehr teuer (Kosten steigen etwa
+     quadratisch mit dem Blur-Radius, siehe Begruendung weiter unten bei
+     .aurora-band, dieselbe Erkenntnis gilt hier). Auf einer Maus/Trackpad-
+     Desktop-GPU faellt das nicht auf - genau das im PC ↔ iPad/Handy-Unterschied
+     beschriebene Verhalten. Statt jede der ~80 Deklarationen einzeln
+     anzufassen, hier eine einzige gezielte Abschaltung fuer Geraete ohne
+     praezisen Zeiger (matcht echte Touch-Geraete, nicht nur schmale Fenster -
+     ein grosses iPad im Querformat bleibt sonst faelschlich unerkannt).
+     Die Kartenhintergruende bleiben (--surface/--surface-2 sind bereits
+     halbtransparent getoent), nur der teure Weichzeichner-Durchblick faellt weg. */
+  @media (pointer:coarse){
+    *{ backdrop-filter:none !important; -webkit-backdrop-filter:none !important; }
+    .grain{ display:none; }
+  }
+
   /* Einheitliche, flache Hintergrundfarbe statt Verlauf/Raster - auf Nutzerwunsch,
      gilt ab jetzt als Standard fuer die ganze Seite (nicht nur die Startseite). */
   .bg-base{position:fixed; top:0; right:0; bottom:0; left:0; inset:0; z-index:-5; background:var(--bg);}
@@ -4723,71 +4740,14 @@ function playTone(freq, duration, type, volume, delay = 0, filterFreq){
   osc.connect(filter); filter.connect(gain); gain.connect(ctx.destination);
   osc.start(start); osc.stop(start + duration);
 }
-// --- Echte Sound-Dateien (optional) ---------------------------------------
-// Liegt eine Datei unter ./sounds/ (siehe SOUND_FILES), wird sie abgespielt;
-// fehlt sie oder laesst sie sich nicht laden, bleibt der bisherige
-// synthetische Ton als Rueckfallebene. Dadurch laeuft die Seite auch ohne
-// Sound-Ordner unveraendert weiter.
-// Lautstaerke pro Datei, damit man einzelne Sounds nachjustieren kann, ohne
-// die Datei selbst neu zu exportieren.
-const SOUND_FILES = {
-  hover:    { src: 'sounds/hover.mp3',    gain: 0.35 },
-  click:    { src: 'sounds/click.mp3',    gain: 0.6 },
-  correct:  { src: 'sounds/correct.mp3',  gain: 0.7 },
-  wrong:    { src: 'sounds/wrong.mp3',    gain: 0.6 },
-  retry:    { src: 'sounds/retry.mp3',    gain: 0.5 },
-  complete: { src: 'sounds/complete.mp3', gain: 0.8 },
-};
-const soundBuffers = {};
-let soundPreloadStarted = false;
-
-// Erst beim ersten Antippen/Klick laden: davor ist der AudioContext auf vielen
-// Geraeten (v.a. iOS) ohnehin blockiert, und ungenutzte Dateien kosten sonst
-// unnoetig Ladezeit.
-function preloadSounds(){
-  if(soundPreloadStarted) return;
-  soundPreloadStarted = true;
-  const ctx = ensureAudioCtx();
-  if(!ctx) return;
-  Object.keys(SOUND_FILES).forEach(name => {
-    fetch(SOUND_FILES[name].src)
-      .then(res => res.ok ? res.arrayBuffer() : Promise.reject(new Error('nicht gefunden')))
-      .then(buf => new Promise((resolve, reject) => ctx.decodeAudioData(buf, resolve, reject)))
-      .then(decoded => { soundBuffers[name] = decoded; })
-      .catch(() => { /* keine Datei vorhanden - synthetischer Ton bleibt aktiv */ });
-  });
-}
-document.addEventListener('pointerdown', preloadSounds, { once: true, passive: true });
-document.addEventListener('keydown', preloadSounds, { once: true });
-
-// Spielt eine geladene Datei ab. Gibt false zurueck, wenn es sie (noch) nicht
-// gibt - der Aufrufer faellt dann auf den synthetischen Ton zurueck.
-function playSample(name){
-  if(!soundEnabled || masterVolume <= 0) return true; // Ton ist aus: nichts abspielen, aber auch keinen Ersatzton
-  const buffer = soundBuffers[name];
-  if(!buffer) return false;
-  const ctx = ensureAudioCtx();
-  if(!ctx) return false;
-  if(ctx.state === 'suspended') ctx.resume();
-  const src = ctx.createBufferSource();
-  const gain = ctx.createGain();
-  src.buffer = buffer;
-  gain.gain.value = masterVolume * (SOUND_FILES[name].gain || 1);
-  src.connect(gain); gain.connect(ctx.destination);
-  src.start();
-  return true;
-}
-
-function sndHover(){ if(playSample('hover')) return; playTone(600, 0.05, 'sine', 0.05); }
-function sndClick(){ if(playSample('click')) return; playTone(360, 0.09, 'sine', 0.09); }
+function sndHover(){ playTone(600, 0.05, 'sine', 0.05); }
+function sndClick(){ playTone(360, 0.09, 'sine', 0.09); }
 function sndCorrect(){
-  if(playSample('correct')) return;
   playTone(466, 0.11, 'sine', 0.14); playTone(587, 0.14, 'sine', 0.14, 0.09); playTone(740, 0.22, 'sine', 0.13, 0.18);
 }
 function sndWrong(){
   // Sanfter, absinkender "Thud" statt schrillem Sägezahn-Summen - deutlich
   // spuerbar, aber nicht mehr wie ein Arcade-Fehlerton.
-  if(playSample('wrong')) return;
   if(!soundEnabled || masterVolume <= 0) return;
   const ctx = ensureAudioCtx();
   if(!ctx) return;
@@ -4805,9 +4765,8 @@ function sndWrong(){
   osc.connect(filter); filter.connect(gain); gain.connect(ctx.destination);
   osc.start(start); osc.stop(start + 0.26);
 }
-function sndRetry(){ if(playSample('retry')) return; playTone(300, 0.11, 'sine', 0.07); }
+function sndRetry(){ playTone(300, 0.11, 'sine', 0.07); }
 function sndComplete(){
-  if(playSample('complete')) return;
   [466,587,698,932].forEach((f,i) => playTone(f, 0.2, 'sine', 0.1, i*0.11));
 }
 
@@ -7495,6 +7454,12 @@ function persistLastView(name, adminTab){
   try{ sessionStorage.setItem(LAST_VIEW_KEY, JSON.stringify(payload)); }catch(e){}
 }
 function showView(name){
+  // Soundbug: Aussprache-Wiedergabe lief bisher im Hintergrund weiter, wenn man
+  // waehrend des Vorlesens auf eine andere Seite wechselte - die Stimme redete
+  // dann ueber Seiten, die gar nichts mehr damit zu tun hatten. Bei jedem
+  // Seitenwechsel abbrechen (loest auch das onerror/onend-Cleanup der
+  // ".speaking"-Klasse am Lautsprecher-Button aus, siehe speak()).
+  if('speechSynthesis' in window) speechSynthesis.cancel();
   Object.values(views).forEach(v => v.hidden = true);
   views[name].hidden = false;
   const qn = document.getElementById('quickNav');
