@@ -879,6 +879,28 @@
     content:''; display:block; height:2px; margin:-1.4rem -1.4rem 1.3rem;
     background:linear-gradient(90deg, transparent, var(--ember-bright), transparent); opacity:.85; border-radius:20px 20px 0 0;
   }
+  /* Passepartout-Effekt: ein zweiter, noch duennerer Rahmen innerhalb des
+     Kartenrahmens, leicht versetzt - klassisches Merkmal edler Einladungs-
+     karten/Zertifikate, macht "bewusst gestaltet" statt "Standard-Box". */
+  .auth-modal-box::after{
+    content:''; position:absolute; inset:6px; border-radius:16px; border:1px solid rgba(246,195,92,.14); pointer-events:none;
+  }
+  /* Marken-Schriftzug ueber der eigentlichen Karte - wie eine Signatur, die
+     immer ueber dem Inhalt steht (Anmelden UND Kontouebersicht nutzen
+     denselben Wortmarken-Block, damit sich beide wie derselbe Ort anfuehlen). */
+  .auth-wordmark{
+    position:relative; text-align:center; font-family:var(--font-serif); font-style:italic; font-weight:500;
+    font-size:1.5rem; margin:0 0 1.1rem; letter-spacing:.01em;
+    background:linear-gradient(135deg, var(--gold-bright) 0%, #fff6df 40%, var(--ember-bright) 70%, var(--gold) 100%);
+    -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; color:var(--ember-bright);
+  }
+  .auth-wordmark::after{
+    content:''; display:block; width:4px; height:4px; margin:.55rem auto 0; border-radius:50%;
+    background:var(--ember-bright); box-shadow:0 0 6px rgba(246,195,92,.6);
+  }
+  /* Duenne, in der Mitte hellste und zu den Seiten auslaufende Trennlinie -
+     ersetzt harte Kastenraender zwischen den Abschnitten der Kontouebersicht. */
+  .auth-hairline{ height:1px; margin:1.15rem 0; background:linear-gradient(90deg, transparent, rgba(246,195,92,.5), transparent); border:none; }
   .auth-eyebrow{
     display:inline-flex; align-items:center; gap:.5rem; padding:.35rem .8rem; margin-bottom:.9rem;
     border-radius:999px; background:rgba(246,195,92,.1); border:1px solid rgba(246,195,92,.22);
@@ -900,25 +922,6 @@
     background:linear-gradient(135deg, var(--gold-bright) 0%, var(--ember-bright) 50%, var(--gold) 100%);
     -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; color:var(--ember-bright);
   }
-  .auth-explainer{
-    display:flex; align-items:flex-start; gap:.7rem; margin:0 0 1.2rem; padding:.75rem .85rem;
-    border-radius:12px; background:var(--surface-2); border:1px solid var(--border-solid);
-  }
-  .auth-explainer-icon{
-    position:relative; flex-shrink:0; width:1.5rem; height:1.5rem; border-radius:50%; margin-top:.1rem;
-    display:flex; align-items:center; justify-content:center; background:rgba(246,195,92,.1); border:1px solid rgba(246,195,92,.25); color:var(--ember-bright);
-  }
-  /* Rotierender gestrichelter Ring nach dem uebergebenen "Signature Orb"-Icon -
-     dasselbe Prinzip wie die Feature-Card-Orbs, hier klein und dauerhaft
-     langsam rotierend statt nur bei Hover. */
-  .auth-explainer-icon::before{
-    content:''; position:absolute; inset:-5px; border-radius:50%; border:1px dashed rgba(246,195,92,.4);
-    animation:authOrbSpin 22s linear infinite;
-  }
-  @keyframes authOrbSpin{ to{ transform:rotate(360deg); } }
-  @media (prefers-reduced-motion: reduce){ .auth-explainer-icon::before{ animation:none; } }
-  .auth-explainer p{margin:0; font-size:.78rem; line-height:1.55; color:var(--stone);}
-  .auth-explainer strong{color:var(--text); font-weight:600;}
   .auth-tab-row{
     position:relative; padding:.3rem; border-radius:14px; background:rgba(20,25,36,.7); border:1px solid var(--border-solid);
     display:flex; gap:.25rem; margin-bottom:1.3rem;
@@ -930,7 +933,8 @@
      left-Prozente loesen gegen das Elternelement auf und sind dadurch stabil. */
   .auth-tab-indicator{
     position:absolute; top:.3rem; bottom:.3rem; left:.3rem; width:calc(50% - .425rem);
-    background:rgba(255,255,255,.06); border:1px solid rgba(246,195,92,.3); border-radius:10px;
+    background:linear-gradient(135deg, var(--gold) 0%, var(--ember-bright) 55%, var(--gold-bright) 100%);
+    border:1px solid rgba(246,195,92,.5); border-radius:10px; box-shadow:0 2px 10px rgba(246,195,92,.25);
     transition:left .4s var(--ease-spring); z-index:0;
   }
   .auth-tab-row.tab-signup .auth-tab-indicator{ left:calc(50% + .125rem); }
@@ -996,6 +1000,13 @@
   .auth-modal-box .modal-actions{margin-top:1.4rem; gap:.6rem;}
   .auth-modal-box #authCancel{flex:0 0 auto; padding-left:.9rem; padding-right:.9rem; white-space:nowrap;}
   .auth-modal-box #authSubmit{flex:1;}
+  /* Metallischer Gold-Button statt Flachfarbe - derselbe Sheen-Gradient wie der
+     Tab-Indikator, damit Akzentflaechen im Modal konsistent wirken. */
+  .auth-modal-box .btn-primary{
+    background:linear-gradient(135deg, var(--gold) 0%, var(--ember-bright) 45%, #fff6df 52%, var(--ember-bright) 60%, var(--gold-bright) 100%);
+    border-color:rgba(246,195,92,.6); color:#1a1206; box-shadow:0 4px 16px rgba(246,195,92,.3);
+  }
+  .auth-modal-box .btn-primary:hover{ box-shadow:0 6px 20px rgba(246,195,92,.45); }
   .auth-footnote{
     display:flex; align-items:center; justify-content:center; gap:.4rem; margin:1.2rem 0 0; padding-top:1rem;
     border-top:1px solid var(--border-solid); font-family:var(--font-mono); font-size:.62rem; letter-spacing:.06em; color:var(--stone); text-align:center;
@@ -1010,14 +1021,7 @@
   .auth-name-row{display:flex; gap:.6rem; align-items:flex-start; margin-bottom:1.1rem;}
   .auth-name-row .modal-input{margin-bottom:0; flex:1;}
   .auth-name-row .btn{flex-shrink:0; white-space:nowrap;}
-  .account-status-card{
-    background:#0c1018; border:1px solid rgba(246,195,92,.2); border-radius:12px;
-    padding:1rem 1.1rem; margin:0 0 1.1rem; position:relative; overflow:hidden;
-  }
-  .account-status-card::before{ content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg, transparent, rgba(246,195,92,.35), transparent); }
-  .account-status-card-head{ display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:.4rem; padding-bottom:.7rem; margin-bottom:.7rem; border-bottom:1px solid rgba(255,255,255,.06); }
-  .account-status-live{ display:inline-flex; align-items:center; gap:.4rem; font-family:var(--font-mono); font-size:.6rem; letter-spacing:.1em; text-transform:uppercase; color:var(--stone); }
-  .account-status-live-dot{ width:5px; height:5px; border-radius:50%; background:var(--success); box-shadow:0 0 6px var(--success); }
+  .account-status-card{ margin:0 0 1rem; }
   .status-meter-row{ margin-bottom:.9rem; }
   .status-meter-row:last-of-type{ margin-bottom:0; }
   .status-meter-labels{ display:flex; justify-content:space-between; font-size:.78rem; color:var(--text); margin-bottom:.35rem; }
@@ -1033,18 +1037,21 @@
   .status-meter-caption{ display:flex; justify-content:space-between; gap:.6rem; margin-top:.3rem; }
   .status-meter-caption span:first-child{ font-size:.68rem; font-style:italic; color:var(--stone); }
   .status-meter-caption span:last-child{ font-family:var(--font-mono); font-size:.62rem; color:var(--stone); flex-shrink:0; }
-  .auth-user-row{ display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:.6rem; padding:.6rem; border-radius:12px; background:rgba(14,18,26,.9); border:1px solid rgba(255,255,255,.05); margin:0 0 1.2rem; }
-  .auth-user-row-id{ display:flex; align-items:center; gap:.7rem; min-width:0; }
+  .auth-user-row{ display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:.6rem; margin:0 0 1rem; }
+  .auth-user-row-id{ display:flex; align-items:center; gap:.8rem; min-width:0; }
   .auth-avatar{
-    position:relative; flex-shrink:0; width:2.5rem; height:2.5rem; border-radius:50%; display:flex; align-items:center; justify-content:center;
-    background:linear-gradient(135deg, #242c3d, #121622); border:1px solid rgba(246,195,92,.4);
+    position:relative; flex-shrink:0; width:2.7rem; height:2.7rem; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    background:linear-gradient(135deg, #242c3d, #121622); border:1px solid rgba(246,195,92,.5);
     font-family:var(--font-serif); font-size:.85rem; font-weight:600; color:var(--ember-bright); letter-spacing:.03em;
   }
-  /* Gestrichelter Rahmen-Ring um den Avatar, wie bei den Orb-Icons anderswo im
-     Auth-Modal - hier statisch (keine Rotation), da es ein Rahmen ist und kein
-     eigenstaendiges dekoratives Symbol. */
+  /* Doppelter Ring statt einfacher Umrandung - zwei Ringe mit Abstand lesen
+     sich "eingefasst" statt nur "umrahmt", passend zum Passepartout-Motiv der
+     Kartenumrandung. */
   .auth-avatar::before{
-    content:''; position:absolute; inset:-4px; border-radius:50%; border:1px dashed rgba(246,195,92,.3); pointer-events:none;
+    content:''; position:absolute; inset:-4px; border-radius:50%; border:1px solid rgba(246,195,92,.25); pointer-events:none;
+  }
+  .auth-avatar::after{
+    content:''; position:absolute; inset:-8px; border-radius:50%; border:1px dashed rgba(246,195,92,.35); pointer-events:none;
   }
   .auth-avatar-dot{ position:absolute; bottom:-1px; right:-1px; width:.65rem; height:.65rem; border-radius:50%; background:var(--success); border:2px solid #0e121a; box-shadow:0 0 6px rgba(74,222,128,.6); }
   .auth-user-row-text{ display:flex; flex-direction:column; min-width:0; gap:.15rem; }
@@ -1069,38 +1076,38 @@
   .auth-name-saved.is-visible{ opacity:1; transform:translateX(0); }
   /* --- Konto-Status: zwei eigenstaendige Mini-Karten statt einer Liste aus
      Balken, nach demselben Prinzip wie die Admin-Stat-Karten. --- */
-  .account-status-grid{ display:grid; grid-template-columns:1fr 1fr; gap:.8rem; }
-  @media (max-width:420px){ .account-status-grid{ grid-template-columns:1fr; } }
-  .account-status-mini{
-    display:flex; flex-direction:column; gap:.4rem; padding:.8rem; border-radius:12px;
-    background:rgba(14,18,26,.7); border:1px solid rgba(255,255,255,.06);
-  }
-  .account-status-mini-head{ display:flex; align-items:center; justify-content:space-between; }
-  .account-status-mini-icon{
-    width:1.6rem; height:1.6rem; border-radius:50%; display:flex; align-items:center; justify-content:center;
-    background:rgba(246,195,92,.1); border:1px solid rgba(246,195,92,.25); color:var(--ember-bright);
-  }
-  .account-status-mini-pct{
-    font-family:var(--font-mono); font-size:.62rem; font-weight:700; color:var(--ember-bright);
-    background:rgba(246,195,92,.1); border:1px solid rgba(246,195,92,.25); border-radius:999px; padding:.15rem .5rem;
-  }
+  .account-status-grid{ display:grid; grid-template-columns:1fr 1fr; gap:1.1rem; }
+  @media (max-width:420px){ .account-status-grid{ grid-template-columns:1fr; gap:.9rem; } }
+  .account-status-mini{ display:flex; flex-direction:column; gap:.4rem; }
+  /* Vertikale Trennlinie statt Kartenrahmen zwischen den beiden Spalten - auf
+     Mobilgeraet (eine Spalte) wuerde ein linker Rand ins Leere zeigen, daher
+     nur ab der Zwei-Spalten-Breite. */
+  .account-status-mini:last-child{ border-left:1px solid rgba(255,255,255,.08); padding-left:1.1rem; }
+  @media (max-width:420px){ .account-status-mini:last-child{ border-left:none; padding-left:0; padding-top:.9rem; border-top:1px solid rgba(255,255,255,.08); } }
   .account-status-mini-label{ font-family:var(--font-mono); font-size:.6rem; text-transform:uppercase; letter-spacing:.08em; color:var(--stone); }
   .account-status-mini-value{ font-family:var(--font-serif); font-size:1.3rem; font-weight:600; color:var(--text); }
   .account-status-mini .status-meter-track{ height:6px; }
   .account-status-mini-caption{ font-size:.66rem; font-style:italic; color:var(--stone); line-height:1.4; }
-  /* --- Explainer als umrahmte Karte + optionale zweite Zeile fuer den
-     Sync-Status (echte Daten, siehe refreshAccountStatus). --- */
-  .auth-explainer-boxed{ background:rgba(14,18,26,.7); border-color:rgba(255,255,255,.07); }
+  /* --- Schlichter, zentrierter Hinweistext statt umrahmter Box - die Karte
+     selbst liefert durch die Haarlinien genug Struktur. --- */
+  .auth-explainer-boxed{ margin:0; font-size:.74rem; line-height:1.55; color:var(--stone); text-align:center; }
   .auth-explainer-sync{
-    margin:.4rem 0 0 !important; display:flex; align-items:center; gap:.4rem;
-    font-size:.7rem !important; color:var(--stone) !important;
+    margin:.5rem 0 0 !important; display:flex; align-items:center; justify-content:center; gap:.4rem;
+    font-size:.68rem !important; color:var(--stone) !important;
   }
   .auth-explainer-sync-dot{ width:.4rem; height:.4rem; border-radius:50%; background:var(--success); box-shadow:0 0 5px rgba(74,222,128,.6); flex-shrink:0; }
+  /* Abmelden ist kein destruktiver Akt (im Gegensatz zu Konto-Loeschen) - daher
+     hier bewusst zurueckhaltend als umrandeter statt flaechig gefuellter
+     Button, damit er neben dem goldenen Primaerbutton nicht um Aufmerksamkeit
+     konkurriert. */
   .auth-modal-box .btn-danger{
-    background:linear-gradient(120deg, #2d1217, #220d12); border-color:rgba(127,29,29,.6);
-    box-shadow:0 0 15px rgba(127,29,29,.25);
+    background:transparent; border-color:rgba(239,68,68,.4); color:#ff9ba0; box-shadow:none;
   }
-  .auth-modal-box .btn-danger:hover{ background:linear-gradient(120deg, #451218, #2e1016); color:#fff; border-color:rgba(239,68,68,.8); }
+  .auth-modal-box .btn-danger:hover{ background:rgba(239,68,68,.1); color:#ffb3b8; border-color:rgba(239,68,68,.7); }
+  .auth-admin-tag, #authNameSaveBtn{
+    background:linear-gradient(135deg, var(--gold) 0%, var(--ember-bright) 55%, var(--gold-bright) 100%) !important;
+    border-color:rgba(246,195,92,.6) !important; color:#1a1206 !important;
+  }
 
   /* --- Wiederverwendbare Bausteine (Pill, Dropdown, Dialog, Tooltip,
      Pagination, Skeleton) - nach den uebergebenen shadcn-Komponenten, aber in
@@ -2675,15 +2682,10 @@
     <button type="button" class="auth-modal-close" id="authModalCloseBtn" aria-label="Schließen">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
     </button>
+    <p class="auth-wordmark">Lumière <span style="font-style:normal; font-weight:400; font-size:.6em; letter-spacing:.2em;">· GENÈVE</span></p>
     <div id="authLoggedOutView">
       <div class="auth-eyebrow"><span class="auth-eyebrow-dot" aria-hidden="true"></span>Lumière · Synchronisation</div>
       <h3>Konto <span class="gold-shimmer">&amp; Profil</span></h3>
-      <div class="auth-explainer">
-        <span class="auth-explainer-icon" aria-hidden="true">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-        </span>
-        <p>Lumière bleibt auf diesem Gerät <strong>dauerhaft kostenfrei</strong> nutzbar. Mit einem Konto synchronisierst du deinen Wortschatz zwischen allen Geräten und schaltest alle Module frei.</p>
-      </div>
       <div class="chip-row auth-tab-row" id="authTabChips">
         <span class="auth-tab-indicator" aria-hidden="true"></span>
         <button type="button" class="chip selected" data-tab="signin">
@@ -2760,8 +2762,7 @@
       </form>
     </div>
     <div id="authLoggedInView" hidden>
-      <div class="auth-eyebrow"><span class="auth-eyebrow-dot" aria-hidden="true"></span>Lumière · Kontoverwaltung</div>
-      <h3>Konto <span class="gold-shimmer">&amp; Profil</span></h3>
+      <div class="auth-eyebrow"><span class="auth-eyebrow-dot" aria-hidden="true"></span>Lumière · Kontostatus</div>
 
       <div class="auth-user-row">
         <div class="auth-user-row-id">
@@ -2774,6 +2775,7 @@
         </div>
         <div class="auth-admin-tag" id="statusAdminBadge" hidden><span aria-hidden="true">👑</span>Admin-Konto</div>
       </div>
+      <hr class="auth-hairline">
 
       <form id="authNameForm">
         <label class="ev-label" for="authDisplayNameEdit">Anzeigename</label>
@@ -2790,29 +2792,14 @@
       </form>
 
       <div class="account-status-card" id="accountStatusCard" hidden>
-        <div class="account-status-card-head">
-          <p class="ev-label" style="margin:0;">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="vertical-align:-2px; margin-right:.3em;" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-            Konto-Status
-          </p>
-          <span class="account-status-live"><span class="account-status-live-dot"></span>Aktiv · Reset 00:00 UTC</span>
-        </div>
         <div class="account-status-grid">
           <div class="account-status-mini">
-            <div class="account-status-mini-head">
-              <span class="account-status-mini-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg></span>
-              <span class="account-status-mini-pct" id="statusAiUsagePct">–%</span>
-            </div>
             <span class="account-status-mini-label">KI-Anfragen heute</span>
             <span class="account-status-mini-value" id="statusAiUsageText">–</span>
             <div class="status-meter-track"><div class="status-meter-fill" id="statusAiUsageFill"></div></div>
             <span class="account-status-mini-caption">Für Vokabel-Kontexte &amp; grammatikalische Nuancen</span>
           </div>
           <div class="account-status-mini">
-            <div class="account-status-mini-head">
-              <span class="account-status-mini-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"/></svg></span>
-              <span class="account-status-mini-pct" id="statusCapacityPct">–%</span>
-            </div>
             <span class="account-status-mini-label">Website-Kapazität heute</span>
             <span class="account-status-mini-value" id="statusCapacityText">–</span>
             <div class="status-meter-track"><div class="status-meter-fill status-meter-fill-alt" id="statusCapacityFill"></div></div>
@@ -2820,16 +2807,10 @@
           </div>
         </div>
       </div>
+      <hr class="auth-hairline">
 
-      <div class="auth-explainer auth-explainer-boxed">
-        <span class="auth-explainer-icon" aria-hidden="true">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v4m0 8v4m8-8h-4M8 12H4m12.95-4.95-2.83 2.83M8.88 15.12l-2.83 2.83m0-12.02 2.83 2.83m6.24 6.24 2.83 2.83"/></svg>
-        </span>
-        <div>
-          <p>Vokabeln, Sammlungen &amp; Lernfortschritt werden automatisch geräteübergreifend gesichert.</p>
-          <p class="auth-explainer-sync" id="authSyncStatus" hidden><span class="auth-explainer-sync-dot"></span><span id="authSyncStatusText"></span></p>
-        </div>
-      </div>
+      <p class="auth-explainer-boxed">Vokabeln, Sammlungen &amp; Lernfortschritt werden automatisch geräteübergreifend gesichert.</p>
+      <p class="auth-explainer-sync" id="authSyncStatus" hidden><span class="auth-explainer-sync-dot"></span><span id="authSyncStatusText"></span></p>
 
       <div class="modal-actions">
         <button type="button" class="btn btn-secondary" id="authCloseBtn">Schließen</button>
@@ -5426,7 +5407,6 @@ async function refreshAccountStatus(){
   const aiPct = limit ? Math.min(100, Math.round((used / limit) * 100)) : 0;
   document.getElementById('statusAiUsageText').textContent = `${used} / ${limit}`;
   document.getElementById('statusAiUsageFill').style.width = aiPct + '%';
-  document.getElementById('statusAiUsagePct').textContent = aiPct + '%';
   document.getElementById('statusAdminBadge').hidden = !currentProfile.is_admin;
   updateSyncStatusUI();
   if(!sb) return;
@@ -5434,9 +5414,8 @@ async function refreshAccountStatus(){
     const { data } = await sb.rpc('get_capacity');
     if(data){
       const capPct = data.total ? Math.min(100, Math.round((data.used / data.total) * 100)) : 0;
-      document.getElementById('statusCapacityText').textContent = `${data.used} / ${data.total}`;
+      document.getElementById('statusCapacityText').textContent = capPct + '%';
       document.getElementById('statusCapacityFill').style.width = capPct + '%';
-      document.getElementById('statusCapacityPct').textContent = capPct + '%';
     }
   }catch(e){ /* Konto-Status zeigt dann nur die eigene Nutzung */ }
 }
