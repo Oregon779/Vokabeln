@@ -818,19 +818,66 @@
   @media (prefers-reduced-motion: reduce){ .speak-btn .eq span{ animation:none; } }
 
   /* --- Grammatik --- */
+  .grammar-query-box{
+    position:relative; display:flex; flex-direction:column; gap:.5rem; padding:.5rem; border-radius:22px;
+    background:var(--surface-2); backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px); border:1px solid var(--border-solid);
+    box-shadow:var(--shadow-sm); margin:1.4rem 0 1rem;
+  }
+  @media (min-width:640px){ .grammar-query-box{ flex-direction:row; align-items:center; } }
+  .grammar-query-box .auth-field-icon{ position:static; color:var(--ember-dim); }
+  .grammar-query-input-wrap{ display:flex; align-items:center; gap:.6rem; flex:1; padding:.55rem .9rem; min-width:0; }
+  .grammar-query-input-wrap input{
+    flex:1; min-width:0; background:none; border:none; outline:none; color:var(--text);
+    font-family:var(--font-sans); font-size:1rem; letter-spacing:.01em;
+  }
+  .grammar-query-input-wrap input::placeholder{ color:var(--stone); }
+  .grammar-query-submit{
+    flex-shrink:0; display:inline-flex; align-items:center; justify-content:center; gap:.4rem; padding:.75rem 1.3rem; border-radius:16px;
+    background:linear-gradient(120deg, var(--gold-bright), var(--ember-bright) 45%, var(--pop) 100%); color:#1c1207;
+    font-family:var(--font-mono); font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.1em; border:none; cursor:pointer;
+    box-shadow:0 4px 16px rgba(246,195,92,.25); transition:box-shadow .2s var(--ease), transform .15s var(--ease-spring);
+  }
+  .grammar-query-submit:hover{ box-shadow:0 6px 20px rgba(246,195,92,.4); }
+  .grammar-query-submit:active{ transform:scale(.97); }
+  .grammar-examples{ margin:0 0 1.6rem; flex-wrap:nowrap; overflow-x:auto; padding-bottom:.3rem; scrollbar-width:none; }
+  .grammar-examples::-webkit-scrollbar{ display:none; }
+  .grammar-examples .chip{ flex-shrink:0; white-space:nowrap; }
+  .grammar-examples .chip.selected::before{
+    content:''; display:inline-block; width:6px; height:6px; border-radius:50%; background:var(--ember-bright);
+    box-shadow:0 0 6px rgba(246,195,92,.7); margin-right:.45rem; vertical-align:middle;
+  }
   .grammar-result{margin-top:1.5rem;}
+  .grammar-answer-head{ display:flex; flex-wrap:wrap; align-items:baseline; justify-content:space-between; gap:.5rem; margin:0 0 1.3rem; }
+  .grammar-answer-head h3{ margin:0; font-family:var(--font-serif); font-size:1.6rem; font-weight:600; color:var(--text); border:none; padding:0; text-transform:none; letter-spacing:0; }
   .grammar-section{
-    background:var(--surface); -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px); border:1px solid var(--border-solid); border-radius:14px;
-    padding:1.2rem 1.4rem; margin-bottom:1rem;
+    position:relative; overflow:hidden; background:var(--surface); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px); border:1px solid var(--border-solid); border-radius:20px;
+    padding:1.5rem 1.6rem; margin-bottom:1.2rem;
     animation:grammarIn .4s var(--ease) backwards;
   }
+  .grammar-section::before{ content:''; position:absolute; inset:0 0 auto; height:1px; background:linear-gradient(90deg, transparent, rgba(246,195,92,.35), transparent); }
   .grammar-section:nth-of-type(1){animation-delay:.05s;}
   .grammar-section:nth-of-type(2){animation-delay:.15s;}
   .grammar-section:nth-of-type(3){animation-delay:.25s;}
   @keyframes grammarIn{ from{opacity:0; transform:translateY(12px);} to{opacity:1; transform:translateY(0);} }
-  .grammar-section h4{margin:0 0 .7rem; font-family:var(--font-mono); font-size:.75rem; text-transform:uppercase; letter-spacing:.07em; color:var(--ember);}
-  .grammar-section ul{margin:0; padding-left:1.2rem;}
-  .grammar-section li{margin-bottom:.5rem; font-size:.92rem; line-height:1.6;}
+  .grammar-section-head{ display:flex; align-items:center; gap:.9rem; margin-bottom:1.2rem; }
+  .grammar-section-icon{
+    flex-shrink:0; width:2.4rem; height:2.4rem; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    background:var(--surface-2); color:var(--ember-bright);
+  }
+  .grammar-section-head h4{ margin:0 0 .1rem; font-family:var(--font-mono); font-size:.62rem; text-transform:uppercase; letter-spacing:.14em; color:var(--ember-bright); opacity:.85; }
+  .grammar-section-head h3{ margin:0; font-family:var(--font-serif); font-size:1.1rem; font-weight:600; color:var(--text); border:none; padding:0; text-transform:none; letter-spacing:0; }
+  .grammar-rules{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:.8rem; }
+  .grammar-rules li{ display:flex; align-items:flex-start; gap:.9rem; font-size:.92rem; line-height:1.65; color:var(--text); }
+  .grammar-rules .num{ flex-shrink:0; padding-top:.1rem; font-family:var(--font-mono); font-size:.72rem; color:var(--ember-dim); }
+  .grammar-examples-grid{ display:grid; grid-template-columns:1fr; gap:.9rem; }
+  @media (min-width:640px){ .grammar-examples-grid{ grid-template-columns:1fr 1fr; } }
+  .grammar-example-card{ background:var(--surface-2); border-radius:14px; padding:1.1rem 1.2rem; }
+  .grammar-example-fr{ margin:0 0 .35rem; font-family:var(--font-serif); font-style:italic; font-size:1.15rem; color:var(--ember-bright); line-height:1.4; }
+  .grammar-example-de{ margin:0; font-size:.82rem; color:var(--stone); }
+  .grammar-exceptions{ display:flex; flex-direction:column; gap:.7rem; }
+  .grammar-exception-row{ display:flex; align-items:flex-start; gap:.8rem; background:var(--surface-2); border-radius:12px; padding:.9rem 1rem; }
+  .grammar-exception-row .dot{ flex-shrink:0; width:6px; height:6px; margin-top:.5rem; border-radius:50%; background:var(--ember-dim); }
+  .grammar-exception-row p{ margin:0; font-size:.9rem; line-height:1.6; color:var(--text); }
   .grammar-loading{text-align:center; color:var(--stone); padding:2rem 0; font-family:var(--font-mono); font-size:.85rem;}
   .grammar-loading::after{content:''; display:inline-block; width:16px; height:16px; margin-left:.5rem; border:2px solid var(--border-solid); border-top-color:var(--ember); border-radius:50%; animation:spin .7s linear infinite; vertical-align:middle;}
   .ai-loading-inline{grid-column:1 / -1; text-align:center; color:var(--stone); padding:1.4rem 0; font-family:var(--font-mono); font-size:.78rem;}
@@ -2061,6 +2108,31 @@
   .settings-card .vol-btn{width:44px; height:44px; font-size:1.2rem;}
   .settings-row-label{display:block; font-family:var(--font-mono); font-size:.68rem; text-transform:uppercase; letter-spacing:.07em; color:var(--stone); margin:1.2rem 0 .6rem;}
   .settings-row-label:first-child{margin-top:0;}
+
+  /* Gruppierte Cluster (Rubrik I-V) fuer die neu gestaltete Einstellungen-Seite */
+  .settings-cluster{ padding-top:2.2rem; border-top:1px solid rgba(246,195,92,.12); }
+  .settings-cluster:first-of-type{ padding-top:0; border-top:none; }
+  .settings-cluster-head{ display:flex; align-items:baseline; gap:.8rem; margin-bottom:1.2rem; }
+  .settings-cluster-head .rubrik{ font-family:var(--font-mono); font-size:.66rem; text-transform:uppercase; letter-spacing:.16em; color:var(--ember-bright); flex-shrink:0; }
+  .settings-cluster-head h2{ margin:0; font-family:var(--font-serif); font-size:1.25rem; font-weight:600; color:var(--text); }
+  .settings-grid{ display:grid; grid-template-columns:1fr; gap:1.1rem; }
+  @media (min-width:760px){ .settings-grid.cols-2{ grid-template-columns:1fr 1fr; } }
+  @media (min-width:760px){ .settings-grid.cols-8-4{ grid-template-columns:2fr 1fr; } }
+  .settings-grid .settings-card{ margin-top:0; height:100%; box-sizing:border-box; }
+  .settings-card-head{ display:flex; align-items:center; gap:.9rem; margin-bottom:1rem; }
+  .settings-card-icon{
+    flex-shrink:0; width:2.75rem; height:2.75rem; border-radius:50%; background:var(--surface-2);
+    display:flex; align-items:center; justify-content:center; color:var(--ember-bright); box-shadow:inset 0 0 0 1px rgba(255,255,255,.04);
+  }
+  .settings-card-head .settings-title{ margin:0; }
+  .settings-card-status{ display:flex; align-items:center; gap:.4rem; margin-top:.25rem; font-family:var(--font-mono); font-size:.6rem; text-transform:uppercase; letter-spacing:.1em; color:var(--stone); }
+  .settings-card-status .dot{ width:5px; height:5px; border-radius:50%; background:var(--ember-bright); flex-shrink:0; }
+  .settings-signature{ display:flex; flex-direction:column; align-items:center; gap:.5rem; text-align:center; padding-top:2.4rem; margin-top:2.2rem; border-top:1px solid rgba(246,195,92,.12); }
+  .settings-signature-rule{ width:60px; height:1px; background:linear-gradient(90deg, transparent, rgba(246,195,92,.4), transparent); }
+  .settings-signature-text{ font-family:var(--font-mono); font-size:.64rem; text-transform:uppercase; letter-spacing:.2em; color:var(--stone); }
+  .settings-signature-quote{ font-family:var(--font-serif); font-style:italic; font-size:.82rem; color:var(--ember-dim); }
+  /* Gefuellte Regler-Spur (Prozentwert als CSS-Var vom JS gesetzt) statt reinem Flachbalken */
+  .volume-slider{ background:linear-gradient(90deg, var(--gold), var(--ember-bright) var(--val,50%), var(--surface-2) var(--val,50%)); }
   .settings-toggle-row{
     display:flex; align-items:center; justify-content:space-between; gap:1rem; margin:1.3rem 0 0;
     cursor:pointer; font-size:.9rem; color:var(--text);
@@ -2301,15 +2373,15 @@
   }
   .btn-secondary:hover::before, .chip:hover::before, .session-opt:hover::before{ opacity:1; }
   /* App-/Über-uns-Seite: dieselben Spotlight-Kacheln interaktiv machen wie auf der Startseite */
-  .dl-feature-card, .dl-step, .dl-handoff-card, .info-plaque, .info-attr-card, .info-pillar, .info-stamp, .info-security{
+  .dl-feature-card, .dl-step, .dl-handoff-card, .info-legal-card, .info-panel-row{
     position:relative; overflow:hidden;
   }
-  .dl-feature-card::before, .dl-step::before, .dl-handoff-card::before, .info-plaque::before, .info-attr-card::before, .info-pillar::before, .info-stamp::before, .info-security::after{
+  .dl-feature-card::before, .dl-step::before, .dl-handoff-card::before, .info-legal-card::before, .info-panel-row::before{
     content:''; position:absolute; top:0; right:0; bottom:0; left:0; inset:0; opacity:0; pointer-events:none; z-index:2;
     background:radial-gradient(120px circle at var(--sx,50%) var(--sy,50%), rgba(246,195,92,.28), transparent 55%);
     transition:opacity .3s var(--ease);
   }
-  .dl-feature-card:hover::before, .dl-step:hover::before, .dl-handoff-card:hover::before, .info-plaque:hover::before, .info-attr-card:hover::before, .info-pillar:hover::before, .info-stamp:hover::before, .info-security:hover::after{ opacity:1; }
+  .dl-feature-card:hover::before, .dl-step:hover::before, .dl-handoff-card:hover::before, .info-legal-card:hover::before, .info-panel-row:hover::before{ opacity:1; }
   .btn-secondary::after, .chip::after{
     content:''; position:absolute; top:0; right:0; bottom:0; left:0; inset:0; opacity:0; pointer-events:none;
     background:linear-gradient(115deg, transparent 30%, rgba(255,223,0,.3), transparent 70%);
@@ -2422,6 +2494,11 @@
   .dl-phone-de{ font-size:.78rem; color:var(--stone); margin:0; line-height:1.5; }
   .dl-phone-progress{ height:3px; border-radius:999px; background:var(--surface-2); margin-top:.8rem; overflow:hidden; }
   .dl-phone-progress-fill{ width:64%; height:100%; background:var(--ember-bright); border-radius:999px; }
+  .dl-phone-mastery{ width:100%; margin-top:.9rem; text-align:left; }
+  .dl-phone-mastery-row{ display:flex; justify-content:space-between; font-family:var(--font-mono); font-size:.52rem; text-transform:uppercase; letter-spacing:.08em; color:var(--stone); margin-bottom:.3rem; }
+  .dl-phone-mastery-row span:last-child{ color:var(--ember-bright); font-weight:700; }
+  .dl-phone-mastery-track{ height:3px; border-radius:999px; background:var(--surface-2); overflow:hidden; }
+  .dl-phone-mastery-fill{ width:78%; height:100%; background:linear-gradient(90deg, var(--gold), var(--ember-bright)); border-radius:999px; }
 
   .dl-section{ padding:2.6rem 0; border-top:1px solid var(--border-solid); }
   .dl-section-eyebrow{ font-family:var(--font-mono); font-size:.65rem; text-transform:uppercase; letter-spacing:.28em; color:var(--stone); margin:0 0 .6rem; }
@@ -2438,6 +2515,15 @@
   .dl-feature-card:hover{ border-color:var(--ember-dim); transform:translateY(-3px); }
   .dl-feature-card h3{ font-family:var(--font-sans); font-size:.95rem; font-weight:600; color:var(--text); text-transform:none; letter-spacing:0; border:none; padding:0; margin:.8rem 0 .4rem; }
   .dl-feature-card p{ font-size:.82rem; color:var(--stone); line-height:1.55; margin:0; }
+  .dl-feature-card-accent{
+    position:relative; background:var(--surface-2); border-color:rgba(246,195,92,.35);
+    box-shadow:0 4px 20px -6px rgba(246,195,92,.15);
+  }
+  .dl-feature-card-tag{
+    position:absolute; top:-.6rem; right:1.1rem; padding:.2rem .6rem; border-radius:999px;
+    background:linear-gradient(120deg, var(--gold-bright), var(--ember-bright) 60%, var(--pop));
+    color:#1c1207; font-family:var(--font-mono); font-size:.58rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em;
+  }
 
   .dl-tab-row{ justify-content:center; margin:0 auto 1.6rem; max-width:560px; }
   .dl-guide-box{ background:var(--surface); border:1px solid var(--border-solid); border-radius:20px; padding:1.6rem; }
@@ -2468,174 +2554,117 @@
   .dl-closing .btn-primary{ position:relative; }
   @media (max-width:600px){ .dl-glow{ display:none; } }
 
-  /* --- Über uns / Website-Info-Seite (Menü · 09) — "Dossier Éditorial" --- */
+  /* --- Über uns / Website-Info-Seite (Menü · 09) --- */
   .info-view{ padding-top:1rem; }
   .gold-shimmer{
     background:linear-gradient(120deg, var(--gold-bright), var(--ember-bright) 45%, var(--pop) 100%);
     -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; color:var(--ember-bright);
   }
-  .info-chapter{ position:relative; margin-bottom:5rem; }
-  .info-chapter-bar{
-    display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:.6rem;
-    border-bottom:1px solid rgba(246,195,92,.2); padding-bottom:1rem; margin-bottom:2.6rem;
-    font-family:var(--font-mono); font-size:.66rem; text-transform:uppercase; letter-spacing:.2em; color:var(--ember-dim);
-  }
-  .info-chapter-bar strong{ color:var(--ember-bright); margin-right:.5rem; }
-  .info-chapter-bar-meta{ color:var(--stone); letter-spacing:.24em; font-size:.62rem; }
-  .info-watermark{
-    position:absolute; top:-2.4rem; left:-.5rem; z-index:0; pointer-events:none; user-select:none;
-    font-family:var(--font-serif); font-weight:300; font-size:clamp(7rem,18vw,12rem); line-height:1; color:rgba(246,195,92,.045);
-  }
+  .info-hairline{ height:1px; margin:3rem 0; background:linear-gradient(90deg, transparent, rgba(246,195,92,.25), transparent); border:none; }
 
-  /* Kapitel I: Hero + Marginalie */
-  .info-ch1-grid{ position:relative; z-index:1; display:grid; grid-template-columns:1fr; gap:2.2rem; align-items:start; }
-  @media (min-width:960px){ .info-ch1-grid{ grid-template-columns:2fr 1fr; gap:2.6rem; } }
-  .info-hero{ max-width:38em; }
-  .info-hero-title{
-    font-family:var(--font-serif); font-weight:600; font-size:clamp(2.1rem,5vw,3rem); line-height:1.16;
-    letter-spacing:-.01em; margin:1rem 0 1rem;
+  /* Kopfzeile */
+  .info-hero{ position:relative; text-align:center; max-width:42em; margin:0 auto; padding-top:1rem; }
+  .info-hero::before{
+    content:'I'; position:absolute; top:-3.2rem; left:50%; transform:translateX(-50%); z-index:0; pointer-events:none; user-select:none;
+    font-family:var(--font-serif); font-weight:400; font-size:clamp(9rem,20vw,13rem); line-height:1; color:rgba(246,195,92,.06);
   }
+  .info-hero::after{
+    content:''; position:absolute; top:-4rem; left:50%; transform:translateX(-50%); width:420px; height:220px; z-index:-1; pointer-events:none;
+    background:radial-gradient(ellipse, rgba(246,195,92,.15), transparent 70%); filter:blur(10px);
+  }
+  .info-hero-row{ position:relative; z-index:1; display:inline-flex; align-items:center; justify-content:center; }
+  .info-hero-title{ position:relative; z-index:1; font-family:var(--font-serif); font-weight:600; font-size:clamp(2.1rem,5vw,3.2rem); line-height:1.16; letter-spacing:-.01em; margin:0 0 1rem; }
   .info-hero-title em{ font-style:italic; font-weight:500; }
-  .info-hero-sub{ color:var(--stone); line-height:1.7; margin:0; font-size:1.02rem; }
-  .info-marginalia{ border-left:1px solid rgba(246,195,92,.2); padding-left:1.6rem; display:flex; flex-direction:column; gap:1.2rem; }
-  .info-stamp{
-    border:1px solid rgba(246,195,92,.35); border-radius:6px; padding:1rem 1.1rem; position:relative; overflow:hidden;
-    background:linear-gradient(135deg, rgba(246,195,92,.08), transparent);
-  }
-  .info-stamp-head{ display:flex; align-items:center; justify-content:space-between; font-family:var(--font-mono); font-size:.6rem; letter-spacing:.2em; text-transform:uppercase; color:var(--ember-bright); margin-bottom:.5rem; }
-  .info-stamp-title{ font-family:var(--font-serif); font-style:italic; font-size:1.1rem; color:var(--text); margin-bottom:.2rem; }
-  .info-stamp-sub{ font-family:var(--font-mono); font-size:.62rem; letter-spacing:.16em; text-transform:uppercase; color:var(--stone); }
-  .info-coords{ font-family:var(--font-mono); font-size:.72rem; }
-  .info-coord-row{ display:flex; align-items:center; justify-content:space-between; padding-bottom:.6rem; margin-bottom:.6rem; border-bottom:1px solid var(--border-solid); color:var(--stone); }
-  .info-coord-row span:last-child{ color:var(--ember-bright); letter-spacing:.1em; }
-  .info-coords p{ font-family:var(--font-sans); font-size:.78rem; color:var(--stone); line-height:1.6; margin:.6rem 0 0; }
+  .info-hero-sub{ position:relative; z-index:1; color:var(--stone); line-height:1.7; margin:0; font-size:1.02rem; }
 
-  /* Kapitel II: Das Siegel */
-  .info-security{
-    position:relative; z-index:1; text-align:center; overflow:hidden; padding:2.6rem 1.6rem 2rem;
-    border-radius:24px; background:radial-gradient(ellipse at 50% 0%, rgba(246,195,92,.09), #171d2c 45%, #0e121b 100%);
-    border:1px solid rgba(246,195,92,.34);
-    box-shadow:0 30px 70px -18px rgba(0,0,0,.7), 0 0 55px -8px rgba(246,195,92,.18), inset 0 0 0 1px rgba(246,195,92,.1);
+  /* Security-Operations-Panel */
+  .info-security-section{ position:relative; }
+  .info-security-section::before{
+    content:''; position:absolute; inset:-2.5rem -1.5rem; z-index:-1; pointer-events:none;
+    background:radial-gradient(ellipse at 50% 45%, rgba(246,195,92,.13), transparent 72%);
   }
-  @media (min-width:640px){ .info-security{ padding:3.6rem 3rem 2.6rem; } }
-  .info-security::before{
-    content:''; position:absolute; top:0; left:0; right:0; height:2px;
-    background:linear-gradient(90deg, transparent, var(--ember-bright), var(--gold-bright), transparent); opacity:.9;
+  .info-security-intro{ text-align:center; max-width:36em; margin:0 auto 1.6rem; }
+  .info-security-intro p{ color:var(--stone); line-height:1.7; margin:.8rem 0 0; }
+  .info-security-panel{
+    position:relative; overflow:hidden; border-radius:20px; border:1px solid rgba(246,195,92,.22); background:#0a0d14;
+    box-shadow:0 24px 60px -16px rgba(0,0,0,.8), 0 0 34px -8px rgba(246,195,92,.1);
+    background-image:linear-gradient(rgba(246,195,92,.035) 1px, transparent 1px), linear-gradient(90deg, rgba(246,195,92,.035) 1px, transparent 1px);
+    background-size:32px 32px;
   }
-  .info-security-glow{ position:absolute; top:-8rem; left:50%; transform:translateX(-50%); width:480px; height:260px; border-radius:50%; background:radial-gradient(ellipse, rgba(246,195,92,.16), transparent 70%); pointer-events:none; }
-  .info-cert-label{ position:relative; z-index:1; display:flex; align-items:center; justify-content:center; gap:.9rem; margin-bottom:1.4rem; }
-  .info-cert-label span:not(.info-cert-text){ height:1px; width:48px; background:linear-gradient(90deg, transparent, rgba(246,195,92,.5)); }
-  .info-cert-label span:last-child:not(.info-cert-text){ background:linear-gradient(270deg, transparent, rgba(246,195,92,.5)); }
-  .info-cert-text{ font-family:var(--font-mono); font-size:.62rem; letter-spacing:.3em; text-transform:uppercase; color:var(--ember-bright); }
-  .info-status-badge{
-    position:relative; z-index:1; display:inline-flex; align-items:center; gap:.6rem; padding:.5rem 1rem; border-radius:999px;
-    background:rgba(246,195,92,.14); border:1px solid rgba(246,195,92,.4); font-family:var(--font-mono); font-size:.65rem;
-    text-transform:uppercase; letter-spacing:.14em; color:var(--ember-bright); font-weight:700; margin-bottom:2.2rem;
-    box-shadow:0 0 18px rgba(246,195,92,.22);
+  .info-security-panel::before{ content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg, transparent, rgba(246,195,92,.7), transparent); box-shadow:0 0 12px rgba(246,195,92,.6); }
+  .info-panel-head{
+    display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:.7rem;
+    padding:1.1rem 1.4rem; border-bottom:1px solid rgba(246,195,92,.14); background:rgba(13,17,26,.8);
+    font-family:var(--font-mono); font-size:.68rem;
   }
-  .info-status-ping{ position:relative; width:8px; height:8px; flex-shrink:0; }
-  .info-status-ping span{ position:absolute; top:0; right:0; bottom:0; left:0; inset:0; border-radius:50%; }
-  .info-status-ping span:first-child{ background:var(--ember-bright); opacity:.7; animation:infoPing 1.8s cubic-bezier(0,0,.2,1) infinite; }
-  .info-status-ping span:last-child{ background:var(--ember-bright); }
-  @keyframes infoPing{ 75%,100%{ transform:scale(2.4); opacity:0; } }
+  .info-panel-head-left{ display:flex; align-items:center; gap:.7rem; flex-wrap:wrap; }
+  .info-panel-head-label{ color:var(--text); text-transform:uppercase; letter-spacing:.1em; font-weight:600; }
+  .info-panel-head-sep{ color:var(--ember-dim); }
+  .info-panel-status{
+    display:inline-flex; align-items:center; gap:.5rem; padding:.3rem .7rem; border-radius:7px;
+    border:1px solid rgba(74,222,128,.3); background:rgba(74,222,128,.1); color:var(--success); font-weight:600; letter-spacing:.04em;
+  }
+  .info-panel-status-dot{ width:6px; height:6px; border-radius:50%; background:var(--success); box-shadow:0 0 6px var(--success); animation:dotPulse 2s ease-in-out infinite; }
+  .info-panel-head-right{ display:flex; align-items:center; gap:.7rem; flex-wrap:wrap; color:var(--stone); letter-spacing:.04em; }
+  .info-panel-head-right span:last-child{ color:var(--ember-bright); opacity:.9; }
+  .info-panel-rows{ display:flex; flex-direction:column; }
+  .info-panel-row{ display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:.9rem; padding:1.2rem 1.4rem; border-bottom:1px solid rgba(246,195,92,.08); }
+  .info-panel-row:last-child{ border-bottom:none; }
+  .info-panel-row-left{ display:flex; align-items:flex-start; gap:1rem; }
+  .info-panel-row-icon{
+    flex-shrink:0; width:2.6rem; height:2.6rem; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    background:rgba(246,195,92,.06); border:1px solid rgba(246,195,92,.35); color:var(--ember-bright); box-shadow:0 0 12px rgba(246,195,92,.12);
+  }
+  .info-panel-row-title{ font-family:var(--font-serif); font-size:1rem; font-weight:600; color:var(--text); margin:0 0 .2rem; }
+  .info-panel-row-desc{ font-size:.82rem; color:var(--stone); margin:0; max-width:32em; }
+  .info-panel-row-right{ display:flex; align-items:center; gap:.6rem; flex-wrap:wrap; }
+  .info-panel-tag{ font-family:var(--font-mono); font-size:.66rem; letter-spacing:.06em; color:var(--sand-light, var(--stone)); background:var(--surface-2); border:1px solid var(--border-solid); border-radius:6px; padding:.3rem .6rem; }
+  .info-panel-enabled{ display:inline-flex; align-items:center; gap:.4rem; font-family:var(--font-mono); font-size:.62rem; font-weight:600; letter-spacing:.08em; color:var(--success); border:1px solid rgba(74,222,128,.3); background:rgba(74,222,128,.1); border-radius:6px; padding:.3rem .6rem; }
+  .info-panel-enabled .dot{ width:6px; height:6px; border-radius:50%; background:var(--success); }
+  .info-panel-foot{
+    display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:.6rem;
+    padding:.85rem 1.4rem; border-top:1px solid rgba(246,195,92,.12); background:#080b11;
+    font-family:var(--font-mono); font-size:.66rem; color:var(--stone); letter-spacing:.04em;
+  }
+  .info-panel-foot-metrics{ display:flex; align-items:center; gap:.7rem; flex-wrap:wrap; }
+  .info-panel-foot-metrics span:not(.sep){ color:inherit; }
+  .info-panel-foot-metrics strong{ color:var(--sand-light, var(--text)); font-weight:600; }
+  .info-panel-foot-tag{ color:var(--ember-bright); opacity:.9; }
 
-  .info-seal{ position:relative; z-index:1; margin:0 auto 1.8rem; width:168px; height:168px; }
-  .info-seal-halo{ position:absolute; top:0; right:0; bottom:0; left:0; inset:0; border-radius:50%; background:rgba(246,195,92,.2); filter:blur(28px); animation:infoSealPulse 3.4s ease-in-out infinite; }
-  @keyframes infoSealPulse{ 0%,100%{ opacity:.55; } 50%{ opacity:.9; } }
-  .info-seal-ring{ position:absolute; top:0; right:0; bottom:0; left:0; inset:0; animation:infoSealSpin 46s linear infinite; }
-  @keyframes infoSealSpin{ to{ transform:rotate(360deg); } }
-  .info-seal-ring-line{ position:absolute; top:10px; right:10px; bottom:10px; left:10px; inset:10px; border-radius:50%; border:1px dashed rgba(246,195,92,.4); }
-  .info-seal-ring-line-2{ position:absolute; top:22px; right:22px; bottom:22px; left:22px; inset:22px; border-radius:50%; border:1px solid rgba(246,195,92,.55); }
-  .info-seal-core{
-    position:absolute; top:38px; right:38px; bottom:38px; left:38px; inset:38px; border-radius:50%; padding:1.5px;
-    background:linear-gradient(180deg, var(--ember-bright), var(--gold-dark, var(--ember-dim)), #6f5000);
-    box-shadow:0 0 34px rgba(246,195,92,.45);
+  /* Rechtliches & Charakter */
+  .info-legal-eyebrow{ text-align:center; font-family:var(--font-mono); font-size:.65rem; text-transform:uppercase; letter-spacing:.24em; color:var(--ember-bright); opacity:.85; margin:0 0 1.4rem; }
+  .info-legal-grid{ display:grid; grid-template-columns:1fr; gap:1.1rem; }
+  @media (min-width:760px){ .info-legal-grid{ grid-template-columns:repeat(3,1fr); } }
+  .info-legal-card{
+    display:flex; flex-direction:column; justify-content:space-between; gap:1.2rem; padding:1.6rem;
+    border-radius:18px; border:1px solid var(--border-solid); background:var(--surface); transition:border-color .2s var(--ease);
   }
-  .info-seal-core-inner{
-    width:100%; height:100%; border-radius:50%; background:linear-gradient(180deg, #1b2336, #0c1018);
-    border:1px solid rgba(255,232,168,.4); display:flex; align-items:center; justify-content:center; color:var(--ember-bright);
+  .info-legal-card:hover{ border-color:var(--ember-dim); }
+  .info-legal-card h3{ font-family:var(--font-serif); font-weight:600; font-size:1.15rem; color:var(--text); margin:0 0 .5rem; border:none; padding:0; text-transform:none; letter-spacing:0; }
+  .info-legal-card p{ font-size:.86rem; color:var(--stone); line-height:1.6; margin:0; }
+  .info-legal-card-foot{ padding-top:1rem; border-top:1px solid var(--border-solid); font-family:var(--font-mono); font-size:.62rem; text-transform:uppercase; letter-spacing:.1em; color:var(--stone); }
+  .info-legal-card-accent{
+    position:relative; background:#121620; border-color:rgba(246,195,92,.32);
+    box-shadow:0 16px 40px -12px rgba(0,0,0,.65), 0 0 24px -6px rgba(246,195,92,.1);
   }
-  .info-security-title{
-    position:relative; z-index:1; font-family:var(--font-serif); font-weight:600; font-size:clamp(1.5rem,3.6vw,2.3rem);
-    margin:0 auto 1.5rem; max-width:34em; line-height:1.32;
-  }
-  .info-security-title span{ text-decoration:underline; text-decoration-color:rgba(246,195,92,.4); text-underline-offset:6px; }
-  .info-plaques{ position:relative; z-index:1; display:flex; flex-wrap:wrap; justify-content:center; gap:1rem; max-width:34em; margin:0 auto 1.6rem; }
-  .info-plaque{
-    flex:1 1 220px; display:flex; align-items:center; gap:.8rem; text-align:left; padding:.9rem 1rem; border-radius:12px;
-    background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(246,195,92,.03)); border:1px solid rgba(246,195,92,.35);
-    box-shadow:0 8px 20px -8px rgba(0,0,0,.5), inset 0 1px 0 rgba(246,195,92,.15);
-  }
-  .info-plaque-icon{ width:38px; height:38px; border-radius:10px; background:rgba(246,195,92,.14); border:1px solid rgba(246,195,92,.35); display:flex; align-items:center; justify-content:center; color:var(--ember-bright); flex-shrink:0; }
-  .info-plaque-eyebrow{ display:block; font-family:var(--font-mono); font-size:.56rem; letter-spacing:.16em; text-transform:uppercase; color:var(--ember-dim); margin-bottom:.15rem; }
-  .info-plaque-title{ font-family:var(--font-serif); font-size:.98rem; color:var(--text); font-weight:600; }
-  .info-sentence-box{
-    position:relative; z-index:1; max-width:36em; margin:0 auto 1.8rem; padding:1rem 1.2rem; border-radius:14px;
-    background:rgba(246,195,92,.06); border:1px solid rgba(246,195,92,.22);
-  }
-  .info-security-sentence{ color:var(--text); line-height:1.7; font-size:1rem; margin:0; }
-  .info-security-sentence strong{ color:var(--ember-bright); font-weight:600; }
-  .info-attr-grid{ position:relative; z-index:1; display:grid; grid-template-columns:1fr; gap:.8rem; max-width:48em; margin:0 auto 1.8rem; text-align:left; }
-  @media (min-width:640px){ .info-attr-grid{ grid-template-columns:1fr 1fr; } }
-  @media (min-width:960px){ .info-attr-grid{ grid-template-columns:repeat(4,1fr); } }
-  .info-attr-card{ padding:.9rem 1rem; border-radius:12px; background:rgba(10,14,22,.6); border:1px solid var(--border-solid); transition:border-color .2s var(--ease); }
-  .info-attr-card:hover{ border-color:var(--ember-dim); }
-  .info-attr-head{ display:flex; align-items:center; justify-content:space-between; font-family:var(--font-mono); font-size:.58rem; letter-spacing:.16em; text-transform:uppercase; color:var(--ember-bright); margin-bottom:.5rem; }
-  .info-attr-head svg{ color:var(--ember-dim); }
-  .info-attr-title{ font-family:var(--font-serif); font-size:.9rem; color:var(--text); font-weight:600; margin-bottom:.15rem; }
-  .info-attr-meta{ font-family:var(--font-mono); font-size:.62rem; letter-spacing:.08em; color:var(--stone); }
-  .info-security-footer{
-    position:relative; z-index:1; display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:.6rem;
-    max-width:48em; margin:0 auto; padding-top:1.4rem; border-top:1px solid rgba(246,195,92,.2);
-    font-family:var(--font-mono); font-size:.68rem; letter-spacing:.06em; color:var(--ember-bright);
-  }
-  .info-security-footer span:first-child{ display:inline-flex; align-items:center; gap:.45rem; }
-  .info-security-footer-meta{ color:var(--stone); text-transform:uppercase; letter-spacing:.14em; font-size:.62rem; }
+  .info-legal-card-accent::after{ content:''; position:absolute; inset:6px; border:1px solid rgba(246,195,92,.2); border-radius:14px; pointer-events:none; }
+  .info-legal-card-accent h3{ display:flex; align-items:center; justify-content:space-between; gap:.5rem; }
+  .info-legal-card-accent h3 .dot{ width:7px; height:7px; border-radius:50%; background:var(--ember-bright); box-shadow:0 0 6px rgba(246,195,92,.7); flex-shrink:0; }
+  .info-legal-card-accent p{ color:var(--sand-light, var(--text)); }
+  .info-legal-card-accent .info-legal-card-foot{ border-top-color:rgba(246,195,92,.25); color:var(--ember-bright); }
 
-  /* Kapitel III: Die drei Säulen (asymmetrisch) */
-  .info-pillars{ position:relative; z-index:1; display:grid; grid-template-columns:1fr; gap:1.2rem; }
-  @media (min-width:960px){ .info-pillars{ grid-template-columns:7fr 5fr; } }
-  .info-pillar{
-    position:relative; overflow:hidden; border-radius:18px; border:1px solid var(--border-solid); padding:1.8rem;
-    background:linear-gradient(150deg, #151b27, #0e121b); transition:border-color .25s var(--ease);
-  }
-  .info-pillar:hover{ border-color:var(--ember-dim); }
-  .info-pillar-b{ border-color:rgba(246,195,92,.3); background:linear-gradient(160deg, #181f2f, #0e121b); }
-  .info-pillar-c{ grid-column:1 / -1; display:grid; grid-template-columns:1fr; gap:1.6rem; align-items:center; background:linear-gradient(120deg, #141a27, #121622); }
-  @media (min-width:760px){ .info-pillar-c{ grid-template-columns:auto 1fr; } }
-  .info-pillar-watermark{ position:absolute; right:-1.2rem; bottom:-1.2rem; width:130px; height:130px; color:rgba(246,195,92,.04); pointer-events:none; }
-  .info-pillar-head{ display:flex; align-items:center; justify-content:space-between; font-family:var(--font-mono); font-size:.6rem; letter-spacing:.16em; text-transform:uppercase; color:var(--ember-dim); margin-bottom:1.3rem; position:relative; z-index:1; }
-  .info-pillar-head-badge{ border:1px solid rgba(246,195,92,.3); border-radius:5px; padding:.15rem .5rem; color:var(--ember-bright); }
-  .info-pillar h3{ position:relative; z-index:1; font-family:var(--font-serif); font-weight:600; font-size:1.5rem; color:var(--text); text-transform:none; letter-spacing:0; border:none; padding:0; margin:0 0 .8rem; }
-  .info-pillar p{ position:relative; z-index:1; font-size:.88rem; color:var(--stone); line-height:1.65; margin:0 0 1.4rem; }
-  .info-pillar-footer{ position:relative; z-index:1; display:flex; align-items:center; justify-content:space-between; gap:.6rem; padding-top:1.2rem; border-top:1px solid var(--border-solid); font-family:var(--font-mono); font-size:.66rem; letter-spacing:.06em; color:var(--ember-bright); }
-  .info-pillar-footer-meta{ color:var(--stone); font-size:.62rem; }
-  .info-pillar-c-icon{
-    width:64px; height:64px; border-radius:50%; border:1px solid rgba(246,195,92,.4); background:rgba(246,195,92,.1);
-    display:flex; align-items:center; justify-content:center; color:var(--ember-bright); position:relative; z-index:1;
-    box-shadow:0 0 20px rgba(246,195,92,.15); margin:0 auto 1rem;
-  }
-  @media (min-width:760px){ .info-pillar-c-icon{ margin:0 0 1rem; } }
-  .info-pillar-c-col1{ text-align:center; border-bottom:1px solid var(--border-solid); padding-bottom:1.4rem; }
-  @media (min-width:760px){ .info-pillar-c-col1{ text-align:left; border-bottom:none; border-right:1px solid var(--border-solid); padding-bottom:0; padding-right:1.8rem; } }
-  .info-pillar-c-label{ display:block; font-family:var(--font-mono); font-size:.58rem; letter-spacing:.2em; text-transform:uppercase; color:var(--ember-bright); }
-  .info-pillar-c-tag{ display:block; font-family:var(--font-serif); font-style:italic; color:var(--text); margin-top:.2rem; }
-
-  .info-manifest-divider{ display:flex; align-items:center; justify-content:center; gap:1rem; margin-bottom:2rem; }
-  .info-manifest-divider span:not(.info-manifest-diamond){ height:1px; width:70px; background:linear-gradient(90deg, transparent, var(--border-solid)); }
-  .info-manifest-divider span:last-child:not(.info-manifest-diamond){ background:linear-gradient(270deg, transparent, var(--border-solid)); }
-  .info-manifest-diamond{ width:8px; height:8px; transform:rotate(45deg); border:1px solid var(--ember-dim); background:rgba(246,195,92,.16); }
+  /* Epilog */
   .info-manifest{
-    max-width:42em; margin:0 auto 2.4rem; text-align:center; padding:2.4rem 1.6rem;
-    background:linear-gradient(180deg, rgba(23,29,44,.6), rgba(18,22,34,.9)); border:1px solid var(--border-solid);
-    border-radius:20px; box-shadow:0 20px 45px -18px rgba(0,0,0,.6);
+    position:relative; max-width:42em; margin:0 auto; text-align:center; padding:1rem 1.6rem;
   }
-  @media (min-width:640px){ .info-manifest{ padding:3rem 3.2rem; } }
-  .info-manifest-eyebrow{ font-family:var(--font-mono); font-size:.65rem; text-transform:uppercase; letter-spacing:.28em; color:var(--ember-dim); margin:0 0 1.3rem; }
-  .info-manifest blockquote{ font-family:var(--font-serif); font-style:italic; font-weight:300; font-size:clamp(1.25rem,2.6vw,1.6rem); line-height:1.5; color:var(--text); margin:0 0 1.2rem; }
+  .info-manifest::before{
+    content:''; position:absolute; inset:-2rem -1rem; z-index:-1; pointer-events:none;
+    background:radial-gradient(ellipse, rgba(246,195,92,.12), transparent 72%);
+  }
+  .info-manifest-eyebrow{ font-family:var(--font-mono); font-size:.65rem; text-transform:uppercase; letter-spacing:.28em; color:var(--ember-bright); opacity:.85; margin:0 0 1.3rem; }
+  .info-manifest blockquote{ font-family:var(--font-serif); font-style:italic; font-weight:400; font-size:clamp(1.4rem,3vw,1.85rem); line-height:1.4; color:var(--text); margin:0 0 1.3rem; }
   .info-manifest-body{ color:var(--stone); line-height:1.7; margin:0; font-size:.92rem; }
-  .info-manifest-signature{ display:flex; align-items:center; justify-content:center; gap:.7rem; margin-top:1.6rem; padding-top:1.3rem; border-top:1px solid var(--border-solid); font-family:var(--font-mono); font-size:.72rem; color:var(--stone); text-transform:uppercase; letter-spacing:.08em; }
-  .info-manifest-signature span:first-child{ font-family:var(--font-serif); font-style:italic; color:var(--ember-bright); text-transform:none; letter-spacing:0; font-size:.9rem; }
+  .info-manifest-signature{ margin-top:1.4rem; padding-top:1.2rem; border-top:1px solid var(--border-solid); font-family:var(--font-mono); font-size:.72rem; color:var(--sand-light, var(--stone)); text-transform:uppercase; letter-spacing:.2em; }
 </style>
 </head>
 <body>
@@ -3639,12 +3668,17 @@
       <span class="page-motif" style="top:4%; left:2%; width:24px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M4 5.5C6 4.5 9 4.5 12 6c3-1.5 6-1.5 8-.5v13c-2-1-5-1-8 .5-3-1.5-6-1.5-8-.5V5.5Z"/><path d="M12 6v13"/></svg></span>
       <span class="page-motif" style="top:26%; right:6%; width:18px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 3l1.8 5.5L19 10l-5.2 1.5L12 17l-1.8-5.5L5 10l5.2-1.5L12 3Z"/></svg></span>
     </div>
-    <p class="page-eyebrow">Grammatik · 04</p>
-    <h2 class="page-title" style="margin-bottom:.6rem;">Regeln, klar erklärt</h2>
+    <div class="page-eyebrow-row"><span class="eyebrow-dot" aria-hidden="true"></span><p class="page-eyebrow">Grammatik · 04</p></div>
+    <h2 class="page-title" style="margin-bottom:.6rem;">Regeln, klar <em class="gold-shimmer" style="font-style:italic;">erklärt</em></h2>
     <p class="page-sub">Frag z.B. "Erklär mir die Vergangenheit" oder "Wie funktioniert der Konjunktiv?" — die KI erklärt Regeln, Beispiele und Ausnahmen.</p>
-    <form id="formGrammar" class="inline-form">
-      <input type="text" id="grammarQuestion" placeholder="Deine Frage …" required>
-      <button type="submit" class="btn btn-primary">Fragen</button>
+    <form id="formGrammar" class="grammar-query-box">
+      <div class="grammar-query-input-wrap">
+        <span class="auth-field-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path stroke-linecap="round" d="m21 21-4.3-4.3"/></svg></span>
+        <input type="text" id="grammarQuestion" placeholder="Deine Frage …" required>
+      </div>
+      <button type="submit" class="grammar-query-submit">Fragen
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
     </form>
     <div class="chip-row grammar-examples" id="grammarExamples">
       <button type="button" class="chip">Die Vergangenheit erklärt</button>
@@ -3729,120 +3763,174 @@
       <span class="page-motif" style="top:4%; left:3%; width:26px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="12" cy="12" r="3"/><path d="M12 3v2.4M12 18.6V21M4.9 4.9l1.7 1.7M17.4 17.4l1.7 1.7M3 12h2.4M18.6 12H21M4.9 19.1l1.7-1.7M17.4 6.6l1.7-1.7"/></svg></span>
       <span class="page-motif" style="top:22%; right:5%; width:20px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="7" cy="7" r="2.4"/><path d="M7 9.4V19M17 4v10.6M17 17a2.4 2.4 0 1 0 0 4.8 2.4 2.4 0 0 0 0-4.8Z"/></svg></span>
     </div>
-    <p class="page-eyebrow">Einstellungen · 07</p>
-    <h2 class="page-title" style="margin-bottom:.6rem;">Ganz nach dir</h2>
+    <div class="page-eyebrow-row"><span class="eyebrow-dot" aria-hidden="true"></span><p class="page-eyebrow">Einstellungen · 07</p></div>
+    <h2 class="page-title" style="margin-bottom:.6rem;">Ganz <em class="gold-shimmer" style="font-style:italic;">nach dir</em></h2>
     <p class="page-sub">Lernziele, Ton, Erinnerungen und Design nach deinem Geschmack.</p>
 
-    <div class="settings-card">
-      <p class="settings-title">☁️ Konto &amp; Cloud-Sync</p>
-      <p class="settings-desc" id="accountStatusText">Nicht angemeldet — deine Daten bleiben nur auf diesem Gerät.</p>
-      <div class="btn-group">
-        <button type="button" class="btn btn-secondary" id="btnAccountSettings">Konto öffnen</button>
+    <div class="settings-cluster">
+      <div class="settings-cluster-head"><span class="rubrik">Rubrik I</span><h2>Konto &amp; Lernen</h2></div>
+      <div class="settings-grid cols-2">
+        <div class="settings-card">
+          <div class="settings-card-head">
+            <span class="settings-card-icon"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.5 19a4.5 4.5 0 0 0 0-9 6 6 0 0 0-11.4-1.7A5 5 0 0 0 6.5 19h11Z"/><path d="M9 15l3-3 3 3M12 12v7"/></svg></span>
+            <div>
+              <p class="settings-title">Konto &amp; Cloud-Sync</p>
+              <p class="settings-card-status"><span class="dot"></span>Lokal aktiv</p>
+            </div>
+          </div>
+          <p class="settings-desc" id="accountStatusText">Nicht angemeldet — deine Daten bleiben nur auf diesem Gerät.</p>
+          <div class="btn-group">
+            <button type="button" class="btn btn-secondary" id="btnAccountSettings">Konto öffnen</button>
+          </div>
+        </div>
+
+        <div class="settings-card">
+          <div class="settings-card-head">
+            <span class="settings-card-icon"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="2.2" fill="currentColor" stroke="none"/></svg></span>
+            <p class="settings-title">Tagesziel</p>
+          </div>
+          <p class="settings-desc">Wie viele Vokabeln möchtest du pro Tag üben?</p>
+          <div class="chip-row" id="dailyGoalChips">
+            <button type="button" class="chip" data-goal="10">10 / Tag</button>
+            <button type="button" class="chip" data-goal="20">20 / Tag</button>
+            <button type="button" class="chip" data-goal="50">50 / Tag</button>
+          </div>
+          <div class="goal-progress">
+            <div class="goal-progress-track"><div class="goal-progress-fill" id="goalProgressFill" style="width:0%"></div></div>
+            <p class="goal-progress-label" id="goalProgressLabel">0 / 20 heute geübt</p>
+          </div>
+        </div>
       </div>
     </div>
 
-    <div class="settings-card">
-      <p class="settings-title">🎯 Tagesziel</p>
-      <p class="settings-desc">Wie viele Vokabeln möchtest du pro Tag üben?</p>
-      <div class="chip-row" id="dailyGoalChips">
-        <button type="button" class="chip" data-goal="10">10 / Tag</button>
-        <button type="button" class="chip" data-goal="20">20 / Tag</button>
-        <button type="button" class="chip" data-goal="50">50 / Tag</button>
-      </div>
-      <div class="goal-progress">
-        <div class="goal-progress-track"><div class="goal-progress-fill" id="goalProgressFill" style="width:0%"></div></div>
-        <p class="goal-progress-label" id="goalProgressLabel">0 / 20 heute geübt</p>
+    <div class="settings-cluster">
+      <div class="settings-cluster-head"><span class="rubrik">Rubrik II</span><h2>Ton &amp; Sprache</h2></div>
+      <div class="settings-grid cols-2">
+        <div class="settings-card">
+          <div class="settings-card-head">
+            <span class="settings-card-icon"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9.5v5h3.5L13 19V5L7.5 9.5H4Z"/><path d="M17 8.5a5 5 0 0 1 0 7"/></svg></span>
+            <p class="settings-title">Lautstärke (Soundeffekte)</p>
+          </div>
+          <p class="settings-desc">Steuert Klick-, Erfolgs- und Fehler-Töne im Übungsmodus.</p>
+          <div class="volume-row">
+            <button class="vol-btn" id="volBtn" type="button" aria-label="Stummschalten">
+              <svg class="icon-vol-on" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5v5h3.5L13 19V5L7.5 9.5H4Z"/><path d="M17 8.5a5 5 0 0 1 0 7"/><path d="M19.7 6a9 9 0 0 1 0 12"/></svg>
+              <svg class="icon-vol-off" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5v5h3.5L13 19V5L7.5 9.5H4Z"/><path d="M16.5 9.5l5 5M21.5 9.5l-5 5"/></svg>
+            </button>
+            <input type="range" id="volumeSlider" class="volume-slider" min="0" max="100" value="70" aria-label="Lautstärke">
+          </div>
+        </div>
+
+        <div class="settings-card">
+          <div class="settings-card-head">
+            <span class="settings-card-icon"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M6 11a6 6 0 0 0 12 0M12 17v4M9 21h6"/></svg></span>
+            <p class="settings-title">Sprachausgabe &amp; Aussprache-Trainer</p>
+          </div>
+          <p class="settings-desc">Lautstärke, Geschwindigkeit und Verhalten der Vorlese-Stimme.</p>
+          <label class="settings-row-label" for="ttsVolumeSlider">Lautstärke</label>
+          <div class="volume-row">
+            <input type="range" id="ttsVolumeSlider" class="volume-slider" min="0" max="100" value="100" aria-label="Sprachausgabe-Lautstärke">
+          </div>
+          <p class="settings-row-label">Sprechgeschwindigkeit (Empfindlichkeit Aussprache-Trainer)</p>
+          <div class="chip-row" id="speechRateChips">
+            <button type="button" class="chip" data-rate="slow">🐢 Langsam</button>
+            <button type="button" class="chip" data-rate="normal">Normal</button>
+            <button type="button" class="chip" data-rate="fast">🐇 Schnell</button>
+          </div>
+          <label class="settings-toggle-row" for="autoPlayFlashcard">
+            <span>Antwort beim Umdrehen der Karteikarte automatisch vorlesen</span>
+            <input type="checkbox" id="autoPlayFlashcard" class="settings-switch">
+          </label>
+        </div>
       </div>
     </div>
 
-    <div class="settings-card">
-      <p class="settings-title">Lautstärke (Soundeffekte)</p>
-      <p class="settings-desc">Steuert Klick-, Erfolgs- und Fehler-Töne im Übungsmodus.</p>
-      <div class="volume-row">
-        <button class="vol-btn" id="volBtn" type="button" aria-label="Stummschalten">
-          <svg class="icon-vol-on" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5v5h3.5L13 19V5L7.5 9.5H4Z"/><path d="M17 8.5a5 5 0 0 1 0 7"/><path d="M19.7 6a9 9 0 0 1 0 12"/></svg>
-          <svg class="icon-vol-off" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5v5h3.5L13 19V5L7.5 9.5H4Z"/><path d="M16.5 9.5l5 5M21.5 9.5l-5 5"/></svg>
-        </button>
-        <input type="range" id="volumeSlider" class="volume-slider" min="0" max="100" value="70" aria-label="Lautstärke">
+    <div class="settings-cluster">
+      <div class="settings-cluster-head"><span class="rubrik">Rubrik III</span><h2>Erinnerungen</h2></div>
+      <div class="settings-card">
+        <div class="settings-card-head">
+          <span class="settings-card-icon"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg></span>
+          <p class="settings-title">Erinnerungen &amp; Benachrichtigungen</p>
+        </div>
+        <p class="settings-desc">Wann und wie du an bevorstehende Klausuren erinnert werden möchtest.</p>
+        <p class="settings-row-label">Vorlaufzeit für Erinnerungen</p>
+        <div class="chip-row" id="reminderLeadChips">
+          <button type="button" class="chip" data-lead="7">7 Tage</button>
+          <button type="button" class="chip" data-lead="3">3 Tage</button>
+          <button type="button" class="chip" data-lead="1">1 Tag</button>
+        </div>
+        <label class="settings-toggle-row" for="inSiteBannerToggle">
+          <span>Hinweis-Banner auf der Startseite</span>
+          <input type="checkbox" id="inSiteBannerToggle" class="settings-switch">
+        </label>
+        <label class="settings-toggle-row" for="browserNotifToggle">
+          <span>Browser-Benachrichtigungen</span>
+          <input type="checkbox" id="browserNotifToggle" class="settings-switch">
+        </label>
+        <p class="settings-note" id="notifNote">Funktioniert, solange diese Seite im Browser geöffnet ist.</p>
       </div>
     </div>
 
-    <div class="settings-card">
-      <p class="settings-title">🔊 Sprachausgabe &amp; Aussprache-Trainer</p>
-      <p class="settings-desc">Lautstärke, Geschwindigkeit und Verhalten der Vorlese-Stimme.</p>
-      <label class="settings-row-label" for="ttsVolumeSlider">Lautstärke</label>
-      <div class="volume-row">
-        <input type="range" id="ttsVolumeSlider" class="volume-slider" min="0" max="100" value="100" aria-label="Sprachausgabe-Lautstärke">
-      </div>
-      <p class="settings-row-label">Sprechgeschwindigkeit (Empfindlichkeit Aussprache-Trainer)</p>
-      <div class="chip-row" id="speechRateChips">
-        <button type="button" class="chip" data-rate="slow">🐢 Langsam</button>
-        <button type="button" class="chip" data-rate="normal">Normal</button>
-        <button type="button" class="chip" data-rate="fast">🐇 Schnell</button>
-      </div>
-      <label class="settings-toggle-row" for="autoPlayFlashcard">
-        <span>Antwort beim Umdrehen der Karteikarte automatisch vorlesen</span>
-        <input type="checkbox" id="autoPlayFlashcard" class="settings-switch">
-      </label>
-    </div>
-
-    <div class="settings-card">
-      <p class="settings-title">🔔 Erinnerungen &amp; Benachrichtigungen</p>
-      <p class="settings-desc">Wann und wie du an bevorstehende Klausuren erinnert werden möchtest.</p>
-      <p class="settings-row-label">Vorlaufzeit für Erinnerungen</p>
-      <div class="chip-row" id="reminderLeadChips">
-        <button type="button" class="chip" data-lead="7">7 Tage</button>
-        <button type="button" class="chip" data-lead="3">3 Tage</button>
-        <button type="button" class="chip" data-lead="1">1 Tag</button>
-      </div>
-      <label class="settings-toggle-row" for="inSiteBannerToggle">
-        <span>Hinweis-Banner auf der Startseite</span>
-        <input type="checkbox" id="inSiteBannerToggle" class="settings-switch">
-      </label>
-      <label class="settings-toggle-row" for="browserNotifToggle">
-        <span>Browser-Benachrichtigungen</span>
-        <input type="checkbox" id="browserNotifToggle" class="settings-switch">
-      </label>
-      <p class="settings-note" id="notifNote">Funktioniert, solange diese Seite im Browser geöffnet ist.</p>
-    </div>
-
-    <div class="settings-card">
-      <p class="settings-title">✨ Darstellung</p>
-      <p class="settings-desc">Leuchteffekte, Bewegung und Textgröße feinjustieren.</p>
-      <label class="settings-row-label" for="glowSlider">Glow-Intensität der Türkis-Akzente</label>
-      <div class="volume-row">
-        <input type="range" id="glowSlider" min="60" max="140" value="100" class="volume-slider" aria-label="Glow-Intensität">
-        <span class="glow-preview" id="glowPreview" aria-hidden="true"></span>
-      </div>
-      <label class="settings-toggle-row" for="reducedMotionToggle">
-        <span>Reduzierte Animationen (Performance-Modus)</span>
-        <input type="checkbox" id="reducedMotionToggle" class="settings-switch">
-      </label>
-      <p class="settings-row-label">Schriftgröße &amp; Dichte</p>
-      <div class="chip-row" id="fontScaleChips">
-        <button type="button" class="chip" data-scale="small">Kompakt</button>
-        <button type="button" class="chip" data-scale="normal">Standard</button>
-        <button type="button" class="chip" data-scale="large">Groß</button>
+    <div class="settings-cluster">
+      <div class="settings-cluster-head"><span class="rubrik">Rubrik IV</span><h2>Darstellung</h2></div>
+      <div class="settings-card">
+        <div class="settings-card-head">
+          <span class="settings-card-icon"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v2.4M12 18.6V21M4.9 4.9l1.7 1.7M17.4 17.4l1.7 1.7M3 12h2.4M18.6 12H21M4.9 19.1l1.7-1.7M17.4 6.6l1.7-1.7"/><circle cx="12" cy="12" r="3"/></svg></span>
+          <p class="settings-title">Darstellung</p>
+        </div>
+        <p class="settings-desc">Leuchteffekte, Bewegung und Textgröße feinjustieren.</p>
+        <label class="settings-row-label" for="glowSlider">Glow-Intensität der Gold-Akzente</label>
+        <div class="volume-row">
+          <input type="range" id="glowSlider" min="60" max="140" value="100" class="volume-slider" aria-label="Glow-Intensität">
+          <span class="glow-preview" id="glowPreview" aria-hidden="true"></span>
+        </div>
+        <label class="settings-toggle-row" for="reducedMotionToggle">
+          <span>Reduzierte Animationen (Performance-Modus)</span>
+          <input type="checkbox" id="reducedMotionToggle" class="settings-switch">
+        </label>
+        <p class="settings-row-label">Schriftgröße &amp; Dichte</p>
+        <div class="chip-row" id="fontScaleChips">
+          <button type="button" class="chip" data-scale="small">Kompakt</button>
+          <button type="button" class="chip" data-scale="normal">Standard</button>
+          <button type="button" class="chip" data-scale="large">Groß</button>
+        </div>
       </div>
     </div>
 
-    <div class="settings-card">
-      <p class="settings-title">💾 Daten-Management</p>
-      <p class="settings-desc">Lernfortschritt zurücksetzen oder alle Lern- &amp; Kalenderdaten sichern.</p>
-      <div class="btn-group">
-        <button type="button" class="btn btn-secondary" id="btnExportAll">⬇ Alles exportieren</button>
-        <button type="button" class="btn btn-secondary" id="btnImportAll">⬆ Importieren</button>
-        <button type="button" class="btn btn-danger" id="btnResetProgress">Fortschritt zurücksetzen</button>
+    <div class="settings-cluster">
+      <div class="settings-cluster-head"><span class="rubrik">Rubrik V</span><h2>Daten &amp; Zugriff</h2></div>
+      <div class="settings-grid cols-8-4">
+        <div class="settings-card">
+          <div class="settings-card-head">
+            <span class="settings-card-icon"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v6c0 1.66 3.58 3 8 3s8-1.34 8-3V5M4 11v6c0 1.66 3.58 3 8 3s8-1.34 8-3v-6"/></svg></span>
+            <p class="settings-title">Daten-Management</p>
+          </div>
+          <p class="settings-desc">Lernfortschritt zurücksetzen oder alle Lern- &amp; Kalenderdaten sichern.</p>
+          <div class="btn-group">
+            <button type="button" class="btn btn-secondary" id="btnExportAll">⬇ Alles exportieren</button>
+            <button type="button" class="btn btn-secondary" id="btnImportAll">⬆ Importieren</button>
+            <button type="button" class="btn btn-danger" id="btnResetProgress">Fortschritt zurücksetzen</button>
+          </div>
+          <input type="file" id="importAllFile" accept="application/json" hidden>
+        </div>
+
+        <div class="settings-card">
+          <div class="settings-card-head">
+            <span class="settings-card-icon"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="15" r="4.5"/><path d="M11.5 12 20 3.5M17 6l2.5 2.5M14 9l2 2"/></svg></span>
+            <p class="settings-title">Erweiterter Zugriff</p>
+          </div>
+          <p class="settings-desc">Nur relevant für Betreiber dieser Seite.</p>
+          <div class="btn-group">
+            <button type="button" class="btn btn-secondary btn-small" id="btnAdminUnlock">Code eingeben</button>
+          </div>
+        </div>
       </div>
-      <input type="file" id="importAllFile" accept="application/json" hidden>
     </div>
 
-    <div class="settings-card">
-      <p class="settings-title">🔐 Erweiterter Zugriff</p>
-      <p class="settings-desc">Nur relevant für Betreiber dieser Seite.</p>
-      <div class="btn-group">
-        <button type="button" class="btn btn-secondary btn-small" id="btnAdminUnlock">Code eingeben</button>
-      </div>
+    <div class="settings-signature">
+      <span class="settings-signature-rule"></span>
+      <span class="settings-signature-text">Lumière Nocturne · Système Lexical</span>
+      <span class="settings-signature-quote">« La clarté dans la pénombre »</span>
     </div>
   </section>
 
@@ -3927,6 +4015,10 @@
               <span class="dl-phone-speak">🔊</span>
               <div class="dl-phone-divider"></div>
               <p class="dl-phone-de">das ziellose, genussvolle Umherschweifen</p>
+              <div class="dl-phone-mastery">
+                <div class="dl-phone-mastery-row"><span>Meisterschaft</span><span>78%</span></div>
+                <div class="dl-phone-mastery-track"><div class="dl-phone-mastery-fill"></div></div>
+              </div>
             </div>
             <div class="dl-phone-progress"><div class="dl-phone-progress-fill"></div></div>
           </div>
@@ -3948,7 +4040,8 @@
           <h3>Ein Fingertipp entfernt</h3>
           <p>Startet direkt vom Homescreen im vollen Format — ohne Adressleiste, ohne Browser-Menüs.</p>
         </div>
-        <div class="dl-feature-card">
+        <div class="dl-feature-card dl-feature-card-accent">
+          <span class="dl-feature-card-tag">Direktzugang</span>
           <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="var(--ember-bright)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z"/></svg>
           <h3>Kein App Store nötig</h3>
           <p>Kein Download, keine Berechtigungsfragen, kein Passwort. In Sekunden einsatzbereit.</p>
@@ -4022,150 +4115,123 @@
   </section>
 
   <section id="view-about" class="view info-view" hidden>
-    <div class="info-chapter">
-      <div class="info-chapter-bar">
-        <span><strong>I.</strong>Archiv des Nächtlichen Lexikons · Dossier N° 04</span>
-        <span class="info-chapter-bar-meta">Streng nicht-kommerziell · Faszikel I</span>
-      </div>
-      <div class="info-ch1-grid">
-        <span class="info-watermark" aria-hidden="true">I</span>
-        <div class="info-hero">
-          <span class="dl-eyebrow-badge dl-eyebrow-badge-static"><span class="dl-pulse-dot"></span>Kapitel I · Genese &amp; Intentio</span>
-          <h1 class="info-hero-title">Ein Projekt aus <em>Leidenschaft</em>.</h1>
-          <p class="info-hero-sub">Lumière entstand aus der Begeisterung für die französische Sprache, zeitlose Typografie und ruhiges, ungestörtes Lernen. Diese Seite gibt transparenten Einblick in Zweck, Urheberschaft und den technischen Schutz unseres Vorhabens.</p>
-        </div>
-        <div class="info-marginalia">
-          <div class="info-stamp">
-            <div class="info-stamp-head"><span>Stempel · Offiziell</span><span>2025</span></div>
-            <div class="info-stamp-title">Coll. Privée</div>
-            <div class="info-stamp-sub">Bilinguisme expérimental</div>
-          </div>
-          <div class="info-coords">
-            <div class="info-coord-row"><span>Achse · Lernende</span><span>Paris 48.85°N</span></div>
-            <div class="info-coord-row"><span>Ursprung d. Projekts</span><span>Berlin 52.52°N</span></div>
-            <p>Gedacht als stilles Refugium für den Erwerb von Vokabular und linguistischen Feinheiten — jenseits algorithmischer Zerstreuung.</p>
-          </div>
-        </div>
-      </div>
-    </div>
+    <header class="info-hero">
+      <div class="page-eyebrow-row info-hero-row"><span class="eyebrow-dot" aria-hidden="true"></span><p class="page-eyebrow">Über uns · 09</p></div>
+      <h1 class="info-hero-title">Ein Projekt aus <em class="gold-shimmer">Leidenschaft</em>.</h1>
+      <p class="info-hero-sub">Lumière entstand aus der Begeisterung für die französische Sprache, zeitlose Typografie und ruhiges, ungestörtes Lernen. Diese Seite gibt transparenten Einblick in Zweck, Urheberschaft und technischen Schutz.</p>
+    </header>
 
-    <div class="info-chapter">
-      <div class="info-chapter-bar">
-        <span><strong>II.</strong>Protocole de Sécurité &amp; Intégrité</span>
-        <span class="info-chapter-bar-meta">Pièce maîtresse · Klasse A</span>
-      </div>
-      <div class="info-security">
-        <div class="info-security-glow" aria-hidden="true"></div>
-        <div class="info-cert-label"><span></span><span class="info-cert-text">Zertifikat für Integrität &amp; elektronischen Schutz</span><span></span></div>
-        <span class="info-status-badge"><span class="info-status-ping"><span></span><span></span></span>Aktiv gesichert · Echtzeit-Schutz</span>
+    <hr class="info-hairline">
 
-        <div class="info-seal">
-          <div class="info-seal-halo" aria-hidden="true"></div>
-          <div class="info-seal-ring" aria-hidden="true">
-            <svg viewBox="0 0 200 200" width="168" height="168">
-              <defs><path d="M 100, 100 m -78, 0 a 78,78 0 1,1 156,0 a 78,78 0 1,1 -156,0" id="infoSealPath"/></defs>
-              <text fill="#f6c35c" font-family="'JetBrains Mono', monospace" font-size="7.2" letter-spacing="3" opacity=".85">
-                <textPath href="#infoSealPath" startOffset="0%">PROTECTIO ET INTEGRITAS · CLOUDFLARE SHIELD · PACKETS-DECREASER GUARD · 2025 ·</textPath>
-              </text>
-            </svg>
+    <section class="info-security-section">
+      <div class="info-security-intro">
+        <div class="page-eyebrow-row" style="justify-content:center;"><span class="eyebrow-dot" aria-hidden="true"></span><p class="page-eyebrow" style="margin:0;">Security Operations</p></div>
+        <p>Diese Website wird aktiv durch Cloudflare und einen zusätzlichen Angriffsschutz gegen Missbrauch abgesichert.</p>
+      </div>
+
+      <div class="info-security-panel">
+        <div class="info-panel-head">
+          <div class="info-panel-head-left">
+            <span class="info-panel-head-label">System Status</span>
+            <span class="info-panel-head-sep">/</span>
+            <span class="info-panel-status"><span class="info-panel-status-dot"></span>Aktiv · Echtzeit-Überwachung</span>
           </div>
-          <div class="info-seal-ring-line" aria-hidden="true"></div>
-          <div class="info-seal-ring-line-2" aria-hidden="true"></div>
-          <div class="info-seal-core">
-            <div class="info-seal-core-inner">
-              <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 12.75 11.25 15 15 9.75"/><path d="M21 12c0 1.27-.63 2.39-1.59 3.07a3.75 3.75 0 0 1-4.34 4.34A3.75 3.75 0 0 1 12 21a3.75 3.75 0 0 1-3.07-1.59 3.75 3.75 0 0 1-4.34-4.34A3.75 3.75 0 0 1 3 12c0-1.27.63-2.39 1.59-3.07a3.75 3.75 0 0 1 4.34-4.34A3.75 3.75 0 0 1 12 3c1.27 0 2.39.63 3.07 1.59a3.75 3.75 0 0 1 4.34 4.34A3.75 3.75 0 0 1 21 12Z"/></svg>
+          <div class="info-panel-head-right">
+            <span>Letzter Scan: <span style="color:var(--sand-light, var(--text));">Just now</span></span>
+            <span>Shield-ID #4471</span>
+          </div>
+        </div>
+        <div class="info-panel-rows">
+          <div class="info-panel-row">
+            <div class="info-panel-row-left">
+              <span class="info-panel-row-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span>
+              <div><p class="info-panel-row-title">SSL/TLS-Verschlüsselung</p><p class="info-panel-row-desc">End-to-End Handshake &amp; Transportabsicherung aller Übertragungen</p></div>
+            </div>
+            <div class="info-panel-row-right">
+              <span class="info-panel-tag">TLS 1.3 · AES-256</span>
+              <span class="info-panel-enabled"><span class="dot"></span>Enabled</span>
+            </div>
+          </div>
+          <div class="info-panel-row">
+            <div class="info-panel-row-left">
+              <span class="info-panel-row-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/></svg></span>
+              <div><p class="info-panel-row-title">DDoS-Schutz</p><p class="info-panel-row-desc">Edge Global Scrubbing über verteiltes Anycast-Netzwerk</p></div>
+            </div>
+            <div class="info-panel-row-right">
+              <span class="info-panel-tag">L3/L4 &amp; L7 Mitigation</span>
+              <span class="info-panel-enabled"><span class="dot"></span>Enabled</span>
+            </div>
+          </div>
+          <div class="info-panel-row">
+            <div class="info-panel-row-left">
+              <span class="info-panel-row-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg></span>
+              <div><p class="info-panel-row-title">Bot- &amp; Rate-Limiting</p><p class="info-panel-row-desc">Präventiver Filter gegen unautorisierte Anfragespitzen und Crawler</p></div>
+            </div>
+            <div class="info-panel-row-right">
+              <span class="info-panel-tag">Adaptive Threshold</span>
+              <span class="info-panel-enabled"><span class="dot"></span>Enabled</span>
+            </div>
+          </div>
+          <div class="info-panel-row">
+            <div class="info-panel-row-left">
+              <span class="info-panel-row-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z"/></svg></span>
+              <div><p class="info-panel-row-title">Automatische Bedrohungsabwehr</p><p class="info-panel-row-desc">Heuristische Inspektion anomaler Zugriffsmuster in Echtzeit</p></div>
+            </div>
+            <div class="info-panel-row-right">
+              <span class="info-panel-tag">Heuristic Pattern Match</span>
+              <span class="info-panel-enabled"><span class="dot"></span>Enabled</span>
             </div>
           </div>
         </div>
-
-        <h2 class="info-security-title">Geschützt durch <span class="gold-shimmer">Cloudflare</span> &amp; <span class="gold-shimmer">Packets-Decreaser</span></h2>
-
-        <div class="info-plaques">
-          <span class="info-plaque">
-            <span class="info-plaque-icon"><svg viewBox="0 0 24 24" width="17" height="17" fill="currentColor" aria-hidden="true"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96Z"/></svg></span>
-            <span><span class="info-plaque-eyebrow">Edge Deployment &amp; DDoS Shield</span><span class="info-plaque-title">Cloudflare CDN</span></span>
-          </span>
-          <span class="info-plaque">
-            <span class="info-plaque-icon"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg></span>
-            <span><span class="info-plaque-eyebrow">Kernel Packet Defense</span><span class="info-plaque-title">Packets-Decreaser Guard</span></span>
-          </span>
-        </div>
-
-        <div class="info-sentence-box">
-          <p class="info-security-sentence">Diese Website wird aktiv durch <strong>Cloudflare</strong> und <strong>Packets-Decreaser</strong> gegen Angriffe und Missbrauch geschützt.</p>
-        </div>
-
-        <div class="info-attr-grid">
-          <div class="info-attr-card">
-            <div class="info-attr-head"><span>01 · Kryptografie</span><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></div>
-            <div class="info-attr-title">SSL/TLS-Verschlüsselung</div>
-            <div class="info-attr-meta">End-to-End Handshake</div>
+        <div class="info-panel-foot">
+          <div class="info-panel-foot-metrics">
+            <span>Uptime <strong>99.98 %</strong></span>
+            <span class="sep">·</span>
+            <span>Latenz <strong>12 ms</strong></span>
+            <span class="sep">·</span>
+            <span>Edge-Knoten: <strong>300+</strong></span>
           </div>
-          <div class="info-attr-card">
-            <div class="info-attr-head"><span>02 · Mitigation</span><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/></svg></div>
-            <div class="info-attr-title">DDoS-Schutz</div>
-            <div class="info-attr-meta">Edge Global Scrubbing</div>
-          </div>
-          <div class="info-attr-card">
-            <div class="info-attr-head"><span>03 · Limitierung</span><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg></div>
-            <div class="info-attr-title">Bot- &amp; Rate-Limiting</div>
-            <div class="info-attr-meta">Präventiver Filter</div>
-          </div>
-          <div class="info-attr-card">
-            <div class="info-attr-head"><span>04 · Abwehr</span><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z"/></svg></div>
-            <div class="info-attr-title">Automatische Bedrohungsabwehr</div>
-            <div class="info-attr-meta">Heuristische Inspektion</div>
-          </div>
-        </div>
-
-        <div class="info-security-footer">
-          <span><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 12l2 2 4-4"/><path d="M21 12c0 5.59-3.82 10.29-9 11.62C6.82 22.29 3 17.59 3 12A12 12 0 0 1 12 2.94 12 12 0 0 1 21 9c0 1.04-.13 2.05-.38 3.02"/></svg>Verifiziertes System · Edge-Audited 2025</span>
-          <span class="info-security-footer-meta">Höchste Integritätsstufe · Protocol 1.4-Sec</span>
+          <div class="info-panel-foot-tag">Zero-Trust-Architektur</div>
         </div>
       </div>
-    </div>
+    </section>
 
-    <div class="info-chapter">
-      <div class="info-chapter-bar">
-        <span><strong>III.</strong>Dispositions Particulières · Drei Säulen</span>
-        <span class="info-chapter-bar-meta">✦ ❖ ✦</span>
-      </div>
-      <div class="info-pillars">
-        <div class="info-pillar info-pillar-a">
-          <svg class="info-pillar-watermark" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C9.24 2 7 4.24 7 7v3H6c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2v-8c0-1.1-.9-2-2-2h-1V7c0-2.76-2.24-5-5-5Zm-3 5c0-1.65 1.35-3 3-3s3 1.35 3 3v3H9V7Z"/></svg>
-          <div class="info-pillar-head"><span><span class="info-card-dot" style="display:inline-block; width:5px; height:5px; border-radius:50%; background:var(--ember-dim); margin-right:.4rem;"></span>Säule III.1 · Clause Restreinte</span><span class="info-pillar-head-badge">Status: Intern</span></div>
-          <h3>Kein öffentliches Projekt</h3>
-          <p>Diese Website ist aktuell nicht für die breite Öffentlichkeit gedacht. Sie dient dem internen Austausch, dem persönlichen Sprachstudium und ausgewählten Testläufen im geschlossenen Kreis.</p>
-          <div class="info-pillar-footer"><span>● Zugriff nur für autorisierte Personen</span><span class="info-pillar-footer-meta">Verr-01</span></div>
-        </div>
-        <div class="info-pillar info-pillar-b">
-          <div class="info-pillar-head"><span>Säule III.2 · Propriété</span><span class="info-pillar-footer-meta">Manuscrit</span></div>
-          <h3>Alle Rechte beim Eigentümer</h3>
-          <p>Sämtliche Inhalte, kuratierte Wortlisten, grafische Entwürfe, Markenelemente und der Quellcode gehören vollumfänglich dem Betreiber. Weiternutzung bedarf ausdrücklicher Genehmigung.</p>
-          <div class="info-pillar-footer"><span>Originalinhalte · Édition 2025</span><span style="width:8px; height:8px; transform:rotate(45deg); background:rgba(246,195,92,.4); display:inline-block;"></span></div>
-        </div>
-        <div class="info-pillar info-pillar-c">
-          <div class="info-pillar-c-col1">
-            <div class="info-pillar-c-icon"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 14 21 9l-9-5-9 5 9 5Z"/><path d="M12 14l6.16-3.42a12 12 0 0 1 .67 6.48A12 12 0 0 0 12 20.06a12 12 0 0 0-6.82-3 12 12 0 0 1 .66-6.48L12 14Z"/><path d="M12 14v7"/></svg></div>
-            <span class="info-pillar-c-label">Säule III.3</span>
-            <span class="info-pillar-c-tag">Éducation Humaniste</span>
-          </div>
+    <hr class="info-hairline">
+
+    <section>
+      <p class="info-legal-eyebrow">Grundsätze &amp; Rechte</p>
+      <div class="info-legal-grid">
+        <div class="info-legal-card">
           <div>
-            <div style="font-family:var(--font-mono); font-size:.6rem; letter-spacing:.2em; text-transform:uppercase; color:var(--stone); margin-bottom:.6rem;">Genese · Bildungsprojekt · <span style="color:var(--ember-bright);">Non-lucratif</span></div>
-            <h3>Ein Schülerprojekt</h3>
-            <p>Entstanden als persönliches Lernprojekt, nicht als kommerzielles Produkt. Es verbindet moderne Webtechnologien mit humanistischer Freude am bilingualen Wortschatz zwischen Berlin und Paris.</p>
-            <div style="display:flex; align-items:center; gap:.5rem; font-family:var(--font-mono); font-size:.68rem; color:var(--ember-bright); letter-spacing:.06em;"><span class="info-card-dot" style="display:inline-block; width:5px; height:5px; border-radius:50%; background:var(--ember-bright);"></span>Reines Bildungsprojekt · Keine Monetarisierung</div>
+            <h3>Kein öffentliches Projekt</h3>
+            <p>Diese Website ist aktuell nicht für die breite Öffentlichkeit gedacht, sondern für internen Austausch, persönliches Sprachstudium und ausgewählte Testläufe.</p>
           </div>
+          <div class="info-legal-card-foot">Interner Kreis</div>
+        </div>
+        <div class="info-legal-card">
+          <div>
+            <h3>Alle Rechte beim Eigentümer</h3>
+            <p>Inhalte, Wortlisten, Gestaltung und Quellcode gehören vollständig dem Betreiber. Weiternutzung bedarf ausdrücklicher Genehmigung.</p>
+          </div>
+          <div class="info-legal-card-foot">Urheberrechtlich geschützt</div>
+        </div>
+        <div class="info-legal-card info-legal-card-accent">
+          <div>
+            <h3>Ein Schülerprojekt<span class="dot" aria-hidden="true"></span></h3>
+            <p>Entstanden als persönliches, nicht-kommerzielles Lernprojekt zwischen Berlin und Paris — reine Bildung, keine Monetarisierung.</p>
+          </div>
+          <div class="info-legal-card-foot">Non-Kommerziell · Passion</div>
         </div>
       </div>
-    </div>
+    </section>
 
-    <div class="info-manifest-divider" aria-hidden="true"><span></span><span class="info-manifest-diamond"></span><span></span></div>
+    <hr class="info-hairline">
+
     <div class="info-manifest">
-      <p class="info-manifest-eyebrow">Epilogus · Zweck &amp; Motivation</p>
-      <blockquote>„Gute Software und lebendige Sprache verlangen dieselbe Tugend: Achtsamkeit für jedes einzelne Detail.“</blockquote>
+      <p class="info-manifest-eyebrow">Epilog · Zweck &amp; Motivation</p>
+      <blockquote>„Gute Software und lebendige Sprache verlangen dieselbe Tugend: <span class="gold-shimmer" style="font-style:normal;">Achtsamkeit</span> für jedes einzelne Detail.“</blockquote>
       <p class="info-manifest-body">Lumière beweist, dass Bildungs- und Schülerprojekte mit derselben gestalterischen Hingabe und technischen Präzision geschaffen werden können wie weltweite Publikationen. Ein stiller Begleiter auf dem Weg zur Zweisprachigkeit.</p>
-      <div class="info-manifest-signature"><span>L'art du lexique nocturne</span><span class="dl-dot">·</span><span>Berlin / Paris 2025</span></div>
+      <div class="info-manifest-signature">L'art du lexique nocturne · Berlin / Paris</div>
     </div>
   </section>
 
@@ -4774,6 +4840,13 @@ function speak(text, lang, btn){
 const volBtn = document.getElementById('volBtn');
 const volumeSlider = document.getElementById('volumeSlider');
 
+// Gefuellte Regler-Spur: setzt die Prozent-Position als CSS-Var, die
+// .volume-slider als Gradient-Stop nutzt (siehe CSS) statt eines flachen Balkens.
+function updateSliderFill(el){
+  const pct = ((el.value - el.min) / (el.max - el.min)) * 100;
+  el.style.setProperty('--val', pct + '%');
+}
+
 function updateVolIcon(){
   const muted = !(soundEnabled && masterVolume > 0);
   volBtn.classList.toggle('muted', muted);
@@ -4783,6 +4856,7 @@ volumeSlider.addEventListener('input', () => {
   masterVolume = volumeSlider.value / 100;
   soundEnabled = masterVolume > 0;
   updateVolIcon();
+  updateSliderFill(volumeSlider);
   store.settings.sfxVolume = Number(volumeSlider.value);
   store.settings.soundEnabled = soundEnabled;
   saveData(store);
@@ -4790,6 +4864,7 @@ volumeSlider.addEventListener('input', () => {
 volBtn.addEventListener('click', () => {
   soundEnabled = !soundEnabled;
   if(soundEnabled && masterVolume === 0){ masterVolume = 0.5; volumeSlider.value = 50; }
+  updateSliderFill(volumeSlider);
   updateVolIcon();
   store.settings.sfxVolume = Math.round(masterVolume * 100);
   store.settings.soundEnabled = soundEnabled;
@@ -4813,8 +4888,11 @@ function renderSettingsPage(){
   document.querySelectorAll('#fontScaleChips .chip').forEach(c => c.classList.toggle('selected', c.dataset.scale === store.settings.fontScale));
   volumeSlider.value = store.settings.sfxVolume;
   updateVolIcon();
+  updateSliderFill(volumeSlider);
   ttsVolumeSlider.value = store.settings.ttsVolume;
+  updateSliderFill(ttsVolumeSlider);
   glowSlider.value = Math.round(store.settings.glowIntensity * 100);
+  updateSliderFill(glowSlider);
   updateGlowPreview();
   autoPlayFlashcardToggle.checked = store.settings.autoPlayFlashcard;
   inSiteBannerToggle.checked = store.settings.inSiteBanner;
@@ -4865,6 +4943,7 @@ document.querySelectorAll('#fontScaleChips .chip').forEach(chip => {
 });
 ttsVolumeSlider.addEventListener('input', () => {
   store.settings.ttsVolume = Number(ttsVolumeSlider.value);
+  updateSliderFill(ttsVolumeSlider);
   saveData(store);
 });
 function updateGlowPreview(){
@@ -4874,6 +4953,7 @@ function updateGlowPreview(){
 }
 glowSlider.addEventListener('input', () => {
   store.settings.glowIntensity = Number(glowSlider.value) / 100;
+  updateSliderFill(glowSlider);
   saveData(store);
   applySettingsToUI();
   updateGlowPreview();
@@ -6736,7 +6816,7 @@ if(!reducedMotionActive()){
     // Gold-Glow "zieht" dem Cursor leicht hinterher statt sofort zu springen -
     // zeitnormierter Lerp pro Element (mehrere Karten koennen gleichzeitig
     // "nachziehen"), ein gemeinsamer rAF-Loop fuer alle aktiven.
-    const spotlightSelector = '.set-card, .rewards-card, .streak-hero, .hub-stat, .feature-card, .btn-secondary, .chip, .session-opt, .dl-feature-card, .dl-step, .dl-handoff-card, .info-plaque, .info-attr-card, .info-pillar, .info-stamp, .info-security';
+    const spotlightSelector = '.set-card, .rewards-card, .streak-hero, .hub-stat, .feature-card, .btn-secondary, .chip, .session-opt, .dl-feature-card, .dl-step, .dl-handoff-card, .info-legal-card, .info-panel-row';
     const spotlightState = new Map();
     let spotlightRafId = null;
     let spotlightLastTick = 0;
@@ -6887,7 +6967,7 @@ setInterval(rotateHubQuote, 30000);
   // Funken nicht mit deren eigenem Spotlight-/Funken-Hover beissen.
   const TRAIL_PAUSE_SELECTOR = 'button, a, input, textarea, select, label, ' +
     '.feature-card, .dl-feature-card, .dl-step, .dl-handoff-card, .dl-phone, ' +
-    '.info-pillar, .info-attr-card, .info-plaque, .info-stamp, .info-security, ' +
+    '.info-legal-card, .info-panel-row, .info-security-panel, ' +
     '.settings-card, .rewards-card, .streak-hero, .hub-stat, .chip, .session-opt, ' +
     '.set-card, .modal-box, header, nav, footer, .quick-nav, .hub-manifest, ' +
     '.match-chip, .cal-grid, .streak-day, .toast';
@@ -8648,10 +8728,15 @@ document.getElementById('btnBackToSet').addEventListener('click', () => renderSe
 document.getElementById('grammarExamples').addEventListener('click', (e) => {
   const chip = e.target.closest('.chip');
   if(!chip) return;
+  document.querySelectorAll('#grammarExamples .chip').forEach(c => c.classList.remove('selected'));
+  chip.classList.add('selected');
   const input = document.getElementById('grammarQuestion');
   input.value = chip.textContent;
   document.getElementById('formGrammar').requestSubmit();
 });
+const GRAMMAR_ICON_RULES = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7" width="18" height="10" rx="2"/><path d="M7 7v3M11 7v3M15 7v3"/></svg>';
+const GRAMMAR_ICON_EXAMPLES = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 0 1-8.4 8.4 8.3 8.3 0 0 1-3.8-.9L3 21l1.9-5.7a8.3 8.3 0 0 1-.9-3.8A8.4 8.4 0 0 1 12.5 3h.5a8 8 0 0 1 8 8.5Z"/></svg>';
+const GRAMMAR_ICON_EXCEPTIONS = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 9v4"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h16.9a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><circle cx="12" cy="16.5" r=".6" fill="currentColor" stroke="none"/></svg>';
 document.getElementById('formGrammar').addEventListener('submit', async (e) => {
   e.preventDefault();
   const input = document.getElementById('grammarQuestion');
@@ -8667,15 +8752,38 @@ document.getElementById('formGrammar').addEventListener('submit', async (e) => {
     return;
   }
 
-  let html = `<h3 style="margin-top:0;">${escapeHtml(data.title || question)}</h3>`;
+  let html = `<div class="grammar-answer-head"><h3>${escapeHtml(data.title || question)}</h3></div>`;
   if(data.rules && data.rules.length){
-    html += `<div class="grammar-section"><h4>📐 Regeln</h4><ul>${data.rules.map(r => `<li>${escapeHtml(r)}</li>`).join('')}</ul></div>`;
+    html += `<div class="grammar-section">
+      <div class="grammar-section-head">
+        <span class="grammar-section-icon">${GRAMMAR_ICON_RULES}</span>
+        <div><h4>Structure</h4><h3>Regeln</h3></div>
+      </div>
+      <ol class="grammar-rules">${data.rules.map((r, i) => `<li><span class="num">${String(i + 1).padStart(2, '0')}</span><span>${escapeHtml(r)}</span></li>`).join('')}</ol>
+    </div>`;
   }
   if(data.examples && data.examples.length){
-    html += `<div class="grammar-section"><h4>💬 Beispiele</h4><ul>${data.examples.map(r => `<li>${escapeHtml(r)}</li>`).join('')}</ul></div>`;
+    html += `<div class="grammar-section">
+      <div class="grammar-section-head">
+        <span class="grammar-section-icon">${GRAMMAR_ICON_EXAMPLES}</span>
+        <div><h4>Contextes</h4><h3>Beispiele</h3></div>
+      </div>
+      <div class="grammar-examples-grid">${data.examples.map(ex => {
+        const dashIdx = ex.indexOf('—');
+        const fr = dashIdx >= 0 ? ex.slice(0, dashIdx).trim() : ex.trim();
+        const de = dashIdx >= 0 ? ex.slice(dashIdx + 1).trim() : '';
+        return `<div class="grammar-example-card"><p class="grammar-example-fr">${escapeHtml(fr)}</p>${de ? `<p class="grammar-example-de">${escapeHtml(de)}</p>` : ''}</div>`;
+      }).join('')}</div>
+    </div>`;
   }
   if(data.exceptions && data.exceptions.length){
-    html += `<div class="grammar-section"><h4>⚠️ Ausnahmen</h4><ul>${data.exceptions.map(r => `<li>${escapeHtml(r)}</li>`).join('')}</ul></div>`;
+    html += `<div class="grammar-section">
+      <div class="grammar-section-head">
+        <span class="grammar-section-icon">${GRAMMAR_ICON_EXCEPTIONS}</span>
+        <div><h4>Nuances</h4><h3>Ausnahmen</h3></div>
+      </div>
+      <div class="grammar-exceptions">${data.exceptions.map(r => `<div class="grammar-exception-row"><span class="dot"></span><p>${escapeHtml(r)}</p></div>`).join('')}</div>
+    </div>`;
   }
   result.innerHTML = html;
   wireSounds();
