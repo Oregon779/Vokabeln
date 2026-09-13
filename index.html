@@ -873,7 +873,25 @@
   @media (prefers-reduced-motion: reduce){
     .ai-query-box.beam-active::after{ animation:none; opacity:.7; }
   }
-  .grammar-examples{ margin:0 0 1.6rem; flex-wrap:nowrap; overflow-x:auto; padding-bottom:.3rem; scrollbar-width:none; }
+  .grammar-examples{
+    margin:0 0 1.6rem; flex-wrap:nowrap; overflow-x:auto; padding-bottom:.3rem; scrollbar-width:none;
+    -webkit-mask-image:linear-gradient(to right, transparent 0, #000 22px, #000 calc(100% - 30px), transparent 100%);
+    mask-image:linear-gradient(to right, transparent 0, #000 22px, #000 calc(100% - 30px), transparent 100%);
+  }
+  /* Ohne Scrollbalken (bewusst versteckt) sah die letzte Chip wie hart
+     abgeschnitten/kaputt aus statt wie "hier geht's weiter" - Fade-Kante an
+     beiden Enden zeigt das an. Am jeweiligen Rand blendet sich der Fade
+     selbst aus (kein Sinn, den Start auszublenden, wenn man eh schon ganz
+     links ist), gesteuert per JS-Scroll-Listener weiter unten. */
+  .grammar-examples.at-start{
+    -webkit-mask-image:linear-gradient(to right, #000 calc(100% - 30px), transparent 100%);
+    mask-image:linear-gradient(to right, #000 calc(100% - 30px), transparent 100%);
+  }
+  .grammar-examples.at-end{
+    -webkit-mask-image:linear-gradient(to right, transparent 0, #000 22px);
+    mask-image:linear-gradient(to right, transparent 0, #000 22px);
+  }
+  .grammar-examples.at-start.at-end{ -webkit-mask-image:none; mask-image:none; }
   .grammar-examples::-webkit-scrollbar{ display:none; }
   .grammar-examples .chip{ flex-shrink:0; white-space:nowrap; }
   .grammar-examples .chip.selected::before{
@@ -8714,6 +8732,21 @@ document.getElementById('btnPracticeAgain').addEventListener('click', () => {
 document.getElementById('btnBackToSet').addEventListener('click', () => renderSetDetail(currentSetId));
 
 // --- GRAMMATIK -----------------------------------------------------------
+(function initGrammarExamplesFade(){
+  const row = document.getElementById('grammarExamples');
+  function updateFade(){
+    row.classList.toggle('at-start', row.scrollLeft <= 1);
+    row.classList.toggle('at-end', row.scrollLeft + row.clientWidth >= row.scrollWidth - 1);
+  }
+  row.addEventListener('scroll', updateFade, { passive: true });
+  window.addEventListener('resize', updateFade);
+  // Die Grammatik-Seite ist beim Skript-Start noch hidden (Breite 0) - erst
+  // wenn showView() sie sichtbar macht, stimmt scrollWidth/clientWidth. Ein
+  // ResizeObserver faengt genau diesen Moment ab, ohne dass man sich in
+  // showView() einklinken muss.
+  if('ResizeObserver' in window) new ResizeObserver(updateFade).observe(row);
+  updateFade();
+})();
 document.getElementById('grammarExamples').addEventListener('click', (e) => {
   const chip = e.target.closest('.chip');
   if(!chip) return;
