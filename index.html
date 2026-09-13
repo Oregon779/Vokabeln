@@ -834,28 +834,45 @@
   .speak-btn.speaking .eq{ display:inline-flex; }
   @media (prefers-reduced-motion: reduce){ .speak-btn .eq span{ animation:none; } }
 
-  /* --- Grammatik --- */
-  .grammar-query-box{
+  /* --- KI-Eingabeboxen (Grammatik-Frage, KI-Vokabeln-Generator) --- */
+  .ai-query-box{
     position:relative; display:flex; flex-direction:column; gap:.5rem; padding:.5rem; border-radius:22px;
     background:var(--surface-2); backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px); border:1px solid var(--border-solid);
-    box-shadow:var(--shadow-sm); margin:1.4rem 0 1rem;
+    box-shadow:var(--shadow-sm); margin:1.4rem 0 1rem; isolation:isolate;
   }
-  @media (min-width:640px){ .grammar-query-box{ flex-direction:row; align-items:center; } }
-  .grammar-query-box .auth-field-icon{ position:static; color:var(--ember-dim); }
-  .grammar-query-input-wrap{ display:flex; align-items:center; gap:.6rem; flex:1; padding:.55rem .9rem; min-width:0; }
-  .grammar-query-input-wrap input{
+  @media (min-width:640px){ .ai-query-box{ flex-direction:row; align-items:center; } }
+  .ai-query-box .auth-field-icon{ position:static; color:var(--ember-dim); }
+  .ai-query-input-wrap{ display:flex; align-items:center; gap:.6rem; flex:1; padding:.55rem .9rem; min-width:0; }
+  .ai-query-input-wrap input{
     flex:1; min-width:0; background:none; border:none; outline:none; color:var(--text);
     font-family:var(--font-sans); font-size:1rem; letter-spacing:.01em;
   }
-  .grammar-query-input-wrap input::placeholder{ color:var(--stone); }
-  .grammar-query-submit{
+  .ai-query-input-wrap input::placeholder{ color:var(--stone); }
+  .ai-query-submit{
     flex-shrink:0; display:inline-flex; align-items:center; justify-content:center; gap:.4rem; padding:.75rem 1.3rem; border-radius:16px;
     background:linear-gradient(120deg, var(--gold-bright), var(--ember-bright) 45%, var(--pop) 100%); color:#1c1207;
     font-family:var(--font-mono); font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.1em; border:none; cursor:pointer;
     box-shadow:0 4px 16px rgba(246,195,92,.25); transition:box-shadow .2s var(--ease), transform .15s var(--ease-spring);
   }
-  .grammar-query-submit:hover{ box-shadow:0 6px 20px rgba(246,195,92,.4); }
-  .grammar-query-submit:active{ transform:scale(.97); }
+  .ai-query-submit:hover{ box-shadow:0 6px 20px rgba(246,195,92,.4); }
+  .ai-query-submit:active{ transform:scale(.97); }
+  .ai-query-submit:disabled{ opacity:.55; cursor:default; transform:none !important; }
+  /* Wandernder Gold-Beam am Rand, solange die KI antwortet (inspiriert von
+     21st.dev "AI Chat Box" / BorderBeam) - laeuft NUR waehrend eines echten
+     Requests, nicht dauerhaft, damit es ein Lade-Signal bleibt statt nur
+     Deko-Animation die auf schwachen Mobilgeraeten unnoetig Akku kostet. */
+  .ai-query-box::after{
+    content:''; position:absolute; inset:0; border-radius:inherit; padding:1.5px;
+    background:conic-gradient(from 0deg, transparent 0deg, transparent 250deg, var(--gold) 295deg, var(--ember-bright) 320deg, #fff8e8 330deg, var(--ember-bright) 340deg, transparent 360deg);
+    -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite:xor; mask-composite:exclude;
+    opacity:0; pointer-events:none; z-index:-1;
+  }
+  .ai-query-box.beam-active::after{ opacity:1; animation:ai-beam-spin 1.8s linear infinite; }
+  @keyframes ai-beam-spin{ to{ transform:rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce){
+    .ai-query-box.beam-active::after{ animation:none; opacity:.7; }
+  }
   .grammar-examples{ margin:0 0 1.6rem; flex-wrap:nowrap; overflow-x:auto; padding-bottom:.3rem; scrollbar-width:none; }
   .grammar-examples::-webkit-scrollbar{ display:none; }
   .grammar-examples .chip{ flex-shrink:0; white-space:nowrap; }
@@ -3506,9 +3523,14 @@
     <div class="box">
       <h3>✨ KI-Vokabeln zu einem Thema</h3>
       <p class="hint">Gib ein Thema ein (z.B. "Essen", "Familie", "Reisen") — die KI schlägt passende Vokabelpaare vor.</p>
-      <form id="formAiGenerate" class="inline-form">
-        <input type="text" id="aiGenerateTopic" placeholder="Thema …" required>
-        <button type="submit" class="btn btn-primary">Generieren</button>
+      <form id="formAiGenerate" class="ai-query-box">
+        <div class="ai-query-input-wrap">
+          <span class="auth-field-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M18.4 5.6l-2.8 2.8M8.4 15.6l-2.8 2.8"/></svg></span>
+          <input type="text" id="aiGenerateTopic" placeholder="Thema …" required>
+        </div>
+        <button type="submit" class="ai-query-submit">Generieren
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
       </form>
       <p id="aiGenerateMsg" class="msg"></p>
     </div>
@@ -3688,12 +3710,12 @@
     <div class="page-eyebrow-row"><span class="eyebrow-dot" aria-hidden="true"></span><p class="page-eyebrow">Grammatik · 04</p></div>
     <h2 class="page-title" style="margin-bottom:.6rem;">Regeln, klar <em class="gold-shimmer" style="font-style:italic;">erklärt</em></h2>
     <p class="page-sub">Frag z.B. "Erklär mir die Vergangenheit" oder "Wie funktioniert der Konjunktiv?" — die KI erklärt Regeln, Beispiele und Ausnahmen.</p>
-    <form id="formGrammar" class="grammar-query-box">
-      <div class="grammar-query-input-wrap">
+    <form id="formGrammar" class="ai-query-box">
+      <div class="ai-query-input-wrap">
         <span class="auth-field-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path stroke-linecap="round" d="m21 21-4.3-4.3"/></svg></span>
         <input type="text" id="grammarQuestion" placeholder="Deine Frage …" required>
       </div>
-      <button type="submit" class="grammar-query-submit">Fragen
+      <button type="submit" class="ai-query-submit">Fragen
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
       </button>
     </form>
@@ -8002,8 +8024,10 @@ document.getElementById('formAiGenerate').addEventListener('submit', async (e) =
   if(!topic) return;
   msg.className = 'msg'; msg.textContent = 'Generiere Vokabeln …';
   btn.disabled = true;
+  e.target.classList.add('beam-active');
   const pairs = await generateVocabSet(topic, 10);
   btn.disabled = false;
+  e.target.classList.remove('beam-active');
   if(!pairs || pairs.length === 0){
     msg.textContent = 'Konnte keine Vokabeln generieren — Gemini-Key gültig?';
     msg.classList.add('msg-error');
@@ -8710,7 +8734,12 @@ document.getElementById('formGrammar').addEventListener('submit', async (e) => {
   if(!question) return;
 
   result.innerHTML = '<p class="grammar-loading">Lädt Erklärung …</p>';
+  const submitBtn = e.target.querySelector('.ai-query-submit');
+  e.target.classList.add('beam-active');
+  submitBtn.disabled = true;
   const data = await generateGrammarExplanation(question);
+  e.target.classList.remove('beam-active');
+  submitBtn.disabled = false;
 
   if(!data){
     result.innerHTML = '<p class="msg msg-error">Konnte keine Erklärung laden. Ist der Gemini-Key gesetzt und gültig?</p>';
