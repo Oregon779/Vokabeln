@@ -819,20 +819,95 @@
     color:var(--stone); border:1px solid var(--border-solid); border-radius:20px; padding:.28rem .6rem;
   }
 
-  /* Rangliste */
-  .lb-tabs{display:flex; flex-wrap:wrap; gap:.5rem; margin:1rem 0 1.1rem;}
-  .lb-table{width:100%; border-collapse:collapse; font-size:.88rem;}
-  .lb-table th{
-    text-align:left; font-family:var(--font-mono); font-size:.6rem; text-transform:uppercase; letter-spacing:.12em;
-    color:var(--stone); padding:.5rem .6rem; border-bottom:1px solid var(--border-solid);
+  /* Coin-Verdienstwege auf der Belohnungen-Seite */
+  .coin-ways{list-style:none; margin:.6rem 0 0; padding:0; display:flex; flex-direction:column; gap:.5rem;}
+  .coin-ways li{
+    position:relative; padding-left:1.4rem; font-size:.86rem; color:var(--stone-light, #d2c5b1); line-height:1.4;
   }
-  .lb-table td{padding:.65rem .6rem; border-bottom:1px solid var(--border-solid);}
-  .lb-table tbody tr:last-child td{border-bottom:none;}
-  .lb-rank{font-family:var(--font-mono); font-weight:700; color:var(--stone); width:3rem;}
-  .lb-table tr.is-me{background:rgba(246,195,92,.07);}
-  .lb-table tr.is-me .lb-rank{color:var(--ember-bright);}
-  .lb-score{text-align:right; font-family:var(--font-mono); font-weight:700; color:var(--ember-bright);}
-  .lb-medal{font-size:1rem;}
+  .coin-ways li::before{
+    content:''; position:absolute; left:0; top:.42em; width:8px; height:8px; border-radius:50%;
+    background:radial-gradient(circle at 34% 30%, var(--gold-bright), var(--gold) 72%);
+    box-shadow:0 0 8px rgba(246,195,92,.5);
+  }
+  .coin-ways strong{color:var(--ember-bright); font-family:var(--font-mono); font-size:.9em;}
+
+  /* Rangliste: Podium + Liste */
+  .lb-tabs{display:flex; flex-wrap:wrap; gap:.5rem; margin:1rem 0 1.4rem;}
+  .lb-podium{
+    position:relative; display:grid; grid-template-columns:repeat(3, 1fr); gap:.6rem;
+    align-items:end; margin-bottom:1.8rem; padding-bottom:2px;
+  }
+  /* Standlinie, damit die Podest-Bloecke auf etwas stehen statt unten einfach
+     abgeschnitten zu wirken. */
+  .lb-podium::after{
+    content:''; position:absolute; left:0; right:0; bottom:0; height:2px;
+    background:linear-gradient(90deg, transparent, rgba(246,195,92,.5) 15%, rgba(246,195,92,.5) 85%, transparent);
+  }
+  .lb-pod{
+    display:flex; flex-direction:column; align-items:center; gap:.35rem; text-align:center;
+    padding:1rem .5rem 0; border-radius:16px 16px 0 0; position:relative;
+    background:linear-gradient(180deg, rgba(246,195,92,.08), transparent 70%);
+  }
+  .lb-pod-avatar{
+    width:46px; height:46px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    font-family:var(--font-mono); font-size:.9rem; font-weight:700; color:#1c1207;
+    background:linear-gradient(140deg, var(--gold-bright), var(--gold)); box-shadow:0 0 18px rgba(246,195,92,.3);
+  }
+  .lb-pod-1 .lb-pod-avatar{width:60px; height:60px; font-size:1.1rem; box-shadow:0 0 30px rgba(246,195,92,.55);}
+  .lb-pod-name{font-size:.82rem; color:var(--text); font-weight:600; overflow-wrap:anywhere; line-height:1.25;}
+  .lb-pod-name em{font-style:normal; color:var(--ember-bright); font-family:var(--font-mono); font-size:.9em;}
+  .lb-pod-score{font-family:var(--font-mono); font-weight:700; font-size:1.25rem; color:var(--ember-bright); line-height:1;}
+  .lb-pod-1 .lb-pod-score{font-size:1.6rem;}
+  .lb-pod-unit{font-family:var(--font-mono); font-size:.56rem; text-transform:uppercase; letter-spacing:.12em; color:var(--stone);}
+  .lb-pod-base{
+    margin-top:.6rem; width:100%; border-radius:10px 10px 0 0; display:flex; align-items:flex-start; justify-content:center;
+    padding-top:.5rem; background:linear-gradient(180deg, rgba(246,195,92,.22), rgba(246,195,92,.05));
+    border:1px solid rgba(246,195,92,.25); border-bottom:none;
+  }
+  .lb-pod-1 .lb-pod-base{height:72px; background:linear-gradient(180deg, rgba(246,195,92,.4), rgba(246,195,92,.08));}
+  .lb-pod-2 .lb-pod-base{height:52px;}
+  .lb-pod-3 .lb-pod-base{height:38px;}
+  .lb-pod-rank{font-family:var(--font-serif); font-weight:700; font-size:1.2rem; color:var(--ember-bright);}
+  .lb-pod.is-me .lb-pod-base{border-color:var(--ember-bright);}
+
+  .lb-list{display:flex; flex-direction:column; gap:.4rem;}
+  .lb-row{
+    display:flex; align-items:center; gap:.85rem; padding:.7rem .9rem; border-radius:13px;
+    background:var(--surface-2); border:1px solid var(--border-solid);
+  }
+  .lb-row.is-me{border-color:rgba(246,195,92,.45); background:rgba(246,195,92,.07);}
+  .lb-row-own{margin-top:.6rem; border-style:dashed;}
+  .lb-row-rank{font-family:var(--font-mono); font-weight:700; font-size:.82rem; color:var(--stone); width:1.8rem; flex-shrink:0;}
+  .lb-row.is-me .lb-row-rank{color:var(--ember-bright);}
+  .lb-row-avatar{
+    width:32px; height:32px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center;
+    font-family:var(--font-mono); font-size:.68rem; font-weight:700; color:var(--ember-bright);
+    background:rgba(246,195,92,.1); border:1px solid rgba(246,195,92,.22);
+  }
+  .lb-row-name{flex:1; min-width:0; font-size:.9rem; color:var(--text); overflow-wrap:anywhere;}
+  .lb-row-name em{font-style:normal; color:var(--ember-bright); font-family:var(--font-mono); font-size:.8em;}
+  .lb-row-score{font-family:var(--font-mono); font-weight:700; color:var(--ember-bright); display:flex; align-items:baseline; gap:.35rem;}
+  .lb-row-unit{font-size:.56rem; text-transform:uppercase; letter-spacing:.1em; color:var(--stone); font-weight:500;}
+
+  .lb-empty{
+    text-align:center; padding:2.2rem 1rem; border-radius:16px;
+    background:var(--surface-2); border:1px dashed var(--border-solid);
+  }
+  .lb-empty-ico{display:block; font-size:1.4rem; color:var(--ember-dim); margin-bottom:.5rem;}
+  .lb-empty-title{margin:0 0 .3rem; font-family:var(--font-serif); font-size:1.05rem; color:var(--text);}
+  .lb-empty-text{margin:0; font-size:.85rem; color:var(--stone);}
+  @media (max-width:520px){
+    .lb-podium{gap:.3rem;}
+    .lb-pod{padding:.7rem .2rem 0;}
+    .lb-pod-avatar{width:36px; height:36px; font-size:.72rem;}
+    .lb-pod-1 .lb-pod-avatar{width:46px; height:46px; font-size:.86rem;}
+    .lb-pod-name{font-size:.7rem;}
+    .lb-pod-score{font-size:1rem;}
+    .lb-pod-1 .lb-pod-score{font-size:1.25rem;}
+    .lb-pod-unit{font-size:.5rem;}
+    .lb-row{gap:.55rem; padding:.6rem .7rem;}
+    .lb-row-name{font-size:.82rem;}
+  }
 
   /* Canvas-Spiele (Weitsprung, Höhenflug, Paket-Stapler) */
   .arcade-stage{
@@ -2841,7 +2916,6 @@
     <button type="button" class="header-nav-item" data-goto="listen">Aussprache</button>
     <button type="button" class="header-nav-item" data-goto="grammar">Grammatik</button>
     <button type="button" class="header-nav-item" data-goto="rewards">Belohnungen</button>
-    <button type="button" class="header-nav-item" data-goto="arcade">Spielhalle</button>
     <button type="button" class="header-nav-item" data-goto="calendar">Kalender</button>
     <button type="button" class="header-nav-item" data-goto="appDownload">App</button>
     <button type="button" class="header-nav-item" data-goto="about">Über uns</button>
@@ -2873,12 +2947,11 @@
       <li><button class="nav-overlay-item" data-goto="home"><span class="idx">02</span><span class="label">Lernsets</span><span class="hint">Eigene Vokabelsets</span></button></li>
       <li><button class="nav-overlay-item" data-goto="listen"><span class="idx">03</span><span class="label">Sprechen</span><span class="hint">Aussprache üben</span><span class="lock-badge" hidden>🔒 Konto</span></button></li>
       <li><button class="nav-overlay-item" data-goto="grammar"><span class="idx">04</span><span class="label">Grammatik</span><span class="hint">Regeln erklärt</span><span class="lock-badge" hidden>🔒 Konto</span></button></li>
-      <li><button class="nav-overlay-item" data-goto="rewards"><span class="idx">05</span><span class="label">Belohnungen</span><span class="hint">Serie &amp; Fortschritt</span><span class="lock-badge" hidden>🔒 Konto</span></button></li>
+      <li><button class="nav-overlay-item" data-goto="rewards"><span class="idx">05</span><span class="label">Belohnungen</span><span class="hint">Serie, Coins &amp; Spiele</span><span class="lock-badge" hidden>🔒 Konto</span></button></li>
       <li><button class="nav-overlay-item" data-goto="calendar"><span class="idx">06</span><span class="label">Kalender</span><span class="hint">Klausuren &amp; Lernplan</span><span class="lock-badge" hidden>🔒 Konto</span></button></li>
-      <li><button class="nav-overlay-item" data-goto="arcade"><span class="idx">07</span><span class="label">Spielhalle</span><span class="hint">Coins &amp; Rekorde</span><span class="lock-badge" hidden>🔒 Konto</span></button></li>
-      <li><button class="nav-overlay-item" data-goto="settingsPage"><span class="idx">08</span><span class="label">Einstellungen</span><span class="hint">Webseite anpassen</span></button></li>
-      <li><button class="nav-overlay-item" data-goto="appDownload"><span class="idx">09</span><span class="label">App</span><span class="hint">Als App installieren</span></button></li>
-      <li><button class="nav-overlay-item" data-goto="about"><span class="idx">10</span><span class="label">Über uns</span><span class="hint">Zweck, Rechte &amp; Schutz</span></button></li>
+      <li><button class="nav-overlay-item" data-goto="settingsPage"><span class="idx">07</span><span class="label">Einstellungen</span><span class="hint">Webseite anpassen</span></button></li>
+      <li><button class="nav-overlay-item" data-goto="appDownload"><span class="idx">08</span><span class="label">App</span><span class="hint">Als App installieren</span></button></li>
+      <li><button class="nav-overlay-item" data-goto="about"><span class="idx">09</span><span class="label">Über uns</span><span class="hint">Zweck, Rechte &amp; Schutz</span></button></li>
     </ul>
   </nav>
 </div>
@@ -3341,24 +3414,11 @@
           <span class="feature-card-body">
             <span class="feature-card-eyebrow">Insignien</span>
             <span class="feature-card-title">Belohnungen</span>
-            <span class="feature-card-desc">Halte deine Lernserie am Laufen, sammle Abzeichen und behalte deinen Fortschritt über die Wochen im Blick.</span>
+            <span class="feature-card-desc">Halte deine Lernserie am Laufen, verdiene Coins und setz sie in vier kleinen Spielen ein — inklusive Rangliste.</span>
           </span>
-          <span class="feature-card-footer"><span>Serie &amp; Badges</span><span class="lock-badge" hidden>🔒 Konto</span><span class="feature-card-arrow">→</span></span>
+          <span class="feature-card-footer"><span>Serie, Coins &amp; Spiele</span><span class="lock-badge" hidden>🔒 Konto</span><span class="feature-card-arrow">→</span></span>
         </button>
 
-        <button class="feature-card" id="featCardArcade" data-feature="arcade" type="button">
-          <span class="feature-card-head">
-            <span class="feature-card-icon ic-gold">
-              <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="11" rx="3"/><path d="M7 11v3M5.5 12.5h3"/><circle cx="16" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="18.5" cy="14.5" r="1" fill="currentColor" stroke="none"/></svg>
-            </span>
-          </span>
-          <span class="feature-card-body">
-            <span class="feature-card-eyebrow">Pause</span>
-            <span class="feature-card-title">Spielhalle</span>
-            <span class="feature-card-desc">Jede Übungsrunde bringt Coins — setz sie in drei kleinen Spielen ein und kämpf dich in die Rangliste.</span>
-          </span>
-          <span class="feature-card-footer"><span>Coins &amp; Rekorde</span><span class="lock-badge" hidden>🔒 Konto</span><span class="feature-card-arrow">→</span></span>
-        </button>
 
         <button class="feature-card" id="featCardGrammar" data-feature="grammar" type="button">
           <span class="feature-card-head">
@@ -3799,43 +3859,8 @@
     <div class="game-area" id="gameArea"></div>
   </section>
 
-  <section id="view-arcade" class="view" hidden>
-    <div class="page-glow" style="width:320px; height:320px; top:-3rem; right:-5rem;" aria-hidden="true"></div>
-    <div class="page-motifs" aria-hidden="true">
-      <span class="page-motif" style="top:5%; left:3%; width:26px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="2" y="7" width="20" height="11" rx="3"/><path d="M7 11v3M5.5 12.5h3"/><circle cx="16" cy="12" r="1"/><circle cx="18.5" cy="14.5" r="1"/></svg></span>
-      <span class="page-motif" style="top:28%; right:5%; width:20px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 3l1.8 5.5L19 10l-5.2 1.5L12 17l-1.8-5.5L5 10l5.2-1.5L12 3Z"/></svg></span>
-    </div>
-    <div class="page-eyebrow-row"><span class="eyebrow-dot" aria-hidden="true"></span><p class="page-eyebrow">Spielhalle · 07</p></div>
-    <h2 class="page-title">Pause mit <em class="gold-shimmer" style="font-style:italic;">Stil</em></h2>
-    <p class="page-sub">Verdiene Coins beim Lernen und setz sie hier ein — jede Runde kostet Coins, jeder Rekord zählt für die Rangliste.</p>
-
-    <div class="arcade-balance">
-      <div class="arcade-balance-main">
-        <span class="arcade-balance-coin" aria-hidden="true">₵</span>
-        <div>
-          <div class="arcade-balance-num" id="arcadeCoinCount">0</div>
-          <div class="arcade-balance-label">Coins verfügbar</div>
-        </div>
-      </div>
-      <div class="arcade-daily">
-        <button type="button" class="btn btn-primary btn-small" id="btnClaimDaily">🎁 Tagesbelohnung</button>
-        <span class="arcade-daily-note" id="arcadeDailyNote"></span>
-      </div>
-    </div>
-
-    <h3>Spiele</h3>
-    <div class="arcade-grid" id="arcadeGrid"></div>
-
-    <h3>Rangliste</h3>
-    <p class="hint" id="arcadeLbNote">Nur angemeldete Konten erscheinen in der Rangliste.</p>
-    <div class="chip-row lb-tabs" id="arcadeLbTabs"></div>
-    <div class="admin-table-wrap">
-      <table class="lb-table" id="arcadeLbTable"><tbody></tbody></table>
-    </div>
-  </section>
-
   <section id="view-arcade-game" class="view" hidden>
-    <button class="btn btn-link" id="btnArcadeGameBack">← Zur Spielhalle</button>
+    <button class="btn btn-link" id="btnArcadeGameBack">← Zu den Belohnungen</button>
     <div class="game-hud">
       <h2 style="margin:0;" id="arcadeGameTitle">Spiel</h2>
       <span class="coin-chip"><span class="coin-ico" aria-hidden="true">₵</span><span id="arcadeGameCoins">0</span></span>
@@ -3932,9 +3957,9 @@
       <span class="page-motif" style="top:2%; right:5%; width:26px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 3l1.8 5.5L19 10l-5.2 1.5L12 17l-1.8-5.5L5 10l5.2-1.5L12 3Z"/></svg></span>
       <span class="page-motif" style="top:36%; right:2%; width:18px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 3l1.8 5.5L19 10l-5.2 1.5L12 17l-1.8-5.5L5 10l5.2-1.5L12 3Z"/></svg></span>
     </div>
-    <p class="page-eyebrow">Belohnungen · 03</p>
-    <h2 class="page-title" style="margin-bottom:.6rem;">Deine Lern-Serie</h2>
-    <p class="page-sub">Jede abgeschlossene Übungsrunde zählt. Bleib dran und bau dir eine Serie auf.</p>
+    <div class="page-eyebrow-row"><span class="eyebrow-dot" aria-hidden="true"></span><p class="page-eyebrow">Belohnungen · 05</p></div>
+    <h2 class="page-title" style="margin-bottom:.6rem;">Deine <em class="gold-shimmer" style="font-style:italic;">Lern-Serie</em></h2>
+    <p class="page-sub">Jede abgeschlossene Übungsrunde zählt: Sie baut deine Serie auf und bringt Coins, die du unten in den Spielen einsetzen kannst.</p>
     <div class="rewards-grid">
       <div class="streak-hero">
         <p class="kicker">Aktuelle Serie</p>
@@ -3956,9 +3981,23 @@
           <p class="desc">Tage, an denen du mindestens eine Übungsrunde abgeschlossen hast.</p>
         </div>
         <div class="rewards-card">
-          <p class="label">Bonus-Spiel</p>
-          <p class="desc" style="margin-top:0;">Nach jeder abgeschlossenen Übungsrunde wartet eine Runde 🎈 Ballon-Pop als kleine Belohnung.</p>
+          <p class="label">So verdienst du Coins</p>
+          <ul class="coin-ways" id="coinWays"></ul>
         </div>
+      </div>
+    </div>
+
+    <div class="arcade-balance">
+      <div class="arcade-balance-main">
+        <span class="arcade-balance-coin" aria-hidden="true">₵</span>
+        <div>
+          <div class="arcade-balance-num" id="arcadeCoinCount">0</div>
+          <div class="arcade-balance-label">Coins verfügbar</div>
+        </div>
+      </div>
+      <div class="arcade-daily">
+        <button type="button" class="btn btn-primary btn-small" id="btnClaimDaily">🎁 Tagesbelohnung</button>
+        <span class="arcade-daily-note" id="arcadeDailyNote"></span>
       </div>
     </div>
 
@@ -3977,6 +4016,15 @@
       <div class="chart-axis" id="activityAxis" aria-hidden="true"></div>
       <p class="chart-empty" id="activityEmpty" hidden>Noch keine Übungsrunde abgeschlossen — sobald du übst, erscheint hier dein Verlauf.</p>
     </div>
+
+    <h3>Spiele</h3>
+    <div class="arcade-grid" id="arcadeGrid"></div>
+
+    <h3>Rangliste</h3>
+    <p class="hint" id="arcadeLbNote">Nur angemeldete Konten erscheinen in der Rangliste.</p>
+    <div class="chip-row lb-tabs" id="arcadeLbTabs"></div>
+    <div id="arcadeLbPodium" class="lb-podium" hidden></div>
+    <div class="lb-list" id="arcadeLbList"></div>
   </section>
 
   <section id="view-settings" class="view" hidden>
@@ -6098,7 +6146,6 @@ const ADMIN_FEATURE_LIST = [
   { key: 'rewards', label: 'Belohnungen' },
   { key: 'grammar', label: 'Grammatik' },
   { key: 'calendar', label: 'Kalender' },
-  { key: 'arcade', label: 'Spielhalle' },
   { key: 'appDownload', label: 'App-Seite' },
   { key: 'about', label: 'Über uns' },
 ];
@@ -7727,11 +7774,11 @@ const views = {
   rewards: document.getElementById('view-rewards'), settingsPage: document.getElementById('view-settings'),
   calendar: document.getElementById('view-calendar'), appDownload: document.getElementById('view-app-download'),
   about: document.getElementById('view-about'), admin: document.getElementById('view-admin'),
-  arcade: document.getElementById('view-arcade'), arcadeGame: document.getElementById('view-arcade-game'),
+  arcadeGame: document.getElementById('view-arcade-game'),
 };
 let currentSetId = null;
 let currentNavId = 'hub';
-const NAV_SUB_LABELS = { hub: 'Startseite', home: 'Lernsets', rewards: 'Belohnungen', grammar: 'Grammatik', listen: 'Sprechen', settingsPage: 'Einstellungen', calendar: 'Kalender', appDownload: 'App installieren', about: 'Über uns', admin: 'Admin-Panel', arcade: 'Spielhalle' };
+const NAV_SUB_LABELS = { hub: 'Startseite', home: 'Lernsets', rewards: 'Belohnungen', grammar: 'Grammatik', listen: 'Sprechen', settingsPage: 'Einstellungen', calendar: 'Kalender', appDownload: 'App installieren', about: 'Über uns', admin: 'Admin-Panel' };
 const QUICKNAV_HIDDEN_VIEWS = new Set(['hub', 'practice', 'match', 'results', 'game', 'appDownload', 'about', 'admin', 'arcadeGame']);
 // --- Reload-Persistenz: merkt sich die zuletzt besuchte (sinnvoll wiederherstellbare) Ansicht ---
 const LAST_VIEW_KEY = 'lumiere_last_view';
@@ -7781,7 +7828,7 @@ function restoreLastView(){
     if(unlocked){ openAdminPanel(); switchAdminTab(saved.adminTab || 'overview'); }
     return;
   }
-  const destinations = { home: renderHome, rewards: renderRewards, grammar: openGrammar, listen: openGlobalListen, calendar: renderCalendar, settingsPage: openSettingsPage, appDownload: openAppDownload, about: openAbout, arcade: renderArcade };
+  const destinations = { home: renderHome, rewards: renderRewards, grammar: openGrammar, listen: openGlobalListen, calendar: renderCalendar, settingsPage: openSettingsPage, appDownload: openAppDownload, about: openAbout };
   const fn = destinations[saved.view];
   if(fn) fn();
 }
@@ -7853,7 +7900,6 @@ function goToDestination(target){
   else if(target === 'settingsPage') openSettingsPage();
   else if(target === 'appDownload') openAppDownload();
   else if(target === 'about') openAbout();
-  else if(target === 'arcade') openArcade();
 }
 navOverlay.querySelectorAll('.nav-overlay-item').forEach(item => {
   item.addEventListener('click', () => {
@@ -7950,7 +7996,6 @@ document.getElementById('btnHubListen').addEventListener('click', () => openGlob
 document.getElementById('featCardSets').addEventListener('click', () => { sndClick(); renderHome(); });
 document.getElementById('featCardListen').addEventListener('click', () => openGlobalListen());
 document.getElementById('featCardRewards').addEventListener('click', () => { sndClick(); renderRewards(); });
-document.getElementById('featCardArcade').addEventListener('click', () => openArcade());
 document.getElementById('featCardGrammar').addEventListener('click', () => { sndClick(); openGrammar(); });
 document.getElementById('featCardCalendar').addEventListener('click', () => { sndClick(); renderCalendar(); });
 document.getElementById('featCardApp').addEventListener('click', () => { sndClick(); openAppDownload(); });
@@ -8000,6 +8045,7 @@ function renderRewards(){
     bar.appendChild(span);
   }
   renderActivityChart();
+  renderArcadeSections();
   wireSounds();
 }
 
@@ -9126,18 +9172,26 @@ function endBalloonGame(){
   clearInterval(gameTimerInterval);
   clearInterval(gameSpawnInterval);
   const area = document.getElementById('gameArea');
+  const score = gameScore;
+  submitRecord('balloon', score).then(isRecord => {
+    const badge = document.getElementById('balloonRecordBadge');
+    if(badge && isRecord) badge.hidden = false;
+  });
   area.innerHTML = `
     <div class="game-final">
       <p>Geschafft!</p>
-      <div class="num">${gameScore}</div>
+      <div class="num">${score}</div>
       <p class="hint">Ballons gepoppt 🎈</p>
-      <button id="btnGameAgain" class="btn btn-primary">↻ Nochmal</button>
-      <button id="btnGameHome" class="btn btn-secondary">Zur Startseite</button>
+      <span class="arcade-newrecord" id="balloonRecordBadge" hidden>Neuer Rekord</span>
+      <div class="btn-group" style="justify-content:center; margin-top:.8rem;">
+        <button id="btnGameAgain" class="btn btn-primary">↻ Nochmal</button>
+        <button id="btnGameHome" class="btn btn-secondary">Zu den Belohnungen</button>
+      </div>
     </div>`;
   document.getElementById('gameTimer').textContent = '0s';
   sndComplete();
   document.getElementById('btnGameAgain').addEventListener('click', () => { sndClick(); startBalloonGame(); });
-  document.getElementById('btnGameHome').addEventListener('click', () => { sndClick(); renderHub(); });
+  document.getElementById('btnGameHome').addEventListener('click', () => { sndClick(); renderRewards(); });
 }
 
 document.getElementById('btnPlayGame').addEventListener('click', () => { sndClick(); startBalloonGame(); });
@@ -9150,9 +9204,9 @@ document.getElementById('btnGameBack').addEventListener('click', () => {
 
 // --- SPIELHALLE: Coins, Spiele, Rangliste --------------------------------
 const GAME_DEFS = {
-  longjump: { name: 'Katapult-Weitsprung', icon: '🎯', unit: 'Meter', short: 'm',
-    desc: 'Winkel antippen, Kraft aufladen, loslassen — und in der Luft nachsteuern.',
-    hint: 'Tippen: Winkel · Halten: Kraft · In der Luft: bis zu 3 Schübe' },
+  longjump: { name: 'Weitsprung', icon: '🎯', unit: 'Meter', short: 'm',
+    desc: 'Anlauf, Absprungwinkel, Kraft — dann in der Luft nachsteuern und sauber landen. Wind und Untergrund reden mit.',
+    hint: 'Tippen: Absprung · Halten: Kraft · In der Luft: bis zu 3 Schübe' },
   flappy:   { name: 'Höhenflug', icon: '🪁', unit: 'Hindernisse', short: '',
     desc: 'Ein Tipp gibt Auftrieb. Je länger du durchhältst, desto enger wird es.',
     hint: 'Tippen oder Leertaste: Auftrieb' },
@@ -9284,17 +9338,23 @@ async function submitRecord(key, score){
   return true;
 }
 
-// --- Spielhalle-Ansicht ---
+// --- Spiele-Bereich (Teil der Belohnungen-Seite) ---
 let arcadeLbGame = 'longjump';
-function openArcade(){
-  sndClick();
-  if(requireAccountFor('arcade', 'Spielhalle')) return;
-  if(!requireFeatureAvailable('arcade', 'Spielhalle')) return;
-  renderArcade();
-}
-function renderArcade(){
-  showView('arcade'); currentNavId = 'arcade'; updateNavActiveStates();
+// Rendert Coin-Stand, Verdien-Wege, Spielauswahl und Rangliste. Wird aus
+// renderRewards() heraus aufgerufen - Serie und Spiele teilen sich eine Seite.
+function renderArcadeSections(){
   updateCoinDisplays();
+
+  const cfgAll = arcadeSettings();
+  const ways = [];
+  if(cfgAll.coinsPerRound > 0) ways.push(`<strong>+${cfgAll.coinsPerRound}</strong> pro abgeschlossener Übungsrunde`);
+  if(cfgAll.dailyRewardCoins > 0) ways.push(`<strong>+${cfgAll.dailyRewardCoins}</strong> Tagesbelohnung, einmal täglich`);
+  if(cfgAll.streakBonusEvery > 0 && cfgAll.streakBonusCoins > 0){
+    ways.push(`<strong>+${cfgAll.streakBonusCoins}</strong> Bonus alle ${cfgAll.streakBonusEvery} Serientage`);
+  }
+  document.getElementById('coinWays').innerHTML = ways.length
+    ? ways.map(w => `<li>${w}</li>`).join('')
+    : '<li>Coins sind gerade deaktiviert.</li>';
 
   const dailyBtn = document.getElementById('btnClaimDaily');
   const dailyNote = document.getElementById('arcadeDailyNote');
@@ -9344,18 +9404,32 @@ function renderArcade(){
     });
   });
   renderLeaderboard(arcadeLbGame);
-  wireSounds(document.getElementById('view-arcade'));
+  wireSounds(document.getElementById('view-rewards'));
+}
+
+function lbInitials(name){
+  const clean = (name || '').trim();
+  if(!clean) return '?';
+  const parts = clean.split(/\s+/).slice(0, 2);
+  return parts.map(p => p[0]).join('').toUpperCase();
+}
+function lbEmptyState(title, text){
+  return `<div class="lb-empty"><span class="lb-empty-ico" aria-hidden="true">◇</span>
+    <p class="lb-empty-title">${escapeHtml(title)}</p>
+    <p class="lb-empty-text">${escapeHtml(text)}</p></div>`;
 }
 
 async function renderLeaderboard(key){
-  const tbody = document.querySelector('#arcadeLbTable tbody');
+  const podium = document.getElementById('arcadeLbPodium');
+  const list = document.getElementById('arcadeLbList');
   const note = document.getElementById('arcadeLbNote');
   const def = GAME_DEFS[key];
-  tbody.innerHTML = `<tr><td colspan="3" class="hint">Lädt …</td></tr>`;
+  podium.hidden = true;
+  list.innerHTML = `<p class="hint">Lädt …</p>`;
 
   if(!sb){
     note.textContent = 'Rangliste nicht verfügbar — keine Verbindung zum Konto-Dienst.';
-    tbody.innerHTML = `<tr><td colspan="3" class="hint">Nicht verfügbar.</td></tr>`;
+    list.innerHTML = lbEmptyState('Nicht verfügbar', 'Die Rangliste braucht eine Verbindung zum Konto-Dienst.');
     return;
   }
   let rows = null;
@@ -9367,34 +9441,67 @@ async function renderLeaderboard(key){
     rows = data || [];
   }catch(e){
     note.textContent = 'Rangliste konnte nicht geladen werden (Tabelle "game_records" angelegt?).';
-    tbody.innerHTML = `<tr><td colspan="3" class="hint">Keine Daten.</td></tr>`;
+    list.innerHTML = lbEmptyState('Keine Daten', 'Die Tabelle „game_records" scheint noch nicht angelegt zu sein.');
     return;
   }
   note.textContent = currentUser
     ? `Dein Rekord zählt automatisch — Top 20 in ${def.name}.`
-    : 'Nur angemeldete Konten erscheinen in der Rangliste.';
+    : 'Nur angemeldete Konten erscheinen in der Rangliste — kostenlos anmelden.';
   if(rows.length === 0){
-    tbody.innerHTML = `<tr><td colspan="3" class="hint">Noch keine Einträge — sei der Erste!</td></tr>`;
+    list.innerHTML = lbEmptyState('Noch keine Einträge', `Sei der Erste, der sich in ${def.name} einträgt.`);
     return;
   }
-  const medals = ['🥇','🥈','🥉'];
-  tbody.innerHTML = `<tr><th>Platz</th><th>Konto</th><th style="text-align:right;">${escapeHtml(def.unit)}</th></tr>` +
-    rows.map((r, i) => {
-      const me = currentUser && r.user_id === currentUser.id;
-      const name = r.display_name ? escapeHtml(r.display_name) : 'Anonym';
-      return `<tr class="${me ? 'is-me' : ''}">
-        <td class="lb-rank">${i < 3 ? `<span class="lb-medal">${medals[i]}</span>` : (i + 1)}</td>
-        <td>${name}${me ? ' <span class="arcade-record">(du)</span>' : ''}</td>
-        <td class="lb-score">${r.score}</td>
-      </tr>`;
-    }).join('');
+
+  // Top 3 aufs Podium (Reihenfolge 2-1-3, damit der Sieger optisch in der Mitte
+  // steht), der Rest als Liste darunter.
+  const top = rows.slice(0, 3);
+  const rest = rows.slice(3);
+  const order = [1, 0, 2];
+  podium.innerHTML = order.filter(i => top[i]).map(i => {
+    const r = top[i];
+    const me = currentUser && r.user_id === currentUser.id;
+    const name = r.display_name || 'Anonym';
+    return `<div class="lb-pod lb-pod-${i + 1}${me ? ' is-me' : ''}">
+      <span class="lb-pod-avatar" aria-hidden="true">${escapeHtml(lbInitials(name))}</span>
+      <span class="lb-pod-name">${escapeHtml(name)}${me ? ' <em>(du)</em>' : ''}</span>
+      <span class="lb-pod-score">${r.score}</span>
+      <span class="lb-pod-unit">${escapeHtml(def.unit)}</span>
+      <span class="lb-pod-base"><span class="lb-pod-rank">${i + 1}</span></span>
+    </div>`;
+  }).join('');
+  podium.hidden = false;
+
+  list.innerHTML = rest.map((r, i) => {
+    const rank = i + 4;
+    const me = currentUser && r.user_id === currentUser.id;
+    const name = r.display_name || 'Anonym';
+    return `<div class="lb-row${me ? ' is-me' : ''}">
+      <span class="lb-row-rank">${rank}</span>
+      <span class="lb-row-avatar" aria-hidden="true">${escapeHtml(lbInitials(name))}</span>
+      <span class="lb-row-name">${escapeHtml(name)}${me ? ' <em>(du)</em>' : ''}</span>
+      <span class="lb-row-score">${r.score}<span class="lb-row-unit">${escapeHtml(def.unit)}</span></span>
+    </div>`;
+  }).join('');
+
+  // Steht das eigene Konto nicht in den Top 20, trotzdem den eigenen Rekord
+  // zeigen - sonst wirkt die Rangliste, als haette man nie gespielt.
+  const inList = currentUser && rows.some(r => r.user_id === currentUser.id);
+  const own = getLocalRecord(key);
+  if(currentUser && !inList && own > 0){
+    list.innerHTML += `<div class="lb-row is-me lb-row-own">
+      <span class="lb-row-rank">–</span>
+      <span class="lb-row-avatar" aria-hidden="true">${escapeHtml(lbInitials((currentProfile && currentProfile.display_name) || 'Du'))}</span>
+      <span class="lb-row-name">Dein Rekord</span>
+      <span class="lb-row-score">${own}<span class="lb-row-unit">${escapeHtml(def.unit)}</span></span>
+    </div>`;
+  }
 }
 
 document.getElementById('btnClaimDaily').addEventListener('click', () => {
   sndClick();
-  if(claimDailyReward()) renderArcade();
+  if(claimDailyReward()) renderArcadeSections();
 });
-document.getElementById('btnArcadeGameBack').addEventListener('click', () => { sndClick(); renderArcade(); });
+document.getElementById('btnArcadeGameBack').addEventListener('click', () => { sndClick(); renderRewards(); });
 
 // --- Gemeinsame Spiel-Buehne ---
 const ARCADE_W = 720, ARCADE_H = 460;
@@ -9431,7 +9538,7 @@ function launchArcadeGame(key){
 
   if(key === 'balloon'){ startBalloonGame(); return; }
 
-  showView('arcadeGame'); currentNavId = 'arcade'; updateNavActiveStates();
+  showView('arcadeGame'); currentNavId = 'rewards'; updateNavActiveStates();
   document.getElementById('arcadeGameTitle').textContent = `${def.icon} ${def.name}`;
   document.getElementById('arcadeGameHint').textContent = def.hint;
   document.getElementById('arcadeGameRecord').innerHTML = `Rekord <strong>${getLocalRecord(key)}</strong>`;
@@ -9465,13 +9572,13 @@ async function finishArcadeGame(key, score){
       <button class="btn btn-primary" id="btnArcadeAgain" ${canAfford ? '' : 'disabled'}>
         ↻ Nochmal${cfg.cost > 0 ? ` (${cfg.cost} ₵)` : ''}
       </button>
-      <button class="btn btn-secondary" id="btnArcadeExit">Zur Spielhalle</button>
+      <button class="btn btn-secondary" id="btnArcadeExit">Zu den Belohnungen</button>
     </div>
     ${canAfford ? '' : '<p class="hint">Nicht genug Coins — übe eine Runde, um neue zu verdienen.</p>'}
   `);
   sndComplete();
   document.getElementById('btnArcadeAgain').addEventListener('click', () => launchArcadeGame(key));
-  document.getElementById('btnArcadeExit').addEventListener('click', () => { sndClick(); renderArcade(); });
+  document.getElementById('btnArcadeExit').addEventListener('click', () => { sndClick(); renderRewards(); });
 }
 
 // Gemeinsame Eingabe fuer alle drei Spiele: ein Button-Prinzip (Tap/Klick/Space).
@@ -9507,157 +9614,308 @@ function arcadeSky(ctx){
 }
 
 // --- Spiel 1: Katapult-Weitsprung ---
+// Zeichnet die Athletin/den Athleten als Strichfigur mit Gliedmassen. Die Pose
+// haengt von der Spielphase ab - so sieht man Anlauf, Flugposition, Landung und
+// Abrollen, statt nur einen Kreis durch die Luft fliegen zu lassen.
+function drawAthlete(ctx, x, y, rot, pose, t){
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(rot);
+  ctx.strokeStyle = ARCADE_GOLD;
+  ctx.lineWidth = 3.2;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+
+  const swing = Math.sin(t * 13);
+  let legA, legB, armA, armB, lean;
+  if(pose === 'run'){
+    legA = swing * 0.85; legB = -swing * 0.85;
+    armA = -swing * 0.7; armB = swing * 0.7;
+    lean = -0.12;
+  } else if(pose === 'flight'){
+    legA = -0.9; legB = -0.45;          // Beine nach vorn angezogen
+    armA = -2.2; armB = -1.8;           // Arme nach oben/hinten
+    lean = -0.05;
+  } else if(pose === 'land'){
+    legA = -1.25; legB = -1.05;         // Beine weit nach vorn gestreckt
+    armA = -2.6; armB = -2.3;
+    lean = 0.25;
+  } else {                              // 'stand'
+    legA = 0.22; legB = -0.22;
+    armA = 0.3; armB = -0.3;
+    lean = 0;
+  }
+
+  ctx.save();
+  ctx.rotate(lean);
+  // Rumpf
+  ctx.beginPath(); ctx.moveTo(0, -8); ctx.lineTo(0, -26); ctx.stroke();
+  // Beine (Huefte bei -8)
+  ctx.beginPath();
+  ctx.moveTo(0, -8); ctx.lineTo(Math.sin(legA) * 13, -8 + Math.cos(legA) * 13);
+  ctx.moveTo(0, -8); ctx.lineTo(Math.sin(legB) * 13, -8 + Math.cos(legB) * 13);
+  ctx.stroke();
+  // Arme (Schulter bei -24)
+  ctx.beginPath();
+  ctx.moveTo(0, -24); ctx.lineTo(Math.sin(armA) * 11, -24 + Math.cos(armA) * 11);
+  ctx.moveTo(0, -24); ctx.lineTo(Math.sin(armB) * 11, -24 + Math.cos(armB) * 11);
+  ctx.stroke();
+  // Kopf
+  ctx.fillStyle = ARCADE_GOLD;
+  ctx.beginPath(); ctx.arc(0, -31, 5.6, 0, Math.PI * 2); ctx.fill();
+  ctx.restore();
+
+  ctx.restore();
+}
+
 function runLongJump(canvas, ctx){
-  const GROUND_Y = 380, PX_PER_M = 14, GRAVITY = 1400;
-  let phase = 'angle';          // angle -> power -> flight -> land
-  let angle = 45, angleDir = 1;
+  const GROUND_Y = 372, PX_PER_M = 14, GRAVITY = 1500;
+  const DRAG = 0.16;                       // Luftwiderstand
+  const BOARD_X = 120;                     // Absprungbalken
+  let phase = 'runup';                     // runup -> angle -> power -> flight -> land
+  let angle = 42, angleDir = 1;
   let power = 0, powerDir = 1;
-  let x = 0, y = 0, vx = 0, vy = 0, boosts = 3;
+  let x = 0, y = GROUND_Y, vx = 0, vy = 0, boosts = 3;
+  let rot = 0, spin = 0, elapsed = 0;
   let camX = 0, raf = null, last = performance.now(), running = true;
-  // Untergrund: abwechselnd normal / Eis (rutscht weit) / Sand (bremst hart)
+  const wind = (Math.random() * 2 - 1) * 55;   // px/s², seitlicher Wind
+  const trail = [];
+
+  // Untergrund hinter der Absprungzone: Sand bremst, Eis laesst weit rutschen.
   const strips = [];
-  for(let i = 0; i < 60; i++){
+  for(let i = 0; i < 80; i++){
     const r = Math.random();
-    strips.push({ from: 30 + i * 12, type: r < 0.22 ? 'ice' : r < 0.42 ? 'sand' : 'normal' });
+    strips.push({ from: 12 + i * 9, type: r < 0.24 ? 'ice' : r < 0.46 ? 'sand' : 'normal' });
   }
   function stripAt(meters){
     let cur = strips[0];
     for(const s of strips){ if(meters >= s.from) cur = s; }
     return cur;
   }
-  function frictionFor(type){ return type === 'ice' ? 0.35 : type === 'sand' ? 4.2 : 1.6; }
+  // Eis laesst deutlich weiter rutschen als Sand - aber alle Werte so, dass die
+  // Rutschphase nach spaetestens ~3s steht. Vorher trudelte man auf Eis fast
+  // zehn Sekunden aus, was sich wie ein Haenger anfuehlte.
+  function frictionFor(type){ return type === 'ice' ? 0.8 : type === 'sand' ? 5.5 : 2.2; }
 
   const unbind = bindArcadeInput(canvas, () => {
-    if(phase === 'angle'){ phase = 'power'; power = 0; powerDir = 1; sndClick(); }
+    if(phase === 'runup'){ phase = 'angle'; sndClick(); }
+    else if(phase === 'angle'){ phase = 'power'; power = 0; powerDir = 1; sndClick(); }
     else if(phase === 'flight' && boosts > 0){
-      boosts--; vy -= 210; vx += 55; sndCorrect();
+      boosts--;
+      vy -= 195; vx += 48;
+      spin -= 1.6;
+      sndCorrect();
     }
   }, () => {
     if(phase === 'power'){
       phase = 'flight';
       const rad = angle * Math.PI / 180;
-      const speed = 220 + power * 6.4;
+      const speed = 230 + power * 6.2;
       vx = Math.cos(rad) * speed;
       vy = -Math.sin(rad) * speed;
-      x = 0; y = GROUND_Y;
+      x = BOARD_X; y = GROUND_Y;
+      spin = 1.1;
       sndCorrect();
     }
   });
+
+  function metersNow(){ return Math.max(0, (x - BOARD_X) / PX_PER_M); }
 
   function step(now){
     if(!running) return;
     const dt = Math.min(0.033, (now - last) / 1000);
     last = now;
+    elapsed += dt;
 
-    if(phase === 'angle'){
-      angle += angleDir * 55 * dt;
-      if(angle > 72){ angle = 72; angleDir = -1; }
-      if(angle < 16){ angle = 16; angleDir = 1; }
-    } else if(phase === 'power'){
-      power += powerDir * 105 * dt;
-      if(power > 100){ power = 100; powerDir = -1; }
-      if(power < 0){ power = 0; powerDir = 1; }
+    if(phase === 'runup' || phase === 'angle' || phase === 'power'){
+      // Anlauf: die Figur laeuft auf den Balken zu und tritt dort auf der Stelle,
+      // damit der Absprung immer exakt am selben Punkt passiert (faire Messung).
+      if(x < BOARD_X) x = Math.min(BOARD_X, x + 170 * dt);
+      if(phase === 'angle'){
+        angle += angleDir * 52 * dt;
+        if(angle > 70){ angle = 70; angleDir = -1; }
+        if(angle < 14){ angle = 14; angleDir = 1; }
+      } else if(phase === 'power'){
+        power += powerDir * 98 * dt;
+        if(power > 100){ power = 100; powerDir = -1; }
+        if(power < 0){ power = 0; powerDir = 1; }
+      }
     } else if(phase === 'flight'){
+      // Luftwiderstand bremst proportional zur Geschwindigkeit, Wind schiebt
+      // seitlich - dadurch wird die Flugbahn eine echte, leicht asymmetrische
+      // Kurve statt einer perfekten Parabel.
       vy += GRAVITY * dt;
+      vx += wind * dt;
+      vx -= vx * DRAG * dt;
+      vy -= vy * DRAG * dt;
       x += vx * dt;
       y += vy * dt;
+      rot += spin * dt;
+      spin += (0.6 - spin) * dt;
+      trail.push({ x, y });
+      if(trail.length > 90) trail.shift();
       if(y >= GROUND_Y){
         y = GROUND_Y;
-        vy = 0;
         phase = 'land';
-        const type = stripAt(x / PX_PER_M).type;
-        vx *= type === 'ice' ? 0.92 : type === 'sand' ? 0.35 : 0.6;
+        // Steiler Aufprall kostet mehr Schwung als ein flacher.
+        const impact = Math.min(1, Math.abs(vy) / 700);
+        const type = stripAt(metersNow()).type;
+        const keep = type === 'ice' ? 0.9 : type === 'sand' ? 0.34 : 0.62;
+        vx *= keep * (1 - impact * 0.45);
+        vy = 0;
+        spin = Math.min(5.5, vx / 26);
+        sndClick();
       }
     } else if(phase === 'land'){
-      const type = stripAt(x / PX_PER_M).type;
-      vx -= frictionFor(type) * 60 * dt;
-      if(vx <= 0){
+      const type = stripAt(metersNow()).type;
+      vx -= frictionFor(type) * 110 * dt;
+      rot += spin * dt;
+      spin *= 0.985;
+      if(vx <= 6){
         vx = 0;
         running = false;
-        const meters = Math.max(0, Math.round(x / PX_PER_M));
-        setArcadeScore(meters + ' m');
-        finishArcadeGame('longjump', meters);
+        const meters = Math.round(metersNow() * 10) / 10;
+        setArcadeScore(meters.toFixed(1) + ' m');
+        finishArcadeGame('longjump', Math.round(meters));
         draw();
         return;
       }
       x += vx * dt;
     }
 
-    camX = Math.max(0, x - 220);
-    setArcadeScore(Math.max(0, Math.round(x / PX_PER_M)) + ' m');
+    camX = Math.max(0, x - 230);
+    setArcadeScore(metersNow().toFixed(1) + ' m');
     draw();
     raf = requestAnimationFrame(step);
   }
 
   function draw(){
     arcadeSky(ctx);
+
+    // Horizont + Huegel mit Parallaxe: gibt dem Sprung Tiefe und macht die
+    // Geschwindigkeit ueberhaupt erst sichtbar.
+    ctx.fillStyle = 'rgba(246,195,92,.05)';
+    for(let i = 0; i < 6; i++){
+      const hx = ((i * 260) - camX * 0.25) % 1560;
+      ctx.beginPath();
+      ctx.ellipse(hx, GROUND_Y - 6, 190, 62, 0, Math.PI, 0);
+      ctx.fill();
+    }
+    ctx.strokeStyle = 'rgba(246,195,92,.12)';
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(0, GROUND_Y - 6); ctx.lineTo(ARCADE_W, GROUND_Y - 6); ctx.stroke();
+
     ctx.save();
     ctx.translate(-camX, 0);
 
-    // Boden + Untergrund-Streifen
-    const firstM = Math.floor(camX / PX_PER_M) - 5;
-    for(let m = Math.max(0, firstM); m < firstM + 90; m++){
+    // Anlaufbahn bis zum Balken
+    ctx.fillStyle = 'rgba(217,165,72,.14)';
+    ctx.fillRect(-400, GROUND_Y, BOARD_X + 400, 46);
+    // Absprungbalken
+    ctx.fillStyle = ARCADE_GOLD;
+    ctx.fillRect(BOARD_X - 6, GROUND_Y, 8, 8);
+
+    // Untergrund-Streifen + Meter-Markierungen
+    const firstM = Math.floor((camX - BOARD_X) / PX_PER_M) - 4;
+    for(let m = Math.max(0, firstM); m < firstM + 95; m++){
       const type = stripAt(m).type;
-      const px = m * PX_PER_M;
+      const px = BOARD_X + m * PX_PER_M;
       ctx.fillStyle = type === 'ice' ? 'rgba(180,220,255,.20)'
-        : type === 'sand' ? 'rgba(217,165,72,.22)' : 'rgba(255,255,255,.05)';
-      ctx.fillRect(px, GROUND_Y + 6, PX_PER_M + 1, 40);
-      if(m % 10 === 0){
-        ctx.fillStyle = 'rgba(246,195,92,.5)';
-        ctx.fillRect(px, GROUND_Y - 10, 1.5, 14);
+        : type === 'sand' ? 'rgba(217,165,72,.24)' : 'rgba(255,255,255,.05)';
+      ctx.fillRect(px, GROUND_Y, PX_PER_M + 1, 46);
+      if(m > 0 && m % 10 === 0){
+        ctx.fillStyle = 'rgba(246,195,92,.45)';
+        ctx.fillRect(px, GROUND_Y - 12, 1.5, 12);
         ctx.fillStyle = ARCADE_STONE;
         ctx.font = '11px monospace';
-        ctx.fillText(m + 'm', px + 4, GROUND_Y - 14);
+        ctx.fillText(m + 'm', px + 4, GROUND_Y - 16);
       }
     }
-    ctx.strokeStyle = 'rgba(246,195,92,.55)';
+    ctx.strokeStyle = 'rgba(246,195,92,.5)';
     ctx.lineWidth = 2;
     ctx.beginPath();
-    ctx.moveTo(camX - 10, GROUND_Y + 6);
-    ctx.lineTo(camX + ARCADE_W + 10, GROUND_Y + 6);
+    ctx.moveTo(camX - 10, GROUND_Y);
+    ctx.lineTo(camX + ARCADE_W + 10, GROUND_Y);
     ctx.stroke();
 
-    // Figur
-    const fx = phase === 'angle' || phase === 'power' ? 0 : x;
-    const fy = phase === 'angle' || phase === 'power' ? GROUND_Y : y;
-    ctx.fillStyle = ARCADE_GOLD;
+    // Flugspur
+    if(trail.length > 1){
+      ctx.strokeStyle = 'rgba(246,195,92,.28)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(trail[0].x, trail[0].y - 16);
+      for(const p of trail) ctx.lineTo(p.x, p.y - 16);
+      ctx.stroke();
+    }
+
+    // Schatten: schrumpft mit der Flughoehe
+    const height = Math.max(0, GROUND_Y - y);
+    const shadowScale = Math.max(0.25, 1 - height / 420);
+    ctx.fillStyle = `rgba(0,0,0,${(0.35 * shadowScale).toFixed(2)})`;
     ctx.beginPath();
-    ctx.arc(fx, fy - 12, 11, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = 'rgba(246,195,92,.25)';
-    ctx.beginPath();
-    ctx.arc(fx, fy - 12, 18, 0, Math.PI * 2);
+    ctx.ellipse(x, GROUND_Y + 3, 16 * shadowScale, 4.5 * shadowScale, 0, 0, Math.PI * 2);
     ctx.fill();
 
-    // Winkel-Anzeiger
+    // Figur
+    const pose = phase === 'flight' ? 'flight'
+      : phase === 'land' ? 'land'
+      : (x < BOARD_X ? 'run' : 'run');
+    drawAthlete(ctx, x, y, phase === 'flight' || phase === 'land' ? rot : 0, pose, elapsed);
+
+    // Winkel-Anzeiger am Balken
     if(phase === 'angle' || phase === 'power'){
       const rad = angle * Math.PI / 180;
-      ctx.strokeStyle = ARCADE_GOLD;
+      ctx.strokeStyle = 'rgba(246,195,92,.85)';
       ctx.lineWidth = 3;
+      ctx.setLineDash([7, 6]);
       ctx.beginPath();
-      ctx.moveTo(0, GROUND_Y - 12);
-      ctx.lineTo(Math.cos(rad) * 80, GROUND_Y - 12 - Math.sin(rad) * 80);
+      ctx.moveTo(x, GROUND_Y - 14);
+      ctx.lineTo(x + Math.cos(rad) * 92, GROUND_Y - 14 - Math.sin(rad) * 92);
       ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = ARCADE_GOLD;
+      ctx.font = 'bold 12px monospace';
+      ctx.fillText(Math.round(angle) + '°', x + Math.cos(rad) * 100, GROUND_Y - 18 - Math.sin(rad) * 100);
     }
     ctx.restore();
 
-    // HUD: Kraftbalken + verbleibende Schuebe
-    if(phase === 'power'){
-      ctx.fillStyle = 'rgba(255,255,255,.12)';
-      ctx.fillRect(30, 40, 240, 16);
-      ctx.fillStyle = ARCADE_GOLD;
-      ctx.fillRect(30, 40, 240 * (power / 100), 16);
+    // --- HUD ---
+    // Windanzeige
+    ctx.fillStyle = ARCADE_STONE;
+    ctx.font = '11px monospace';
+    const windLabel = Math.abs(wind) < 12 ? 'WINDSTILL'
+      : (wind > 0 ? 'RÜCKENWIND ' : 'GEGENWIND ') + Math.abs(wind / 10).toFixed(1);
+    ctx.fillText(windLabel, ARCADE_W - 150, 28);
+    ctx.strokeStyle = wind > 0 ? ARCADE_GOLD : '#d98a6b';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(ARCADE_W - 150, 38);
+    ctx.lineTo(ARCADE_W - 150 + Math.max(-58, Math.min(58, wind)), 38);
+    ctx.stroke();
+
+    if(phase === 'runup'){
       ctx.fillStyle = ARCADE_STONE;
       ctx.font = '12px monospace';
-      ctx.fillText('KRAFT — loslassen zum Abschuss', 30, 32);
+      ctx.fillText('ANLAUF — antippen für den Absprungwinkel', 30, 34);
     } else if(phase === 'angle'){
       ctx.fillStyle = ARCADE_STONE;
       ctx.font = '12px monospace';
-      ctx.fillText('WINKEL — antippen zum Festlegen', 30, 40);
+      ctx.fillText('WINKEL — antippen und halten für die Kraft', 30, 34);
+    } else if(phase === 'power'){
+      ctx.fillStyle = ARCADE_STONE;
+      ctx.font = '12px monospace';
+      ctx.fillText('KRAFT — loslassen zum Absprung', 30, 26);
+      ctx.fillStyle = 'rgba(255,255,255,.12)';
+      ctx.fillRect(30, 34, 240, 15);
+      const pg = ctx.createLinearGradient(30, 0, 270, 0);
+      pg.addColorStop(0, ARCADE_GOLD_DIM);
+      pg.addColorStop(1, ARCADE_GOLD);
+      ctx.fillStyle = pg;
+      ctx.fillRect(30, 34, 240 * (power / 100), 15);
     } else if(phase === 'flight'){
       ctx.fillStyle = ARCADE_STONE;
       ctx.font = '12px monospace';
-      ctx.fillText('LUFTSCHÜBE ÜBRIG: ' + boosts, 30, 40);
+      ctx.fillText('LUFTSCHÜBE: ' + '●'.repeat(boosts) + '○'.repeat(3 - boosts), 30, 34);
     }
   }
 
