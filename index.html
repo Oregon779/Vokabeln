@@ -72,6 +72,22 @@
   ::-webkit-scrollbar-thumb{background:rgba(217,165,72,.3); border-radius:5px; border:2px solid #0c0f16;}
   ::-webkit-scrollbar-thumb:hover{background:rgba(217,165,72,.6);}
 
+  /* --- Curtain-Loader: kurzer Gold-Vorhang beim allerersten Laden --- */
+  .curtain-loader{
+    position:fixed; inset:0; z-index:200; background:var(--bg);
+    display:flex; align-items:center; justify-content:center; pointer-events:none;
+    transition:opacity 550ms cubic-bezier(.22,1,.36,1);
+  }
+  .curtain-loader-line{ position:absolute; top:50%; height:1px; width:0%; transition:width 380ms cubic-bezier(.22,1,.36,1); }
+  .curtain-loader-line-l{ right:50%; background:linear-gradient(90deg, rgba(217,165,72,0) 0%, rgba(246,195,92,.95) 100%); }
+  .curtain-loader-line-r{ left:50%; background:linear-gradient(90deg, rgba(246,195,92,.95) 0%, rgba(217,165,72,0) 100%); }
+  .curtain-loader.is-active .curtain-loader-line{ width:46%; }
+  .curtain-loader-brand{ position:relative; display:flex; flex-direction:column; align-items:center; gap:.3rem; }
+  .curtain-loader-name{ font-family:var(--font-serif); font-style:italic; font-size:1.7rem; color:var(--text); display:flex; align-items:center; gap:.5rem; }
+  .curtain-loader-dot{ width:6px; height:6px; border-radius:50%; background:var(--ember); box-shadow:0 0 8px rgba(217,165,72,.8); }
+  .curtain-loader-sub{ font-family:var(--font-mono); font-size:.6rem; text-transform:uppercase; letter-spacing:.3em; color:var(--gold); }
+  @media (prefers-reduced-motion: reduce){ .curtain-loader{ display:none; } }
+
   /* Performance auf Touch-Geraeten (iPad/Handy): backdrop-filter kommt an die
      ~80 Glas-Karten/Panels/Modals der Seite ueberall unbedingt zum Einsatz und
      ist auf schwaecheren mobilen GPUs sehr teuer (Kosten steigen etwa
@@ -2911,6 +2927,15 @@
 </style>
 </head>
 <body>
+
+<div id="curtainLoader" class="curtain-loader">
+  <div class="curtain-loader-line curtain-loader-line-l" aria-hidden="true"></div>
+  <div class="curtain-loader-line curtain-loader-line-r" aria-hidden="true"></div>
+  <div class="curtain-loader-brand">
+    <span class="curtain-loader-name">Lumière<span class="curtain-loader-dot"></span></span>
+    <span class="curtain-loader-sub">Édition Atelier</span>
+  </div>
+</div>
 
 <div class="bg-base"></div>
 <div class="bg-stars" aria-hidden="true"></div>
@@ -7045,6 +7070,21 @@ function getSet(id){ return store.sets.find(s => s.id === id); }
 function reducedMotionActive(){
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches || !!store.settings.reducedMotion;
 }
+
+// --- Curtain-Loader: kurzer Gold-Vorhang beim allerersten Laden -----------
+(function initCurtainLoader(){
+  const el = document.getElementById('curtainLoader');
+  if(!el) return;
+  if(reducedMotionActive()){ el.remove(); return; }
+  requestAnimationFrame(() => el.classList.add('is-active'));
+  setTimeout(() => {
+    el.style.opacity = '0';
+    setTimeout(() => el.remove(), 550);
+  }, 420);
+  // Harte Obergrenze, falls z.B. Fonts sehr langsam laden - der Vorhang darf
+  // niemals laenger als 1.8s stehen bleiben.
+  setTimeout(() => { if(el.isConnected) el.remove(); }, 1800);
+})();
 function recordDailyProgress(n = 1){
   const key = todayKey();
   store.dailyProgress[key] = (store.dailyProgress[key] || 0) + n;
