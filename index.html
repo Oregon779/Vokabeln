@@ -2118,6 +2118,44 @@
   .hub-manifest-attrib span:first-child{font-family:var(--font-serif); font-style:italic; font-size:.85rem; color:var(--gold-bright); white-space:nowrap;}
   .hub-manifest-attrib .line{flex:1; max-width:9rem; height:1px; background:linear-gradient(90deg, var(--border-solid), transparent);}
 
+  /* --- Hub: "In drei Schritten" + Abschluss-CTA --- */
+  .hub-ablauf{ position:relative; z-index:1; max-width:1280px; margin:6rem auto 0; padding:0 1.5rem; }
+  @media (min-width:768px){ .hub-ablauf{ padding:0 2.4rem; } }
+  .hub-ablauf-head{ max-width:40em; margin-bottom:2.4rem; }
+  .hub-ablauf-head h2{ font-family:var(--font-serif); font-weight:700; font-size:clamp(1.9rem,4vw,2.6rem); color:var(--text); margin:0 0 .6rem; letter-spacing:-.01em; border:none; padding:0; text-transform:none; }
+  .hub-ablauf-head p{ margin:0; color:var(--stone); font-size:.98rem; line-height:1.6; }
+  .hub-ablauf-grid{ display:grid; grid-template-columns:1fr; gap:1.2rem; }
+  @media (min-width:768px){ .hub-ablauf-grid{ grid-template-columns:repeat(3, 1fr); gap:1.4rem; } }
+  .hub-ablauf-step{
+    padding:1.6rem; border-radius:20px; background:var(--surface); border:1px solid var(--border-solid);
+    opacity:0; transform:translateY(20px); transition:opacity .5s var(--ease), transform .5s var(--ease), border-color .25s var(--ease);
+  }
+  .hub-ablauf-step:hover{ border-color:var(--ember-dim); }
+  .hub-ablauf-step.is-accent{ border-color:var(--ember-dim); box-shadow:var(--shadow-sm); }
+  @media (min-width:768px){ .hub-ablauf-step.is-accent{ margin-top:-1rem; } }
+  .hub-ablauf.reveal-in .hub-ablauf-step{ opacity:1; transform:none; }
+  @media (prefers-reduced-motion: reduce){ .hub-ablauf-step{ opacity:1; transform:none; transition:none; } }
+  .hub-ablauf-step-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem; }
+  .hub-ablauf-num{ font-family:var(--font-mono); font-weight:700; font-size:1.7rem; color:var(--ember); }
+  .hub-ablauf-tag{ font-family:var(--font-mono); font-size:.6rem; text-transform:uppercase; letter-spacing:.12em; color:var(--stone); padding:.2rem .5rem; border-radius:6px; background:var(--surface-2); }
+  .hub-ablauf-step h3{ font-family:var(--font-serif); font-weight:600; font-size:1.25rem; color:var(--text); margin:0 0 .5rem; text-transform:none; border:none; padding:0; letter-spacing:0; }
+  .hub-ablauf-step p{ margin:0; color:var(--stone); font-size:.88rem; line-height:1.6; }
+
+  .hub-final-cta{ position:relative; z-index:1; max-width:1280px; margin:5rem auto 0; padding:0 1.5rem; }
+  @media (min-width:768px){ .hub-final-cta{ padding:0 2.4rem; } }
+  .hub-final-cta-box{
+    position:relative; text-align:center; border-radius:26px; padding:3rem 1.6rem;
+    background:linear-gradient(160deg, var(--surface-2), var(--surface) 60%, var(--bg)); border:1px solid var(--ember-dim);
+    opacity:0; transform:translateY(20px); transition:opacity .5s var(--ease), transform .5s var(--ease);
+  }
+  .hub-final-cta.reveal-in .hub-final-cta-box{ opacity:1; transform:none; }
+  @media (prefers-reduced-motion: reduce){ .hub-final-cta-box{ opacity:1; transform:none; transition:none; } }
+  @media (min-width:768px){ .hub-final-cta-box{ padding:4.2rem 3rem; } }
+  .hub-final-cta-box h2{ font-family:var(--font-serif); font-weight:700; font-size:clamp(2rem,4.6vw,3rem); color:var(--text); margin:0 0 .9rem; border:none; padding:0; text-transform:none; letter-spacing:-.01em; }
+  .hub-final-cta-box > p{ max-width:34em; margin:0 auto 1.6rem; color:var(--stone); font-size:1rem; line-height:1.65; }
+  .hub-final-cta-note{ margin:1rem 0 0 !important; font-family:var(--font-mono); font-size:.7rem; letter-spacing:.06em; color:var(--stone); }
+  .hub-final-cta-box .btn{ width:auto; display:inline-flex; margin:0 auto; }
+
   /* --- Seiten-Footer (Startseite) ----------------------------------------
      Aufbau nach dem uebergebenen Footer-Entwurf: Lichtschein oben in der Mitte,
      durchgezogenes Spaltenraster mit Trennlinien, je Spalte eine grosse
@@ -3409,6 +3447,44 @@
         <div class="hub-manifest-attrib"><span id="hubManifestAttrib">Ludwig Wittgenstein · Tractatus</span><span class="line"></span></div>
       </div>
     </div>
+
+    <section class="hub-ablauf">
+      <div class="hub-ablauf-head">
+        <h2>In drei ruhigen Schritten zum Lernerfolg.</h2>
+        <p>Keine künstliche Hektik, keine sinnlosen Punktespielereien — nur konzentriertes, effektives Arbeiten.</p>
+      </div>
+      <div class="hub-ablauf-grid">
+        <div class="hub-ablauf-step">
+          <div class="hub-ablauf-step-head"><span class="hub-ablauf-num">01</span><span class="hub-ablauf-tag">Étape 1</span></div>
+          <h3>Set anlegen</h3>
+          <p>Eigene Vokabeln eintragen oder ein bestehendes Set öffnen. Ganz nach deinem Schul- oder Unistoff strukturiert.</p>
+        </div>
+        <div class="hub-ablauf-step is-accent">
+          <div class="hub-ablauf-step-head"><span class="hub-ablauf-num">02</span><span class="hub-ablauf-tag">Étape 2</span></div>
+          <h3>Karte für Karte lernen</h3>
+          <p>Umdrehen, anhören, wiederholen — in deinem ganz eigenen Tempo, ohne algorithmischen Druck.</p>
+        </div>
+        <div class="hub-ablauf-step">
+          <div class="hub-ablauf-step-head"><span class="hub-ablauf-num">03</span><span class="hub-ablauf-tag">Étape 3</span></div>
+          <h3>Dranbleiben</h3>
+          <p>Serie halten, Klausurtermine im Blick behalten und sehen, wie dein Wortschatz nachhaltig wächst.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="hub-final-cta">
+      <div class="hub-final-cta-box">
+        <div class="bracket-corner-tr" aria-hidden="true"></div>
+        <div class="bracket-corner-bl" aria-hidden="true"></div>
+        <h2>Bereit, anzufangen?</h2>
+        <p>Erstelle in wenigen Minuten dein erstes Vokabelset und lerne Französisch mit der Sorgfalt, die diese Sprache verdient.</p>
+        <button type="button" id="btnHubFinalCta" class="btn btn-primary btn-large hub-cta">
+          <span>Kostenlos starten</span>
+          <svg class="hub-cta-arrow" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </button>
+        <p class="hub-final-cta-note">Kostenfrei nutzbar · Ohne Kreditkarte · Sofort startklar</p>
+      </div>
+    </section>
     </div>
 
     <footer class="site-footer">
@@ -7087,6 +7163,8 @@ if(!reducedMotionActive()){
   // (statt schon beim Laden der Seite, lange bevor man sie sieht).
   setupCardReveal(document.querySelector('.hub-features'), '.feature-carousel');
   setupBlurReveal(document.querySelector('.hub-manifest-quote'));
+  setupCardReveal(document.querySelector('.hub-ablauf'), '.hub-ablauf-step');
+  setupCardReveal(document.querySelector('.hub-final-cta'), '.hub-final-cta-box');
 }
 
 // --- Manifest: mehrere Zitate, die sich alle 30s abwechseln ---------------
@@ -7927,6 +8005,7 @@ function renderHub(){
 }
 document.getElementById('btnHubSets').addEventListener('click', () => { sndClick(); renderHome(); });
 document.getElementById('btnHubListen').addEventListener('click', () => openGlobalListen());
+document.getElementById('btnHubFinalCta').addEventListener('click', () => { sndClick(); currentUser ? renderHome() : openAccountModal(); });
 document.getElementById('featCardSets').addEventListener('click', () => { sndClick(); renderHome(); });
 document.getElementById('featCardListen').addEventListener('click', () => openGlobalListen());
 document.getElementById('featCardRewards').addEventListener('click', () => { sndClick(); renderRewards(); });
