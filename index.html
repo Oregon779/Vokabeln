@@ -1908,20 +1908,48 @@
      ausgewertet und mit transform kombiniert, dadurch gibt es gar keinen
      Konflikt und der Hover-Effekt bleibt unveraendert erhalten. */
   @media (hover:none), (pointer:coarse), (prefers-reduced-motion: reduce){ .hero-shader{ display:none; } }
-  .hub-grid{position:relative; z-index:1; display:grid; grid-template-columns:1fr; gap:2.6rem; align-items:center; padding-top:1rem; max-width:1280px; margin:0 auto;}
-  @media (min-width:980px){ .hub-grid{ grid-template-columns:1.05fr .95fr; gap:3.2rem; } }
-  .hub-copy{display:flex; flex-direction:column; justify-content:flex-start;}
-  .hub-title{max-width:20em;}
+  /* --- Cover-Seite: Titelblatt-Komposition statt symmetrischem 2-Spalten-
+     Hero. Grosse Geister-Folio-Ziffer hinter dem Titel, das Foto ist eine
+     kleine, leicht gedrehte "angeheftete" Plakette statt halber Breite. */
+  .hub-cover{ position:relative; z-index:1; max-width:1280px; margin:0 auto; padding:1.4rem 0 3rem; overflow:visible; }
+  @media (min-width:900px){ .hub-cover{ padding-bottom:7.5rem; } }
+  .hub-cover-folio{
+    position:absolute; top:-1.6rem; right:-.4rem; z-index:0; pointer-events:none; user-select:none;
+    font-family:var(--font-serif); font-weight:600; font-size:clamp(7rem,17vw,14rem); line-height:1;
+    color:transparent; -webkit-text-stroke:1px rgba(217,165,72,.16);
+  }
+  .hub-cover-copy{ position:relative; z-index:1; max-width:42rem; display:flex; flex-direction:column; }
+  .hub-cover-title{ max-width:16em; margin:1.1rem 0 1.3rem; }
 
-  /* Gestaffelter Hero-Einflug (Eyebrow -> Titel -> Text -> Aktionen -> Stats) */
-  .hub-copy > *{animation:heroIn .55s var(--ease-spring) backwards;}
-  .hub-copy > *:nth-child(1){animation-delay:.05s;}
-  .hub-copy > *:nth-child(2){animation-delay:.16s;}
-  .hub-copy > *:nth-child(3){animation-delay:.27s;}
-  .hub-copy > *:nth-child(4){animation-delay:.38s;}
-  .hub-copy > *:nth-child(5){animation-delay:.49s;}
-  .hub-copy > *:nth-child(6){animation-delay:.6s;}
+  /* Gestaffelter Hero-Einflug (Eyebrow -> Titel -> Text -> Aktionen -> Note -> Colophon) */
+  .hub-cover-copy > *{animation:heroIn .55s var(--ease-spring) backwards;}
+  .hub-cover-copy > *:nth-child(1){animation-delay:.05s;}
+  .hub-cover-copy > *:nth-child(2){animation-delay:.14s;}
+  .hub-cover-copy > *:nth-child(3){animation-delay:.23s;}
+  .hub-cover-copy > *:nth-child(4){animation-delay:.32s;}
+  .hub-cover-copy > *:nth-child(5){animation-delay:.41s;}
+  .hub-cover-copy > *:nth-child(6){animation-delay:.5s;}
+  .hub-cover-copy > *:nth-child(7){animation-delay:.59s;}
   @keyframes heroIn{ from{opacity:0; transform:translateY(24px);} to{opacity:1; transform:translateY(0);} }
+
+  .hub-cover-actions{ display:flex; align-items:center; gap:1.3rem; flex-wrap:wrap; margin:1.6rem 0 0; }
+  .hub-cover-ghost-btn{
+    background:none; border:none; display:inline-flex; align-items:center; gap:.5rem; cursor:pointer;
+    font-family:var(--font-mono); font-size:.76rem; text-transform:uppercase; letter-spacing:.08em; color:var(--stone);
+    padding:.5rem 0; border-bottom:1px solid var(--border-solid); transition:color .2s var(--ease), border-color .2s var(--ease);
+  }
+  .hub-cover-ghost-btn:hover{ color:var(--ember-bright); border-color:var(--ember-bright); }
+
+  .hub-cover-colophon{ display:flex; align-items:baseline; gap:1.3rem; margin:1.8rem 0 0; padding-top:1.3rem; border-top:1px solid var(--border-solid); }
+  .hub-cover-colophon > div{ display:flex; align-items:baseline; gap:.4rem; }
+  .hub-cover-colophon dt{ font-family:var(--font-mono); font-weight:700; font-size:1.25rem; color:var(--ember); margin:0; }
+  .hub-cover-colophon dd{ margin:0; font-family:var(--font-mono); font-size:.62rem; text-transform:uppercase; letter-spacing:.08em; color:var(--stone); }
+  .hub-cover-colophon-sep{ width:1px; height:1.5rem; background:var(--border-solid); }
+
+  .hub-cover-plate{ max-width:240px; margin:2.6rem 0 0; transform:rotate(-2.5deg); }
+  @media (min-width:900px){
+    .hub-cover-plate{ position:absolute; right:.5rem; bottom:-1.5rem; margin:0; z-index:2; }
+  }
 
   /* Personalisierte Begruessung - nur fuer eingeloggte User, siehe
      updateWelcomeMessage(). Bleibt immer im DOM (hidden-Attribut statt
@@ -1944,7 +1972,6 @@
   }
   .hub-eyebrow .dot{width:6px; height:6px; border-radius:50%; background:var(--pop); box-shadow:0 0 10px 2px var(--pop-dim); animation:dotPulse 2.2s ease-in-out infinite;}
   @keyframes dotPulse{ 0%,100%{opacity:1; transform:scale(1);} 50%{opacity:.6; transform:scale(1.3);} }
-  .hub-copy{position:relative; z-index:1;}
   .hub-title{
     font-family:var(--font-serif); font-weight:700; font-size:clamp(2.8rem,7.6vw,5rem); line-height:.98; letter-spacing:-.025em; margin:0;
   }
@@ -1957,26 +1984,6 @@
   @keyframes gradientShift{ 0%,100%{background-position:0% center;} 50%{background-position:100% center;} }
   .page-title em{ color:var(--ember-bright); font-style:italic; }
   .hub-desc{color:var(--stone); font-size:1.05rem; line-height:1.65; max-width:31em; margin:1.3rem 0 0;}
-  .hub-interact{display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1.4rem; margin-top:2.2rem;}
-  .hub-actions{display:flex; flex-wrap:wrap; gap:.8rem; margin-top:0;}
-  .hub-stats{display:grid; grid-template-columns:repeat(3, 1fr); gap:.7rem; margin-top:0; max-width:26rem;}
-  @media (max-width:400px){ .hub-stats{grid-template-columns:repeat(3, minmax(0,1fr)); gap:.5rem;} }
-  .hub-stat{
-    position:relative; overflow:hidden; display:flex; flex-direction:column; justify-content:space-between; gap:.7rem;
-    background:linear-gradient(180deg, var(--surface-2), var(--surface)); -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px); border:1px solid var(--border-solid); border-radius:14px;
-    padding:.85rem .8rem; box-shadow:var(--shadow-sm); min-height:5.6rem;
-    transition:transform .25s var(--ease-spring), border-color .25s var(--ease), box-shadow .25s var(--ease);
-  }
-  .hub-stat::before{
-    content:''; position:absolute; top:0; right:0; bottom:0; left:0; inset:0; opacity:0; pointer-events:none;
-    background:radial-gradient(70px circle at var(--sx,50%) var(--sy,0%), rgba(246,195,92,.35), transparent 55%);
-    transition:opacity .3s var(--ease);
-  }
-  .hub-stat:hover{transform:translateY(-3px); border-color:var(--ember-dim); box-shadow:var(--shadow-md);}
-  .hub-stat:hover::before{opacity:1;}
-  .hub-stat-icon{position:absolute; top:.7rem; right:.7rem; opacity:.55;}
-  .hub-stat dt{font-family:var(--font-mono); font-weight:700; font-size:clamp(1.4rem,2.4vw,1.7rem); color:var(--ember); margin:0; line-height:1; position:relative;}
-  .hub-stat dd{margin:0; font-family:var(--font-mono); font-size:.6rem; text-transform:uppercase; letter-spacing:.1em; color:var(--stone); position:relative;}
 
   /* --- Hub: Editorial-Foto-Hero (ersetzt die fruehere 3D-Karte) --- */
   .bracket-corner-tr{position:absolute; top:-9px; right:-9px; width:22px; height:22px; border-top:1.5px solid var(--ember); border-right:1.5px solid var(--ember); pointer-events:none; z-index:5;}
@@ -2205,26 +2212,28 @@
   .hub-section-eyebrow-line{ width:2.2rem; height:1px; background:rgba(217,165,72,.4); }
   .hub-ablauf-head{ position:relative; z-index:1; max-width:40em; margin-bottom:2.4rem; }
   .hub-section-eyebrow-row{ position:relative; z-index:1; }
-  .hub-ablauf-grid{ position:relative; z-index:1; }
   .hub-ablauf-head h2{ font-family:var(--font-serif); font-weight:700; font-size:clamp(1.9rem,4vw,2.6rem); color:var(--text); margin:0 0 .6rem; letter-spacing:-.01em; border:none; padding:0; text-transform:none; }
   .hub-ablauf-head p{ margin:0; color:var(--stone); font-size:.98rem; line-height:1.6; }
-  .hub-ablauf-grid{ display:grid; grid-template-columns:1fr; gap:1.2rem; }
-  @media (min-width:768px){ .hub-ablauf-grid{ grid-template-columns:repeat(3, 1fr); gap:1.4rem; } }
-  .hub-ablauf-step{
-    padding:1.6rem; border-radius:20px; background:var(--surface); border:1px solid rgba(38,48,67,.8);
-    opacity:0; transform:translateY(20px); transition:opacity .5s var(--ease), transform .5s var(--ease), border-color .25s var(--ease);
+
+  /* Vertikale Marginalien-Zeitleiste statt drei gleicher Boxen nebeneinander -
+     die Schritt-Nummern sitzen wie Randnotizen links neben einer duennen
+     Linie, statt als generischer 3-Karten-Grid. */
+  .hub-ablauf-timeline{ position:relative; z-index:1; max-width:640px; padding-left:3.2rem; }
+  .hub-ablauf-tl-line{ position:absolute; left:1rem; top:.4rem; bottom:.4rem; width:1px; background:linear-gradient(180deg, var(--ember-dim), var(--border-solid) 85%); }
+  .hub-ablauf-tl-step{ position:relative; padding-bottom:2.6rem; opacity:0; transform:translateY(20px); transition:opacity .5s var(--ease), transform .5s var(--ease); }
+  .hub-ablauf-tl-step:last-child{ padding-bottom:0; }
+  .hub-ablauf.reveal-in .hub-ablauf-tl-step{ opacity:1; transform:none; }
+  @media (prefers-reduced-motion: reduce){ .hub-ablauf-tl-step{ opacity:1; transform:none; transition:none; } }
+  .hub-ablauf-tl-num{
+    position:absolute; left:-3.2rem; top:-.15rem; width:2.2rem; height:2.2rem; display:flex; align-items:center; justify-content:center;
+    border-radius:50%; background:var(--surface); border:1px solid var(--border-solid); font-family:var(--font-mono); font-weight:700; font-size:.85rem; color:var(--ember);
+    transition:border-color .25s var(--ease), color .25s var(--ease), box-shadow .25s var(--ease);
   }
-  .hub-ablauf-step:hover{ border-color:rgba(140,107,46,.6); }
-  .hub-ablauf-step.is-accent{ border-color:rgba(140,107,46,.4); box-shadow:var(--shadow-sm); }
-  .hub-ablauf-step.is-accent:hover{ border-color:var(--ember); }
-  @media (min-width:768px){ .hub-ablauf-step.is-accent{ margin-top:-1rem; } }
-  .hub-ablauf.reveal-in .hub-ablauf-step{ opacity:1; transform:none; }
-  @media (prefers-reduced-motion: reduce){ .hub-ablauf-step{ opacity:1; transform:none; transition:none; } }
-  .hub-ablauf-step-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem; }
-  .hub-ablauf-num{ font-family:var(--font-mono); font-weight:700; font-size:1.7rem; color:var(--ember); }
+  .hub-ablauf-tl-step.is-accent .hub-ablauf-tl-num{ border-color:var(--ember); color:var(--ember-bright); box-shadow:0 0 0 4px rgba(217,165,72,.1); }
   .hub-ablauf-tag{ font-family:var(--font-mono); font-size:.6rem; text-transform:uppercase; letter-spacing:.12em; color:var(--stone); padding:.2rem .5rem; border-radius:6px; background:var(--surface-2); }
-  .hub-ablauf-step h3{ font-family:var(--font-serif); font-weight:600; font-size:1.25rem; color:var(--text); margin:0 0 .5rem; text-transform:none; border:none; padding:0; letter-spacing:0; }
-  .hub-ablauf-step p{ margin:0; color:var(--stone); font-size:.88rem; line-height:1.6; }
+  .hub-ablauf-tl-body{ padding-top:.2rem; }
+  .hub-ablauf-tl-body h3{ font-family:var(--font-serif); font-weight:600; font-size:1.3rem; color:var(--text); margin:.6rem 0 .5rem; }
+  .hub-ablauf-tl-body p{ margin:0; color:var(--stone); font-size:.92rem; line-height:1.6; max-width:32em; }
 
   .hub-final-cta{ position:relative; z-index:1; max-width:1280px; margin:5rem auto 0; padding:0 1.5rem; }
   @media (min-width:768px){ .hub-final-cta{ padding:0 2.4rem; } }
@@ -3351,49 +3360,41 @@
       <p class="exam-banner-text" id="examBannerText"></p>
       <button class="exam-banner-close" id="examBannerClose" type="button" aria-label="Schließen">✕</button>
     </div>
-    <div class="hub-grid">
-      <div class="hub-copy">
+    <div class="hub-cover">
+      <span class="hub-cover-folio" aria-hidden="true">01</span>
+      <div class="hub-cover-copy">
         <div class="hub-eyebrow-row hub-eyebrow-row-dossier">
           <span class="hub-eyebrow-mono">DOSSIER D'APPRENTISSAGE</span>
           <span class="hub-eyebrow-line"></span>
           <p class="hub-eyebrow"><span class="dot"></span>Lumière · Édition Atelier</p>
         </div>
         <p class="hub-welcome" id="hubWelcome" hidden></p>
-        <h1 class="hub-title">Vokabeln lernen, <em>élégant</em> gemacht.</h1>
-        <p class="hub-desc">Lumière hilft dir, deinen französischen Wortschatz strukturiert und mit Ruhe aufzubauen. Mit eigenen Lernsets, präziser Aussprache zum Anhören und einem individuellen Lernrhythmus, abgestimmt auf deine anstehenden Klausurtermine.</p>
+        <h1 class="hub-title hub-cover-title">Vokabeln lernen, <em>élégant</em> gemacht.</h1>
+        <p class="hub-desc hub-cover-desc">Lumière hilft dir, deinen französischen Wortschatz strukturiert und mit Ruhe aufzubauen. Mit eigenen Lernsets, präziser Aussprache zum Anhören und einem individuellen Lernrhythmus, abgestimmt auf deine anstehenden Klausurtermine.</p>
+        <div class="hub-cover-actions">
+          <button id="btnHubSets" class="btn btn-primary btn-large hub-cta" style="width:auto; margin:0;">
+            <span>Eigene Lernsets</span>
+            <svg class="hub-cta-arrow" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </button>
+          <button id="btnHubListen" class="hub-cover-ghost-btn" type="button">
+            <span class="hub-cta-icon">🔊</span>
+            <span>Aussprache üben</span>
+          </button>
+        </div>
         <p class="hub-archive-note">
           <span class="hub-archive-id">ARCHIVE-ID 4892</span><span class="hub-archive-dot"></span>
           <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" stroke-linecap="round" stroke-linejoin="round"/></svg>
           Kein Abofalle · Fokus auf deine eigenen Klausuren
         </p>
-        <div class="hub-interact">
-          <dl class="hub-stats">
-            <div class="hub-stat">
-              <svg class="hub-stat-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="var(--ember)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5V5.5Z"/><path d="M4 18.5A2.5 2.5 0 0 1 6.5 16H20"/></svg>
-              <dt id="hubSetsCount">0</dt><dd>Lernsets</dd>
-            </div>
-            <div class="hub-stat">
-              <svg class="hub-stat-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="var(--ember)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="4.2" rx="1.2"/><rect x="4" y="10.4" width="16" height="4.2" rx="1.2"/><rect x="4" y="16.8" width="16" height="4.2" rx="1.2"/></svg>
-              <dt id="hubWordsCount">0</dt><dd>Vokabeln</dd>
-            </div>
-            <div class="hub-stat">
-              <svg class="hub-stat-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="var(--ember-bright)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c1 3-2 4.5-2 7.5A4.5 4.5 0 0 0 14.5 14c1.8 0 2.9-1 3.3-2 .9 2 .2 4.4-1.4 6a6.5 6.5 0 0 1-9-9c1-1 1.6-2.3 1.6-3.8C9 3.5 10.5 2.4 12 2Z"/></svg>
-              <dt id="hubStreakCount">0</dt><dd>Tage-Serie</dd>
-            </div>
-          </dl>
-          <div class="hub-actions">
-            <button id="btnHubSets" class="btn btn-primary btn-large hub-cta" style="width:auto; margin:0;">
-              <span>Eigene Lernsets</span>
-              <svg class="hub-cta-arrow" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-            </button>
-            <button id="btnHubListen" class="btn btn-secondary btn-large hub-cta" style="width:auto; margin:0;">
-              <span class="hub-cta-icon">🔊</span>
-              <span>Aussprache üben</span>
-            </button>
-          </div>
-        </div>
+        <dl class="hub-cover-colophon">
+          <div><dt id="hubSetsCount">0</dt><dd>Lernsets</dd></div>
+          <span class="hub-cover-colophon-sep" aria-hidden="true"></span>
+          <div><dt id="hubWordsCount">0</dt><dd>Vokabeln</dd></div>
+          <span class="hub-cover-colophon-sep" aria-hidden="true"></span>
+          <div><dt id="hubStreakCount">0</dt><dd>Tage-Serie</dd></div>
+        </dl>
       </div>
-    <div class="hub-photo-stage">
+    <div class="hub-photo-stage hub-cover-plate">
       <div class="bracket-corner-tr" aria-hidden="true"></div>
       <div class="bracket-corner-bl" aria-hidden="true"></div>
       <div class="hub-photo-frame">
@@ -3439,6 +3440,9 @@
 
     <div class="hub-dark-zone">
     <div class="hub-features">
+      <div class="hub-section-eyebrow-row">
+        <span>§ 02</span><span class="hub-section-eyebrow-line"></span><span>Sommaire</span>
+      </div>
       <div class="hub-features-head">
         <p class="hub-features-eyebrow"><span class="dot"></span>Entdecke die Webseite</p>
         <span class="hub-features-hint">← Blättern →</span>
@@ -3600,21 +3604,31 @@
         <h2>In drei ruhigen Schritten zum Lernerfolg.</h2>
         <p>Keine künstliche Hektik, keine sinnlosen Punktespielereien — nur konzentriertes, effektives Arbeiten.</p>
       </div>
-      <div class="hub-ablauf-grid">
-        <div class="hub-ablauf-step">
-          <div class="hub-ablauf-step-head"><span class="hub-ablauf-num">01</span><span class="hub-ablauf-tag">Étape 1</span></div>
-          <h3>Set anlegen</h3>
-          <p>Eigene Vokabeln eintragen oder ein bestehendes Set öffnen. Ganz nach deinem Schul- oder Unistoff strukturiert.</p>
+      <div class="hub-ablauf-timeline">
+        <div class="hub-ablauf-tl-line" aria-hidden="true"></div>
+        <div class="hub-ablauf-tl-step">
+          <span class="hub-ablauf-tl-num">01</span>
+          <div class="hub-ablauf-tl-body">
+            <span class="hub-ablauf-tag">Étape 1</span>
+            <h3>Set anlegen</h3>
+            <p>Eigene Vokabeln eintragen oder ein bestehendes Set öffnen. Ganz nach deinem Schul- oder Unistoff strukturiert.</p>
+          </div>
         </div>
-        <div class="hub-ablauf-step is-accent">
-          <div class="hub-ablauf-step-head"><span class="hub-ablauf-num">02</span><span class="hub-ablauf-tag">Étape 2</span></div>
-          <h3>Karte für Karte lernen</h3>
-          <p>Umdrehen, anhören, wiederholen — in deinem ganz eigenen Tempo, ohne algorithmischen Druck.</p>
+        <div class="hub-ablauf-tl-step is-accent">
+          <span class="hub-ablauf-tl-num">02</span>
+          <div class="hub-ablauf-tl-body">
+            <span class="hub-ablauf-tag">Étape 2</span>
+            <h3>Karte für Karte lernen</h3>
+            <p>Umdrehen, anhören, wiederholen — in deinem ganz eigenen Tempo, ohne algorithmischen Druck.</p>
+          </div>
         </div>
-        <div class="hub-ablauf-step">
-          <div class="hub-ablauf-step-head"><span class="hub-ablauf-num">03</span><span class="hub-ablauf-tag">Étape 3</span></div>
-          <h3>Dranbleiben</h3>
-          <p>Serie halten, Klausurtermine im Blick behalten und sehen, wie dein Wortschatz nachhaltig wächst.</p>
+        <div class="hub-ablauf-tl-step">
+          <span class="hub-ablauf-tl-num">03</span>
+          <div class="hub-ablauf-tl-body">
+            <span class="hub-ablauf-tag">Étape 3</span>
+            <h3>Dranbleiben</h3>
+            <p>Serie halten, Klausurtermine im Blick behalten und sehen, wie dein Wortschatz nachhaltig wächst.</p>
+          </div>
         </div>
       </div>
     </section>
@@ -7484,7 +7498,7 @@ if(!reducedMotionActive()){
   // (statt schon beim Laden der Seite, lange bevor man sie sieht).
   setupCardReveal(document.querySelector('.hub-features'), '.feature-carousel');
   setupBlurReveal(document.querySelector('.hub-manifest-quote'));
-  setupCardReveal(document.querySelector('.hub-ablauf'), '.hub-ablauf-step');
+  setupCardReveal(document.querySelector('.hub-ablauf'), '.hub-ablauf-tl-step');
   setupCardReveal(document.querySelector('.hub-final-cta'), '.hub-final-cta-box');
 }
 
