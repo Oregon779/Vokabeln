@@ -460,20 +460,10 @@
   .btn-primary:hover::after{opacity:1; transform:translateX(60%); transition:opacity .3s var(--ease), transform .7s var(--ease);}
   .btn-secondary{background:var(--surface); color:var(--text); border:1px solid var(--border-solid); -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px);}
   .btn-secondary:hover{border-color:var(--ember-dim); background:var(--surface-2);}
-  #btnHubListen{border-color:var(--ember-dim); color:var(--ember-bright);}
-  #btnHubListen:hover{border-color:var(--ember-bright); background:rgba(246,195,92,.1);}
   .btn-danger{background:transparent; color:var(--danger); border:1px solid rgba(239,75,87,.4);}
   .btn-danger:hover{background:var(--danger); color:#fff;}
   .btn-link{background:none; color:var(--ember); padding:.3rem 0; margin-bottom:.8rem; text-transform:none; font-weight:600;}
   .btn-large{width:100%; padding:.9rem; font-size:.9rem; margin:1rem 0 1.6rem;}
-  .hub-cta{display:inline-flex; align-items:center; gap:.55rem; border-radius:.6rem !important;}
-  .hub-cta.btn-primary{border:1px solid rgba(255,255,255,.2);}
-  .hub-cta-arrow{transition:transform .25s var(--ease-spring); flex-shrink:0;}
-  .hub-cta:hover .hub-cta-arrow{transform:translateX(4px);}
-  .hub-cta-icon{
-    display:inline-flex; align-items:center; justify-content:center; width:1.6rem; height:1.6rem; border-radius:7px; flex-shrink:0;
-    background:rgba(246,195,92,.12); font-size:.8rem;
-  }
   .btn-small{padding:.35rem .6rem; font-size:.72rem;}
   .btn-group{display:flex; gap:.5rem; flex-wrap:wrap;}
 
@@ -1871,392 +1861,161 @@
   .nav-overlay-item:hover .label{transform:translateX(10px); color:var(--ember);}
   .nav-overlay-item.active .label{color:var(--ember); font-style:italic;}
 
-  /* --- Hub / Startseite (Hero) --- */
-  /* #app deckelt normalerweise alle Ansichten auf 880px (Lesebreite); die Startseite
-     braucht fuer die zweispaltige Karten-Hero aber mehr Platz. Statt #view-hub per
-     100vw+negativer Margin aus #app auszubrechen (zaehlt unter Windows/Chrome faelschlich
-     die Breite der Scrollbar mit -> Seite wirkt leicht ausser Mitte), wird stattdessen
-     #app selbst per Klasse breiter gemacht, solange die Startseite aktiv ist. #app bleibt
-     so weiterhin ganz normal per margin:0 auto zentriert, unabhaengig von der Scrollbar. */
-  body.wide-view-active #app{ max-width:1280px; }
-  #view-hub{
-    position:relative;
-    background:linear-gradient(180deg, rgba(20,28,44,.55) 0%, transparent 45%);
-    border-bottom:1px solid var(--border-solid);
+  /* === STARTSEITE: Kino-Szenen ==========================================
+     Keine Karten, kein Raster. Die Seite ist eine Folge vollflaechiger
+     Szenen, die aus dem Schwarz auftauchen; darunter liegt ein einziges
+     Partikelfeld (siehe initCineField), das auf den Zeiger reagiert.
+     Scroll-Fortschritt je Szene steuert Deckkraft/Unschaerfe/Versatz. */
+  /* Vollflaechig aus dem 880px-Raster von #app ausbrechen: die Szenen sollen
+     randlos sein, sonst sitzt die ganze Startseite in einer sichtbaren Spalte. */
+  .view-cine{
+    position:relative; padding:0 !important;
+    width:100vw; max-width:100vw;
+    margin-left:calc(50% - 50vw); margin-right:calc(50% - 50vw);
+    margin-top:-6.2rem;
   }
-  /* Keine Gold-Leuchtflecken mehr im Hero-Hintergrund - nur noch die duenne
-     Trennlinie unter dem Header bleibt, Rest ist die einheitliche Hintergrundfarbe. */
-  .hub-hero-bg{position:absolute; top:0; right:0; bottom:0; left:0; inset:0; z-index:0; overflow:hidden; pointer-events:none;}
-  .hub-hero-bg .hairline{position:absolute; top:0; left:5%; right:5%; height:1px; background:linear-gradient(90deg, transparent, rgba(246,195,92,.2), transparent);}
-  /* Shader-Schleier hinter dem Hero (siehe initHeroShader). Bewusst sehr dezent
-     und nach unten ausgeblendet, damit Titel und Karte lesbar bleiben. Wird nur
-     auf Zeigergeraeten mit WebGL2 ueberhaupt eingeschaltet. */
-  /* Hoehe bewusst begrenzt: .hub-hero-bg spannt sich ueber den gesamten Hub
-     (Hero + Karten + Manifest + Footer). Der Schleier soll aber nur hinter dem
-     Hero liegen - sonst rechnet der Shader vollflaechig ueber die ganze Seite. */
-  .hero-shader{
-    position:absolute; top:0; left:0; right:0; width:100%; height:clamp(420px, 92vh, 900px);
-    opacity:0; transition:opacity 1.2s var(--ease-premium); pointer-events:none;
-    -webkit-mask-image:linear-gradient(180deg, #000 0%, rgba(0,0,0,.55) 55%, transparent 92%);
-    mask-image:linear-gradient(180deg, #000 0%, rgba(0,0,0,.55) 55%, transparent 92%);
+  @media (min-width:700px){ .view-cine{ margin-top:-6.6rem; } }
+  .view-cine .exam-banner{ position:relative; z-index:3; max-width:60rem; margin:5.5rem auto 0; }
+
+  .cine-field{
+    position:fixed; top:0; left:0; width:100%; height:100%; z-index:0;
+    pointer-events:none; opacity:0; transition:opacity 1.2s var(--ease-premium);
   }
-  .hero-shader.is-live{ opacity:.5; }
-  /* Magnetische Buttons: bewusst ueber die eigenstaendige translate-Eigenschaft
-     statt ueber transform. Die Buttons haben bereits eigene transform-Regeln
-     (Anheben bei :hover) und eine laufende Animation - beides gewinnt in der
-     Kaskade gegen eine normale transform-Regel. translate wird dagegen separat
-     ausgewertet und mit transform kombiniert, dadurch gibt es gar keinen
-     Konflikt und der Hover-Effekt bleibt unveraendert erhalten. */
-  @media (hover:none), (pointer:coarse), (prefers-reduced-motion: reduce){ .hero-shader{ display:none; } }
-  /* --- Cover-Seite: Titelblatt-Komposition statt symmetrischem 2-Spalten-
-     Hero. Grosse Geister-Folio-Ziffer hinter dem Titel, das Foto ist eine
-     kleine, leicht gedrehte "angeheftete" Plakette statt halber Breite. */
-  .hub-cover{ position:relative; z-index:1; max-width:1280px; margin:0 auto; padding:1.4rem 0 3rem; overflow:visible; }
-  @media (min-width:900px){ .hub-cover{ padding-bottom:7.5rem; } }
-  .hub-cover-folio{
-    position:absolute; top:-1.6rem; right:-.4rem; z-index:0; pointer-events:none; user-select:none;
-    font-family:var(--font-serif); font-weight:600; font-size:clamp(7rem,17vw,14rem); line-height:1;
-    color:transparent; -webkit-text-stroke:1px rgba(217,165,72,.16);
+  .cine-field.is-live{ opacity:1; }
+
+  .cine-scene{
+    position:relative; z-index:2; min-height:100svh; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; text-align:center;
+    padding:6rem 1.5rem; box-sizing:border-box;
   }
-  .hub-cover-copy{ position:relative; z-index:1; max-width:42rem; display:flex; flex-direction:column; }
-  .hub-cover-title{ max-width:16em; margin:1.1rem 0 1.3rem; }
+  @media (min-width:900px){ .cine-scene{ padding:7rem 3rem; } }
 
-  /* Gestaffelter Hero-Einflug (Eyebrow -> Titel -> Text -> Aktionen -> Note -> Colophon) */
-  .hub-cover-copy > *{animation:heroIn .55s var(--ease-spring) backwards;}
-  .hub-cover-copy > *:nth-child(1){animation-delay:.05s;}
-  .hub-cover-copy > *:nth-child(2){animation-delay:.14s;}
-  .hub-cover-copy > *:nth-child(3){animation-delay:.23s;}
-  .hub-cover-copy > *:nth-child(4){animation-delay:.32s;}
-  .hub-cover-copy > *:nth-child(5){animation-delay:.41s;}
-  .hub-cover-copy > *:nth-child(6){animation-delay:.5s;}
-  .hub-cover-copy > *:nth-child(7){animation-delay:.59s;}
-  @keyframes heroIn{ from{opacity:0; transform:translateY(24px);} to{opacity:1; transform:translateY(0);} }
-
-  .hub-cover-actions{ display:flex; align-items:center; gap:1.3rem; flex-wrap:wrap; margin:1.6rem 0 0; }
-  .hub-cover-ghost-btn{
-    background:none; border:none; display:inline-flex; align-items:center; gap:.5rem; cursor:pointer;
-    font-family:var(--font-mono); font-size:.76rem; text-transform:uppercase; letter-spacing:.08em; color:var(--stone);
-    padding:.5rem 0; border-bottom:1px solid var(--border-solid); transition:color .2s var(--ease), border-color .2s var(--ease);
+  /* Szenen-Eintritt: aus Dunkelheit + Unschaerfe. Wird per JS (--enter)
+     vom Scroll-Fortschritt gespeist, 0 = noch dunkel, 1 = voll da. */
+  .cine-scene > *{
+    opacity:calc(var(--enter, 1)); filter:blur(calc((1 - var(--enter, 1)) * 14px));
+    transform:translateY(calc((1 - var(--enter, 1)) * 34px));
+    transition:opacity .1s linear, filter .1s linear, transform .1s linear;
   }
-  .hub-cover-ghost-btn:hover{ color:var(--ember-bright); border-color:var(--ember-bright); }
+  @media (prefers-reduced-motion: reduce){
+    .cine-scene > *{ opacity:1 !important; filter:none !important; transform:none !important; }
+  }
 
-  .hub-cover-colophon{ display:flex; align-items:baseline; gap:1.3rem; margin:1.8rem 0 0; padding-top:1.3rem; border-top:1px solid var(--border-solid); }
-  .hub-cover-colophon > div{ display:flex; align-items:baseline; gap:.4rem; }
-  .hub-cover-colophon dt{ font-family:var(--font-mono); font-weight:700; font-size:1.25rem; color:var(--ember); margin:0; }
-  .hub-cover-colophon dd{ margin:0; font-family:var(--font-mono); font-size:.62rem; text-transform:uppercase; letter-spacing:.08em; color:var(--stone); }
-  .hub-cover-colophon-sep{ width:1px; height:1.5rem; background:var(--border-solid); }
+  .cine-kicker{
+    font-family:var(--font-mono); font-size:.66rem; text-transform:uppercase; letter-spacing:.34em;
+    color:var(--ember-dim); margin:0 0 2.6rem;
+  }
+  .cine-corner{
+    position:absolute; top:5.6rem; left:1.5rem; margin:0;
+    font-family:var(--font-mono); font-size:.62rem; letter-spacing:.24em; text-transform:uppercase; color:var(--ember-dim);
+  }
+  @media (min-width:900px){ .cine-corner{ top:7rem; left:3rem; } }
 
-  .hub-cover-plate{ max-width:240px; margin:2.6rem 0 0; transform:rotate(-2.5deg); }
+  .cine-welcome{
+    font-family:var(--font-mono); font-size:.72rem; letter-spacing:.1em; color:var(--gold-bright);
+    margin:0 0 1.6rem;
+  }
+
+  /* --- Emblem: Ring mit umlaufendem Gold-Verlauf, Kern mit Monogramm --- */
+  .cine-emblem{ position:relative; width:112px; height:112px; margin:0 0 2.6rem; display:grid; place-items:center; }
+  .cine-emblem-sm{ width:76px; height:76px; margin-bottom:2rem; }
+  .cine-emblem-ring{
+    position:absolute; inset:0; border-radius:50%;
+    background:conic-gradient(from 0deg, rgba(140,107,46,.25), var(--ember) 90deg, var(--ember-bright) 170deg, var(--gold-bright) 215deg, var(--ember) 290deg, rgba(140,107,46,.25) 360deg);
+    -webkit-mask:radial-gradient(circle closest-side, transparent 0 calc(100% - 1.5px), #000 calc(100% - 1.5px) 100%);
+    mask:radial-gradient(circle closest-side, transparent 0 calc(100% - 1.5px), #000 calc(100% - 1.5px) 100%);
+    animation:cineSpin 14s linear infinite;
+  }
+  @keyframes cineSpin{ to{ transform:rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce){ .cine-emblem-ring{ animation:none; } }
+  .cine-emblem-core{
+    position:relative; font-family:var(--font-serif); font-style:italic; font-weight:600;
+    font-size:2.6rem; line-height:1; color:var(--ember-bright);
+    text-shadow:0 0 26px rgba(246,195,92,.5);
+  }
+  .cine-emblem-sm .cine-emblem-core{ font-size:1.8rem; }
+  .cine-emblem::after{
+    content:''; position:absolute; inset:-38%; border-radius:50%; pointer-events:none;
+    background:radial-gradient(circle, rgba(246,195,92,.15), transparent 68%);
+  }
+
+  /* --- Wortmarke + lebendes Wortpaar --- */
+  .cine-wordmark{
+    font-family:var(--font-serif); font-weight:600; font-style:italic;
+    font-size:clamp(3.4rem, 11vw, 7.5rem); line-height:.9; letter-spacing:-.03em;
+    color:var(--text); margin:0 0 2.2rem; text-shadow:0 0 24px rgba(217,165,72,.07), 0 0 110px rgba(217,165,72,.09);
+  }
+  .cine-morph{ display:flex; align-items:center; gap:1.1rem; flex-wrap:wrap; justify-content:center; margin:0 0 3.2rem; min-height:2rem; }
+  .cine-morph-fr, .cine-morph-de{
+    font-family:var(--font-serif); font-size:clamp(1rem,2.3vw,1.35rem); line-height:1.2;
+    transition:opacity .42s var(--ease-premium), filter .42s var(--ease-premium);
+  }
+  .cine-morph-fr{ font-style:italic; color:var(--ember-bright); }
+  .cine-morph-de{ color:var(--stone); }
+  .cine-morph.is-out .cine-morph-fr, .cine-morph.is-out .cine-morph-de{ opacity:0; filter:blur(7px); }
+  .cine-morph-rule{ width:2.6rem; height:1px; background:linear-gradient(90deg, var(--ember-dim), var(--ember-dim)); opacity:.6; }
+
+  /* --- Textlinks statt Buttons (Referenz: winzige Mono-Links) --- */
+  .cine-entry{ display:flex; align-items:center; gap:2.2rem; flex-wrap:wrap; justify-content:center; }
+  .cine-link{
+    background:none; border:none; padding:.55rem 0; cursor:pointer; display:inline-flex; align-items:center; gap:.55rem;
+    font-family:var(--font-mono); font-size:.74rem; text-transform:uppercase; letter-spacing:.2em;
+    color:var(--stone); border-bottom:1px solid transparent;
+    transition:color .3s var(--ease), border-color .3s var(--ease), gap .3s var(--ease);
+  }
+  .cine-link:hover, .cine-link:focus-visible{ color:var(--ember-bright); border-bottom-color:var(--ember-bright); gap:.85rem; }
+  .cine-link-lead{ color:var(--ember); border-bottom-color:rgba(217,165,72,.4); }
+  .cine-link-xl{ font-size:.85rem; letter-spacing:.24em; padding:.8rem 0; }
+
+  .cine-scrollcue{ position:absolute; bottom:3rem; left:50%; transform:translateX(-50%); }
+  .cine-scrollcue-line{
+    display:block; width:1px; height:62px;
+    background:linear-gradient(180deg, transparent, var(--ember-dim) 45%, transparent);
+    animation:cineCue 2.6s var(--ease-premium) infinite;
+  }
+  @keyframes cineCue{ 0%{ transform:scaleY(.25); transform-origin:top; opacity:0; } 45%{ opacity:1; } 100%{ transform:scaleY(1); transform-origin:top; opacity:0; } }
+  @media (prefers-reduced-motion: reduce){ .cine-scrollcue-line{ animation:none; } }
+
+  /* --- Szene: Das Wort --- */
+  .cine-mot-word{
+    font-family:var(--font-serif); font-style:italic; font-weight:500;
+    font-size:clamp(2.6rem, 9vw, 6.4rem); line-height:1; letter-spacing:-.025em;
+    color:var(--ember-bright); margin:0; text-shadow:0 0 28px rgba(246,195,92,.10), 0 0 120px rgba(246,195,92,.12);
+  }
+  .cine-mot-phon{ font-family:var(--font-mono); font-size:.82rem; letter-spacing:.14em; color:var(--ember-dim); margin:1.4rem 0 0; }
+  .cine-mot-de{ font-family:var(--font-serif); font-size:clamp(1.2rem,3vw,1.9rem); color:var(--text); margin:2.2rem 0 0; }
+  .cine-mot-note{ font-size:.92rem; line-height:1.7; color:var(--stone); margin:2.8rem auto 0; max-width:30em; }
+
+  /* --- Szene: Methode. Drei Saetze, kein Raster. --- */
+  .cine-methode{ text-align:left; align-items:flex-start; }
+  .cine-methode .cine-kicker{ align-self:flex-start; }
+  .cine-claim{
+    font-family:var(--font-serif); font-weight:500;
+    font-size:clamp(1.55rem, 4.4vw, 3.1rem); line-height:1.24; letter-spacing:-.02em;
+    color:var(--text); margin:0 0 2.6rem; max-width:17em;
+  }
+  .cine-claim:last-child{ margin-bottom:0; }
+  .cine-claim em{ font-style:italic; color:var(--ember-bright); }
   @media (min-width:900px){
-    .hub-cover-plate{ position:absolute; right:.5rem; bottom:-1.5rem; margin:0; z-index:2; }
+    .cine-claim + .cine-claim{ margin-left:clamp(0px, 8vw, 7rem); }
+    .cine-claim + .cine-claim + .cine-claim{ margin-left:clamp(0px, 16vw, 14rem); }
   }
 
-  /* Personalisierte Begruessung - nur fuer eingeloggte User, siehe
-     updateWelcomeMessage(). Bleibt immer im DOM (hidden-Attribut statt
-     display:none), damit die :nth-child-Stagger-Reihenfolge oben stabil
-     bleibt, egal ob sie sichtbar ist. */
-  .hub-welcome{ font-family:var(--font-mono); font-size:.78rem; letter-spacing:.04em; color:var(--gold-bright); margin:0 0 .6rem; }
+  /* --- Szene: Atelier (eigene Zahlen, freistehend) --- */
+  .cine-figures{ display:flex; flex-wrap:wrap; justify-content:center; gap:clamp(2.4rem, 8vw, 6rem); margin:0; }
+  .cine-figure{ display:flex; flex-direction:column; align-items:center; gap:.7rem; }
+  .cine-figure dt{
+    font-family:var(--font-mono); font-weight:700; font-size:clamp(2.6rem, 7vw, 4.6rem); line-height:1;
+    color:var(--ember); margin:0; text-shadow:0 0 30px rgba(217,165,72,.1), 0 0 80px rgba(217,165,72,.12);
+  }
+  .cine-figure dd{ margin:0; font-family:var(--font-mono); font-size:.64rem; text-transform:uppercase; letter-spacing:.18em; color:var(--stone); }
+  .cine-atelier-note{ font-family:var(--font-mono); font-size:.68rem; letter-spacing:.1em; color:var(--ember-dim); margin:3.6rem 0 0; }
 
-  .hub-eyebrow-row{display:flex; align-items:center; gap:.9rem; margin-bottom:1.3rem; align-self:flex-start; max-width:100%;}
-  @media (max-width:480px){ .hub-eyebrow-line{display:none;} }
-  .hub-eyebrow-line{height:1px; width:2rem; flex-shrink:0; background:linear-gradient(90deg, transparent, var(--ember-bright)); opacity:.7;}
-  .hub-eyebrow-line.reverse{background:linear-gradient(90deg, var(--ember-bright), transparent);}
-  .hub-eyebrow-mono{ font-family:var(--font-mono); font-size:.72rem; text-transform:uppercase; letter-spacing:.18em; color:var(--ember-dim); white-space:nowrap; }
-  .hub-archive-note{ display:flex; align-items:center; gap:.75rem; margin:1rem 0 0; font-family:var(--font-mono); font-size:.68rem; letter-spacing:.05em; color:var(--stone); }
-  .hub-archive-id{ color:var(--ember-dim); }
-  .hub-archive-dot{ width:3px; height:3px; border-radius:50%; background:rgba(246,242,233,.3); }
-  .hub-eyebrow{
-    display:inline-flex; align-items:center; gap:.5rem; border:1px solid var(--border-solid); background:var(--surface);
-    -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px); border-radius:999px; padding:.45rem 1.1rem; font-size:.78rem; font-weight:600; color:var(--stone); margin:0;
-    box-shadow:0 0 0 1px rgba(246,195,92,.08), 0 8px 20px rgba(246,195,92,.1);
+  /* --- Szene: Abschluss --- */
+  .cine-close-line{
+    font-family:var(--font-serif); font-style:italic; font-weight:500;
+    font-size:clamp(1.9rem, 5.4vw, 3.6rem); line-height:1.2; color:var(--text); margin:0 0 2.8rem;
   }
-  .hub-eyebrow .dot{width:6px; height:6px; border-radius:50%; background:var(--pop); box-shadow:0 0 10px 2px var(--pop-dim); animation:dotPulse 2.2s ease-in-out infinite;}
-  @keyframes dotPulse{ 0%,100%{opacity:1; transform:scale(1);} 50%{opacity:.6; transform:scale(1.3);} }
-  .hub-title{
-    font-family:var(--font-serif); font-weight:700; font-size:clamp(2.8rem,7.6vw,5rem); line-height:.98; letter-spacing:-.025em; margin:0;
-  }
-  .hub-title em{
-    font-style:italic;
-    background:linear-gradient(100deg, var(--ember-bright), var(--gold-bright) 45%, var(--pop) 80%, var(--pop-2));
-    background-size:260% auto; -webkit-background-clip:text; background-clip:text; color:transparent;
-    animation:gradientShift 6s ease-in-out infinite;
-  }
-  @keyframes gradientShift{ 0%,100%{background-position:0% center;} 50%{background-position:100% center;} }
-  .page-title em{ color:var(--ember-bright); font-style:italic; }
-  .hub-desc{color:var(--stone); font-size:1.05rem; line-height:1.65; max-width:31em; margin:1.3rem 0 0;}
-
-  /* --- Hub: Editorial-Foto-Hero (ersetzt die fruehere 3D-Karte) --- */
-  .bracket-corner-tr{position:absolute; top:-9px; right:-9px; width:22px; height:22px; border-top:1.5px solid var(--ember); border-right:1.5px solid var(--ember); pointer-events:none; z-index:5;}
-  .bracket-corner-bl{position:absolute; bottom:-9px; left:-9px; width:22px; height:22px; border-bottom:1.5px solid var(--ember); border-left:1.5px solid var(--ember); pointer-events:none; z-index:5;}
-  .hub-photo-stage{ position:relative; width:100%; max-width:460px; margin:0 auto; animation:heroIn .6s var(--ease-spring) .3s backwards; }
-  .hub-photo-frame{
-    position:relative; border-radius:22px; padding:.6rem; background:rgba(26,21,14,.9); -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px);
-    border:1px solid rgba(140,107,46,.4); box-shadow:0 26px 60px rgba(0,0,0,.6);
-  }
-  .hub-photo-media{ position:relative; border-radius:16px; overflow:hidden; aspect-ratio:4/5; background:var(--surface); }
-  .hub-photo-img{
-    width:100%; height:100%; object-fit:cover; display:block; filter:saturate(.88) brightness(.88) contrast(1.05);
-  }
-  .hub-photo-vignette{ position:absolute; inset:0; background:linear-gradient(0deg, rgba(9,13,21,.92), rgba(9,13,21,.1) 55%, transparent); pointer-events:none; }
-  .hub-photo-caption{
-    position:absolute; left:1rem; right:1rem; bottom:1rem; z-index:2; display:flex; align-items:center; justify-content:space-between; gap:.6rem;
-    background:rgba(26,21,14,.95); -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px); border:1px solid rgba(140,107,46,.4);
-    border-radius:14px; padding:.7rem .85rem;
-  }
-  .hub-photo-caption-kicker{margin:0; font-family:var(--font-mono); font-size:.6rem; text-transform:uppercase; letter-spacing:.18em; color:var(--ember);}
-  .hub-photo-caption-title{margin:.1rem 0 0; font-family:'Newsreader', var(--font-serif); font-style:italic; font-size:.9rem; color:var(--text);}
-  .hub-photo-caption-badge{flex-shrink:0; font-family:var(--font-mono); font-size:.62rem; color:var(--stone); padding:.28rem .55rem; border-radius:7px; background:var(--surface-2); border:1px solid var(--border-solid);}
-  @media (prefers-reduced-motion: reduce){ .hub-photo-img{ transition:none; } .hub-photo-stage{ animation:none; } }
-
-  /* --- Hub: Feature-Vorschaukarten --- */
-  /* Kein harter Farb-Cutoff mehr hier: der sitegweite Aurora-Hintergrund soll
-     nahtlos unter dem gesamten Hub-Bereich weiterlaufen (frueher gab es hier einen
-     harten Gold->Schwarz-Schnitt, der als stoerende Kante wahrgenommen wurde).
-     .hub-dark-zone bleibt nur als Gruppierungs-Wrapper fuer Feature-Karten + Manifest. */
-  /* Laufband mit franz. Redewendungen - rein dekorativ, ruhige Endlos-
-     Scroll-Animation statt der ueberladenen Widget-Reihe aus der verworfenen
-     Stitch-Iteration. Inhalt ist dupliziert im Markup fuer nahtlosen Loop. */
-  .hub-ticker{ position:relative; z-index:1; margin-top:3.4rem; padding:.9rem 0; overflow:hidden; border-top:1px solid var(--border-solid); border-bottom:1px solid var(--border-solid); background:var(--surface); -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px); }
-  .hub-ticker-track{ display:flex; align-items:center; width:max-content; gap:1.4rem; animation:tickerScroll 32s linear infinite; }
-  .hub-ticker-item{ font-family:var(--font-serif); font-size:.95rem; color:var(--stone); white-space:nowrap; }
-  .hub-ticker-item em{ font-style:italic; color:var(--ember-bright); }
-  .hub-ticker-dot{ color:var(--ember-dim); font-size:.8rem; }
-  @keyframes tickerScroll{ from{ transform:translateX(0); } to{ transform:translateX(-50%); } }
-  .hub-ticker:hover .hub-ticker-track{ animation-play-state:paused; }
-  @media (prefers-reduced-motion: reduce){ .hub-ticker-track{ animation:none; } }
-
-  .hub-dark-zone{ position:relative; z-index:1; margin-top:5rem; }
-  .hub-features{ position:relative; z-index:1; padding-top:1rem; padding-bottom:6rem; }
-  @media (max-width:919px){ .hub-features{ padding-bottom:5rem; } }
-  .hub-features-head{display:flex; align-items:center; justify-content:space-between; gap:1rem; margin-bottom:1.4rem; flex-wrap:wrap;}
-  .hub-features-eyebrow{
-    display:flex; align-items:center; gap:.55rem;
-    font-family:var(--font-mono); font-size:.65rem; text-transform:uppercase; letter-spacing:.3em; color:var(--ember-bright); font-weight:700;
-    margin:0; padding-left:.1rem;
-  }
-  .hub-features-eyebrow .dot{width:6px; height:6px; border-radius:50%; background:var(--ember-bright); box-shadow:0 0 8px var(--ember-bright); flex-shrink:0;}
-  .hub-features-hint{font-family:var(--font-mono); font-size:.62rem; text-transform:uppercase; letter-spacing:.16em; color:var(--stone);}
-  @media (max-width:640px){ .hub-features-hint{display:none;} }
-  /* Faecher-Karussell: aktive Karte vorne gross, bis zu zwei Nachbarn je Seite
-     schimmern versetzt/verkleinert/abgedunkelt dahinter durch (siehe
-     initFeatureCarousel - dort werden --tx/--ty/--scale/--op je Karte gesetzt).
-     Darunter eine grosse Zaehler-Anzeige, dann Pfeile + Punkte-Leiste. */
-  .feature-carousel{
-    display:flex; flex-direction:column; align-items:center; gap:0;
-    opacity:0; filter:blur(6px); transform:translateY(24px);
-    transition:opacity .6s var(--ease-premium), filter .6s var(--ease-premium), transform .6s var(--ease-premium);
-  }
-  .hub-features.reveal-in .feature-carousel{ opacity:1; filter:blur(0); transform:translateY(0); }
-  @media (prefers-reduced-motion: reduce){ .feature-carousel{ transition:none; opacity:1; filter:none; transform:none; } }
-  .feature-stack{ position:relative; width:100%; max-width:900px; height:330px; margin:0 auto; }
-  @media (max-width:639px){ .feature-stack{ height:340px; } }
-  .feature-carousel-counter{ display:flex; align-items:baseline; justify-content:center; gap:.5rem; margin-top:1.7rem; }
-  .feature-carousel-num{ font-family:var(--font-serif); font-weight:700; font-size:2.1rem; color:var(--text); line-height:1; font-variant-numeric:tabular-nums; }
-  .feature-carousel-total{ font-family:var(--font-mono); font-size:.7rem; text-transform:uppercase; letter-spacing:.14em; color:var(--stone); }
-  .feature-carousel-controls{ display:flex; align-items:center; justify-content:center; gap:1rem; margin-top:1.1rem; }
-  .feature-carousel-arrow{
-    flex-shrink:0; width:44px; height:44px; border-radius:50%; display:flex; align-items:center; justify-content:center;
-    background:var(--surface); border:1px dashed var(--border-solid); outline:1px solid var(--border-solid); outline-offset:4px;
-    color:var(--text); cursor:pointer; padding:0;
-    transition:border-color .25s var(--ease), outline-color .25s var(--ease), color .25s var(--ease), transform .2s var(--ease-premium), box-shadow .25s var(--ease);
-  }
-  .feature-carousel-arrow:hover{ border-color:var(--ember-bright); outline-color:var(--ember-dim); color:var(--ember-bright); box-shadow:var(--shadow-glow); transform:translateY(-2px); }
-  .feature-carousel-arrow:active{ transform:translateY(-2px) scale(.94); }
-  @media (max-width:639px){ .feature-carousel-arrow{ width:38px; height:38px; } .feature-carousel-controls{ gap:.7rem; } }
-  .feature-carousel-dots{ display:flex; align-items:center; gap:.45rem; }
-  .feature-dot{
-    width:7px; height:7px; border-radius:999px; padding:0; border:none; cursor:pointer;
-    background:var(--ember-dim); opacity:.5;
-    transition:opacity .25s var(--ease), background .25s var(--ease), width .3s var(--ease-premium);
-  }
-  .feature-dot:hover{ opacity:.8; }
-  .feature-dot.is-active{ width:22px; background:var(--ember-bright); opacity:1; }
-  /* Grosses Detail-Panel unter dem Karussell: zeigt Bild + Text der aktiven Karte. */
-  .feature-panel{
-    position:relative; max-width:860px; margin:2.4rem auto 0; border-radius:24px; padding:1.6rem;
-    background:var(--surface); border:1px solid rgba(140,107,46,.4); box-shadow:var(--shadow-md);
-  }
-  .feature-panel-media{ position:relative; border-radius:16px; overflow:hidden; aspect-ratio:16/9; background:var(--surface-2); margin-bottom:1.3rem; }
-  .feature-panel-img{
-    position:absolute; inset:0; width:100%; height:100%; object-fit:cover; filter:saturate(.88) brightness(.85);
-    transition:opacity .55s var(--ease-premium), transform .55s var(--ease-premium), filter .55s var(--ease-premium);
-  }
-  .feature-panel-img-b{ opacity:0; }
-  .feature-panel-eyebrow{
-    display:inline-block; font-family:var(--font-mono); font-size:.68rem; text-transform:uppercase; letter-spacing:.18em; color:var(--ember);
-    padding:.3rem .7rem; border-radius:7px; background:var(--surface-2); border:1px solid rgba(140,107,46,.3); margin-bottom:.7rem;
-  }
-  .feature-panel-title{ margin:0 0 .6rem; padding-top:0; border-top:none; text-transform:none; letter-spacing:normal; font-family:'Newsreader', var(--font-serif); font-weight:600; font-style:normal; font-size:clamp(1.5rem,3.4vw,2.1rem); color:var(--text); }
-  .feature-panel-desc{ margin:0; color:var(--stone); font-size:1rem; line-height:1.65; max-width:44em; }
-  @media (max-width:639px){ .feature-panel{ padding:1.15rem; margin-top:1.8rem; } }
-
-  /* Ken-Burns Hover-Zoom fuer groessere Editorial-Fotos (Hero + Bereiche-Panel) */
-  .ken-burns{ transition:transform 1.2s var(--ease-premium), filter .6s var(--ease-premium); }
-  @media (hover:hover) and (pointer:fine){ .ken-burns:hover{ transform:scale(1.04); filter:saturate(.92) brightness(1.06) contrast(1.04); } }
-  @media (prefers-reduced-motion: reduce){ .ken-burns{ transition:none !important; } .ken-burns:hover{ transform:none !important; } }
-
-  .feature-card{
-    position:absolute; top:0; left:50%; width:340px; max-width:84vw; min-height:230px;
-    overflow:hidden; text-align:left; cursor:pointer; display:flex; flex-direction:column; gap:.85rem;
-    padding:1.5rem 1.5rem 1.6rem; font:inherit; color:inherit;
-    background:linear-gradient(var(--surface), var(--surface)) padding-box,
-      linear-gradient(150deg, rgba(217,165,72,.28), rgba(217,165,72,.05)) border-box;
-    border:1px solid transparent; border-radius:20px; backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
-    box-shadow:var(--shadow-sm);
-    transform:translate(calc(-50% + var(--tx, 0px)), var(--ty, 0px)) scale(var(--scale, 1));
-    opacity:var(--op, 1); z-index:var(--z, 1); filter:blur(var(--card-blur, 0px));
-    transition:transform .55s var(--ease-premium), opacity .5s var(--ease), filter .5s var(--ease), box-shadow .3s var(--ease), background .35s var(--ease);
-  }
-  @media (max-width:639px){ .feature-card{ width:252px; min-height:232px; } }
-  .feature-card::before{
-    content:''; position:absolute; top:0; right:0; bottom:0; left:0; inset:0; opacity:0; pointer-events:none;
-    background:radial-gradient(110px circle at var(--sx,50%) var(--sy,0%), rgba(246,195,92,.32), transparent 55%);
-    transition:opacity .3s var(--ease);
-  }
-  .feature-card:hover{
-    transform:translate(calc(-50% + var(--tx, 0px)), calc(var(--ty, 0px) - 5px)) scale(var(--scale, 1));
-    box-shadow:var(--shadow-md), var(--shadow-glow);
-    background:linear-gradient(var(--surface), var(--surface)) padding-box,
-      linear-gradient(150deg, rgba(246,195,92,.65), rgba(184,134,47,.3)) border-box;
-  }
-  .feature-card:hover::before{opacity:1;}
-  .feature-card:active{ transform:translate(calc(-50% + var(--tx, 0px)), calc(var(--ty, 0px) - 5px)) scale(calc(var(--scale, 1) * .97)); }
-  .feature-card-head{display:flex; align-items:flex-start;}
-  .feature-card-eyebrow{
-    display:inline-block; font-family:var(--font-mono); font-size:.6rem; font-weight:700; letter-spacing:.16em; text-transform:uppercase;
-    color:var(--ember-bright); background:rgba(246,195,92,.1); border:1px solid rgba(246,195,92,.25); border-radius:999px; padding:.25rem .6rem;
-  }
-  .feature-card-footer{
-    display:flex; align-items:center; justify-content:space-between; gap:.5rem; margin-top:.3rem; padding-top:.85rem;
-    border-top:1px solid rgba(255,255,255,.06); font-family:var(--font-mono); font-size:.6rem; font-weight:700;
-    text-transform:uppercase; letter-spacing:.12em; color:var(--stone); transition:color .25s var(--ease);
-  }
-  .feature-card:hover .feature-card-footer{color:var(--ember-bright);}
-  .feature-card-arrow{
-    font-family:var(--font-mono); font-size:1rem; color:inherit; flex-shrink:0;
-    transition:transform .25s var(--ease-premium), color .25s var(--ease);
-  }
-  .feature-card:hover .feature-card-arrow{transform:translateX(4px); color:var(--ember-bright);}
-  /* Orb-Form nach dem uebergebenen Cards-Entwurf: runder Koerper, gestrichelter
-     Ring, zusaetzliche Kontur mit Abstand und ein weiches Leuchten dahinter.
-     Das Leuchten liegt hinter dem Symbol (z-index), damit nichts verdeckt wird. */
-  .feature-card-icon{
-    position:relative; width:52px; height:52px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0;
-    border:1px dashed var(--border-solid); outline:1px solid var(--border-solid); outline-offset:4px;
-    transition:outline-color .3s var(--ease), border-color .3s var(--ease), transform .3s var(--ease-premium);
-  }
-  .feature-card-icon > svg{ position:relative; z-index:2; }
-  .feature-card-icon::before{
-    content:''; position:absolute; top:-18%; right:-18%; bottom:-18%; left:-18%; z-index:1; border-radius:50%;
-    background:radial-gradient(circle, rgba(246,195,92,.3), rgba(246,195,92,.07) 55%, transparent 72%);
-    filter:blur(9px); opacity:0; transition:opacity .35s var(--ease);
-  }
-  .feature-card:hover .feature-card-icon{ transform:translateY(-2px); outline-color:var(--ember-dim); border-color:var(--ember-dim); }
-  .feature-card:hover .feature-card-icon::before{ opacity:1; }
-  @media (prefers-reduced-motion: reduce){ .feature-card:hover .feature-card-icon{ transform:none; } }
-  .feature-card-icon::after{ content:''; position:absolute; left:50%; bottom:-.65rem; width:1px; height:.55rem; opacity:.7; }
-  .feature-card-icon.ic-teal{ color:var(--ember-bright); background:rgba(246,195,92,.16); box-shadow:inset 0 0 0 1px rgba(246,195,92,.35); }
-  .feature-card-icon.ic-teal::after{ background:linear-gradient(var(--ember-bright), transparent); }
-  .feature-card-icon.ic-blue{ color:var(--saphir-bright); background:rgba(233,200,120,.16); box-shadow:inset 0 0 0 1px rgba(233,200,120,.35); }
-  .feature-card-icon.ic-blue::after{ background:linear-gradient(var(--saphir-bright), transparent); }
-  .feature-card-icon.ic-gold{ color:var(--gold); background:rgba(184,134,47,.18); box-shadow:inset 0 0 0 1px rgba(184,134,47,.4); }
-  .feature-card-icon.ic-gold::after{ background:linear-gradient(var(--gold), transparent); }
-  .feature-card-icon.ic-pop{ color:var(--pop); background:rgba(224,162,61,.16); box-shadow:inset 0 0 0 1px rgba(224,162,61,.35); }
-  .feature-card-icon.ic-pop::after{ background:linear-gradient(var(--pop), transparent); }
-  .feature-card-icon.ic-violet{ color:var(--pop-2); background:rgba(245,223,166,.18); box-shadow:inset 0 0 0 1px rgba(245,223,166,.4); }
-  .feature-card-icon.ic-violet::after{ background:linear-gradient(var(--pop-2), transparent); }
-  .feature-card-body{position:relative; display:flex; flex-direction:column; gap:.3rem;}
-  .feature-card-title{font-family:var(--font-sans); font-weight:700; font-size:1rem; color:var(--text);}
-  .feature-card-desc{font-size:.82rem; color:var(--stone); line-height:1.5;}
-
-  /* --- Hub: Manifest-/Zitat-Sektion (Bild + Zitat) --- */
-  .hub-manifest{
-    position:relative; z-index:1; margin:0 0 4rem; display:grid; grid-template-columns:1fr; overflow:hidden;
-    border-radius:26px; border:1px solid rgba(246,195,92,.22); background:linear-gradient(115deg, #171d2c, #1b2336 55%, #141a28);
-    box-shadow:0 20px 50px rgba(0,0,0,.5);
-  }
-  /* Auf Desktop deutlich groesser/praesenter als am Handy - kein simples Herunterskalieren. */
-  @media (min-width:900px){ .hub-manifest{ grid-template-columns:5fr 7fr; min-height:460px; } }
-  .hub-manifest-media{ position:relative; min-height:260px; background:radial-gradient(ellipse at 30% 20%, #2a1e0d, #0f0b07); }
-  @media (min-width:900px){ .hub-manifest-media{ min-height:100%; } }
-  .hub-manifest-media img{ width:100%; height:100%; object-fit:cover; object-position:50% 35%; display:block; color:transparent; font-size:.7rem; }
-  .hub-manifest-media-fade{
-    position:absolute; top:0; right:0; bottom:0; left:0; inset:0;
-    background:linear-gradient(0deg, #171d2c, rgba(23,29,44,.45) 40%, rgba(23,29,44,.05) 68%, transparent 100%);
-  }
-  @media (min-width:900px){ .hub-manifest-media-fade{ background:linear-gradient(90deg, transparent 0%, rgba(23,29,44,.08) 62%, #171d2c 100%); } }
-  .hub-manifest-body{ position:relative; padding:2.2rem 1.6rem; display:flex; flex-direction:column; justify-content:center; }
-  @media (min-width:640px){ .hub-manifest-body{ padding:2.8rem; } }
-  @media (min-width:900px){ .hub-manifest-body{ padding:3.6rem 3.2rem; } }
-  .hub-manifest-eyebrow{
-    display:flex; align-items:center; gap:.55rem; margin:0 0 .9rem; color:var(--ember-bright);
-    font-family:var(--font-mono); font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.18em;
-  }
-  .hub-manifest-quote{
-    margin:0 0 1.1rem; font-family:var(--font-serif); font-weight:600; font-style:italic; color:var(--text);
-    font-size:clamp(1.5rem, 3.4vw, 2.6rem); line-height:1.28; max-width:34em;
-  }
-  .hub-manifest-quote .blur-word{display:inline-block; filter:blur(10px); opacity:0; transform:translateY(10px); transition:filter .6s var(--ease-premium), opacity .6s var(--ease-premium), transform .6s var(--ease-premium);}
-  .hub-manifest-quote.blur-in .blur-word{filter:blur(0); opacity:1; transform:translateY(0);}
-  @media (prefers-reduced-motion: reduce){ .hub-manifest-quote .blur-word{filter:none; opacity:1; transform:none;} }
-  .hub-manifest-text{margin:0 0 1.4rem; max-width:34em; color:var(--stone); font-size:.95rem; line-height:1.7;}
-  .hub-manifest-attrib{display:flex; align-items:center; gap:1rem;}
-  .hub-manifest-attrib span:first-child{font-family:var(--font-serif); font-style:italic; font-size:.85rem; color:var(--gold-bright); white-space:nowrap;}
-  .hub-manifest-attrib .line{flex:1; max-width:9rem; height:1px; background:linear-gradient(90deg, var(--border-solid), transparent);}
-
-  /* --- Hub: "In drei Schritten" + Abschluss-CTA --- */
-  .hub-ablauf{ position:relative; z-index:1; max-width:1280px; margin:6rem auto 0; padding:0 1.5rem; overflow:hidden; }
-  .hub-ablauf-ghost{ position:absolute; top:.5rem; left:1rem; font-family:var(--font-serif); font-weight:700; font-size:clamp(9rem,22vw,17rem); line-height:1; color:rgba(246,242,233,.025); pointer-events:none; user-select:none; z-index:0; }
-  @media (min-width:768px){ .hub-ablauf{ padding:0 2.4rem; } }
-  .hub-section-eyebrow-row{ display:flex; align-items:center; gap:.75rem; margin:0 0 .8rem; font-family:var(--font-mono); font-size:.7rem; text-transform:uppercase; letter-spacing:.2em; color:var(--ember); }
-  .hub-section-eyebrow-line{ width:2.2rem; height:1px; background:rgba(217,165,72,.4); }
-  .hub-ablauf-head{ position:relative; z-index:1; max-width:40em; margin-bottom:2.4rem; }
-  .hub-section-eyebrow-row{ position:relative; z-index:1; }
-  .hub-ablauf-head h2{ font-family:var(--font-serif); font-weight:700; font-size:clamp(1.9rem,4vw,2.6rem); color:var(--text); margin:0 0 .6rem; letter-spacing:-.01em; border:none; padding:0; text-transform:none; }
-  .hub-ablauf-head p{ margin:0; color:var(--stone); font-size:.98rem; line-height:1.6; }
-
-  /* Vertikale Marginalien-Zeitleiste statt drei gleicher Boxen nebeneinander -
-     die Schritt-Nummern sitzen wie Randnotizen links neben einer duennen
-     Linie, statt als generischer 3-Karten-Grid. */
-  .hub-ablauf-timeline{ position:relative; z-index:1; max-width:640px; padding-left:3.2rem; }
-  .hub-ablauf-tl-line{ position:absolute; left:1rem; top:.4rem; bottom:.4rem; width:1px; background:linear-gradient(180deg, var(--ember-dim), var(--border-solid) 85%); }
-  .hub-ablauf-tl-step{ position:relative; padding-bottom:2.6rem; opacity:0; transform:translateY(20px); transition:opacity .5s var(--ease), transform .5s var(--ease); }
-  .hub-ablauf-tl-step:last-child{ padding-bottom:0; }
-  .hub-ablauf.reveal-in .hub-ablauf-tl-step{ opacity:1; transform:none; }
-  @media (prefers-reduced-motion: reduce){ .hub-ablauf-tl-step{ opacity:1; transform:none; transition:none; } }
-  .hub-ablauf-tl-num{
-    position:absolute; left:-3.2rem; top:-.15rem; width:2.2rem; height:2.2rem; display:flex; align-items:center; justify-content:center;
-    border-radius:50%; background:var(--surface); border:1px solid var(--border-solid); font-family:var(--font-mono); font-weight:700; font-size:.85rem; color:var(--ember);
-    transition:border-color .25s var(--ease), color .25s var(--ease), box-shadow .25s var(--ease);
-  }
-  .hub-ablauf-tl-step.is-accent .hub-ablauf-tl-num{ border-color:var(--ember); color:var(--ember-bright); box-shadow:0 0 0 4px rgba(217,165,72,.1); }
-  .hub-ablauf-tag{ font-family:var(--font-mono); font-size:.6rem; text-transform:uppercase; letter-spacing:.12em; color:var(--stone); padding:.2rem .5rem; border-radius:6px; background:var(--surface-2); }
-  .hub-ablauf-tl-body{ padding-top:.2rem; }
-  .hub-ablauf-tl-body h3{ font-family:var(--font-serif); font-weight:600; font-size:1.3rem; color:var(--text); margin:.6rem 0 .5rem; }
-  .hub-ablauf-tl-body p{ margin:0; color:var(--stone); font-size:.92rem; line-height:1.6; max-width:32em; }
-
-  .hub-final-cta{ position:relative; z-index:1; max-width:1280px; margin:5rem auto 0; padding:0 1.5rem; }
-  @media (min-width:768px){ .hub-final-cta{ padding:0 2.4rem; } }
-  .hub-final-cta-box{
-    position:relative; overflow:hidden; text-align:center; border-radius:26px; padding:3rem 1.6rem;
-    background:linear-gradient(160deg, var(--surface-2), var(--surface) 60%, var(--bg)); border:1px solid rgba(184,134,47,.4);
-    opacity:0; transform:translateY(20px); transition:opacity .5s var(--ease), transform .5s var(--ease);
-  }
-  .hub-final-cta-glow{
-    position:absolute; top:50%; left:50%; width:480px; height:480px; transform:translate(-50%,-50%);
-    background:rgba(217,165,72,.1); border-radius:50%; filter:blur(64px); pointer-events:none;
-  }
-  .hub-final-cta-eyebrow{
-    position:relative; display:flex; align-items:center; justify-content:center; gap:.5rem; margin:0 0 1rem;
-    font-family:var(--font-mono); font-size:.7rem; text-transform:uppercase; letter-spacing:.25em; color:var(--ember);
-  }
-  .hub-final-cta.reveal-in .hub-final-cta-box{ opacity:1; transform:none; }
-  @media (prefers-reduced-motion: reduce){ .hub-final-cta-box{ opacity:1; transform:none; transition:none; } }
-  @media (min-width:768px){ .hub-final-cta-box{ padding:4.2rem 3rem; } }
-  .hub-final-cta-box h2{ font-family:var(--font-serif); font-weight:700; font-size:clamp(2rem,4.6vw,3rem); color:var(--text); margin:0 0 .9rem; border:none; padding:0; text-transform:none; letter-spacing:-.01em; }
-  .hub-final-cta-box > p{ max-width:34em; margin:0 auto 1.6rem; color:var(--stone); font-size:1rem; line-height:1.65; }
-  .hub-final-cta-note{ margin:1rem 0 0 !important; font-family:var(--font-mono); font-size:.7rem; letter-spacing:.06em; color:var(--stone); }
-  .hub-final-cta-box .btn{ width:auto; display:inline-flex; margin:0 auto; }
 
   /* --- Seiten-Footer (Startseite) ----------------------------------------
      Aufbau nach dem uebergebenen Footer-Entwurf: Lichtschein oben in der Mitte,
@@ -2775,12 +2534,6 @@
   @media (prefers-reduced-motion: reduce){
     .blur-word{ transition:none; filter:none; opacity:1; transform:none; }
   }
-
-  /* Scroll-getriggertes Einblenden des ganzen Karussells (vorher liefen die
-     Karten schon beim Seitenaufbau durch, lange bevor man dahin scrollt) -
-     die Regel dafuer sitzt jetzt bei .feature-carousel weiter oben, da jede
-     einzelne .feature-card ihre eigene Opacity/Position ueber das Stapel-
-     Karussell bekommt (siehe initFeatureCarousel). */
 
   /* --- App-Download-Seite (Menü · 08) --- */
   .dl-view{ position:relative; padding-top:1rem; }
@@ -3353,302 +3106,86 @@
 
 <main id="app">
 
-  <section id="view-hub" class="view">
-    <div class="hub-hero-bg" aria-hidden="true"><canvas id="heroShader" class="hero-shader"></canvas><span class="hairline"></span></div>
+  <section id="view-hub" class="view view-cine">
+    <canvas id="cineField" class="cine-field" aria-hidden="true"></canvas>
+
     <div class="exam-banner" id="examBanner" hidden>
       <span class="exam-banner-icon">⏰</span>
       <p class="exam-banner-text" id="examBannerText"></p>
       <button class="exam-banner-close" id="examBannerClose" type="button" aria-label="Schließen">✕</button>
     </div>
-    <div class="hub-cover">
-      <span class="hub-cover-folio" aria-hidden="true">01</span>
-      <div class="hub-cover-copy">
-        <div class="hub-eyebrow-row hub-eyebrow-row-dossier">
-          <span class="hub-eyebrow-mono">DOSSIER D'APPRENTISSAGE</span>
-          <span class="hub-eyebrow-line"></span>
-          <p class="hub-eyebrow"><span class="dot"></span>Lumière · Édition Atelier</p>
-        </div>
-        <p class="hub-welcome" id="hubWelcome" hidden></p>
-        <h1 class="hub-title hub-cover-title">Vokabeln lernen, <em>élégant</em> gemacht.</h1>
-        <p class="hub-desc hub-cover-desc">Lumière hilft dir, deinen französischen Wortschatz strukturiert und mit Ruhe aufzubauen. Mit eigenen Lernsets, präziser Aussprache zum Anhören und einem individuellen Lernrhythmus, abgestimmt auf deine anstehenden Klausurtermine.</p>
-        <div class="hub-cover-actions">
-          <button id="btnHubSets" class="btn btn-primary btn-large hub-cta" style="width:auto; margin:0;">
-            <span>Eigene Lernsets</span>
-            <svg class="hub-cta-arrow" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-          </button>
-          <button id="btnHubListen" class="hub-cover-ghost-btn" type="button">
-            <span class="hub-cta-icon">🔊</span>
-            <span>Aussprache üben</span>
-          </button>
-        </div>
-        <p class="hub-archive-note">
-          <span class="hub-archive-id">ARCHIVE-ID 4892</span><span class="hub-archive-dot"></span>
-          <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          Kein Abofalle · Fokus auf deine eigenen Klausuren
-        </p>
-        <dl class="hub-cover-colophon">
-          <div><dt id="hubSetsCount">0</dt><dd>Lernsets</dd></div>
-          <span class="hub-cover-colophon-sep" aria-hidden="true"></span>
-          <div><dt id="hubWordsCount">0</dt><dd>Vokabeln</dd></div>
-          <span class="hub-cover-colophon-sep" aria-hidden="true"></span>
-          <div><dt id="hubStreakCount">0</dt><dd>Tage-Serie</dd></div>
-        </dl>
-      </div>
-    <div class="hub-photo-stage hub-cover-plate">
-      <div class="bracket-corner-tr" aria-hidden="true"></div>
-      <div class="bracket-corner-bl" aria-hidden="true"></div>
-      <div class="hub-photo-frame">
-        <div class="hub-photo-media" id="heroPhotoStage">
-          <img class="hub-photo-img ken-burns" id="heroPhoto" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB7Po16bzz__ZSVYMBSUnD4R4b_A7aEJUFaLofluglIsjrX-VMJgDk3LmVkcVMeuyuUB7ym9HecctBXoJHy6k2LXwxBYxuysWaOvEVZC1_TKFfb5BgE2xpHoYsLKxBhbHlp4muHXzBaaFIb3XFmDWhjRgtfVn27QIUCj4FYBfGXDJVUH1FbJxmnjQOz9NLDXYJ9UZtj81tcbBgctP88smuNLXjEojoo_lzn-gmFwtT6Gi14FpJLnbfN" alt="Handschriftliche Vokabelkarten und ein Notizbuch bei warmem Licht" loading="lazy" referrerpolicy="no-referrer" onerror="this.hidden=true">
-          <div class="hub-photo-vignette" aria-hidden="true"></div>
-        </div>
-        <div class="hub-photo-caption">
-          <div>
-            <p class="hub-photo-caption-kicker">Édition Numérique</p>
-            <p class="hub-photo-caption-title">Paris · Rue des Écoles</p>
-          </div>
-          <span class="hub-photo-caption-badge">Atelier 01</span>
-        </div>
-      </div>
-    </div>
-    </div>
 
-    <div class="hub-ticker" aria-hidden="true">
-      <div class="hub-ticker-track">
-        <span class="hub-ticker-item"><em>Coup de foudre</em> — Liebe auf den ersten Blick</span>
-        <span class="hub-ticker-dot">·</span>
-        <span class="hub-ticker-item"><em>Joie de vivre</em> — Lebensfreude</span>
-        <span class="hub-ticker-dot">·</span>
-        <span class="hub-ticker-item"><em>L'esprit de l'escalier</em> — Treppenwitz</span>
-        <span class="hub-ticker-dot">·</span>
-        <span class="hub-ticker-item"><em>Faire la grasse matinée</em> — ausschlafen</span>
-        <span class="hub-ticker-dot">·</span>
-        <span class="hub-ticker-item"><em>Revenons à nos moutons</em> — zur Sache kommen</span>
-        <span class="hub-ticker-dot">·</span>
-        <span class="hub-ticker-item"><em>Coup de foudre</em> — Liebe auf den ersten Blick</span>
-        <span class="hub-ticker-dot">·</span>
-        <span class="hub-ticker-item"><em>Joie de vivre</em> — Lebensfreude</span>
-        <span class="hub-ticker-dot">·</span>
-        <span class="hub-ticker-item"><em>L'esprit de l'escalier</em> — Treppenwitz</span>
-        <span class="hub-ticker-dot">·</span>
-        <span class="hub-ticker-item"><em>Faire la grasse matinée</em> — ausschlafen</span>
-        <span class="hub-ticker-dot">·</span>
-        <span class="hub-ticker-item"><em>Revenons à nos moutons</em> — zur Sache kommen</span>
-        <span class="hub-ticker-dot">·</span>
-      </div>
-    </div>
+    <!-- SEUIL — der Eintritt. Emblem, Wortmarke, lebendes Wortpaar. -->
+    <section class="cine-scene cine-seuil" data-scene="seuil">
+      <p class="cine-corner cine-corner-tl">Deutsch <span aria-hidden="true">↔</span> Französisch</p>
+      <p class="cine-welcome" id="hubWelcome" hidden></p>
 
-    <div class="hub-dark-zone">
-    <div class="hub-features">
-      <div class="hub-section-eyebrow-row">
-        <span>§ 02</span><span class="hub-section-eyebrow-line"></span><span>Sommaire</span>
+      <div class="cine-emblem" aria-hidden="true">
+        <span class="cine-emblem-ring"></span>
+        <span class="cine-emblem-core">L</span>
       </div>
-      <div class="hub-features-head">
-        <p class="hub-features-eyebrow"><span class="dot"></span>Entdecke die Webseite</p>
-        <span class="hub-features-hint">← Blättern →</span>
+
+      <h1 class="cine-wordmark">Lumière</h1>
+
+      <div class="cine-morph" aria-live="off">
+        <span class="cine-morph-fr" id="cineMorphFr">la lumière</span>
+        <span class="cine-morph-rule" aria-hidden="true"></span>
+        <span class="cine-morph-de" id="cineMorphDe">das Licht</span>
       </div>
-      <div class="feature-carousel" id="featureCarousel">
-        <div class="feature-stack" id="featureRail">
-        <button class="feature-card" id="featCardSets" type="button" data-img="feat-lernsets.jpg">
-          <span class="feature-card-head">
-            <span class="feature-card-icon ic-teal">
-              <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5V5.5Z"/><path d="M4 18.5A2.5 2.5 0 0 1 6.5 16H20"/></svg>
-            </span>
-          </span>
-          <span class="feature-card-body">
-            <span class="feature-card-eyebrow">Kollektion</span>
-            <span class="feature-card-title">Lernsets</span>
-            <span class="feature-card-desc">Lege eigene Vokabelsets an und lass dir Übersetzungen von der KI vorschlagen — importieren und exportieren kannst du sie auch.</span>
-          </span>
-          <span class="feature-card-footer"><span>Eigene Sets</span><span class="feature-card-arrow">→</span></span>
+
+      <div class="cine-entry">
+        <button type="button" id="btnHubSets" class="cine-link cine-link-lead">
+          <span>Eintreten</span>
+          <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
         </button>
-
-        <button class="feature-card" id="featCardListen" data-feature="listen" data-img="feat-aussprache.jpg" type="button">
-          <span class="feature-card-head">
-            <span class="feature-card-icon ic-blue">
-              <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9H4Z"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/><path d="M19.3 6a8.5 8.5 0 0 1 0 12"/></svg>
-            </span>
-          </span>
-          <span class="feature-card-body">
-            <span class="feature-card-eyebrow">Akustik</span>
-            <span class="feature-card-title">Aussprache</span>
-            <span class="feature-card-desc">Hör dir jedes Wort in sauberem Französisch an und übe die Aussprache so oft nach, wie du möchtest.</span>
-          </span>
-          <span class="feature-card-footer"><span>Text-to-Speech</span><span class="lock-badge" hidden>🔒 Konto</span><span class="feature-card-arrow">→</span></span>
+        <button type="button" id="btnHubListen" class="cine-link">
+          <span>Hören</span>
         </button>
-
-        <button class="feature-card" id="featCardRewards" data-feature="rewards" data-img="feat-belohnungen.jpg" type="button">
-          <span class="feature-card-head">
-            <span class="feature-card-icon ic-gold">
-              <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c1 3-2 4.5-2 7.5A4.5 4.5 0 0 0 14.5 14c1.8 0 2.9-1 3.3-2 .9 2 .2 4.4-1.4 6a6.5 6.5 0 0 1-9-9c1-1 1.6-2.3 1.6-3.8C9 3.5 10.5 2.4 12 2Z"/></svg>
-            </span>
-          </span>
-          <span class="feature-card-body">
-            <span class="feature-card-eyebrow">Insignien</span>
-            <span class="feature-card-title">Belohnungen</span>
-            <span class="feature-card-desc">Halte deine Lernserie am Laufen, verdiene Coins und setz sie in vier kleinen Spielen ein — inklusive Rangliste.</span>
-          </span>
-          <span class="feature-card-footer"><span>Serie, Coins &amp; Spiele</span><span class="lock-badge" hidden>🔒 Konto</span><span class="feature-card-arrow">→</span></span>
-        </button>
-
-
-        <button class="feature-card" id="featCardGrammar" data-feature="grammar" data-img="feat-grammatik.jpg" type="button">
-          <span class="feature-card-head">
-            <span class="feature-card-icon ic-pop">
-              <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 2 8l10 5 10-5-10-5Z"/><path d="M6 10.5V16c0 1.5 2.5 3 6 3s6-1.5 6-3v-5.5"/><path d="M22 8v6"/></svg>
-            </span>
-          </span>
-          <span class="feature-card-body">
-            <span class="feature-card-eyebrow">Struktur</span>
-            <span class="feature-card-title">Grammatik</span>
-            <span class="feature-card-desc">Stell eine Frage zur französischen Grammatik und bekomm Regeln, Beispiele und Ausnahmen verständlich erklärt.</span>
-          </span>
-          <span class="feature-card-footer"><span>KI erklärt</span><span class="lock-badge" hidden>🔒 Konto</span><span class="feature-card-arrow">→</span></span>
-        </button>
-
-        <button class="feature-card" id="featCardCalendar" data-feature="calendar" data-img="feat-kalender.jpg" type="button">
-          <span class="feature-card-head">
-            <span class="feature-card-icon ic-violet">
-              <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="16" rx="2.5"/><path d="M3.5 9.5h17"/><path d="M8 3v4M16 3v4"/><circle cx="8.2" cy="14" r="1.1" fill="currentColor" stroke="none"/><circle cx="12" cy="14" r="1.1" fill="currentColor" stroke="none"/></svg>
-            </span>
-          </span>
-          <span class="feature-card-body">
-            <span class="feature-card-eyebrow">Rhythmus</span>
-            <span class="feature-card-title">Kalender</span>
-            <span class="feature-card-desc">Trag Klausuren und Termine ein — Lumière erinnert dich rechtzeitig und baut daraus deinen Lernplan.</span>
-          </span>
-          <span class="feature-card-footer"><span>Lernplan</span><span class="lock-badge" hidden>🔒 Konto</span><span class="feature-card-arrow">→</span></span>
-        </button>
-
-        <button class="feature-card" id="featCardApp" type="button" data-img="feat-app.jpg">
-          <span class="feature-card-head">
-            <span class="feature-card-icon ic-teal">
-              <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2.5" width="12" height="19" rx="2.5"/><path d="M11 18h2"/></svg>
-            </span>
-          </span>
-          <span class="feature-card-body">
-            <span class="feature-card-eyebrow">Zugang</span>
-            <span class="feature-card-title">App installieren</span>
-            <span class="feature-card-desc">Leg Lumière als App auf deinen Startbildschirm und öffne sie wie jede andere App, auch ohne Browser.</span>
-          </span>
-          <span class="feature-card-footer"><span>PWA</span><span class="feature-card-arrow">→</span></span>
-        </button>
-
-        <button class="feature-card" id="featCardAbout" type="button" data-img="feat-ueberuns.jpg">
-          <span class="feature-card-head">
-            <span class="feature-card-icon ic-blue">
-              <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v6"/><circle cx="12" cy="8" r="1" fill="currentColor" stroke="none"/></svg>
-            </span>
-          </span>
-          <span class="feature-card-body">
-            <span class="feature-card-eyebrow">Transparenz</span>
-            <span class="feature-card-title">Über uns</span>
-            <span class="feature-card-desc">Wer hinter Lumière steckt, wofür die Seite gedacht ist und wie deine Daten technisch geschützt werden.</span>
-          </span>
-          <span class="feature-card-footer"><span>Dossier</span><span class="feature-card-arrow">→</span></span>
-        </button>
-        </div>
-
-        <div class="feature-carousel-counter">
-          <span class="feature-carousel-num" id="featureCounterNum">01</span>
-          <span class="feature-carousel-total">von <span id="featureCounterTotal">07</span></span>
-        </div>
-        <div class="feature-carousel-controls">
-          <button class="feature-carousel-arrow feature-carousel-prev" id="featPrev" type="button" aria-label="Vorherige Karte">
-            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
-          </button>
-          <div class="feature-carousel-dots" id="featureDots"></div>
-          <button class="feature-carousel-arrow feature-carousel-next" id="featNext" type="button" aria-label="Nächste Karte">
-            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
-          </button>
-        </div>
-
-        <div class="feature-panel" id="featurePanel">
-          <div class="bracket-corner-tr" aria-hidden="true"></div>
-          <div class="bracket-corner-bl" aria-hidden="true"></div>
-          <div class="feature-panel-media" id="featurePanelMedia">
-            <img class="feature-panel-img ken-burns" id="featurePanelImgA" src="" alt="" loading="lazy">
-            <img class="feature-panel-img feature-panel-img-b" id="featurePanelImgB" src="" alt="" loading="lazy">
-          </div>
-          <div class="feature-panel-body">
-            <span class="feature-panel-eyebrow" id="featurePanelEyebrow">Kollektion</span>
-            <h3 class="feature-panel-title" id="featurePanelTitle">Lernsets</h3>
-            <p class="feature-panel-desc" id="featurePanelDesc">Leg eigene Vokabelsets an und lass dir Übersetzungen von der KI vorschlagen — importieren und exportieren kannst du sie auch.</p>
-          </div>
-        </div>
       </div>
-    </div>
 
-    <div class="hub-manifest">
-      <div class="hub-manifest-media">
-        <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuDW3rmKC7JxqWEkGaM7rCti8OkXWm4luaPISy9RFzYO7Ux3OdsjUn4zX_xeAA8Htce0iNOJopM1PXkP33ezvMAs6c5YuNH9QFDINcWR8G1aGyme7nqHLOjNnNfNJAjiQiK4xg4GUB5i4dlAc_v6SttmDUanfZqwuoAApkHc-nRnxAl-RO5Bx7leAD7cFudtwZeNrdlVk65Y1iB2-A2lHZhacv7FBs8sCeFa3Luri5Wz7RfTHhnsmiVlRw" alt="Nächtliche Café-Szene in Paris mit einem alten Wörterbuch, Espresso und Blick auf eine regennasse Straße" loading="lazy">
-        <div class="hub-manifest-media-fade"></div>
-      </div>
-      <div class="hub-manifest-body">
-        <p class="hub-manifest-eyebrow">
-          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.5c-1.8-1.3-4.2-2-7-2v13c2.8 0 5.2.7 7 2 1.8-1.3 4.2-2 7-2v-13c-2.8 0-5.2.7-7 2Z"/><path d="M12 6.5v13"/></svg>
-          Das Lumière-Manifest
-        </p>
-        <h2 class="hub-manifest-quote">« Die Grenzen meiner Sprache bedeuten die Grenzen meiner Welt. »</h2>
-        <p class="hub-manifest-text">Jedes französische Wort trägt ein subtiles Echo seiner Geschichte in sich. Wir ersetzen stures Auswendiglernen durch elegante Assoziationen, phonetische Klarheit und literarische Kontexte, die im Gedächtnis verweilen.</p>
-        <div class="hub-manifest-attrib"><span id="hubManifestAttrib">Ludwig Wittgenstein · Tractatus</span><span class="line"></span></div>
-      </div>
-    </div>
-
-    <section class="hub-ablauf">
-      <span class="hub-ablauf-ghost" aria-hidden="true">III</span>
-      <div class="hub-section-eyebrow-row">
-        <span>§ 03</span><span class="hub-section-eyebrow-line"></span><span>Ablauf</span>
-      </div>
-      <div class="hub-ablauf-head">
-        <h2>In drei ruhigen Schritten zum Lernerfolg.</h2>
-        <p>Keine künstliche Hektik, keine sinnlosen Punktespielereien — nur konzentriertes, effektives Arbeiten.</p>
-      </div>
-      <div class="hub-ablauf-timeline">
-        <div class="hub-ablauf-tl-line" aria-hidden="true"></div>
-        <div class="hub-ablauf-tl-step">
-          <span class="hub-ablauf-tl-num">01</span>
-          <div class="hub-ablauf-tl-body">
-            <span class="hub-ablauf-tag">Étape 1</span>
-            <h3>Set anlegen</h3>
-            <p>Eigene Vokabeln eintragen oder ein bestehendes Set öffnen. Ganz nach deinem Schul- oder Unistoff strukturiert.</p>
-          </div>
-        </div>
-        <div class="hub-ablauf-tl-step is-accent">
-          <span class="hub-ablauf-tl-num">02</span>
-          <div class="hub-ablauf-tl-body">
-            <span class="hub-ablauf-tag">Étape 2</span>
-            <h3>Karte für Karte lernen</h3>
-            <p>Umdrehen, anhören, wiederholen — in deinem ganz eigenen Tempo, ohne algorithmischen Druck.</p>
-          </div>
-        </div>
-        <div class="hub-ablauf-tl-step">
-          <span class="hub-ablauf-tl-num">03</span>
-          <div class="hub-ablauf-tl-body">
-            <span class="hub-ablauf-tag">Étape 3</span>
-            <h3>Dranbleiben</h3>
-            <p>Serie halten, Klausurtermine im Blick behalten und sehen, wie dein Wortschatz nachhaltig wächst.</p>
-          </div>
-        </div>
-      </div>
+      <div class="cine-scrollcue" aria-hidden="true"><span class="cine-scrollcue-line"></span></div>
     </section>
 
-    <section class="hub-final-cta">
-      <div class="hub-final-cta-box">
-        <div class="bracket-corner-tr" aria-hidden="true"></div>
-        <div class="bracket-corner-bl" aria-hidden="true"></div>
-        <div class="hub-final-cta-glow" aria-hidden="true"></div>
-        <p class="hub-final-cta-eyebrow"><span>§ 04</span>Bereit für den ersten Schritt?</p>
-        <h2>Bereit, anzufangen?</h2>
-        <p>Erstelle in wenigen Minuten dein erstes Vokabelset und lerne Französisch mit der Sorgfalt, die diese Sprache verdient.</p>
-        <button type="button" id="btnHubFinalCta" class="btn btn-primary btn-large hub-cta">
-          <span>Kostenlos starten</span>
-          <svg class="hub-cta-arrow" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-        </button>
-        <p class="hub-final-cta-note">Kostenfrei nutzbar · Ohne Kreditkarte · Sofort startklar</p>
-      </div>
+    <!-- LE MOT — ein einzelnes Wort landet. Das ist die Demo. -->
+    <section class="cine-scene cine-mot" data-scene="mot">
+      <p class="cine-kicker">Ein Wort, das bleibt</p>
+      <p class="cine-mot-word" id="cineMotWord">l'émerveillement</p>
+      <p class="cine-mot-phon" id="cineMotPhon">[e.mɛʁ.vɛj.mɑ̃]</p>
+      <p class="cine-mot-de" id="cineMotDe">das Staunen</p>
+      <p class="cine-mot-note">Vorgesprochen, phonetisch notiert, im richtigen Moment wiederholt.</p>
     </section>
-    </div>
+
+    <!-- LA MÉTHODE — drei Sätze, kein Raster. -->
+    <section class="cine-scene cine-methode" data-scene="methode">
+      <p class="cine-kicker">Wie es arbeitet</p>
+      <p class="cine-claim">Du schreibst deine <em>eigenen</em> Wörter auf — den Stoff deiner Klausur, nicht den eines Lehrplans.</p>
+      <p class="cine-claim">Sie kehren genau dann zurück, wenn du sie <em>vergessen</em> würdest.</p>
+      <p class="cine-claim">Und sie klingen so, wie sie in <em>Paris</em> klingen.</p>
+    </section>
+
+    <!-- L'ATELIER — die eigenen Zahlen, freistehend. -->
+    <section class="cine-scene cine-atelier" data-scene="atelier">
+      <p class="cine-kicker">Dein Atelier</p>
+      <dl class="cine-figures">
+        <div class="cine-figure"><dt id="hubSetsCount">0</dt><dd>Sammlungen</dd></div>
+        <div class="cine-figure"><dt id="hubWordsCount">0</dt><dd>Wörter</dd></div>
+        <div class="cine-figure"><dt id="hubStreakCount">0</dt><dd>Tage in Folge</dd></div>
+      </dl>
+      <p class="cine-atelier-note">Kein Abo · Keine Kreditkarte · Dein Fortschritt gehört dir</p>
+    </section>
+
+    <!-- ENTRER — Schluss. -->
+    <section class="cine-scene cine-entrer" data-scene="entrer">
+      <div class="cine-emblem cine-emblem-sm" aria-hidden="true">
+        <span class="cine-emblem-ring"></span>
+        <span class="cine-emblem-core">L</span>
+      </div>
+      <p class="cine-close-line">Fang mit einem Wort an.</p>
+      <button type="button" id="btnHubFinalCta" class="cine-link cine-link-lead cine-link-xl">
+        <span>Kostenlos beginnen</span>
+        <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </button>
+    </section>
 
     <footer class="site-footer">
       <div class="site-footer-inner">
@@ -4952,7 +4489,7 @@
       unten) - neue, noch nicht "veroeffentlichte" Features hinter
       isReleased(N) verstecken; Admins sehen sie trotzdem sofort.
    ============================================================ */
-const APP_VERSION = 1;
+const APP_VERSION = 2;
 
 // Site-weites Feature-Gate: neue, aber noch nicht freigegebene Funktionen
 // hinter isReleased(<APP_VERSION beim Einbau>) verstecken. Admins (echtes
@@ -7496,40 +7033,8 @@ if(!reducedMotionActive()){
 
   // Feature-Karten erst einblenden, wenn man tatsaechlich zu ihnen scrollt
   // (statt schon beim Laden der Seite, lange bevor man sie sieht).
-  setupCardReveal(document.querySelector('.hub-features'), '.feature-carousel');
-  setupBlurReveal(document.querySelector('.hub-manifest-quote'));
-  setupCardReveal(document.querySelector('.hub-ablauf'), '.hub-ablauf-tl-step');
-  setupCardReveal(document.querySelector('.hub-final-cta'), '.hub-final-cta-box');
 }
 
-// --- Manifest: mehrere Zitate, die sich alle 30s abwechseln ---------------
-const HUB_QUOTES = [
-  { text: 'Die Grenzen meiner Sprache bedeuten die Grenzen meiner Welt.', attrib: 'Ludwig Wittgenstein · Tractatus' },
-  { text: 'Wer fremde Sprachen nicht kennt, weiß nichts von seiner eigenen.', attrib: 'Johann Wolfgang von Goethe · Maximen und Reflexionen' },
-  { text: 'Mal nommer les choses, c’est ajouter au malheur du monde.', attrib: 'Albert Camus' },
-  { text: 'Traduire, c’est trahir.', attrib: 'Französisches Sprichwort' },
-];
-let hubQuoteIndex = 0;
-function renderQuoteWords(el, text, stagger = 60){
-  const words = text.trim().split(/\s+/);
-  el.innerHTML = words.map((w, i) => `<span class="blur-word" style="transition-delay:${i * stagger}ms">${escapeHtml(w)}</span>`).join(' ');
-}
-function rotateHubQuote(){
-  const el = document.querySelector('.hub-manifest-quote');
-  const attribEl = document.getElementById('hubManifestAttrib');
-  const hubView = document.getElementById('view-hub');
-  if(!el || !hubView || hubView.hidden) return;
-  el.classList.remove('blur-in');
-  setTimeout(() => {
-    hubQuoteIndex = (hubQuoteIndex + 1) % HUB_QUOTES.length;
-    const q = HUB_QUOTES[hubQuoteIndex];
-    renderQuoteWords(el, `« ${q.text} »`);
-    if(attribEl) attribEl.textContent = q.attrib;
-    void el.offsetWidth;
-    el.classList.add('blur-in');
-  }, 650);
-}
-setInterval(rotateHubQuote, 30000);
 
 // --- Premium Mouse-Effekt: aufsteigende Gold-Funken -----------------------
 // Statt einer durchgehenden Kometen-Spur (alte Version) loest jede Bewegung
@@ -7775,139 +7280,6 @@ setInterval(rotateHubQuote, 30000);
 // CSS bei .feature-card). Klick auf eine der schimmernden Nachbar-Karten holt
 // sie nur nach vorne, statt sofort zur jeweiligen Seite zu navigieren - erst
 // ein Klick auf die bereits aktive Karte loest die echte Navigation aus.
-(function initFeatureCarousel(){
-  const stack = document.getElementById('featureRail');
-  const prevBtn = document.getElementById('featPrev');
-  const nextBtn = document.getElementById('featNext');
-  const dotsWrap = document.getElementById('featureDots');
-  const numEl = document.getElementById('featureCounterNum');
-  const totalEl = document.getElementById('featureCounterTotal');
-  if(!stack || !prevBtn || !nextBtn || !dotsWrap || !numEl) return;
-
-  const cards = Array.from(stack.children);
-  const n = cards.length;
-  if(!n) return;
-  let index = 0;
-
-  // Grosses Detail-Panel unter dem Karussell: liest Bild+Text direkt aus jeder
-  // Karte aus (keine zweite Datenquelle) und blendet beim Wechsel weich um.
-  const panelImgA = document.getElementById('featurePanelImgA');
-  const panelImgB = document.getElementById('featurePanelImgB');
-  const panelEyebrow = document.getElementById('featurePanelEyebrow');
-  const panelTitle = document.getElementById('featurePanelTitle');
-  const panelDesc = document.getElementById('featurePanelDesc');
-  let panelIndex = -1;
-  let panelLayerA = true;
-
-  function syncPanel(){
-    if(panelIndex === index || !panelImgA) return;
-    panelIndex = index;
-    const card = cards[index];
-    const title = card.querySelector('.feature-card-title')?.textContent.trim() || '';
-    const eyebrow = card.querySelector('.feature-card-eyebrow')?.textContent.trim() || '';
-    const desc = card.querySelector('.feature-card-desc')?.textContent.trim() || '';
-    const img = card.dataset.img || '';
-
-    panelEyebrow.textContent = eyebrow;
-    panelTitle.textContent = title;
-    panelDesc.textContent = desc;
-
-    const outgoing = panelLayerA ? panelImgA : panelImgB;
-    const incoming = panelLayerA ? panelImgB : panelImgA;
-    panelLayerA = !panelLayerA;
-    incoming.src = img;
-    incoming.alt = title;
-    incoming.style.opacity = '1';
-    outgoing.style.opacity = '0';
-  }
-
-  cards.forEach((_, i) => {
-    const dot = document.createElement('button');
-    dot.type = 'button';
-    dot.className = 'feature-dot';
-    dot.setAttribute('aria-label', `Karte ${i + 1} von ${n}`);
-    dot.addEventListener('click', () => { sndClick(); goTo(i); });
-    dotsWrap.appendChild(dot);
-  });
-  const dots = Array.from(dotsWrap.children);
-
-  function config(){
-    const narrow = window.matchMedia('(max-width:639px)').matches;
-    return narrow
-      ? { nearX:104, farX:184, nearY:14, farY:26, nearScale:.84, farScale:.72, nearOp:.5, farOp:.2, nearBlur:.5, farBlur:1.5 }
-      : { nearX:196, farX:344, nearY:20, farY:36, nearScale:.86, farScale:.75, nearOp:.5, farOp:.2, nearBlur:.5, farBlur:1.5 };
-  }
-
-  // Kuerzeste Distanz im Kreis, z.B. bei n=7: von Index 0 zu Index 6 ist das -1, nicht +6.
-  function shortestDelta(from, to){
-    let d = to - from;
-    d = ((d + n / 2) % n + n) % n - n / 2;
-    return Math.round(d);
-  }
-
-  function update(){
-    const c = config();
-    cards.forEach((card, i) => {
-      const d = shortestDelta(index, i);
-      const ad = Math.abs(d);
-      const sign = Math.sign(d);
-      let tx = 0, ty = 0, scale = 1, op = 1, z = 50, blur = 0, interactive = true;
-      if(ad === 1){ tx = sign * c.nearX; ty = c.nearY; scale = c.nearScale; op = c.nearOp; z = 40; blur = c.nearBlur; }
-      else if(ad === 2){ tx = sign * c.farX; ty = c.farY; scale = c.farScale; op = c.farOp; z = 30; blur = c.farBlur; }
-      else if(ad >= 3){ tx = sign * (c.farX + 60); ty = c.farY + 10; scale = c.farScale * .9; op = 0; z = 10; blur = c.farBlur; interactive = false; }
-      card.style.setProperty('--tx', tx + 'px');
-      card.style.setProperty('--ty', ty + 'px');
-      card.style.setProperty('--scale', scale);
-      card.style.setProperty('--op', op);
-      card.style.setProperty('--z', z);
-      card.style.setProperty('--card-blur', blur + 'px');
-      card.style.pointerEvents = interactive ? '' : 'none';
-      card.tabIndex = d === 0 ? 0 : -1;
-    });
-    dots.forEach((d, i) => d.classList.toggle('is-active', i === index));
-    numEl.textContent = String(index + 1).padStart(2, '0');
-    if(totalEl) totalEl.textContent = String(n).padStart(2, '0');
-    syncPanel();
-  }
-
-  function goTo(i){
-    index = ((i % n) + n) % n;
-    update();
-  }
-
-  prevBtn.addEventListener('click', () => { sndClick(); goTo(index - 1); });
-  nextBtn.addEventListener('click', () => { sndClick(); goTo(index + 1); });
-
-  stack.addEventListener('click', (e) => {
-    const card = e.target.closest('.feature-card');
-    if(!card) return;
-    const i = cards.indexOf(card);
-    if(i !== index){
-      e.stopPropagation();
-      e.preventDefault();
-      goTo(i);
-    }
-  }, true);
-
-  stack.addEventListener('keydown', (e) => {
-    if(e.key === 'ArrowRight'){ e.preventDefault(); sndClick(); goTo(index + 1); }
-    else if(e.key === 'ArrowLeft'){ e.preventDefault(); sndClick(); goTo(index - 1); }
-  });
-
-  // Wischen auf Touch-Geraeten bleibt weiterhin moeglich.
-  let touchStartX = null;
-  stack.addEventListener('pointerdown', (e) => { if(e.pointerType === 'touch') touchStartX = e.clientX; }, { passive:true });
-  stack.addEventListener('pointerup', (e) => {
-    if(touchStartX === null) return;
-    const dx = e.clientX - touchStartX;
-    touchStartX = null;
-    if(Math.abs(dx) < 40) return;
-    dx < 0 ? goTo(index + 1) : goTo(index - 1);
-  }, { passive:true });
-
-  window.addEventListener('resize', update, { passive:true });
-  update();
-})();
 
 // --- Hero-Shader (WebGL2) --------------------------------------------------
 // Animierter Wolken-/Lichtschleier hinter der Startseiten-Ueberschrift.
@@ -7916,162 +7288,6 @@ setInterval(rotateHubQuote, 30000);
 // bei reduzierter Bewegung passiert gar nichts, dann bleibt der bisherige
 // Hero-Hintergrund unveraendert stehen. Laeuft nur, solange die Startseite
 // sichtbar und der Tab im Vordergrund ist - sonst wird die Schleife angehalten.
-(function initHeroShader(){
-  // Auf Nutzerwunsch abgeschaltet: der Licht-/Wolkenschleier wirkte im Hero
-  // wie stoerende Leuchtstreifen ueber den Stat-Karten. Startseite bleibt
-  // dafuer wieder beim Sternenhintergrund (.bg-stars).
-  return;
-  const canvas = document.getElementById('heroShader');
-  if(!canvas) return;
-  if(!window.matchMedia('(hover:hover) and (pointer:fine)').matches) return;
-  if(reducedMotionActive()) return;
-
-  let gl = null;
-  try{ gl = canvas.getContext('webgl2', { antialias:false, alpha:true, powerPreference:'low-power' }); }catch(e){}
-  if(!gl) return;
-
-  const vertSrc = `#version 300 es
-precision highp float;
-in vec4 position;
-void main(){ gl_Position = position; }`;
-
-  const fragSrc = `#version 300 es
-precision highp float;
-out vec4 O;
-uniform vec2 resolution;
-uniform float time;
-uniform vec2 touch;
-#define FC gl_FragCoord.xy
-#define T time
-#define R resolution
-#define MN min(R.x,R.y)
-float rnd(vec2 p){ p=fract(p*vec2(12.9898,78.233)); p+=dot(p,p+34.56); return fract(p.x*p.y); }
-float noise(in vec2 p){
-  vec2 i=floor(p), f=fract(p), u=f*f*(3.-2.*f);
-  float a=rnd(i), b=rnd(i+vec2(1,0)), c=rnd(i+vec2(0,1)), d=rnd(i+1.);
-  return mix(mix(a,b,u.x),mix(c,d,u.x),u.y);
-}
-float fbm(vec2 p){
-  float t=.0, a=1.; mat2 m=mat2(1.,-.5,.2,1.2);
-  for(int i=0;i<5;i++){ t+=a*noise(p); p*=2.*m; a*=.5; }
-  return t;
-}
-float clouds(vec2 p){
-  float d=1., t=.0;
-  for(float i=.0;i<3.;i++){
-    float a=d*fbm(i*10.+p.x*.2+.2*(1.+i)*p.y+d+i*i+p);
-    t=mix(t,d,a); d=a; p*=2./(i+1.);
-  }
-  return t;
-}
-void main(void){
-  vec2 uv=(FC-.5*R)/MN, st=uv*vec2(2,1);
-  uv += touch*.12;
-  vec3 col=vec3(0);
-  float bg=clouds(vec2(st.x+T*.5,-st.y));
-  uv*=1.-.3*(sin(T*.2)*.5+.5);
-  for(float i=1.;i<12.;i++){
-    uv+=.1*cos(i*vec2(.1+.01*i,.8)+i*i+T*.5+.1*uv.x);
-    vec2 p=uv;
-    float d=length(p);
-    col+=.00125/d*(cos(sin(i)*vec3(1,2,3))+1.);
-    float b=noise(i+p+bg*1.731);
-    col+=.002*b/length(max(p,vec2(b*p.x*.02,p.y)));
-    col=mix(col,vec3(bg*.25,bg*.137,bg*.05),d);
-  }
-  O=vec4(col,1);
-}`;
-
-  function compile(type, src){
-    const sh = gl.createShader(type);
-    gl.shaderSource(sh, src);
-    gl.compileShader(sh);
-    if(!gl.getShaderParameter(sh, gl.COMPILE_STATUS)){
-      console.error('Hero-Shader:', gl.getShaderInfoLog(sh));
-      gl.deleteShader(sh);
-      return null;
-    }
-    return sh;
-  }
-  const vs = compile(gl.VERTEX_SHADER, vertSrc);
-  const fs = compile(gl.FRAGMENT_SHADER, fragSrc);
-  if(!vs || !fs) return;
-
-  const prog = gl.createProgram();
-  gl.attachShader(prog, vs);
-  gl.attachShader(prog, fs);
-  gl.linkProgram(prog);
-  if(!gl.getProgramParameter(prog, gl.LINK_STATUS)){
-    console.error('Hero-Shader Link:', gl.getProgramInfoLog(prog));
-    return;
-  }
-
-  const buf = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,1,-1,-1,1,1,1,-1]), gl.STATIC_DRAW);
-  const posLoc = gl.getAttribLocation(prog, 'position');
-  gl.enableVertexAttribArray(posLoc);
-  gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 0, 0);
-
-  const uRes = gl.getUniformLocation(prog, 'resolution');
-  const uTime = gl.getUniformLocation(prog, 'time');
-  const uTouch = gl.getUniformLocation(prog, 'touch');
-
-  // Aufloesung bewusst gedeckelt: der Shader ist fuellratenlastig, vollflaechig
-  // in nativer Retina-Aufloesung waere er reine Verschwendung fuer einen Schleier.
-  function resize(){
-    const rect = canvas.getBoundingClientRect();
-    if(!rect.width || !rect.height) return;
-    const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
-    const w = Math.max(1, Math.round(rect.width * dpr));
-    const h = Math.max(1, Math.round(rect.height * dpr));
-    if(canvas.width === w && canvas.height === h) return;
-    canvas.width = w; canvas.height = h;
-    gl.viewport(0, 0, w, h);
-  }
-
-  const touch = [0, 0];
-  window.addEventListener('pointermove', (e) => {
-    touch[0] = e.clientX / window.innerWidth - .5;
-    touch[1] = .5 - e.clientY / window.innerHeight;
-  }, { passive:true });
-  window.addEventListener('resize', resize);
-
-  let rafId = null;
-  const start = performance.now();
-  function frame(now){
-    resize();
-    gl.useProgram(prog);
-    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
-    gl.uniform2f(uRes, canvas.width, canvas.height);
-    gl.uniform1f(uTime, (now - start) * 1e-3);
-    gl.uniform2f(uTouch, touch[0], touch[1]);
-    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-    rafId = requestAnimationFrame(frame);
-  }
-  function play(){
-    if(rafId !== null) return;
-    resize();
-    rafId = requestAnimationFrame(frame);
-  }
-  function pause(){
-    if(rafId === null) return;
-    cancelAnimationFrame(rafId);
-    rafId = null;
-  }
-  // Nur laufen lassen, wenn die Startseite wirklich zu sehen ist.
-  function syncPlayState(){
-    const hub = document.getElementById('view-hub');
-    if(!document.hidden && hub && !hub.hidden) play();
-    else pause();
-  }
-  document.addEventListener('visibilitychange', syncPlayState);
-  window.addEventListener('lumiere:viewchange', syncPlayState);
-
-  resize();
-  canvas.classList.add('is-live');
-  syncPlayState();
-})();
 
 // Zerlegt den Text eines Elements in einzeln animierbare Woerter und blendet
 // sie gestaffelt ein (Blur -> scharf), sobald das Element sichtbar wird.
@@ -8327,6 +7543,213 @@ function animateNumber(el, target, duration = 700){
   requestAnimationFrame(tick);
 }
 
+// === STARTSEITE: Kino-Engine ============================================
+// Ein Partikelfeld hinter allen Szenen (reagiert auf den Zeiger), ein
+// Scroll-Scrubber der jeder Szene ihren Eintritts-Fortschritt gibt, und ein
+// Wortpaar das im Hero durchwechselt. Laeuft nur, solange die Startseite
+// sichtbar ist - beim Seitenwechsel wird die Schleife gestoppt.
+
+const CINE_PAIRS = [
+  { fr: 'la lumière',       de: 'das Licht' },
+  { fr: 'le crépuscule',    de: 'die Dämmerung' },
+  { fr: 'le souvenir',      de: 'die Erinnerung' },
+  { fr: "l'esprit",         de: 'der Geist' },
+  { fr: 'la patience',      de: 'die Geduld' },
+  { fr: 'le seuil',         de: 'die Schwelle' },
+];
+
+// Neue, eigene Klangfarbe fuer die Startseite: tief, weich, mit Quinte
+// darueber - deutlich anders als die kurzen UI-Klicks im Rest der App.
+function sndCineEnter(){
+  playTone(174, 0.9, 'sine', 0.05, 0, 900);
+  playTone(261, 1.1, 'sine', 0.035, 0.06, 900);
+}
+function sndCineScene(){
+  playTone(392, 0.5, 'sine', 0.025, 0, 1200);
+}
+function sndCineWord(){
+  playTone(523, 0.22, 'sine', 0.018, 0, 1600);
+}
+function sndCineHover(){
+  playTone(659, 0.14, 'sine', 0.012, 0, 2000);
+}
+
+(function initCineField(){
+  const canvas = document.getElementById('cineField');
+  const view = document.getElementById('view-hub');
+  if(!canvas || !view) return;
+  const ctx = canvas.getContext('2d');
+
+  const scenes = Array.from(view.querySelectorAll('.cine-scene'));
+  const morph = view.querySelector('.cine-morph');
+  const morphFr = document.getElementById('cineMorphFr');
+  const morphDe = document.getElementById('cineMorphDe');
+
+  let dpr = 1, w = 0, h = 0, rafId = 0, running = false;
+  let pointer = { x: -9999, y: -9999, px: -9999, py: -9999, vx: 0, vy: 0, active: false };
+  let motes = [];
+  let pairIndex = 0;
+  let lastSceneKey = '';
+
+  function reduced(){ return reducedMotionActive(); }
+
+  function resize(){
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    w = window.innerWidth; h = window.innerHeight;
+    canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr);
+    canvas.style.width = w + 'px'; canvas.style.height = h + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+
+  // Dichte an die Flaeche koppeln, damit ein grosser Desktop nicht dieselbe
+  // duenne Streuung bekommt wie ein Handy - und Handys nicht ueberlastet werden.
+  function seed(){
+    const area = w * h;
+    const count = Math.round(Math.min(150, Math.max(36, area / 13000)));
+    motes = [];
+    for(let i = 0; i < count; i++){
+      motes.push({
+        x: Math.random() * w,
+        y: Math.random() * h,
+        vx: (Math.random() - 0.5) * 0.09,
+        vy: -0.06 - Math.random() * 0.16,
+        r: 0.5 + Math.random() * 1.5,
+        a: 0.1 + Math.random() * 0.4,
+        tw: Math.random() * Math.PI * 2,
+        tws: 0.004 + Math.random() * 0.012,
+        trail: 0,
+      });
+    }
+  }
+
+  function onPointer(e){
+    const x = e.touches ? e.touches[0].clientX : e.clientX;
+    const y = e.touches ? e.touches[0].clientY : e.clientY;
+    if(pointer.active){ pointer.vx = x - pointer.x; pointer.vy = y - pointer.y; }
+    pointer.x = x; pointer.y = y; pointer.active = true;
+  }
+
+  function step(){
+    if(!running){ rafId = 0; return; }
+    ctx.clearRect(0, 0, w, h);
+
+    const speed = Math.min(Math.hypot(pointer.vx, pointer.vy), 60);
+    for(const m of motes){
+      // Zeiger-Einfluss: nahe Motes werden mitgerissen und ziehen kurz einen
+      // Schweif - das ist der Effekt aus der Referenz, nur in Gold.
+      if(pointer.active){
+        const dx = m.x - pointer.x, dy = m.y - pointer.y;
+        const d2 = dx * dx + dy * dy;
+        if(d2 < 42000){
+          const f = (1 - d2 / 42000);
+          m.vx += (dx / (Math.sqrt(d2) + 1)) * f * 0.7 + pointer.vx * 0.012 * f;
+          m.vy += (dy / (Math.sqrt(d2) + 1)) * f * 0.7 + pointer.vy * 0.012 * f;
+          m.trail = Math.min(1, m.trail + f * (0.2 + speed * 0.01));
+        }
+      }
+      m.x += m.vx; m.y += m.vy;
+      m.vx *= 0.955; m.vy *= 0.955;
+      m.vy -= 0.0016;             // leichter Auftrieb, wie Glut
+      m.trail *= 0.94;
+      m.tw += m.tws;
+
+      if(m.y < -20){ m.y = h + 20; m.x = Math.random() * w; m.trail = 0; }
+      if(m.x < -20) m.x = w + 20; else if(m.x > w + 20) m.x = -20;
+      if(m.y > h + 40) m.y = -20;
+
+      const flicker = 0.65 + Math.sin(m.tw) * 0.35;
+      const alpha = m.a * flicker;
+
+      if(m.trail > 0.04){
+        const tl = 4 + m.trail * 34;
+        const ang = Math.atan2(m.vy, m.vx);
+        const g = ctx.createLinearGradient(m.x, m.y, m.x - Math.cos(ang) * tl, m.y - Math.sin(ang) * tl);
+        g.addColorStop(0, `rgba(246,195,92,${alpha * 0.85})`);
+        g.addColorStop(1, 'rgba(246,195,92,0)');
+        ctx.strokeStyle = g;
+        ctx.lineWidth = m.r * 1.1;
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(m.x, m.y);
+        ctx.lineTo(m.x - Math.cos(ang) * tl, m.y - Math.sin(ang) * tl);
+        ctx.stroke();
+      }
+
+      ctx.beginPath();
+      ctx.fillStyle = `rgba(255,224,160,${alpha})`;
+      ctx.arc(m.x, m.y, m.r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    pointer.vx *= 0.86; pointer.vy *= 0.86;
+    rafId = requestAnimationFrame(step);
+  }
+
+  // Szenen-Scrubbing: jede Szene bekommt --enter aus ihrer Position im
+  // Viewport. Kein Pinning (die GSAP-Empfehlung warnt zu Recht davor, mehr
+  // als ein, zwei Sektionen zu pinnen) - nur ein weicher Ein-/Ausgang.
+  function scrub(){
+    if(view.hidden) return;
+    const vh = window.innerHeight;
+    let top = null;
+    for(const s of scenes){
+      const r = s.getBoundingClientRect();
+      const mid = r.top + r.height / 2;
+      const dist = Math.abs(mid - vh / 2) / vh;
+      const enter = Math.max(0, Math.min(1, 1.35 - dist * 1.9));
+      s.style.setProperty('--enter', enter.toFixed(3));
+      if(top === null || dist < top.dist) top = { dist, key: s.dataset.scene || '' };
+    }
+    if(top && top.key && top.key !== lastSceneKey){
+      if(lastSceneKey) sndCineScene();
+      lastSceneKey = top.key;
+    }
+  }
+
+  function cycleWord(){
+    if(!morph || view.hidden || reduced()) return;
+    morph.classList.add('is-out');
+    setTimeout(() => {
+      pairIndex = (pairIndex + 1) % CINE_PAIRS.length;
+      const p = CINE_PAIRS[pairIndex];
+      if(morphFr) morphFr.textContent = p.fr;
+      if(morphDe) morphDe.textContent = p.de;
+      morph.classList.remove('is-out');
+      sndCineWord();
+    }, 430);
+  }
+
+  function start(){
+    if(running) return;
+    running = true;
+    resize();
+    if(motes.length === 0) seed();
+    canvas.classList.add('is-live');
+    if(!reduced() && !rafId) rafId = requestAnimationFrame(step);
+    scrub();
+  }
+  function stop(){
+    running = false;
+    if(rafId){ cancelAnimationFrame(rafId); rafId = 0; }
+    canvas.classList.remove('is-live');
+    ctx.clearRect(0, 0, w, h);
+  }
+
+  window.addEventListener('resize', () => { if(running){ resize(); seed(); } }, { passive:true });
+  window.addEventListener('scroll', () => { if(running) scrub(); }, { passive:true });
+  window.addEventListener('mousemove', onPointer, { passive:true });
+  window.addEventListener('touchmove', onPointer, { passive:true });
+  window.addEventListener('lumiere:viewchange', (e) => {
+    if(e.detail && e.detail.view === 'hub') start(); else stop();
+  });
+  document.addEventListener('visibilitychange', () => {
+    if(document.hidden) stop(); else if(!view.hidden) start();
+  });
+
+  setInterval(cycleWord, 4200);
+  window.cineFieldStart = start;
+})();
+
 function renderHub(){
   showView('hub');
   currentNavId = 'hub';
@@ -8338,17 +7761,14 @@ function renderHub(){
   updateExamBanner();
   updateWelcomeMessage();
   wireSounds();
+  if(window.cineFieldStart) window.cineFieldStart();
 }
-document.getElementById('btnHubSets').addEventListener('click', () => { sndClick(); renderHome(); });
+document.querySelectorAll('#view-hub .cine-link').forEach(el => {
+  el.addEventListener('mouseenter', () => sndCineHover());
+});
+document.getElementById('btnHubSets').addEventListener('click', () => { sndCineEnter(); renderHome(); });
 document.getElementById('btnHubListen').addEventListener('click', () => openGlobalListen());
-document.getElementById('btnHubFinalCta').addEventListener('click', () => { sndClick(); currentUser ? renderHome() : openAccountModal(); });
-document.getElementById('featCardSets').addEventListener('click', () => { sndClick(); renderHome(); });
-document.getElementById('featCardListen').addEventListener('click', () => openGlobalListen());
-document.getElementById('featCardRewards').addEventListener('click', () => { sndClick(); renderRewards(); });
-document.getElementById('featCardGrammar').addEventListener('click', () => { sndClick(); openGrammar(); });
-document.getElementById('featCardCalendar').addEventListener('click', () => { sndClick(); renderCalendar(); });
-document.getElementById('featCardApp').addEventListener('click', () => { sndClick(); openAppDownload(); });
-document.getElementById('featCardAbout').addEventListener('click', () => { sndClick(); openAbout(); });
+document.getElementById('btnHubFinalCta').addEventListener('click', () => { sndCineEnter(); currentUser ? renderHome() : openAccountModal(); });
 
 // --- BELOHNUNGEN / STREAK --------------------------------------------------
 function todayKey(d = new Date()){ const x = new Date(d); x.setHours(0,0,0,0); return x.toISOString().slice(0,10); }
