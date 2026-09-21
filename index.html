@@ -366,6 +366,28 @@
   .toast-info .toast-icon{ color:var(--ember-bright); }
   .toast-success{ border-color:rgba(74,222,128,.4); }
 
+  /* --- Update-Hinweis: neue Version auf dem Server erkannt (siehe
+     initUpdateCheck) - anders als der Toast dauerhaft sichtbar, bis
+     Neu-laden oder Schließen geklickt wird. */
+  .update-banner{
+    position:fixed; left:50%; top:72px; z-index:80; transform:translate(-50%, -140%);
+    display:flex; align-items:center; gap:.7rem; max-width:min(92vw, 460px);
+    background:linear-gradient(120deg, rgba(246,195,92,.16), rgba(184,134,47,.12));
+    border:1px solid rgba(246,195,92,.4); border-radius:14px;
+    -webkit-backdrop-filter:blur(16px); backdrop-filter:blur(16px);
+    padding:.8rem 1rem; box-shadow:0 10px 28px rgba(0,0,0,.35);
+    transition:transform .4s var(--ease-spring);
+  }
+  .update-banner.show{ transform:translate(-50%, 0); }
+  .update-banner-icon{ flex-shrink:0; }
+  .update-banner-text{ flex:1; margin:0; font-size:.82rem; color:var(--text); line-height:1.4; }
+  .update-banner-close{
+    flex-shrink:0; background:none; border:none; color:var(--stone); cursor:pointer; font-size:.85rem; padding:.3rem;
+    border-radius:50%; transition:color .2s var(--ease), background .2s var(--ease);
+  }
+  .update-banner-close:hover{ color:var(--text); background:rgba(255,255,255,.08); }
+  @media (prefers-reduced-motion: reduce){ .update-banner{ transition:none; } }
+
   #app{position:relative; z-index:1; max-width:880px; margin:0 auto; padding:6.2rem 1.2rem 4rem;}
   @media (min-width:700px){ #app{padding:6.6rem 2rem 4rem;} }
   .view{animation:viewIn .6s var(--ease-premium); position:relative;}
@@ -1747,6 +1769,12 @@
   .admin-row-menu-btn:hover{ background:rgba(246,195,92,.1); color:var(--ember-bright); border-color:rgba(246,195,92,.25); }
   .admin-empty-note{ color:var(--stone); font-size:.85rem; margin:.9rem 0 0; }
   .admin-feature-toggles{ display:flex; flex-direction:column; gap:.2rem; margin-top:.4rem; }
+  .admin-version-rows{ display:flex; flex-direction:column; gap:.5rem; margin-top:1rem; }
+  .admin-version-row{ display:flex; align-items:center; justify-content:space-between; gap:1rem; padding:.7rem .9rem; background:var(--surface-2); border:1px solid var(--border-solid); border-radius:12px; font-size:.85rem; }
+  .admin-version-row span{ color:var(--stone); }
+  .admin-version-row strong{ font-family:var(--font-mono); color:var(--text); }
+  .admin-version-status-behind{ color:var(--gold-bright) !important; }
+  .admin-version-status-current{ color:var(--success) !important; }
 
   /* Grosse Bildschirme: die Konsole darf deutlich mehr Raum einnehmen - sonst
      klebt sie als kleiner Kasten mitten auf einem breiten Monitor. Der Block
@@ -1892,7 +1920,14 @@
   .hub-copy > *:nth-child(3){animation-delay:.27s;}
   .hub-copy > *:nth-child(4){animation-delay:.38s;}
   .hub-copy > *:nth-child(5){animation-delay:.49s;}
+  .hub-copy > *:nth-child(6){animation-delay:.6s;}
   @keyframes heroIn{ from{opacity:0; transform:translateY(24px);} to{opacity:1; transform:translateY(0);} }
+
+  /* Personalisierte Begruessung - nur fuer eingeloggte User, siehe
+     updateWelcomeMessage(). Bleibt immer im DOM (hidden-Attribut statt
+     display:none), damit die :nth-child-Stagger-Reihenfolge oben stabil
+     bleibt, egal ob sie sichtbar ist. */
+  .hub-welcome{ font-family:var(--font-mono); font-size:.78rem; letter-spacing:.04em; color:var(--gold-bright); margin:0 0 .6rem; }
 
   .hub-eyebrow-row{display:flex; align-items:center; gap:.9rem; margin-bottom:1.3rem; align-self:flex-start; max-width:100%;}
   @media (max-width:480px){ .hub-eyebrow-line{display:none;} }
@@ -3288,6 +3323,13 @@
 
 <div class="toast" id="toast"></div>
 
+<div class="update-banner" id="updateBanner" hidden>
+  <span class="update-banner-icon" aria-hidden="true">✨</span>
+  <p class="update-banner-text">Eine neue Version von Lumière ist verfügbar.</p>
+  <button type="button" class="btn btn-primary btn-small" id="updateBannerReload">Neu laden</button>
+  <button type="button" class="update-banner-close" id="updateBannerClose" aria-label="Schließen">✕</button>
+</div>
+
 <main id="app">
 
   <section id="view-hub" class="view">
@@ -3304,6 +3346,7 @@
           <span class="hub-eyebrow-line"></span>
           <p class="hub-eyebrow"><span class="dot"></span>Lumière · Édition Atelier</p>
         </div>
+        <p class="hub-welcome" id="hubWelcome" hidden></p>
         <h1 class="hub-title">Vokabeln lernen, <em>élégant</em> gemacht.</h1>
         <p class="hub-desc">Lumière hilft dir, deinen französischen Wortschatz strukturiert und mit Ruhe aufzubauen. Mit eigenen Lernsets, präziser Aussprache zum Anhören und einem individuellen Lernrhythmus, abgestimmt auf deine anstehenden Klausurtermine.</p>
         <p class="hub-archive-note">
@@ -4595,6 +4638,11 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="m3.5 7 8.5 6 8.5-6"/></svg>
                 Test-E-Mails
               </button>
+              <button type="button" class="admin-nav-item" data-admin-tab="version">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
+                Version
+                <span class="admin-nav-badge" id="adminNavBadgeVersion" hidden>1</span>
+              </button>
             </div>
           </nav>
           <div class="admin-sidebar-foot">
@@ -4795,6 +4843,27 @@
                 <p id="adminTestEmailMessage" class="admin-empty-note" hidden></p>
               </div>
             </div>
+
+            <div class="admin-tab-panel" data-admin-panel="version" hidden>
+              <div class="settings-card">
+                <p class="settings-title">🕰️ Version &amp; Vorschau</p>
+                <p class="settings-desc">Was gerade auf dem Server liegt (per <code>git pull</code>) ist nicht automatisch für alle sichtbar — als Admin siehst du neue, noch nicht veröffentlichte Funktionen sofort als Vorschau. Andere Nutzer sehen sie erst, wenn du hier veröffentlichst.</p>
+                <div class="admin-version-rows">
+                  <div class="admin-version-row">
+                    <span>Auf diesem Server deployt</span>
+                    <strong id="adminVersionDeployed">–</strong>
+                  </div>
+                  <div class="admin-version-row">
+                    <span>Für alle Nutzer live</span>
+                    <strong id="adminVersionLive">–</strong>
+                  </div>
+                </div>
+                <p id="adminVersionStatus" class="admin-empty-note"></p>
+                <div class="btn-group" style="margin-top:1rem;">
+                  <button type="button" class="btn btn-primary" id="btnPublishVersion">Neueste Version veröffentlichen</button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -4823,6 +4892,29 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+/* ============================================================
+   WICHTIG: Bei jedem inhaltlichen Deploy hochzaehlen (wie CACHE_NAME
+   in sw.js). Treibt zwei unabhaengige Dinge:
+   1) Den "Neue Version verfuegbar"-Hinweis (vergleicht mit version.json
+      auf dem Server, siehe initUpdateCheck() weiter unten).
+   2) Das Veroeffentlichen-Gate fuer Admins (siehe isReleased() weiter
+      unten) - neue, noch nicht "veroeffentlichte" Features hinter
+      isReleased(N) verstecken; Admins sehen sie trotzdem sofort.
+   ============================================================ */
+const APP_VERSION = 1;
+
+// Site-weites Feature-Gate: neue, aber noch nicht freigegebene Funktionen
+// hinter isReleased(<APP_VERSION beim Einbau>) verstecken. Admins (echtes
+// is_admin-Flag, nicht der lokale Panel-Code) sehen alles sofort als
+// Vorschau: dadurch kann man auf dem VPS pullen/deployen, ohne dass
+// normale Nutzer die Aenderung schon sehen, bis man sie im Admin-Panel
+// unter "Version" per Klick veroeffentlicht (site_settings.live_build).
+function isReleased(buildVersion){
+  if(currentProfile && currentProfile.is_admin) return true;
+  if(!siteSettings) return false;
+  return (siteSettings.live_build || 0) >= buildVersion;
+}
+
 /* ============================================================
    ANPASSEN: Hier deinen Gemini-API-Key eintragen
    (https://aistudio.google.com/apikey)
@@ -6224,6 +6316,7 @@ async function loadAdminData(){
     else { console.error('Sitzungen konnten nicht geladen werden:', sessRes.error.message); showToast('Sitzungen konnten nicht geladen werden (evtl. fehlende Berechtigung) — Details in der Konsole.', true); }
     if(!profRes.error) renderAdminUsers(profRes.data || []);
     if(siteSettings){ renderAdminMaintenanceForm(); renderAdminGuestFeatureForm(); renderAdminGameSettingsForm(); }
+    renderAdminVersionTab();
   }catch(e){
     console.error('Admin-Daten konnten nicht geladen werden:', e.message);
     showToast('Admin-Daten konnten nicht geladen werden.', true);
@@ -6589,6 +6682,37 @@ document.getElementById('btnSaveMaintenance').addEventListener('click', async ()
 });
 document.getElementById('btnAdminRefresh').addEventListener('click', () => { sndClick(); loadAdminData(); });
 
+// --- Version & Veroeffentlichen-Schalter -----------------------------------
+// APP_VERSION (siehe ganz oben im Script) ist das, was gerade auf DIESEM
+// Server per git pull liegt. site_settings.live_build ist das, was normale
+// Nutzer als "veroeffentlicht" sehen - solange live_build < APP_VERSION,
+// sehen nur Admins (isReleased()) neue, hinter dem Gate versteckte Aenderungen.
+function renderAdminVersionTab(){
+  const deployedEl = document.getElementById('adminVersionDeployed');
+  const liveEl = document.getElementById('adminVersionLive');
+  const statusEl = document.getElementById('adminVersionStatus');
+  const badge = document.getElementById('adminNavBadgeVersion');
+  if(!deployedEl) return;
+  const liveBuild = (siteSettings && typeof siteSettings.live_build === 'number') ? siteSettings.live_build : 0;
+  deployedEl.textContent = String(APP_VERSION);
+  liveEl.textContent = String(liveBuild);
+  const behind = liveBuild < APP_VERSION;
+  statusEl.textContent = behind
+    ? `Es gibt eine neuere, deployte Version, die noch nicht veröffentlicht ist. Nur Admins sehen aktuell die Vorschau davon.`
+    : `Alles veröffentlicht — normale Nutzer sehen denselben Stand wie Admins.`;
+  statusEl.className = 'admin-empty-note ' + (behind ? 'admin-version-status-behind' : 'admin-version-status-current');
+  if(badge){ badge.hidden = !behind; badge.textContent = behind ? '!' : '0'; }
+}
+document.getElementById('btnPublishVersion').addEventListener('click', async () => {
+  sndClick();
+  if(!sb) return;
+  const { error } = await sb.from('site_settings').update({ live_build: APP_VERSION }).eq('id', 1);
+  if(error){ showToast('Konnte nicht veröffentlicht werden — evtl. fehlt die Spalte "live_build" in site_settings.', true); return; }
+  showToast(`Version ${APP_VERSION} ist jetzt für alle live.`);
+  await loadSiteSettings();
+  renderAdminVersionTab();
+});
+
 // --- Gastzugriff: welche Bereiche ohne Konto nutzbar sind (Admin-konfigurierbar) ---
 const GUEST_FEATURE_LIST = [
   { key: 'rewards', label: 'Belohnungen' },
@@ -6742,6 +6866,23 @@ function updateAccountUI(){
   }
   updateGatedNavUI();
   refreshAccountStatus();
+  updateWelcomeMessage();
+}
+
+// Personalisierte Begruessung auf der Hub-Seite - nur fuer eingeloggte User
+// (Gaeste sehen weiterhin den werblichen Standard-Titel darunter). Tageszeit-
+// abhaengig, plus Streak-Hinweis ab dem 2. Tag in Folge.
+function updateWelcomeMessage(){
+  const el = document.getElementById('hubWelcome');
+  if(!el) return;
+  if(!currentUser){ el.hidden = true; return; }
+  const name = (currentProfile && currentProfile.display_name) || currentUser.email.split('@')[0];
+  const hour = new Date().getHours();
+  const timeGreet = hour < 5 ? 'Noch spät wach' : hour < 11 ? 'Guten Morgen' : hour < 18 ? 'Guten Tag' : 'Guten Abend';
+  const streak = computeCurrentStreak();
+  const streakNote = streak >= 2 ? ` · Tag ${streak} deiner Serie` : '';
+  el.textContent = `${timeGreet}, ${name}${streakNote}.`;
+  el.hidden = false;
 }
 
 // --- Freischaltung: ohne Konto nur "Lernsets" (+ Startseite/Einstellungen) ---
@@ -7150,6 +7291,44 @@ function reducedMotionActive(){
   // niemals laenger als 1.8s stehen bleiben.
   setTimeout(() => { if(el.isConnected) el.remove(); }, 1800);
 })();
+
+// --- Update-Check: erkennt, wenn auf dem Server per git pull eine neuere
+// index.html liegt, als in diesem bereits offenen Tab laeuft. Vergleicht
+// APP_VERSION (oben) gegen version.json, das bei jedem Deploy mitgeht.
+// Rein informativ fuer bereits offene Tabs - ein neuer Seitenaufruf laedt
+// ohnehin automatisch die aktuelle Version.
+(function initUpdateCheck(){
+  const banner = document.getElementById('updateBanner');
+  if(!banner) return;
+  const CHECK_INTERVAL_MS = 5 * 60 * 1000;
+  let notified = false;
+
+  async function checkOnce(){
+    if(notified) return;
+    try{
+      const res = await fetch('./version.json?t=' + Date.now(), { cache: 'no-store' });
+      if(!res.ok) return;
+      const data = await res.json();
+      if(typeof data.version === 'number' && data.version > APP_VERSION){
+        notified = true;
+        banner.hidden = false;
+        void banner.offsetWidth;
+        requestAnimationFrame(() => banner.classList.add('show'));
+      }
+    }catch(e){ /* offline oder version.json fehlt noch - einfach still ignorieren */ }
+  }
+
+  document.getElementById('updateBannerReload').addEventListener('click', () => location.reload());
+  document.getElementById('updateBannerClose').addEventListener('click', () => {
+    banner.classList.remove('show');
+    setTimeout(() => { banner.hidden = true; }, 400);
+  });
+
+  checkOnce();
+  setInterval(checkOnce, CHECK_INTERVAL_MS);
+  document.addEventListener('visibilitychange', () => { if(!document.hidden) checkOnce(); });
+})();
+
 function recordDailyProgress(n = 1){
   const key = todayKey();
   store.dailyProgress[key] = (store.dailyProgress[key] || 0) + n;
@@ -8106,6 +8285,7 @@ function renderHub(){
   animateNumber(document.getElementById('hubWordsCount'), totalWords);
   animateNumber(document.getElementById('hubStreakCount'), computeCurrentStreak());
   updateExamBanner();
+  updateWelcomeMessage();
   wireSounds();
 }
 document.getElementById('btnHubSets').addEventListener('click', () => { sndClick(); renderHome(); });
