@@ -820,11 +820,18 @@
   @media (min-width:680px){ .arcade-grid{grid-template-columns:1fr 1fr;} }
   .arcade-card{
     position:relative; overflow:hidden; text-align:left; cursor:pointer; padding:1.4rem 1.5rem; border-radius:20px;
-    background:var(--surface-2); border:1px solid var(--border-solid); color:inherit; font:inherit;
-    display:flex; flex-direction:column; gap:.7rem; transition:border-color .2s var(--ease), transform .2s var(--ease);
+    background:linear-gradient(160deg, var(--surface-2), var(--surface)); border:1px solid rgba(140,107,46,.35); color:inherit; font:inherit;
+    display:flex; flex-direction:column; gap:.7rem; transition:border-color .25s var(--ease), transform .25s var(--ease), box-shadow .25s var(--ease);
   }
-  .arcade-card:hover{border-color:rgba(246,195,92,.4); transform:translateY(-2px);}
-  .arcade-card[disabled]{opacity:.5; cursor:not-allowed; transform:none;}
+  .arcade-card::before, .arcade-card::after{
+    content:''; position:absolute; width:16px; height:16px; pointer-events:none; opacity:0; transition:opacity .25s var(--ease);
+  }
+  .arcade-card::before{ top:8px; right:8px; border-top:1.5px solid var(--ember); border-right:1.5px solid var(--ember); }
+  .arcade-card::after{ bottom:8px; left:8px; border-bottom:1.5px solid var(--ember); border-left:1.5px solid var(--ember); }
+  .arcade-card:hover{border-color:rgba(217,165,72,.6); transform:translateY(-3px); box-shadow:0 14px 30px -10px rgba(0,0,0,.5), 0 0 20px rgba(217,165,72,.12);}
+  .arcade-card:hover::before, .arcade-card:hover::after{ opacity:1; }
+  .arcade-card[disabled]{opacity:.5; cursor:not-allowed; transform:none; box-shadow:none;}
+  .arcade-card[disabled]:hover::before, .arcade-card[disabled]:hover::after{ opacity:0; }
   .arcade-card-head{display:flex; align-items:center; gap:.8rem;}
   .arcade-card-icon{
     width:44px; height:44px; border-radius:13px; flex-shrink:0; display:flex; align-items:center; justify-content:center;
@@ -869,6 +876,11 @@
     padding:1rem .5rem 0; border-radius:16px 16px 0 0; position:relative;
     background:linear-gradient(180deg, rgba(246,195,92,.08), transparent 70%);
   }
+  .lb-pod-1::before, .lb-pod-1::after{
+    content:''; position:absolute; width:14px; height:14px; pointer-events:none; opacity:.8;
+  }
+  .lb-pod-1::before{ top:0; right:6px; border-top:1.5px solid var(--ember); border-right:1.5px solid var(--ember); }
+  .lb-pod-1::after{ top:0; left:6px; border-top:1.5px solid var(--ember); border-left:1.5px solid var(--ember); }
   .lb-pod-avatar{
     width:46px; height:46px; border-radius:50%; display:flex; align-items:center; justify-content:center;
     font-family:var(--font-mono); font-size:.9rem; font-weight:700; color:#1c1207;
@@ -894,8 +906,10 @@
   .lb-list{display:flex; flex-direction:column; gap:.4rem;}
   .lb-row{
     display:flex; align-items:center; gap:.85rem; padding:.7rem .9rem; border-radius:13px;
-    background:var(--surface-2); border:1px solid var(--border-solid);
+    background:var(--surface-2); border:1px solid rgba(140,107,46,.3);
+    transition:border-color .2s var(--ease), transform .2s var(--ease);
   }
+  .lb-row:hover{ border-color:rgba(217,165,72,.5); transform:translateX(2px); }
   .lb-row.is-me{border-color:rgba(246,195,92,.45); background:rgba(246,195,92,.07);}
   .lb-row-own{margin-top:.6rem; border-style:dashed;}
   .lb-row-rank{font-family:var(--font-mono); font-weight:700; font-size:.82rem; color:var(--stone); width:1.8rem; flex-shrink:0;}
@@ -2412,6 +2426,9 @@
     display:flex; align-items:center; justify-content:space-between; gap:1rem; margin:1.3rem 0 0;
     cursor:pointer; font-size:.9rem; color:var(--text);
   }
+  .admin-game-row-grid{ display:grid; grid-template-columns:1fr; gap:0 1rem; }
+  @media (min-width:640px){ .admin-game-row-grid{ grid-template-columns:repeat(3, 1fr); } }
+  .admin-game-row-grid .settings-row-label{ margin-top:.9rem; }
   /* Feder-Schalter nach dem uebergebenen PremiumToggle: der Knopf zieht sich
      beim Umlegen kurz in die Länge (Squash) und federt dann in Position. */
   .settings-switch{
@@ -6475,8 +6492,20 @@ function renderAdminGameSettingsForm(){
         <span>${GAME_DEFS[key].icon} ${escapeHtml(GAME_DEFS[key].name)}</span>
         <input type="checkbox" id="gameOn-${key}" class="settings-switch" data-game-on="${key}" ${g.enabled ? 'checked' : ''}>
       </label>
-      <label class="settings-row-label" for="gameCost-${key}">Kosten pro Runde (Coins)</label>
-      <input type="number" min="0" max="999" id="gameCost-${key}" class="modal-input" data-game-cost="${key}" value="${g.cost}">
+      <div class="admin-game-row-grid">
+        <div>
+          <label class="settings-row-label" for="gameCost-${key}">Kosten pro Runde (Coins)</label>
+          <input type="number" min="0" max="999" id="gameCost-${key}" class="modal-input" data-game-cost="${key}" value="${g.cost}">
+        </div>
+        <div>
+          <label class="settings-row-label" for="gameDifficulty-${key}">Schwierigkeit (0.5–2, 1 = normal)</label>
+          <input type="number" min="0.5" max="2" step="0.1" id="gameDifficulty-${key}" class="modal-input" data-game-difficulty="${key}" value="${g.difficulty}">
+        </div>
+        <div>
+          <label class="settings-row-label" for="gameRecordBonus-${key}">Bonus-Coins bei neuem Rekord</label>
+          <input type="number" min="0" max="999" id="gameRecordBonus-${key}" class="modal-input" data-game-recordbonus="${key}" value="${g.recordBonus}">
+        </div>
+      </div>
     </div>`;
   }).join('');
   // Ohne die Spalte game_settings laufen die Defaults - speichern schlaegt dann
@@ -6497,8 +6526,17 @@ document.getElementById('btnSaveGameSettings').addEventListener('click', async (
   Object.keys(GAME_DEFS).forEach(key => {
     const onEl = document.querySelector(`[data-game-on="${key}"]`);
     const costEl = document.querySelector(`[data-game-cost="${key}"]`);
+    const difficultyEl = document.querySelector(`[data-game-difficulty="${key}"]`);
+    const recordBonusEl = document.querySelector(`[data-game-recordbonus="${key}"]`);
     const cost = parseInt(costEl.value, 10);
-    games[key] = { enabled: onEl.checked, cost: isFinite(cost) && cost >= 0 ? cost : 0 };
+    const difficulty = parseFloat(difficultyEl.value);
+    const recordBonus = parseInt(recordBonusEl.value, 10);
+    games[key] = {
+      enabled: onEl.checked,
+      cost: isFinite(cost) && cost >= 0 ? cost : 0,
+      difficulty: isFinite(difficulty) && difficulty >= 0.5 && difficulty <= 2 ? difficulty : 1,
+      recordBonus: isFinite(recordBonus) && recordBonus >= 0 ? recordBonus : 0,
+    };
   });
   const payload = {
     coinsPerRound: num('adminCoinsPerRound', 1),
@@ -9211,6 +9249,7 @@ let gameTimerInterval = null;
 let gameSpawnInterval = null;
 
 function startBalloonGame(){
+  const difficulty = gameCfg('balloon').difficulty || 1;
   gameScore = 0;
   gameTimeLeft = 20;
   const area = document.getElementById('gameArea');
@@ -9221,7 +9260,7 @@ function startBalloonGame(){
   clearInterval(gameTimerInterval);
   clearInterval(gameSpawnInterval);
 
-  gameSpawnInterval = setInterval(() => spawnBalloon(area), 650);
+  gameSpawnInterval = setInterval(() => spawnBalloon(area, difficulty), Math.max(300, 650 / difficulty));
   gameTimerInterval = setInterval(() => {
     gameTimeLeft--;
     document.getElementById('gameTimer').textContent = gameTimeLeft + 's';
@@ -9229,12 +9268,12 @@ function startBalloonGame(){
   }, 1000);
 }
 
-function spawnBalloon(area){
+function spawnBalloon(area, difficulty = 1){
   const areaWidth = area.clientWidth;
   const balloon = document.createElement('button');
   balloon.className = 'balloon';
   balloon.textContent = BALLOON_EMOJI[Math.floor(Math.random() * BALLOON_EMOJI.length)];
-  const duration = 3.5 + Math.random() * 2.5;
+  const duration = Math.max(1.8, (3.5 + Math.random() * 2.5) / difficulty);
   balloon.style.left = Math.max(10, Math.random() * (areaWidth - 50)) + 'px';
   balloon.style.animationDuration = duration + 's';
   balloon.addEventListener('click', () => {
@@ -9296,6 +9335,9 @@ const GAME_DEFS = {
   balloon:  { name: 'Ballon-Pop', icon: '🎈', unit: 'Ballons', short: '',
     desc: 'Der Klassiker nach jeder Übungsrunde: so viele Ballons wie möglich in 20 Sekunden.',
     hint: 'Ballons antippen' },
+  dart:     { name: 'Federwurf', icon: '🪶', unit: 'Punkte', short: '',
+    desc: 'Die Feder kreist um die Zielscheibe — im richtigen Moment werfen. Fünf Würfe, der Wind zieht mit.',
+    hint: 'Tippen oder Leertaste: werfen · 5 Würfe' },
 };
 const DEFAULT_GAME_SETTINGS = {
   coinsPerRound: 1,
@@ -9305,10 +9347,13 @@ const DEFAULT_GAME_SETTINGS = {
   games: {
     // Ballon-Pop bleibt gratis: es ist die Belohnung nach einer Übungsrunde und
     // soll nicht plötzlich Coins kosten, die man sich gerade erst verdient hat.
-    balloon:  { enabled: true, cost: 0 },
-    longjump: { enabled: true, cost: 2 },
-    flappy:   { enabled: true, cost: 2 },
-    stacker:  { enabled: true, cost: 2 },
+    // difficulty: Multiplikator auf Tempo/Physik des jeweiligen Spiels (1 = normal).
+    // recordBonus: zusätzliche Coins, die es nur bei einem neuen persönlichen Rekord gibt.
+    balloon:  { enabled: true, cost: 0, difficulty: 1, recordBonus: 0 },
+    longjump: { enabled: true, cost: 2, difficulty: 1, recordBonus: 5 },
+    flappy:   { enabled: true, cost: 2, difficulty: 1, recordBonus: 5 },
+    stacker:  { enabled: true, cost: 2, difficulty: 1, recordBonus: 5 },
+    dart:     { enabled: true, cost: 2, difficulty: 1, recordBonus: 5 },
   },
 };
 // site_settings.game_settings kann fehlen (Spalte noch nicht angelegt) oder nur
@@ -9321,7 +9366,7 @@ function arcadeSettings(){
   });
   return Object.assign({}, DEFAULT_GAME_SETTINGS, raw, { games });
 }
-function gameCfg(key){ return arcadeSettings().games[key] || { enabled: true, cost: 0 }; }
+function gameCfg(key){ return arcadeSettings().games[key] || { enabled: true, cost: 0, difficulty: 1, recordBonus: 0 }; }
 
 function ensureArcadeState(){
   if(typeof store.coins !== 'number' || !isFinite(store.coins) || store.coins < 0) store.coins = 0;
@@ -9632,6 +9677,7 @@ function launchArcadeGame(key){
   if(key === 'longjump') activeArcadeGame = runLongJump(canvas, ctx);
   else if(key === 'flappy') activeArcadeGame = runFlappy(canvas, ctx);
   else if(key === 'stacker') activeArcadeGame = runStacker(canvas, ctx);
+  else if(key === 'dart') activeArcadeGame = runDart(canvas, ctx);
 }
 
 async function finishArcadeGame(key, score){
@@ -9642,10 +9688,13 @@ async function finishArcadeGame(key, score){
   const cfg = gameCfg(key);
   const isRecord = await submitRecord(key, score);
   document.getElementById('arcadeGameRecord').innerHTML = `Rekord <strong>${getLocalRecord(key)}</strong>`;
+  // Bonus-Coins nur bei einem echten neuen Rekord - Trostrunden geben keine extra Coins,
+  // sonst waere Wiederholen bis zum Umfallen ein guenstiger Coin-Generator.
+  const recordBonus = (isRecord && cfg.recordBonus > 0) ? addCoins(cfg.recordBonus) : 0;
   const canAfford = getCoins() >= cfg.cost;
   showArcadeOverlay(`
     <h3>${isRecord ? 'Neuer Rekord!' : 'Runde vorbei'}</h3>
-    ${isRecord ? '<span class="arcade-newrecord">Persönliche Bestleistung</span>' : ''}
+    ${isRecord ? `<span class="arcade-newrecord">Persönliche Bestleistung${recordBonus > 0 ? ` · +${recordBonus} ₵` : ''}</span>` : ''}
     <div class="num">${score}</div>
     <p>${escapeHtml(def.unit)}</p>
     <div class="btn-group">
@@ -9749,6 +9798,7 @@ function drawAthlete(ctx, x, y, rot, pose, t){
 }
 
 function runLongJump(canvas, ctx){
+  const difficulty = gameCfg('longjump').difficulty || 1;
   const GROUND_Y = 372, PX_PER_M = 14, GRAVITY = 1500;
   const DRAG = 0.16;                       // Luftwiderstand
   const BOARD_X = 120;                     // Absprungbalken
@@ -9758,7 +9808,7 @@ function runLongJump(canvas, ctx){
   let x = 0, y = GROUND_Y, vx = 0, vy = 0, boosts = 3;
   let rot = 0, spin = 0, elapsed = 0;
   let camX = 0, raf = null, last = performance.now(), running = true;
-  const wind = (Math.random() * 2 - 1) * 55;   // px/s², seitlicher Wind
+  const wind = (Math.random() * 2 - 1) * 55 * difficulty;   // px/s², seitlicher Wind
   const trail = [];
 
   // Untergrund hinter der Absprungzone: Sand bremst, Eis laesst weit rutschen.
@@ -10006,9 +10056,10 @@ function runLongJump(canvas, ctx){
 
 // --- Spiel 2: Höhenflug (Flappy-Prinzip) ---
 function runFlappy(canvas, ctx){
+  const difficulty = gameCfg('flappy').difficulty || 1;
   const GRAVITY = 1500, FLAP = -430, BIRD_X = 150;
   let y = ARCADE_H / 2, vy = 0, score = 0;
-  let speed = 190, gap = 170, spawnGap = 300;
+  let speed = 190 * difficulty, gap = Math.max(110, 170 / difficulty), spawnGap = 300;
   let pipes = [{ x: ARCADE_W + 100, gapY: ARCADE_H / 2, passed: false }];
   let raf = null, last = performance.now(), running = true, started = false;
 
@@ -10095,9 +10146,10 @@ function runFlappy(canvas, ctx){
 
 // --- Spiel 3: Paket-Stapler ---
 function runStacker(canvas, ctx){
+  const difficulty = gameCfg('stacker').difficulty || 1;
   const BLOCK_H = 26, BASE_W = 240;
   let tower = [{ x: (ARCADE_W - BASE_W) / 2, w: BASE_W }];
-  let cur = { x: 0, w: BASE_W, dir: 1, speed: 190 };
+  let cur = { x: 0, w: BASE_W, dir: 1, speed: 190 * difficulty };
   let falling = [];            // abgeschnittene Stuecke, die herunterfallen
   let score = 0, camY = 0, raf = null, last = performance.now(), running = true;
 
@@ -10174,6 +10226,185 @@ function runStacker(canvas, ctx){
     ctx.fillRect(0, ARCADE_H - 40, ARCADE_W, 2);
   }
 
+  draw();
+  raf = requestAnimationFrame(step);
+  return { stop(){ running = false; cancelAnimationFrame(raf); unbind(); } };
+}
+
+// --- Spiel 5: Federwurf (Dartscheibe) ---------------------------------------
+// Eine Feder kreist unberechenbar (zwei ueberlagerte Sinusbewegungen mit
+// unterschiedlicher Frequenz, daher kein simpler Kreis) um die Zielscheibe.
+// Ein Tipp wirft sofort dorthin, wo die Feder gerade ist - dazu kommt ein fuer
+// die ganze Runde fester Seitenwind, den man ueber die 5 Wuerfe einkalkulieren
+// muss. Punkte nach Ringtreffer, Summe aus 5 Wuerfen ist das Endergebnis.
+function runDart(canvas, ctx){
+  const difficulty = gameCfg('dart').difficulty || 1;
+  const N_THROWS = 5;
+  const BX = 560, BY = 150, BOARD_R = 95;
+  const TX = 110, TY = 400;                 // Wurfposition (nur fuers Zeichnen)
+  const RINGS = [ { r: 16, pts: 50 }, { r: 36, pts: 30 }, { r: 60, pts: 20 }, { r: BOARD_R, pts: 10 } ];
+  const wind = (Math.random() * 2 - 1) * 16 * difficulty;   // px, konstant fuer die ganze Runde
+
+  let t = 0, throwIndex = 0, totalScore = 0;
+  let state = 'orbit';                      // orbit -> flying -> pause -> (orbit | done)
+  let flightFrom = { x: TX, y: TY }, flightTo = { x: 0, y: 0 }, flightStart = 0;
+  const FLIGHT_MS = 340, PAUSE_MS = 480;
+  let pauseUntil = 0;
+  const holes = [];                         // vorherige Einschlaege, zur Orientierung
+  let popup = null;                         // { x, y, text, born }
+  let raf = null, last = performance.now(), running = true;
+
+  function reticlePos(now){
+    const freqX = 1.5 * difficulty, freqY = 2.05 * difficulty;
+    const ampX = 78, ampY = 62;
+    return {
+      x: BX + Math.cos(t * freqX) * ampX,
+      y: BY + Math.sin(t * freqY + 0.6) * ampY,
+    };
+  }
+
+  function ringPoints(dx, dy){
+    const dist = Math.hypot(dx, dy);
+    for(const ring of RINGS){ if(dist <= ring.r) return ring.pts; }
+    return 0;
+  }
+
+  const unbind = bindArcadeInput(canvas, () => {
+    if(state !== 'orbit' || !running) return;
+    const aim = reticlePos(t);
+    flightFrom = { x: TX, y: TY };
+    flightTo = {
+      x: aim.x + wind + (Math.random() * 2 - 1) * 4,
+      y: aim.y + (Math.random() * 2 - 1) * 4,
+    };
+    flightStart = performance.now();
+    state = 'flying';
+    sndClick();
+  });
+
+  function land(){
+    const dx = flightTo.x - BX, dy = flightTo.y - BY;
+    const pts = ringPoints(dx, dy);
+    totalScore += pts;
+    throwIndex++;
+    holes.push({ x: flightTo.x, y: flightTo.y, pts });
+    popup = { x: flightTo.x, y: flightTo.y - 14, text: pts > 0 ? `+${pts}` : 'Daneben', born: performance.now() };
+    if(pts >= 50) sndCorrect(); else if(pts === 0) sndWrong(); else sndClick();
+    setArcadeScore(`${totalScore} Pkt. · Wurf ${Math.min(throwIndex, N_THROWS)}/${N_THROWS}`);
+    if(throwIndex >= N_THROWS){
+      state = 'done';
+      running = false;
+      cancelAnimationFrame(raf);
+      setTimeout(() => finishArcadeGame('dart', totalScore), 550);
+      draw();
+      return;
+    }
+    state = 'pause';
+    pauseUntil = performance.now() + PAUSE_MS;
+  }
+
+  function step(now){
+    if(!running) return;
+    const dt = Math.min(0.033, (now - last) / 1000);
+    last = now;
+    t += dt;
+
+    if(state === 'flying'){
+      const progress = Math.min(1, (now - flightStart) / FLIGHT_MS);
+      if(progress >= 1) land();
+    } else if(state === 'pause'){
+      if(now >= pauseUntil) state = 'orbit';
+    }
+
+    draw();
+    if(running) raf = requestAnimationFrame(step);
+  }
+
+  function drawBoard(){
+    // Klassische Ring-Einfaerbung, aussen nach innen abwechselnd dunkler/heller.
+    const shades = ['rgba(140,107,46,.35)', 'rgba(217,165,72,.28)', 'rgba(246,195,92,.4)', 'rgba(255,242,214,.9)'];
+    [BOARD_R, 60, 36, 16].forEach((r, i) => {
+      ctx.beginPath();
+      ctx.arc(BX, BY, r, 0, Math.PI * 2);
+      ctx.fillStyle = shades[i];
+      ctx.fill();
+    });
+    ctx.beginPath();
+    ctx.arc(BX, BY, BOARD_R, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(246,195,92,.5)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+  }
+
+  function draw(){
+    arcadeSky(ctx);
+    drawBoard();
+
+    // Wind-Anzeige oben links
+    ctx.fillStyle = ARCADE_STONE;
+    ctx.font = '12px monospace';
+    ctx.textAlign = 'left';
+    ctx.fillText(`WIND ${wind >= 0 ? '→' : '←'} ${Math.abs(wind).toFixed(0)}`, 24, 34);
+
+    // Vorherige Einschlaege
+    holes.forEach(h => {
+      ctx.beginPath();
+      ctx.arc(h.x, h.y, 3.5, 0, Math.PI * 2);
+      ctx.fillStyle = h.pts >= 50 ? ARCADE_GOLD : 'rgba(11,15,23,.75)';
+      ctx.fill();
+    });
+
+    // Werfer-Punkt
+    ctx.beginPath();
+    ctx.arc(TX, TY, 6, 0, Math.PI * 2);
+    ctx.fillStyle = ARCADE_GOLD_DIM;
+    ctx.fill();
+
+    if(state === 'orbit' && running){
+      const aim = reticlePos(t);
+      ctx.beginPath();
+      ctx.arc(aim.x, aim.y, 8, 0, Math.PI * 2);
+      ctx.strokeStyle = ARCADE_GOLD;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(aim.x - 13, aim.y); ctx.lineTo(aim.x + 13, aim.y);
+      ctx.moveTo(aim.x, aim.y - 13); ctx.lineTo(aim.x, aim.y + 13);
+      ctx.strokeStyle = 'rgba(246,195,92,.6)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    }
+
+    if(state === 'flying'){
+      const progress = Math.min(1, (performance.now() - flightStart) / FLIGHT_MS);
+      const ease = 1 - Math.pow(1 - progress, 3);
+      const fx = flightFrom.x + (flightTo.x - flightFrom.x) * ease;
+      const fy = flightFrom.y + (flightTo.y - flightFrom.y) * ease - Math.sin(progress * Math.PI) * 30;
+      ctx.font = '18px sans-serif';
+      ctx.fillText('🪶', fx - 9, fy + 6);
+    }
+
+    if(popup){
+      const age = performance.now() - popup.born;
+      if(age < 700){
+        ctx.globalAlpha = Math.max(0, 1 - age / 700);
+        ctx.fillStyle = ARCADE_GOLD;
+        ctx.font = 'bold 16px monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText(popup.text, popup.x, popup.y - age / 18);
+        ctx.textAlign = 'left';
+        ctx.globalAlpha = 1;
+      } else { popup = null; }
+    }
+
+    if(throwIndex === 0 && state === 'orbit'){
+      ctx.fillStyle = ARCADE_STONE;
+      ctx.font = '14px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText('TIPPEN ZUM WERFEN', ARCADE_W / 2, ARCADE_H - 40);
+      ctx.textAlign = 'left';
+    }
+  }
   draw();
   raf = requestAnimationFrame(step);
   return { stop(){ running = false; cancelAnimationFrame(raf); unbind(); } };
