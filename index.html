@@ -1882,90 +1882,104 @@
   .nav-overlay-item.active .label{color:var(--ember); font-style:italic;}
 
   /* === STARTSEITE: Kino-Szenen ==========================================
-     Keine Karten, kein Raster. Die Seite ist eine Folge vollflaechiger
-     Szenen, die aus dem Schwarz auftauchen; darunter liegt ein einziges
-     Partikelfeld (siehe initCineField), das auf den Zeiger reagiert.
-     Scroll-Fortschritt je Szene steuert Deckkraft/Unschaerfe/Versatz. */
-  /* Vollflaechig aus dem 880px-Raster von #app ausbrechen: die Szenen sollen
-     randlos sein, sonst sitzt die ganze Startseite in einer sichtbaren Spalte. */
+     Die Startseite ist eine Reise durch ein einziges Objekt: hinter allen
+     Szenen liegt ein glaeserner Goldring in echtem 3D (lumiere-gl.js), den
+     der Scroll-Fortschritt steuert - er waechst, kippt, zieht sich zurueck.
+     Darueber liegt ein Lichtspur-Feld, das auf den Zeiger reagiert.
+     Die Szenen selbst sind vollflaechig, wechselnd links und rechts
+     angeschlagen, und treten aus der Richtung ein, aus der sie kommen. */
   .view-cine{
-    position:relative; padding:0 !important;
-    width:100vw; max-width:100vw;
-    margin-left:calc(50% - 50vw); margin-right:calc(50% - 50vw);
-    margin-top:-6.2rem;
+    position:relative; padding:0 !important; max-width:100vw !important;
+    width:100vw; margin-left:calc(50% - 50vw); margin-right:calc(50% - 50vw);
+    margin-top:-6.2rem; background:#07080c;
   }
   @media (min-width:700px){ .view-cine{ margin-top:-6.6rem; } }
-  .view-cine .exam-banner{ position:relative; z-index:3; max-width:60rem; margin:5.5rem auto 0; }
+  .view-cine .exam-banner{ position:relative; z-index:4; max-width:60rem; margin:5.5rem auto 0; }
 
-  .cine-field{
-    position:fixed; top:0; left:0; width:100%; height:100%; z-index:0;
-    pointer-events:none; opacity:0; transition:opacity 1.2s var(--ease-premium);
+  .cine-gl, .cine-field{
+    position:fixed; top:0; left:0; width:100%; height:100%;
+    pointer-events:none; opacity:0; transition:opacity .5s var(--ease-premium);
   }
+  .cine-gl{ z-index:0; }
+  .cine-field{ z-index:1; }
   .cine-field.is-live{ opacity:1; }
+  /* Wo der Ring gross wird, laeuft er hinter der Schrift durch. Dort nimmt er
+     sich zurueck (--gl-op kommt aus dem Scroll-Fortschritt), sonst waere der
+     Text auf dem hellen Gold nicht mehr zu lesen. */
+  .cine-gl.is-live{ opacity:var(--gl-op, .86); }
 
+  /* Schrift, die den Ring kreuzt, bekommt einen dunklen Hauch hinter sich -
+     kein Kasten, nur genug Trennung, dass sie auf Gold lesbar bleibt. */
+  .cine-scene :is(h1, h2, p, dt, dd, button){
+    text-shadow:0 0 7px rgba(7,8,12,.95), 0 0 2px rgba(7,8,12,.9);
+  }
+
+  /* Die Szenen. Zwei davon bekommen mehr Hoehe, damit der Ring zwischen den
+     Stationen Zeit hat, sich zu verwandeln - die Reise soll nicht hetzen. */
   .cine-scene{
-    position:relative; z-index:2; min-height:100svh; display:flex; flex-direction:column;
-    align-items:center; justify-content:center; text-align:center;
-    padding:6rem 1.5rem; box-sizing:border-box;
+    position:relative; z-index:2; min-height:100svh; display:flex;
+    align-items:center; padding:6rem 1.5rem; box-sizing:border-box;
   }
-  @media (min-width:900px){ .cine-scene{ padding:7rem 3rem; } }
+  .cine-mot, .cine-methode{ min-height:135svh; }
+  @media (min-width:900px){ .cine-scene{ padding:7rem clamp(3rem, 7vw, 8rem); } }
 
-  /* Szenen-Eintritt: aus Dunkelheit + Unschaerfe. Wird per JS (--enter)
-     vom Scroll-Fortschritt gespeist, 0 = noch dunkel, 1 = voll da. */
-  .cine-scene > *{
-    opacity:calc(var(--enter, 1)); filter:blur(calc((1 - var(--enter, 1)) * 14px));
-    transform:translateY(calc((1 - var(--enter, 1)) * 34px));
-    transition:opacity .1s linear, filter .1s linear, transform .1s linear;
+  .cine-stack{ display:flex; flex-direction:column; width:100%; max-width:62rem; }
+  .cine-stack-center{ align-items:center; text-align:center; margin:0 auto; }
+  .cine-stack-left{ align-items:flex-start; text-align:left; margin-right:auto; }
+  .cine-stack-right{ align-items:flex-start; text-align:left; margin-left:auto; }
+  @media (min-width:900px){
+    .cine-stack-left{ max-width:46rem; }
+    .cine-stack-right{ max-width:46rem; align-items:flex-end; text-align:right; }
   }
+
+  /* Szenen-Eintritt: --enter kommt per JS aus dem Scroll-Fortschritt,
+     --slide-x gibt die Richtung. 0 = noch nicht da, 1 = voll da. */
+  .cine-scene > *{
+    opacity:var(--enter, 1);
+    filter:blur(calc((1 - var(--enter, 1)) * 11px));
+    transform:translate3d(calc((1 - var(--enter, 1)) * var(--slide-x, 0px)),
+                          calc((1 - var(--enter, 1)) * 26px), 0);
+    transition:opacity .12s linear, filter .12s linear, transform .12s linear;
+  }
+  .cine-scene[data-from="left"]{ --slide-x:-64px; }
+  .cine-scene[data-from="right"]{ --slide-x:64px; }
   @media (prefers-reduced-motion: reduce){
     .cine-scene > *{ opacity:1 !important; filter:none !important; transform:none !important; }
   }
 
   .cine-kicker{
     font-family:var(--font-mono); font-size:.66rem; text-transform:uppercase; letter-spacing:.34em;
-    color:var(--ember-dim); margin:0 0 2.6rem;
+    color:var(--ember-dim); margin:0 0 2.2rem;
   }
   .cine-corner{
     position:absolute; top:5.6rem; left:1.5rem; margin:0;
     font-family:var(--font-mono); font-size:.62rem; letter-spacing:.24em; text-transform:uppercase; color:var(--ember-dim);
   }
-  @media (min-width:900px){ .cine-corner{ top:7rem; left:3rem; } }
-
+  @media (min-width:900px){ .cine-corner{ top:7rem; left:clamp(3rem, 7vw, 8rem); } }
   .cine-welcome{
-    font-family:var(--font-mono); font-size:.72rem; letter-spacing:.1em; color:var(--gold-bright);
-    margin:0 0 1.6rem;
+    font-family:var(--font-mono); font-size:.72rem; letter-spacing:.1em; color:var(--gold-bright); margin:0 0 1.6rem;
   }
 
-  /* --- Emblem: Ring mit umlaufendem Gold-Verlauf, Kern mit Monogramm --- */
-  .cine-emblem{ position:relative; width:112px; height:112px; margin:0 0 2.6rem; display:grid; place-items:center; }
-  .cine-emblem-sm{ width:76px; height:76px; margin-bottom:2rem; }
-  .cine-emblem-ring{
-    position:absolute; inset:0; border-radius:50%;
-    background:conic-gradient(from 0deg, rgba(140,107,46,.25), var(--ember) 90deg, var(--ember-bright) 170deg, var(--gold-bright) 215deg, var(--ember) 290deg, rgba(140,107,46,.25) 360deg);
-    -webkit-mask:radial-gradient(circle closest-side, transparent 0 calc(100% - 1.5px), #000 calc(100% - 1.5px) 100%);
-    mask:radial-gradient(circle closest-side, transparent 0 calc(100% - 1.5px), #000 calc(100% - 1.5px) 100%);
-    animation:cineSpin 14s linear infinite;
+  /* Ersatz-Emblem, nur wenn WebGL fehlt - sonst haette die erste Szene ein Loch. */
+  .cine-fallback-emblem{ display:none; position:relative; width:104px; height:104px; margin:0 0 2.4rem; }
+  body.no-webgl .cine-fallback-emblem{ display:grid; place-items:center; }
+  .cine-fallback-emblem span{
+    position:absolute; inset:0; border-radius:50%; border:1.5px solid var(--ember);
+    box-shadow:0 0 30px rgba(217,165,72,.35), inset 0 0 20px rgba(217,165,72,.2);
   }
-  @keyframes cineSpin{ to{ transform:rotate(360deg); } }
-  @media (prefers-reduced-motion: reduce){ .cine-emblem-ring{ animation:none; } }
-  .cine-emblem-core{
-    position:relative; font-family:var(--font-serif); font-style:italic; font-weight:600;
-    font-size:2.6rem; line-height:1; color:var(--ember-bright);
-    text-shadow:0 0 26px rgba(246,195,92,.5);
-  }
-  .cine-emblem-sm .cine-emblem-core{ font-size:1.8rem; }
-  .cine-emblem::after{
-    content:''; position:absolute; inset:-38%; border-radius:50%; pointer-events:none;
-    background:radial-gradient(circle, rgba(246,195,92,.15), transparent 68%);
+  .cine-fallback-emblem em{
+    font-family:var(--font-serif); font-style:italic; font-weight:600; font-size:2.4rem;
+    color:var(--ember-bright); text-shadow:0 0 22px rgba(246,195,92,.5);
   }
 
   /* --- Wortmarke + lebendes Wortpaar --- */
   .cine-wordmark{
     font-family:var(--font-serif); font-weight:600; font-style:italic;
-    font-size:clamp(3.4rem, 11vw, 7.5rem); line-height:.9; letter-spacing:-.03em;
-    color:var(--text); margin:0 0 2.2rem; text-shadow:0 0 24px rgba(217,165,72,.07), 0 0 110px rgba(217,165,72,.09);
+    font-size:clamp(3.4rem, 11vw, 8rem); line-height:.9; letter-spacing:-.03em;
+    color:var(--text); margin:0 0 2.2rem;
+    text-shadow:0 0 7px rgba(7,8,12,.9), 0 0 24px rgba(217,165,72,.07), 0 0 110px rgba(217,165,72,.09);
   }
-  .cine-morph{ display:flex; align-items:center; gap:1.1rem; flex-wrap:wrap; justify-content:center; margin:0 0 3.2rem; min-height:2rem; }
+  .cine-morph{ display:flex; align-items:center; gap:1.1rem; flex-wrap:wrap; justify-content:center; margin:0 0 3rem; min-height:2rem; }
   .cine-morph-fr, .cine-morph-de{
     font-family:var(--font-serif); font-size:clamp(1rem,2.3vw,1.35rem); line-height:1.2;
     transition:opacity .42s var(--ease-premium), filter .42s var(--ease-premium);
@@ -1973,9 +1987,9 @@
   .cine-morph-fr{ font-style:italic; color:var(--ember-bright); }
   .cine-morph-de{ color:var(--stone); }
   .cine-morph.is-out .cine-morph-fr, .cine-morph.is-out .cine-morph-de{ opacity:0; filter:blur(7px); }
-  .cine-morph-rule{ width:2.6rem; height:1px; background:linear-gradient(90deg, var(--ember-dim), var(--ember-dim)); opacity:.6; }
+  .cine-morph-rule{ width:2.6rem; height:1px; background:var(--ember-dim); opacity:.6; }
 
-  /* --- Textlinks statt Buttons (Referenz: winzige Mono-Links) --- */
+  /* --- Textlinks statt Buttons --- */
   .cine-entry{ display:flex; align-items:center; gap:2.2rem; flex-wrap:wrap; justify-content:center; }
   .cine-link{
     background:none; border:none; padding:.55rem 0; cursor:pointer; display:inline-flex; align-items:center; gap:.55rem;
@@ -1987,9 +2001,13 @@
   .cine-link-lead{ color:var(--ember); border-bottom-color:rgba(217,165,72,.4); }
   .cine-link-xl{ font-size:.85rem; letter-spacing:.24em; padding:.8rem 0; }
 
-  .cine-scrollcue{ position:absolute; bottom:3rem; left:50%; transform:translateX(-50%); }
+  .cine-scrollcue{
+    position:absolute; bottom:2.6rem; left:50%; transform:translateX(-50%);
+    display:flex; flex-direction:column; align-items:center; gap:.9rem;
+  }
+  .cine-scrollcue-word{ font-family:var(--font-mono); font-size:.58rem; letter-spacing:.3em; text-transform:uppercase; color:var(--ember-dim); }
   .cine-scrollcue-line{
-    display:block; width:1px; height:62px;
+    display:block; width:1px; height:58px;
     background:linear-gradient(180deg, transparent, var(--ember-dim) 45%, transparent);
     animation:cineCue 2.6s var(--ease-premium) infinite;
   }
@@ -1999,43 +2017,52 @@
   /* --- Szene: Das Wort --- */
   .cine-mot-word{
     font-family:var(--font-serif); font-style:italic; font-weight:500;
-    font-size:clamp(2.6rem, 9vw, 6.4rem); line-height:1; letter-spacing:-.025em;
-    color:var(--ember-bright); margin:0; text-shadow:0 0 28px rgba(246,195,92,.10), 0 0 120px rgba(246,195,92,.12);
+    font-size:clamp(2.6rem, 8.5vw, 6.2rem); line-height:1; letter-spacing:-.025em;
+    color:var(--ember-bright); margin:0;
+    text-shadow:0 0 7px rgba(7,8,12,.9), 0 0 28px rgba(246,195,92,.1), 0 0 120px rgba(246,195,92,.12);
   }
-  .cine-mot-phon{ font-family:var(--font-mono); font-size:.82rem; letter-spacing:.14em; color:var(--ember-dim); margin:1.4rem 0 0; }
-  .cine-mot-de{ font-family:var(--font-serif); font-size:clamp(1.2rem,3vw,1.9rem); color:var(--text); margin:2.2rem 0 0; }
-  .cine-mot-note{ font-size:.92rem; line-height:1.7; color:var(--stone); margin:2.8rem auto 0; max-width:30em; }
+  .cine-mot-meta{ display:flex; align-items:baseline; gap:1.6rem; flex-wrap:wrap; margin:1.6rem 0 0; }
+  .cine-mot-phon{ font-family:var(--font-mono); font-size:.82rem; letter-spacing:.14em; color:var(--ember-dim); margin:0; }
+  .cine-mot-de{ font-family:var(--font-serif); font-size:clamp(1.2rem,3vw,1.9rem); color:var(--text); margin:0; }
+  .cine-mot-note{ font-size:.92rem; line-height:1.7; color:var(--stone); margin:2.6rem 0 0; max-width:28em; }
 
-  /* --- Szene: Methode. Drei Saetze, kein Raster. --- */
-  .cine-methode{ text-align:left; align-items:flex-start; }
-  .cine-methode .cine-kicker{ align-self:flex-start; }
-  .cine-claim{
-    font-family:var(--font-serif); font-weight:500;
-    font-size:clamp(1.55rem, 4.4vw, 3.1rem); line-height:1.24; letter-spacing:-.02em;
-    color:var(--text); margin:0 0 2.6rem; max-width:17em;
-  }
-  .cine-claim:last-child{ margin-bottom:0; }
-  .cine-claim em{ font-style:italic; color:var(--ember-bright); }
+  /* --- Szene: Methode. Schlagzeile und Fliesstext nebeneinander, wie in
+     der Referenz auf zwei optischen Ebenen statt in einem Block. --- */
+  .cine-split{ display:flex; flex-direction:column; gap:2.6rem; width:100%; }
   @media (min-width:900px){
-    .cine-claim + .cine-claim{ margin-left:clamp(0px, 8vw, 7rem); }
-    .cine-claim + .cine-claim + .cine-claim{ margin-left:clamp(0px, 16vw, 14rem); }
+    .cine-split{ flex-direction:row; align-items:flex-start; gap:clamp(3rem, 8vw, 9rem); }
   }
+  .cine-headline{
+    font-family:var(--font-serif); font-weight:600; font-style:italic;
+    font-size:clamp(2.8rem, 8vw, 6.4rem); line-height:.95; letter-spacing:-.035em;
+    color:var(--text); margin:0; flex-shrink:0;
+  }
+  .cine-notes{ max-width:30rem; }
+  .cine-notes .cine-kicker{ color:var(--gold-bright); }
+  @media (min-width:900px){ .cine-notes{ padding-top:clamp(1rem, 6vw, 5rem); } }
+  .cine-notes p:not(.cine-kicker){
+    font-family:var(--font-mono); font-size:.82rem; line-height:1.85; letter-spacing:.02em;
+    color:var(--text); margin:0 0 1.5rem;
+  }
+  .cine-notes p:last-child{ margin-bottom:0; }
 
-  /* --- Szene: Atelier (eigene Zahlen, freistehend) --- */
-  .cine-figures{ display:flex; flex-wrap:wrap; justify-content:center; gap:clamp(2.4rem, 8vw, 6rem); margin:0; }
-  .cine-figure{ display:flex; flex-direction:column; align-items:center; gap:.7rem; }
+  /* --- Szene: Atelier --- */
+  .cine-figures{ display:flex; flex-wrap:wrap; gap:clamp(2.4rem, 8vw, 6rem); margin:0; }
+  @media (min-width:900px){ .cine-stack-right .cine-figures{ justify-content:flex-end; } }
+  .cine-figure{ display:flex; flex-direction:column; gap:.7rem; }
   .cine-figure dt{
     font-family:var(--font-mono); font-weight:700; font-size:clamp(2.6rem, 7vw, 4.6rem); line-height:1;
-    color:var(--ember); margin:0; text-shadow:0 0 30px rgba(217,165,72,.1), 0 0 80px rgba(217,165,72,.12);
+    color:var(--ember); margin:0; text-shadow:0 0 7px rgba(7,8,12,.95), 0 0 30px rgba(217,165,72,.1), 0 0 80px rgba(217,165,72,.12);
   }
   .cine-figure dd{ margin:0; font-family:var(--font-mono); font-size:.64rem; text-transform:uppercase; letter-spacing:.18em; color:var(--stone); }
-  .cine-atelier-note{ font-family:var(--font-mono); font-size:.68rem; letter-spacing:.1em; color:var(--ember-dim); margin:3.6rem 0 0; }
+  .cine-atelier-note{ font-family:var(--font-mono); font-size:.68rem; letter-spacing:.1em; color:var(--ember-dim); margin:3.4rem 0 0; }
 
   /* --- Szene: Abschluss --- */
   .cine-close-line{
     font-family:var(--font-serif); font-style:italic; font-weight:500;
     font-size:clamp(1.9rem, 5.4vw, 3.6rem); line-height:1.2; color:var(--text); margin:0 0 2.8rem;
   }
+
 
   /* --- Seiten-Footer (Startseite) ----------------------------------------
      Aufbau nach dem uebergebenen Footer-Entwurf: Lichtschein oben in der Mitte,
@@ -3132,6 +3159,9 @@
 <main id="app">
 
   <section id="view-hub" class="view view-cine">
+    <!-- Zwei feste Ebenen hinter allen Szenen: der 3D-Ring (WebGL) und
+         darueber das Lichtspur-Feld (2D-Canvas, reagiert auf den Zeiger). -->
+    <canvas id="cineGl" class="cine-gl" aria-hidden="true"></canvas>
     <canvas id="cineField" class="cine-field" aria-hidden="true"></canvas>
 
     <div class="exam-banner" id="examBanner" hidden>
@@ -3140,77 +3170,85 @@
       <button class="exam-banner-close" id="examBannerClose" type="button" aria-label="Schließen">✕</button>
     </div>
 
-    <!-- SEUIL — der Eintritt. Emblem, Wortmarke, lebendes Wortpaar. -->
-    <section class="cine-scene cine-seuil" data-scene="seuil">
-      <p class="cine-corner cine-corner-tl">Deutsch <span aria-hidden="true">↔</span> Französisch</p>
-      <p class="cine-welcome" id="hubWelcome" hidden></p>
+    <!-- 1 · SEUIL — der Eintritt -->
+    <section class="cine-scene cine-seuil" data-scene="seuil" data-from="center">
+      <p class="cine-corner">Deutsch <span aria-hidden="true">↔</span> Französisch</p>
 
-      <div class="cine-emblem" aria-hidden="true">
-        <span class="cine-emblem-ring"></span>
-        <span class="cine-emblem-core">L</span>
+      <div class="cine-stack cine-stack-center">
+        <p class="cine-welcome" id="hubWelcome" hidden></p>
+        <!-- Ersatz-Emblem, falls der Browser kein WebGL kann (siehe initCineGl) -->
+        <div class="cine-fallback-emblem" aria-hidden="true"><span></span><em>L</em></div>
+        <h1 class="cine-wordmark">Lumière</h1>
+        <div class="cine-morph" aria-live="off">
+          <span class="cine-morph-fr" id="cineMorphFr">la lumière</span>
+          <span class="cine-morph-rule" aria-hidden="true"></span>
+          <span class="cine-morph-de" id="cineMorphDe">das Licht</span>
+        </div>
+        <div class="cine-entry">
+          <button type="button" id="btnHubSets" class="cine-link cine-link-lead">
+            <span>Eintreten</span>
+            <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </button>
+          <button type="button" id="btnHubListen" class="cine-link"><span>Hören</span></button>
+        </div>
       </div>
 
-      <h1 class="cine-wordmark">Lumière</h1>
-
-      <div class="cine-morph" aria-live="off">
-        <span class="cine-morph-fr" id="cineMorphFr">la lumière</span>
-        <span class="cine-morph-rule" aria-hidden="true"></span>
-        <span class="cine-morph-de" id="cineMorphDe">das Licht</span>
+      <div class="cine-scrollcue" aria-hidden="true">
+        <span class="cine-scrollcue-word">Scrollen</span>
+        <span class="cine-scrollcue-line"></span>
       </div>
+    </section>
 
-      <div class="cine-entry">
-        <button type="button" id="btnHubSets" class="cine-link cine-link-lead">
-          <span>Eintreten</span>
-          <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+    <!-- 2 · LE MOT — ein einzelnes Wort landet, links angeschlagen -->
+    <section class="cine-scene cine-mot" data-scene="mot" data-from="left">
+      <div class="cine-stack cine-stack-left">
+        <p class="cine-kicker">Ein Wort, das bleibt</p>
+        <p class="cine-mot-word" id="cineMotWord">l'émerveillement</p>
+        <div class="cine-mot-meta">
+          <p class="cine-mot-phon" id="cineMotPhon">[e.mɛʁ.vɛj.mɑ̃]</p>
+          <p class="cine-mot-de" id="cineMotDe">das Staunen</p>
+        </div>
+        <p class="cine-mot-note">Vorgesprochen, phonetisch notiert, im richtigen Moment wiederholt.</p>
+      </div>
+    </section>
+
+    <!-- 3 · LA MÉTHODE — Schlagzeile links, Fliesstext rechts daneben -->
+    <section class="cine-scene cine-methode" data-scene="methode" data-from="left">
+      <div class="cine-split">
+        <h2 class="cine-headline">Deine<br>Wörter.<br>Dein Takt.</h2>
+        <div class="cine-notes">
+          <p class="cine-kicker">Wie es arbeitet</p>
+          <p>Du schreibst deine eigenen Wörter auf — den Stoff deiner Klausur, nicht den eines Lehrplans.</p>
+          <p>Sie kehren genau dann zurück, wenn du sie vergessen würdest.</p>
+          <p>Und sie klingen so, wie sie in Paris klingen.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4 · L'ATELIER — die eigenen Zahlen, rechts angeschlagen -->
+    <section class="cine-scene cine-atelier" data-scene="atelier" data-from="right">
+      <div class="cine-stack cine-stack-right">
+        <p class="cine-kicker">Dein Atelier</p>
+        <dl class="cine-figures">
+          <div class="cine-figure"><dt id="hubSetsCount">0</dt><dd>Sammlungen</dd></div>
+          <div class="cine-figure"><dt id="hubWordsCount">0</dt><dd>Wörter</dd></div>
+          <div class="cine-figure"><dt id="hubStreakCount">0</dt><dd>Tage in Folge</dd></div>
+        </dl>
+        <p class="cine-atelier-note">Kein Abo · Keine Kreditkarte · Dein Fortschritt gehört dir</p>
+      </div>
+    </section>
+
+    <!-- 5 · ENTRER — Schluss -->
+    <section class="cine-scene cine-entrer" data-scene="entrer" data-from="center">
+      <div class="cine-stack cine-stack-center">
+        <p class="cine-close-line">Fang mit einem Wort an.</p>
+        <button type="button" id="btnHubFinalCta" class="cine-link cine-link-lead cine-link-xl">
+          <span>Kostenlos beginnen</span>
+          <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
         </button>
-        <button type="button" id="btnHubListen" class="cine-link">
-          <span>Hören</span>
-        </button>
       </div>
-
-      <div class="cine-scrollcue" aria-hidden="true"><span class="cine-scrollcue-line"></span></div>
     </section>
 
-    <!-- LE MOT — ein einzelnes Wort landet. Das ist die Demo. -->
-    <section class="cine-scene cine-mot" data-scene="mot">
-      <p class="cine-kicker">Ein Wort, das bleibt</p>
-      <p class="cine-mot-word" id="cineMotWord">l'émerveillement</p>
-      <p class="cine-mot-phon" id="cineMotPhon">[e.mɛʁ.vɛj.mɑ̃]</p>
-      <p class="cine-mot-de" id="cineMotDe">das Staunen</p>
-      <p class="cine-mot-note">Vorgesprochen, phonetisch notiert, im richtigen Moment wiederholt.</p>
-    </section>
-
-    <!-- LA MÉTHODE — drei Sätze, kein Raster. -->
-    <section class="cine-scene cine-methode" data-scene="methode">
-      <p class="cine-kicker">Wie es arbeitet</p>
-      <p class="cine-claim">Du schreibst deine <em>eigenen</em> Wörter auf — den Stoff deiner Klausur, nicht den eines Lehrplans.</p>
-      <p class="cine-claim">Sie kehren genau dann zurück, wenn du sie <em>vergessen</em> würdest.</p>
-      <p class="cine-claim">Und sie klingen so, wie sie in <em>Paris</em> klingen.</p>
-    </section>
-
-    <!-- L'ATELIER — die eigenen Zahlen, freistehend. -->
-    <section class="cine-scene cine-atelier" data-scene="atelier">
-      <p class="cine-kicker">Dein Atelier</p>
-      <dl class="cine-figures">
-        <div class="cine-figure"><dt id="hubSetsCount">0</dt><dd>Sammlungen</dd></div>
-        <div class="cine-figure"><dt id="hubWordsCount">0</dt><dd>Wörter</dd></div>
-        <div class="cine-figure"><dt id="hubStreakCount">0</dt><dd>Tage in Folge</dd></div>
-      </dl>
-      <p class="cine-atelier-note">Kein Abo · Keine Kreditkarte · Dein Fortschritt gehört dir</p>
-    </section>
-
-    <!-- ENTRER — Schluss. -->
-    <section class="cine-scene cine-entrer" data-scene="entrer">
-      <div class="cine-emblem cine-emblem-sm" aria-hidden="true">
-        <span class="cine-emblem-ring"></span>
-        <span class="cine-emblem-core">L</span>
-      </div>
-      <p class="cine-close-line">Fang mit einem Wort an.</p>
-      <button type="button" id="btnHubFinalCta" class="cine-link cine-link-lead cine-link-xl">
-        <span>Kostenlos beginnen</span>
-        <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-      </button>
-    </section>
 
     <footer class="site-footer">
       <div class="site-footer-inner">
@@ -3293,7 +3331,7 @@
             <span class="dot" aria-hidden="true"></span>
             <span>Berlin / Paris</span>
             <span class="dot" aria-hidden="true"></span>
-            <span class="site-footer-version">Version 2</span>
+            <span class="site-footer-version" id="footerVersion">Version 2</span>
           </div>
         </div>
       </div>
@@ -4504,6 +4542,7 @@
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./lumiere-gl.js" defer></script>
 <script>
 /* ============================================================
    WICHTIG: Bei jedem inhaltlichen Deploy hochzaehlen (wie CACHE_NAME
@@ -4514,7 +4553,7 @@
       unten) - neue, noch nicht "veroeffentlichte" Features hinter
       isReleased(N) verstecken; Admins sehen sie trotzdem sofort.
    ============================================================ */
-const APP_VERSION = 2;
+const APP_VERSION = 3;
 
 // Site-weites Feature-Gate: neue, aber noch nicht freigegebene Funktionen
 // hinter isReleased(<APP_VERSION beim Einbau>) verstecken. Admins (echtes
@@ -7629,82 +7668,116 @@ function animateNumber(el, target, duration = 700){
 }
 
 // === STARTSEITE: Kino-Engine ============================================
-// Ein Partikelfeld hinter allen Szenen (reagiert auf den Zeiger), ein
-// Scroll-Scrubber der jeder Szene ihren Eintritts-Fortschritt gibt, und ein
-// Wortpaar das im Hero durchwechselt. Laeuft nur, solange die Startseite
-// sichtbar ist - beim Seitenwechsel wird die Schleife gestoppt.
+// Drei Dinge greifen ineinander:
+//   1. der glaeserne Goldring in echtem 3D (lumiere-gl.js), dessen Bahn
+//      allein vom Scroll-Fortschritt der Startseite gesteuert wird,
+//   2. ein Lichtspur-Feld auf 2D-Canvas, das auf den Zeiger reagiert,
+//   3. der Szenen-Scrubber, der jeder Szene ihren Eintritt gibt.
+// Alles laeuft nur, solange die Startseite sichtbar und der Tab im
+// Vordergrund ist - sonst wird die Schleife angehalten.
 
 const CINE_PAIRS = [
-  { fr: 'la lumière',       de: 'das Licht' },
-  { fr: 'le crépuscule',    de: 'die Dämmerung' },
-  { fr: 'le souvenir',      de: 'die Erinnerung' },
-  { fr: "l'esprit",         de: 'der Geist' },
-  { fr: 'la patience',      de: 'die Geduld' },
-  { fr: 'le seuil',         de: 'die Schwelle' },
+  { fr: 'la lumière',    de: 'das Licht' },
+  { fr: 'le crépuscule', de: 'die Dämmerung' },
+  { fr: 'le souvenir',   de: 'die Erinnerung' },
+  { fr: "l'esprit",      de: 'der Geist' },
+  { fr: 'la patience',   de: 'die Geduld' },
+  { fr: 'le seuil',      de: 'die Schwelle' },
 ];
 
-// Neue, eigene Klangfarbe fuer die Startseite: tief, weich, mit Quinte
-// darueber - deutlich anders als die kurzen UI-Klicks im Rest der App.
+// Eigene Klangfarbe fuer die Startseite: tief und weich, deutlich anders
+// als die kurzen UI-Klicks im Rest der App.
 function sndCineEnter(){
   playTone(174, 0.9, 'sine', 0.05, 0, 900);
   playTone(261, 1.1, 'sine', 0.035, 0.06, 900);
 }
-function sndCineScene(){
-  playTone(392, 0.5, 'sine', 0.025, 0, 1200);
-}
-function sndCineWord(){
-  playTone(523, 0.22, 'sine', 0.018, 0, 1600);
-}
-function sndCineHover(){
-  playTone(659, 0.14, 'sine', 0.012, 0, 2000);
-}
+function sndCineScene(){ playTone(392, 0.5, 'sine', 0.025, 0, 1200); }
+function sndCineWord(){  playTone(523, 0.22, 'sine', 0.018, 0, 1600); }
+function sndCineHover(){ playTone(659, 0.14, 'sine', 0.012, 0, 2000); }
 
-(function initCineField(){
-  const canvas = document.getElementById('cineField');
-  const view = document.getElementById('view-hub');
-  if(!canvas || !view) return;
+(function initCineEngine(){
+  const glCanvas = document.getElementById('cineGl');
+  const canvas   = document.getElementById('cineField');
+  const view     = document.getElementById('view-hub');
+  if(!glCanvas || !canvas || !view) return;
   const ctx = canvas.getContext('2d');
 
-  const scenes = Array.from(view.querySelectorAll('.cine-scene'));
-  const morph = view.querySelector('.cine-morph');
-  const morphFr = document.getElementById('cineMorphFr');
-  const morphDe = document.getElementById('cineMorphDe');
+  const scenes   = Array.from(view.querySelectorAll('.cine-scene'));
+  const morph    = view.querySelector('.cine-morph');
+  const morphFr  = document.getElementById('cineMorphFr');
+  const morphDe  = document.getElementById('cineMorphDe');
+
+  // Schwache Geraete bekommen dieselbe Inszenierung, nur guenstiger gerechnet:
+  // weniger Partikel, einfacheres Material, niedrigere Aufloesung.
+  const lite = window.matchMedia('(max-width: 820px)').matches
+            || (navigator.hardwareConcurrency || 8) <= 4;
+  const coarse = window.matchMedia('(pointer: coarse)').matches;
 
   let dpr = 1, w = 0, h = 0, rafId = 0, running = false;
-  let pointer = { x: -9999, y: -9999, px: -9999, py: -9999, vx: 0, vy: 0, active: false };
-  let motes = [];
-  let pairIndex = 0;
-  let lastSceneKey = '';
+  let glReady = false, glTried = false;
+  let pointer = { x: -9999, y: -9999, vx: 0, vy: 0, active: false };
+  let motes = [], pairIndex = 0, lastSceneKey = '';
 
   function reduced(){ return reducedMotionActive(); }
 
+  // Der Ring liegt in einer eigenen Datei, die per defer geladen wird - beim
+  // ersten Start ist sie also evtl. noch nicht da. Dann einmal auf load warten.
+  function ensureGl(then){
+    if(glReady) return then && then();
+    if(!window.LumiereGL){
+      if(!glTried){
+        glTried = true;
+        window.addEventListener('load', () => { glTried = false; ensureGl(then); }, { once:true });
+      }
+      return;
+    }
+    glReady = window.LumiereGL.init(glCanvas, { lite });
+    if(!glReady){ document.body.classList.add('no-webgl'); return; }
+    then && then();
+  }
+
   function resize(){
-    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    dpr = Math.min(window.devicePixelRatio || 1, lite ? 1.5 : 2);
     w = window.innerWidth; h = window.innerHeight;
     canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr);
     canvas.style.width = w + 'px'; canvas.style.height = h + 'px';
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    if(glReady) window.LumiereGL.resize();
   }
 
-  // Dichte an die Flaeche koppeln, damit ein grosser Desktop nicht dieselbe
+  // Dichte an die Flaeche koppeln, damit ein grosser Monitor nicht dieselbe
   // duenne Streuung bekommt wie ein Handy - und Handys nicht ueberlastet werden.
   function seed(){
     const area = w * h;
-    const count = Math.round(Math.min(150, Math.max(36, area / 13000)));
+    const count = Math.round(Math.min(lite ? 55 : 120, Math.max(30, area / (lite ? 17000 : 15000))));
     motes = [];
     for(let i = 0; i < count; i++){
       motes.push({
-        x: Math.random() * w,
-        y: Math.random() * h,
+        x: Math.random() * w, y: Math.random() * h,
         vx: (Math.random() - 0.5) * 0.09,
         vy: -0.06 - Math.random() * 0.16,
-        r: 0.5 + Math.random() * 1.5,
-        a: 0.1 + Math.random() * 0.4,
+        r: 0.5 + Math.random() * 1.6,
+        a: 0.1 + Math.random() * 0.42,
         tw: Math.random() * Math.PI * 2,
         tws: 0.004 + Math.random() * 0.012,
         trail: 0,
       });
     }
+    // Farbtemperatur innerhalb der Goldpalette: von tiefem Bernstein bis fast
+    // weissem Champagner. Das gibt dem Licht Tiefe, ohne eine fremde Farbe
+    // einzufuehren. Sie steht beim Saeen fest - in der Schleife wird nur noch
+    // globalAlpha gedreht, sonst baute jedes Bild pro Mote einen neuen String.
+    for(const m of motes){
+      m.temp = Math.random();
+      m.rgbDot = tempRgb(Math.min(1, m.temp + 0.35));
+    }
+  }
+  // 0 = Bernstein, .5 = Gold, 1 = Champagner
+  function tempRgb(t){
+    return `rgb(${Math.round(196 + t * 59)},${Math.round(132 + t * 94)},${Math.round(38 + t * 150)})`;
+  }
+  function tempRgba(t, a){
+    return `rgba(${Math.round(196 + t * 59)},${Math.round(132 + t * 94)},${Math.round(38 + t * 150)},${a})`;
   }
 
   function onPointer(e){
@@ -7712,79 +7785,100 @@ function sndCineHover(){
     const y = e.touches ? e.touches[0].clientY : e.clientY;
     if(pointer.active){ pointer.vx = x - pointer.x; pointer.vy = y - pointer.y; }
     pointer.x = x; pointer.y = y; pointer.active = true;
+    if(glReady) window.LumiereGL.setPointer((x / w) * 2 - 1, (y / h) * 2 - 1);
   }
 
   function step(){
     if(!running){ rafId = 0; return; }
     ctx.clearRect(0, 0, w, h);
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.lineCap = 'round';
 
     const speed = Math.min(Math.hypot(pointer.vx, pointer.vy), 60);
+    const reach = lite ? 26000 : 52000;
     for(const m of motes){
-      // Zeiger-Einfluss: nahe Motes werden mitgerissen und ziehen kurz einen
-      // Schweif - das ist der Effekt aus der Referenz, nur in Gold.
-      if(pointer.active){
+      // Zeiger-Einfluss: nahe Motes werden mitgerissen und ziehen einen langen
+      // Schweif - der Effekt aus der Referenz, nur in Gold.
+      if(pointer.active && !coarse){
         const dx = m.x - pointer.x, dy = m.y - pointer.y;
         const d2 = dx * dx + dy * dy;
-        if(d2 < 42000){
-          const f = (1 - d2 / 42000);
-          m.vx += (dx / (Math.sqrt(d2) + 1)) * f * 0.7 + pointer.vx * 0.012 * f;
-          m.vy += (dy / (Math.sqrt(d2) + 1)) * f * 0.7 + pointer.vy * 0.012 * f;
-          m.trail = Math.min(1, m.trail + f * (0.2 + speed * 0.01));
+        if(d2 < reach){
+          const f = 1 - d2 / reach;
+          const d = Math.sqrt(d2) + 1;
+          m.vx += (dx / d) * f * 0.9 + pointer.vx * 0.018 * f;
+          m.vy += (dy / d) * f * 0.9 + pointer.vy * 0.018 * f;
+          m.trail = Math.min(1, m.trail + f * (0.26 + speed * 0.016));
         }
       }
       m.x += m.vx; m.y += m.vy;
-      m.vx *= 0.955; m.vy *= 0.955;
+      m.vx *= 0.958; m.vy *= 0.958;
       m.vy -= 0.0016;             // leichter Auftrieb, wie Glut
-      m.trail *= 0.94;
+      m.trail *= 0.945;
       m.tw += m.tws;
 
-      if(m.y < -20){ m.y = h + 20; m.x = Math.random() * w; m.trail = 0; }
-      if(m.x < -20) m.x = w + 20; else if(m.x > w + 20) m.x = -20;
-      if(m.y > h + 40) m.y = -20;
+      if(m.y < -30){ m.y = h + 30; m.x = Math.random() * w; m.trail = 0; }
+      if(m.x < -30) m.x = w + 30; else if(m.x > w + 30) m.x = -30;
+      if(m.y > h + 50) m.y = -30;
 
-      const flicker = 0.65 + Math.sin(m.tw) * 0.35;
-      const alpha = m.a * flicker;
+      const alpha = m.a * (0.65 + Math.sin(m.tw) * 0.35);
 
-      if(m.trail > 0.04){
-        const tl = 4 + m.trail * 34;
+      // Nur die wenigen Motes am Zeiger bekommen einen Verlauf - der ist teuer.
+      if(m.trail > 0.03){
+        const tl = 8 + m.trail * m.trail * 120;
         const ang = Math.atan2(m.vy, m.vx);
-        const g = ctx.createLinearGradient(m.x, m.y, m.x - Math.cos(ang) * tl, m.y - Math.sin(ang) * tl);
-        g.addColorStop(0, `rgba(246,195,92,${alpha * 0.85})`);
-        g.addColorStop(1, 'rgba(246,195,92,0)');
+        const ex = m.x - Math.cos(ang) * tl, ey = m.y - Math.sin(ang) * tl;
+        const g = ctx.createLinearGradient(m.x, m.y, ex, ey);
+        g.addColorStop(0,    tempRgba(m.temp, alpha * 0.95));
+        g.addColorStop(0.35, tempRgba(m.temp, alpha * 0.4));
+        g.addColorStop(1,    tempRgba(m.temp, 0));
+        ctx.globalAlpha = 1;
         ctx.strokeStyle = g;
-        ctx.lineWidth = m.r * 1.1;
-        ctx.lineCap = 'round';
-        ctx.beginPath();
-        ctx.moveTo(m.x, m.y);
-        ctx.lineTo(m.x - Math.cos(ang) * tl, m.y - Math.sin(ang) * tl);
-        ctx.stroke();
+        ctx.lineWidth = m.r * (0.8 + m.trail * 0.9);
+        ctx.beginPath(); ctx.moveTo(m.x, m.y); ctx.lineTo(ex, ey); ctx.stroke();
       }
 
-      ctx.beginPath();
-      ctx.fillStyle = `rgba(255,224,160,${alpha})`;
-      ctx.arc(m.x, m.y, m.r, 0, Math.PI * 2);
-      ctx.fill();
+      ctx.globalAlpha = alpha;
+      ctx.fillStyle = m.rgbDot;
+      if(m.r < 1.3){
+        const d = m.r * 2;
+        ctx.fillRect(m.x - m.r, m.y - m.r, d, d);
+      }else{
+        ctx.beginPath(); ctx.arc(m.x, m.y, m.r, 0, Math.PI * 2); ctx.fill();
+      }
     }
+    ctx.globalAlpha = 1;
+    ctx.globalCompositeOperation = 'source-over';
 
     pointer.vx *= 0.86; pointer.vy *= 0.86;
     rafId = requestAnimationFrame(step);
   }
 
-  // Szenen-Scrubbing: jede Szene bekommt --enter aus ihrer Position im
-  // Viewport. Kein Pinning (die GSAP-Empfehlung warnt zu Recht davor, mehr
-  // als ein, zwei Sektionen zu pinnen) - nur ein weicher Ein-/Ausgang.
+  // Szenen-Scrubbing. Nebenbei faellt hier der Gesamt-Fortschritt der
+  // Startseite ab (0 = erste Szene liegt oben an, 1 = letzte tritt unten
+  // aus) - genau das, was den Ring steuert.
   function scrub(){
-    if(view.hidden) return;
+    if(view.hidden || scenes.length === 0) return;
     const vh = window.innerHeight;
-    let top = null;
+    let top = null, first = null, last = null;
     for(const s of scenes){
       const r = s.getBoundingClientRect();
+      if(first === null) first = r;
+      last = r;
       const mid = r.top + r.height / 2;
       const dist = Math.abs(mid - vh / 2) / vh;
       const enter = Math.max(0, Math.min(1, 1.35 - dist * 1.9));
       s.style.setProperty('--enter', enter.toFixed(3));
       if(top === null || dist < top.dist) top = { dist, key: s.dataset.scene || '' };
     }
+    const span = (last.bottom - first.top) - vh;
+    const p = span > 0 ? Math.max(0, Math.min(1, -first.top / span)) : 0;
+    if(glReady) window.LumiereGL.setProgress(p);
+    // Rund um die Mitte der Reise fuellt der Ring das Bild und laeuft hinter
+    // der Schrift durch - dort wird er durchscheinender.
+    const dip = Math.max(0, 1 - Math.abs(p - 0.49) / 0.22);
+    const tail = Math.max(0, Math.min(1, (vh - last.bottom) / (vh * 0.45)));
+    glCanvas.style.setProperty('--gl-op', ((0.86 - dip * 0.34) * (1 - tail)).toFixed(3));
+
     if(top && top.key && top.key !== lastSceneKey){
       if(lastSceneKey) sndCineScene();
       lastSceneKey = top.key;
@@ -7792,7 +7886,7 @@ function sndCineHover(){
   }
 
   function cycleWord(){
-    if(!morph || view.hidden || reduced()) return;
+    if(!morph || view.hidden || !running || reduced()) return;
     morph.classList.add('is-out');
     setTimeout(() => {
       pairIndex = (pairIndex + 1) % CINE_PAIRS.length;
@@ -7810,6 +7904,14 @@ function sndCineHover(){
     resize();
     if(motes.length === 0) seed();
     canvas.classList.add('is-live');
+    ensureGl(() => {
+      glCanvas.classList.add('is-live');
+      window.LumiereGL.resize();
+      scrub();
+      // Bei reduzierter Bewegung steht der Ring still und wird nur bei
+      // jedem Scroll einmal neu gezeichnet - keine Dauerschleife.
+      if(reduced()) window.LumiereGL.renderOnce(); else window.LumiereGL.start();
+    });
     if(!reduced() && !rafId) rafId = requestAnimationFrame(step);
     scrub();
   }
@@ -7817,11 +7919,17 @@ function sndCineHover(){
     running = false;
     if(rafId){ cancelAnimationFrame(rafId); rafId = 0; }
     canvas.classList.remove('is-live');
+    glCanvas.classList.remove('is-live');
+    if(glReady) window.LumiereGL.stop();
     ctx.clearRect(0, 0, w, h);
   }
 
-  window.addEventListener('resize', () => { if(running){ resize(); seed(); } }, { passive:true });
-  window.addEventListener('scroll', () => { if(running) scrub(); }, { passive:true });
+  window.addEventListener('resize', () => { if(running){ resize(); seed(); scrub(); } }, { passive:true });
+  window.addEventListener('scroll', () => {
+    if(!running) return;
+    scrub();
+    if(glReady && reduced()) window.LumiereGL.renderOnce();
+  }, { passive:true });
   window.addEventListener('mousemove', onPointer, { passive:true });
   window.addEventListener('touchmove', onPointer, { passive:true });
   window.addEventListener('lumiere:viewchange', (e) => {
@@ -7834,6 +7942,7 @@ function sndCineHover(){
   setInterval(cycleWord, 4200);
   window.cineFieldStart = start;
 })();
+
 
 function renderHub(){
   showView('hub');
@@ -10151,6 +10260,7 @@ renderHub();
 // Erster Heartbeat erst NACH initAuth() abfeuern, sonst waere currentUser noch
 // nicht gesetzt und frisch angekommene, eingeloggte Nutzer wuerden im Admin-
 // Panel bis zu 90s lang faelschlich als "Gast" auftauchen.
+(() => { const el = document.getElementById('footerVersion'); if(el) el.textContent = 'Version ' + APP_VERSION; })();
 applyReleaseGate();   // vor Supabase: noch nicht freigegebene Teile bleiben aus
 initAuth().then(() => { restoreLastView(); sendSessionHeartbeat(); });
 loadSiteSettings();

@@ -1,2 +1,4 @@
 __pycache__/
 *.pyc
+
+# Quelle des Ring-Buendels (lumiere-gl.js wird daraus mit esbuild gebaut)
