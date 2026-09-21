@@ -44,6 +44,25 @@ taugt das Gate nicht (beide Fassungen müssten gleichzeitig in der Datei
 liegen, mit doppelten Element-IDs). In dem Fall **vorher fragen**, ob der
 Nutzer erst nach seiner Abnahme pullt oder den doppelten Aufwand will.
 
+## Der 3D-Ring der Startseite
+
+`lumiere-gl.js` ist ein gebautes Buendel und wird nicht von Hand bearbeitet.
+Die Quelle ist `lumiere-gl.src.js`; nach einer Aenderung neu buendeln:
+
+```bash
+npm i three@0.186.0 esbuild
+npx esbuild lumiere-gl.src.js --bundle --minify --format=iife \
+  --target=es2019 --outfile=lumiere-gl.js
+```
+
+Die Bahn des Rings steckt in der Tabelle `KEYS` (Scroll-Fortschritt, Groesse,
+Position, Drehung je Stuetzstelle) - dort wird nachjustiert, nicht in der
+Render-Schleife. Gesteuert wird sie von `scrub()` in index.html, das aus der
+Lage der Szenen den Fortschritt 0..1 ableitet.
+
+Wichtig: `lumiere-gl.js` gehoert in die App-Shell in `sw.js`, und `CACHE_NAME`
+dort muss bei jedem Deploy mit hochgezaehlt werden.
+
 ## Vor jedem Commit
 
 Mit Playwright gegen einen lokalen `python3 -m http.server` testen —
