@@ -388,6 +388,26 @@
   .update-banner-close:hover{ color:var(--text); background:rgba(255,255,255,.08); }
   @media (prefers-reduced-motion: reduce){ .update-banner{ transition:none; } }
 
+  /* Vorschau-Plakette: sagt einem Admin, dass er gerade etwas sieht, das
+     normale Nutzer noch nicht bekommen (siehe applyReleaseGate). */
+  .preview-badge{
+    position:fixed; left:1rem; bottom:1rem; z-index:79;
+    display:flex; align-items:center; gap:.5rem; cursor:pointer;
+    background:rgba(20,16,10,.82); border:1px solid rgba(246,195,92,.45); border-radius:999px;
+    -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px);
+    padding:.45rem .85rem; box-shadow:0 8px 22px rgba(0,0,0,.4);
+    font-family:var(--font-mono); font-size:.64rem; letter-spacing:.1em; text-transform:uppercase;
+    color:var(--ember-bright);
+    transition:border-color .2s var(--ease), color .2s var(--ease);
+  }
+  .preview-badge:hover{ border-color:var(--ember-bright); color:var(--gold-bright); }
+  .preview-badge-dot{
+    width:7px; height:7px; border-radius:50%; background:var(--ember-bright); flex-shrink:0;
+    box-shadow:0 0 8px rgba(246,195,92,.8); animation:previewPulse 2.2s var(--ease-premium) infinite;
+  }
+  @keyframes previewPulse{ 0%,100%{ opacity:1; } 50%{ opacity:.3; } }
+  @media (prefers-reduced-motion: reduce){ .preview-badge-dot{ animation:none; } }
+
   #app{position:relative; z-index:1; max-width:880px; margin:0 auto; padding:6.2rem 1.2rem 4rem;}
   @media (min-width:700px){ #app{padding:6.6rem 2rem 4rem;} }
   .view{animation:viewIn .6s var(--ease-premium); position:relative;}
@@ -3097,6 +3117,11 @@
 
 <div class="toast" id="toast"></div>
 
+<button type="button" class="preview-badge" id="previewBadge" hidden>
+  <span class="preview-badge-dot" aria-hidden="true"></span>
+  <span id="previewBadgeText">Vorschau</span>
+</button>
+
 <div class="update-banner" id="updateBanner" hidden>
   <span class="update-banner-icon" aria-hidden="true">✨</span>
   <p class="update-banner-text">Eine neue Version von Lumière ist verfügbar.</p>
@@ -4503,6 +4528,54 @@ function isReleased(buildVersion){
   return (siteSettings.live_build || 0) >= buildVersion;
 }
 
+/* Deklaratives Freigabe-Gate. Statt jede neue Funktion einzeln in einen
+   isReleased()-Zweig zu haengen, reicht ein Attribut im Markup:
+
+     data-build="3"      Gehoert zu Build 3. Fuer normale Nutzer erst
+                         sichtbar, wenn Build 3 veroeffentlicht ist;
+                         Admins sehen es sofort als Vorschau.
+     data-build-old="3"  Das, was Build 3 ersetzt. Verschwindet in dem
+                         Moment, in dem Build 3 veroeffentlicht wird -
+                         fuer Admins also sofort.
+
+   Fuer reine Umgestaltungen (gleiches Markup, andere Optik) gibt es
+   zusaetzlich Klassen am <html>-Element: `build-3-live` ist gesetzt,
+   sobald Build 3 fuer den aktuellen Betrachter freigegeben ist. Damit
+   kann CSS zwei Zustaende bedienen, ohne das Markup zu verdoppeln:
+
+     html:not(.build-3-live) .foo{ ... alte Optik ... }
+     html.build-3-live       .foo{ ... neue Optik ... }
+
+   WICHTIG: Ein Element mit data-build darf sein `hidden` nicht selbst
+   umschalten - sonst streiten sich zwei Stellen darum. Im Zweifel einen
+   reinen Huell-Container mit dem Attribut versehen. */
+function applyReleaseGate(){
+  for(const el of document.querySelectorAll('[data-build]')){
+    const n = parseInt(el.dataset.build, 10);
+    if(n) el.hidden = !isReleased(n);
+  }
+  for(const el of document.querySelectorAll('[data-build-old]')){
+    const n = parseInt(el.dataset.buildOld, 10);
+    if(n) el.hidden = isReleased(n);
+  }
+  const root = document.documentElement;
+  for(let n = 1; n <= APP_VERSION; n++){
+    root.classList.toggle('build-' + n + '-live', isReleased(n));
+  }
+  // Vorschau-Hinweis: ein Admin, der auf einem Stand sitzt, den normale
+  // Nutzer noch nicht sehen, soll das wissen - sonst wundert er sich,
+  // warum Nutzer etwas anderes berichten.
+  const liveBuild = (siteSettings && typeof siteSettings.live_build === 'number') ? siteSettings.live_build : 0;
+  const previewing = !!(currentProfile && currentProfile.is_admin) && liveBuild < APP_VERSION;
+  document.body.classList.toggle('is-preview-build', previewing);
+  const badge = document.getElementById('previewBadge');
+  if(badge){
+    badge.hidden = !previewing;
+    const label = document.getElementById('previewBadgeText');
+    if(label) label.textContent = `Vorschau · Build ${APP_VERSION} (öffentlich: ${liveBuild})`;
+  }
+}
+
 /* ============================================================
    ANPASSEN: Hier deinen Gemini-API-Key eintragen
    (https://aistudio.google.com/apikey)
@@ -5560,6 +5633,7 @@ async function loadOrCreateProfile(){
       await sb.auth.signOut();
     }
     applyMaintenanceMode();
+    applyReleaseGate();
   }catch(e){ console.error('Profil konnte nicht geladen werden:', e.message); }
 }
 
@@ -5572,6 +5646,7 @@ async function loadSiteSettings(){
     if(error){ console.error('Website-Einstellungen konnten nicht geladen werden:', error.message); return; }
     siteSettings = data;
     applyMaintenanceMode();
+    applyReleaseGate();
   }catch(e){ console.error('Website-Einstellungen konnten nicht geladen werden:', e.message); }
 }
 function getInitials(nameOrEmail){
@@ -6291,6 +6366,13 @@ function renderAdminVersionTab(){
   statusEl.className = 'admin-empty-note ' + (behind ? 'admin-version-status-behind' : 'admin-version-status-current');
   if(badge){ badge.hidden = !behind; badge.textContent = behind ? '!' : '0'; }
 }
+// Klick auf die Vorschau-Plakette fuehrt direkt dorthin, wo man freigibt.
+document.getElementById('previewBadge').addEventListener('click', () => {
+  sndClick();
+  openAdminPanel();
+  switchAdminTab('version');
+  renderAdminVersionTab();
+});
 document.getElementById('btnPublishVersion').addEventListener('click', async () => {
   sndClick();
   if(!sb) return;
@@ -6298,6 +6380,7 @@ document.getElementById('btnPublishVersion').addEventListener('click', async () 
   if(error){ showToast('Konnte nicht veröffentlicht werden — evtl. fehlt die Spalte "live_build" in site_settings.', true); return; }
   showToast(`Version ${APP_VERSION} ist jetzt für alle live.`);
   await loadSiteSettings();
+  applyReleaseGate();
   renderAdminVersionTab();
 });
 
@@ -6542,6 +6625,7 @@ async function initAuth(){
       currentProfile = null;
       authInPasswordRecovery = false;
       updateAccountUI();
+      applyReleaseGate();
       sendSessionHeartbeat();
     }
   });
@@ -6708,6 +6792,7 @@ document.getElementById('authDeleteAccountBtn').addEventListener('click', async 
     currentUser = null; currentProfile = null;
     closeAccountModal();
     updateAccountUI();
+    applyReleaseGate();
     showToast('Konto und alle Cloud-Daten wurden gelöscht.');
   }catch(err){
     showToast('Konto konnte nicht gelöscht werden: ' + translateAuthError(err.message), true);
@@ -10066,6 +10151,7 @@ renderHub();
 // Erster Heartbeat erst NACH initAuth() abfeuern, sonst waere currentUser noch
 // nicht gesetzt und frisch angekommene, eingeloggte Nutzer wuerden im Admin-
 // Panel bis zu 90s lang faelschlich als "Gast" auftauchen.
+applyReleaseGate();   // vor Supabase: noch nicht freigegebene Teile bleiben aus
 initAuth().then(() => { restoreLastView(); sendSessionHeartbeat(); });
 loadSiteSettings();
 setInterval(() => {
