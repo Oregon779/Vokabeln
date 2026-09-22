@@ -138,6 +138,36 @@ duenn auslaeuft statt abgeschnitten aufzuhoeren.
 Nicht wieder zum Korkenzieher machen (verjuengter Radius, viele Windungen):
 das war die vorige Fassung und sah nicht aus wie die Referenz.
 
+## Das Zeichen hat die Buehne (ab Build 15)
+
+Das Zeichen soll mehr Aufmerksamkeit bekommen als alles drumherum:
+
+- **Groesse:** In jeder Szene so gross wie im Startbild. Weil die Szenen
+  weiter hinten liegen (z um -2,7), steht in `KEYS` dort ein groesserer
+  Massstab (0.54 statt 0.40) - scheinbare Groesse = scale / Abstand zur
+  Kamera. Das Startbild steht bei y 1.30, damit die Kopfleiste den Reif
+  nicht anschneidet; der Schluss bei 0.37 / y 0.95 (naeher an der Kamera).
+  Hochkant ruecken seitliche Stuetzstellen auf `halfH * 0.72`.
+- **Straenge:** poliertes Gold (Metall, fast keine Rauheit, Klarlack) statt
+  Glas, mit harter Fresnel-Lichtkante. Ein Glanzlicht laeuft in 6 s einen
+  Strang hinunter (`strandGlint`, `onBeforeCompile`; die Lage entlang des
+  Strangs steckt im Attribut `aAlong`, der zweite Strang ist per `aPhase`
+  um einen halben Umlauf versetzt). Am Ansatz blendet es erst ein, sonst
+  verschmilzt es mit dem Reif zu einem Fleck.
+- **Lichthof:** `makeHalo` - ein Sprite (steht immer zur Kamera), additiv,
+  hinter dem Zeichen. Am hellsten auf Hoehe des Reifs, innen schwach: ein
+  voller Verlauf fuellte den Ring wie eine Muenze und nahm dem L den Kontrast.
+- **Schlieren:** 13 statt 26 (lite 5), rund halb so hell. Sie kreisen um das
+  Zeichen (`streaks.position` folgt ihm, 1,6 dahinter) und verloeschen, sobald
+  sie nach vorn kommen oder im Umriss des Zeichens stehen (`behind()`).
+  Sie laufen also nie ueber das Zeichen.
+- **Kometen:** nur mit `html.build-15-live` - jeder zweite wird uebersprungen,
+  Helligkeit x0.42, kein Lichtschleier mehr unter nahen, Nachruecker warten
+  laenger (`cometsCalm()`).
+
+Die 3D-Ebene selbst kennt das Freigabe-Gate nicht; ihre Aenderungen gelten
+sofort fuer alle (solange die Wartung laeuft, sieht sie ohnehin nur der Admin).
+
 ## Die Drehung kommt vom Scrollen
 
 `scrub()` in index.html zaehlt, zwischen welchen zwei Szenenmitten die

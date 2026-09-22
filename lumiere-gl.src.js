@@ -14,7 +14,7 @@ import {
   MeshPhysicalMaterial, MeshStandardMaterial, PointsMaterial,
   Color, Vector2, Vector3, CanvasTexture, EquirectangularReflectionMapping,
   PMREMGenerator, PointLight, AmbientLight, MeshBasicMaterial, DoubleSide,
-  ConeGeometry, ShaderMaterial,
+  ConeGeometry, ShaderMaterial, Sprite, SpriteMaterial,
   ACESFilmicToneMapping, SRGBColorSpace, AdditiveBlending,
 } from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
@@ -167,9 +167,50 @@ function makeHelix(mat, lite){
       }
     }
     geo.computeVertexNormals();
+    // Wie weit jede Ecke den Strang hinunter liegt (0 am Reif, 1 am Ende) -
+    // daran laeuft das Glanzlicht entlang. Der zweite Strang ist um einen
+    // halben Umlauf versetzt, damit nie beide zugleich aufleuchten.
+    const along = new Float32Array((tubular + 1) * (radial + 1));
+    for(let r = 0; r <= tubular; r++)
+      for(let j = 0; j <= radial; j++) along[r * (radial + 1) + j] = r / tubular;
+    geo.setAttribute('aAlong', new Float32BufferAttribute(along, 1));
+    geo.setAttribute('aPhase', new Float32BufferAttribute(
+      new Float32Array(along.length).fill(phase ? 0.5 : 0), 1));
     g.add(new Mesh(geo, mat));
   }
   return g;
+}
+
+// Die Straenge sind poliertes Gold wie der Ring und tragen ein Glanzlicht,
+// das langsam an ihnen hinunterlaeuft - wie Licht in einer Glasfaser. Dazu
+// eine harte Lichtkante am Rand (Fresnel), damit sie vor dem dunklen Grund
+// als Koerper stehen und nicht als gezeichnete Linie.
+const glint = { value: 0 };
+function strandGlint(mat){
+  mat.onBeforeCompile = (sh) => {
+    sh.uniforms.uGlint = glint;
+    sh.vertexShader = 'attribute float aAlong;\nattribute float aPhase;\n'
+      + 'varying float vAlong;\nvarying float vPhase;\n'
+      + sh.vertexShader.replace('#include <begin_vertex>',
+          '#include <begin_vertex>\n  vAlong = aAlong; vPhase = aPhase;');
+    sh.fragmentShader = 'uniform float uGlint;\nvarying float vAlong;\nvarying float vPhase;\n'
+      + sh.fragmentShader.replace('#include <emissivemap_fragment>', `#include <emissivemap_fragment>
+  {
+    // Kopf des Glanzlichts: faehrt von knapp ueber dem Reif bis hinter das
+    // Ende. Vorn scharf, nach oben ein laengerer Nachschein.
+    float head = fract(uGlint + vPhase) * 1.3 - 0.1;
+    float dd = vAlong - head;
+    float g = exp(-dd * dd / (dd > 0.0 ? 0.00018 : 0.0026));
+    // Am Reif einblenden, am duennen Ende aus - am Ansatz wuerde es sonst
+    // mit dem Reif zu einem Fleck verschmelzen.
+    g *= smoothstep(0.02, 0.16, vAlong) * (1.0 - smoothstep(0.8, 1.0, vAlong));
+    totalEmissiveRadiance += vec3(1.0, 0.86, 0.58) * g * 2.6;
+    // Harte Lichtkante: nur der aeusserste Rand, sonst wird der Strang dick.
+    float rim = 1.0 - abs(dot(normalize(normal), normalize(vViewPosition)));
+    totalEmissiveRadiance += vec3(1.0, 0.72, 0.3) * pow(rim, 4.0) * 0.55;
+  }`);
+  };
+  return mat;
 }
 
 // Ein Reif aus einzelnen Strichen statt einer geschlossenen Linie. Er laeuft
@@ -255,7 +296,9 @@ const GradeShader = {
 // unsichtbar, der Verlauf ins Dunkle ist also zugleich das Ausblenden - das
 // spart den Alphakanal pro Ecke.
 const STREAK_LEN = () => (lite ? 14 : 26);   // Stuetzpunkte je Spur
-const STREAK_NUM = () => (lite ? 10 : 26);
+// Halb so viele wie frueher - sie sollen das Zeichen rahmen, nicht mit ihm
+// um Aufmerksamkeit kaempfen.
+const STREAK_NUM = () => (lite ? 5 : 13);
 const TRAIL_STEP = 0.1;      // Sekunden zwischen zwei Stuetzpunkten der Spur
 
 function makeStreaks(){
@@ -304,6 +347,16 @@ function makeStreaks(){
   return mesh;
 }
 
+// 0 vor der Ebene des Zeichens, 1 deutlich dahinter (Weltmasse). Auch
+// dahinter verlischt eine Schliere, solange sie im Umriss des Zeichens steht
+// - sonst schneidet sie durch den Ring hindurch sichtbar ueber das L.
+let streakFront = 0, streakClear = 1;
+function behind(lx, ly, wz){
+  const x = Math.max(0, Math.min(1, (streakFront - 0.4 - wz) / 1.8));
+  const q = Math.max(0, Math.min(1, (Math.hypot(lx, ly) / streakClear - 0.9) / 0.5));
+  return x * x * (3 - 2 * x) * q * q * (3 - 2 * q);
+}
+
 const _dir = new Vector3(), _side = new Vector3(), _toCam = new Vector3(), _p = new Vector3();
 
 function updateStreaks(mesh, t, dt, amount){
@@ -313,6 +366,7 @@ function updateStreaks(mesh, t, dt, amount){
   if(!mesh.visible) return;
 
   const { band, len, pos, col } = mesh.userData;
+  const gz = mesh.position.z;
   let o = 0;
   for(const b of band){
     b.a += b.w * dt;
@@ -346,10 +400,14 @@ function updateStreaks(mesh, t, dt, amount){
       const w1 = b.wd * Math.sin(Math.PI * Math.pow(u1, 0.42));
       // Helligkeit: vorn gleissend (ueber der Bloom-Schwelle), nach hinten
       // ins Schwarze - additiv ueberlagert ist Schwarz das Ausblenden.
-      const g0 = 1.15 * Math.pow(1 - u0, 1.8), g1 = 1.15 * Math.pow(1 - u1, 1.8);
-      const c = b.c;
       const ax = b.trail[j], ay = b.trail[j + 1], az = b.trail[j + 2];
       const bx = b.trail[k], by = b.trail[k + 1], bz = b.trail[k + 2];
+      // Nie vor dem Zeichen: sobald eine Schliere auf ihrer Bahn nach vorn
+      // kommt, verlischt sie. Sichtbar bleibt nur der Bogen dahinter - so
+      // rahmt das Licht das Zeichen, statt ihm ins Bild zu laufen.
+      const g0 = 0.6 * Math.pow(1 - u0, 1.8) * behind(ax, ay, az + gz),
+            g1 = 0.6 * Math.pow(1 - u1, 1.8) * behind(bx, by, bz + gz);
+      const c = b.c;
       const sx = _side.x, sy = _side.y, sz = _side.z;
       // Kante oben / Mitte / Kante unten, je an beiden Enden des Gliedes
       const A = [ax + sx * w0, ay + sy * w0, az + sz * w0,
@@ -528,20 +586,47 @@ function loadTower(url){
 
 /* --------------------------------------------------------------- Ablauf  */
 
+// Der Lichthof: ein weicher Verlauf, additiv - Schwarz am Rand ist also
+// unsichtbar. Am hellsten ist er dort, wo der Reif liegt (knapp unter der
+// halben Breite); die Mitte bleibt zurueckhaltend, sonst fuellt er den Ring
+// wie eine Muenze und das L verliert seinen Kontrast.
+function makeHalo(){
+  const c = document.createElement('canvas');
+  c.width = c.height = 256;
+  const x = c.getContext('2d');
+  const g = x.createRadialGradient(128, 128, 0, 128, 128, 128);
+  g.addColorStop(0,    'rgba(200,130,50,0.14)');
+  g.addColorStop(0.32, 'rgba(235,158,60,0.34)');
+  g.addColorStop(0.46, 'rgba(255,186,90,0.62)');
+  g.addColorStop(0.6,  'rgba(215,128,36,0.24)');
+  g.addColorStop(0.8,  'rgba(140,70,14,0.06)');
+  g.addColorStop(1,    'rgba(0,0,0,0)');
+  x.fillStyle = g;
+  x.fillRect(0, 0, 256, 256);
+  const tex = new CanvasTexture(c);
+  tex.colorSpace = SRGBColorSpace;
+  const s = new Sprite(new SpriteMaterial({
+    map: tex, blending: AdditiveBlending, transparent: true,
+    depthWrite: false, opacity: 0,
+  }));
+  s.renderOrder = -1;
+  return s;
+}
+
 // Die Reise des Emblems, als Tabelle statt als Trigonometrie: pro Stützstelle
 // der Scroll-Fortschritt und wo der Ring dann steht. Dazwischen wird weich
 // interpoliert. So lässt sich jede Szene einzeln nachjustieren, ohne dass
 // eine Sinuskurve alle anderen mitverbiegt.
 //        p     scale     x      y      z     rotX   rotY   rotZ
 const KEYS = [
-  [0.00, 0.40,  0.00,  1.55,  0.00,  0.12,  0.00,  0.00],  // Eintritt - gross und mittig
-  [0.11, 0.40,  0.70,  0.95, -2.60,  0.12,  0.00,  0.10],  // Das Wort - gross hinter dem Text
-  [0.25, 0.40, -0.55,  0.60, -2.80,  0.12,  0.00, -0.12],  // Methode  - dito, andere Seite
-  [0.32, 0.22,  1.90, -1.10, -3.60,  0.12,  0.00,  0.12],  // zieht sich vor dem Turm zurueck
+  [0.00, 0.40,  0.00,  1.30,  0.00,  0.12,  0.00,  0.00],  // Eintritt - gross und mittig, unter der Kopfleiste
+  [0.11, 0.54,  0.70,  0.95, -2.60,  0.12,  0.00,  0.10],  // Das Wort - so gross wie im Startbild
+  [0.25, 0.54, -0.55,  0.60, -2.80,  0.12,  0.00, -0.12],  // Methode  - dito, andere Seite
+  [0.32, 0.30,  1.90, -1.10, -3.60,  0.12,  0.00,  0.12],  // zieht sich vor dem Turm zurueck
   [0.55, 0.05,  0.00, -2.60, -6.50,  0.12,  0.00,  0.08],  // Turm     - geparkt, ohnehin unsichtbar
   [0.80, 0.14,  0.00, -3.10, -3.80,  0.12,  0.00, -0.14],  // taucht unter dem Turm wieder auf
-  [0.90, 0.36, -1.60, -0.15, -2.90,  0.12,  0.00,  0.12],  // Atelier  - links hinter den Zahlen
-  [1.00, 0.44,  0.00,  1.60, -0.15,  0.12,  0.00,  0.00],  // Abschluss- wieder gross
+  [0.90, 0.50, -1.60, -0.15, -2.90,  0.12,  0.00,  0.12],  // Atelier  - links hinter den Zahlen
+  [1.00, 0.37,  0.00,  0.95, -0.15,  0.12,  0.00,  0.00],  // Abschluss- wie im Startbild (naeher an der Kamera)
 ];
 function smoothstep(t){ return t * t * (3 - 2 * t); }
 function sampleKeys(p, out){
@@ -561,6 +646,7 @@ let progress = 0, shown = 0;
 let spin = 0, spinT = 0;
 let towerAmt = 0, towerShown = 0, tourP = 0, tourShown = 0;
 let streakAmt = 0;
+let halo;
 let pointerX = 0, pointerY = 0, px = 0, py = 0;
 
 function init(canvas, opts){
@@ -633,7 +719,14 @@ function init(canvas, opts){
   emblem.add(letter);
   emblem.userData.letter = letter;
 
-  const ribbonMat = glass();
+  const ribbonMat = strandGlint(lite
+    ? new MeshStandardMaterial({
+        color: GOLD_BRIGHT, emissive: new Color(GOLD), emissiveIntensity: 0.12,
+        metalness: 1, roughness: 0.08, envMapIntensity: 3, transparent: true })
+    : new MeshPhysicalMaterial({
+        color: GOLD_BRIGHT, emissive: new Color(GOLD), emissiveIntensity: 0.12,
+        metalness: 1, roughness: 0.045, envMapIntensity: 3.6,
+        clearcoat: 1, clearcoatRoughness: 0.02, transparent: true }));
   emblem.add(makeHelix(ribbonMat, lite));
 
   // Ein zweiter, schmaler Reif dicht innen. Er sitzt eine Spur vor dem
@@ -682,6 +775,12 @@ function init(canvas, opts){
   streaks = makeStreaks();
   streaks.position.z = -2.5;
   scene.add(streaks);
+
+  // Ein warmer Lichthof hinter dem Zeichen. Er steht immer zur Kamera und
+  // haengt nicht an der Drehung - sonst saehe man ihn beim Umdrehen als
+  // flache Scheibe von der Kante.
+  halo = makeHalo();
+  scene.add(halo);
 
   // Der Bloom ist das, was die Referenz teuer macht: helle Stellen bluehen in
   // weiche Hoefe aus. Auf schwachen Geraeten faellt der Pass weg - dort wird
@@ -771,7 +870,7 @@ function applyTransform(p, t){
   const port = Math.max(0, Math.min(1, (1 - camera.aspect) / 0.45))
              * Math.min(1, Math.abs(k[1]) / 2.2);
   const kx = k[1] * (1 - port);
-  const ky = k[2] + (halfH * 0.64 - k[2]) * port;
+  const ky = k[2] + (halfH * 0.72 - k[2]) * port;
   emblem.position.set(Math.max(-maxX, Math.min(maxX, kx)),
                       Math.max(-maxY, Math.min(maxY, ky)), k[3]);
   // Der Zeiger kippt das Emblem nur leicht mit - genug, dass es auf die Maus
@@ -793,6 +892,8 @@ function applyTransform(p, t){
     emblem.userData.pulse.scale.setScalar(beat);
     emblem.userData.pulse.material.emissiveIntensity = 0.42 + (beat - 1) * 9;
   }
+  // Das Glanzlicht braucht 6 Sekunden fuer einen Strang.
+  glint.value = t / 6;
   camera.position.z = 7 - p * 1.2;
 
   // Überblendung. Der Turm steigt beim Auftritt leicht an und dreht sich
@@ -804,9 +905,22 @@ function applyTransform(p, t){
   // Die Schlieren teilen sich das Schicksal des Emblems und ziehen am Anfang
   // und am Ende der Reise am kraeftigsten - dort, wo sonst nur Grund waere.
   const ends = Math.max(1 - p / 0.16, (p - 0.86) / 0.14);
-  streakAmt = eo * (0.62 + 0.38 * Math.max(0, Math.min(1, ends)));
+  streakAmt = eo * (0.5 + 0.3 * Math.max(0, Math.min(1, ends)));
   emblem.visible = eo > 0.01;
   for(const m of emblemMats) m.opacity = eo;
+  // Die Schlieren kreisen um das Zeichen und liegen dahinter.
+  streaks.position.set(emblem.position.x, emblem.position.y, emblem.position.z - 1.6);
+  streakFront = emblem.position.z;
+  streakClear = 2.4 * emblem.scale.x;          // Radius des Segmentreifs
+  if(halo){
+    const es = emblem.scale.x;
+    halo.visible = eo > 0.01;
+    halo.position.set(emblem.position.x, emblem.position.y, emblem.position.z - 0.9);
+    // Atmet ganz leicht mit dem duennen Reif.
+    const breath = 1 + Math.sin(t * (Math.PI * 2 / 2.5) - Math.PI / 2) * 0.03;
+    halo.scale.setScalar(es * 8.4 * breath);
+    halo.material.opacity = 0.46 * eo;
+  }
 
   if(tower){
     tower.visible = tw > 0.01;

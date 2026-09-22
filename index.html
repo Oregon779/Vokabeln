@@ -4882,7 +4882,7 @@
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="./lumiere-gl.js?v=14" defer></script>
+<script src="./lumiere-gl.js?v=15" defer></script>
 <script>
 /* ============================================================
    WICHTIG: Bei jedem inhaltlichen Deploy hochzaehlen (wie CACHE_NAME
@@ -4893,7 +4893,7 @@
       unten) - neue, noch nicht "veroeffentlichte" Features hinter
       isReleased(N) verstecken; Admins sehen sie trotzdem sofort.
    ============================================================ */
-const APP_VERSION = 14;
+const APP_VERSION = 15;
 
 // Site-weites Feature-Gate: neue, aber noch nicht freigegebene Funktionen
 // hinter isReleased(<APP_VERSION beim Einbau>) verstecken. Admins (echtes
@@ -8218,7 +8218,9 @@ function sndCineHover(){ playTone(659, 0.14, 'sine', 0.012, 0, 2000); }
       a:   0.2 + d * 0.74,
       temp: 0.25 + Math.random() * 0.75,
       // Nachruecker warten nur kurz, damit die Dichte nicht einbricht.
-      wait: seeded ? 0 : Math.random() * 70,
+      // Ab Build 15 laenger: die Kometen sollen dem Zeichen nicht die
+      // Schau stehlen, sie sind nur noch gelegentlich zu sehen.
+      wait: seeded ? 0 : (cometsCalm() ? 90 + Math.random() * 260 : Math.random() * 70),
     };
   }
 
@@ -8231,6 +8233,9 @@ function sndCineHover(){ playTone(659, 0.14, 'sine', 0.012, 0, 2000); }
   }
 
   let lastScrollY = window.scrollY;
+
+  // Build 15: halb so viele Kometen, deutlich matter.
+  function cometsCalm(){ return document.documentElement.classList.contains('build-15-live'); }
 
   function step(){
     if(!running){ rafId = 0; return; }
@@ -8245,8 +8250,12 @@ function sndCineHover(){ playTone(659, 0.14, 'sine', 0.012, 0, 2000); }
     lastScrollY = sy;
 
     let replaced = false;
+    const calm = cometsCalm();
     for(let i = 0; i < motes.length; i++){
       const c = motes[i];
+      // Jeden zweiten ueberspringen statt die Liste zu kuerzen - so bleibt
+      // die Mischung aus nah und fern erhalten.
+      if(calm && (i & 1)) continue;
       if(c.wait > 0){ c.wait--; continue; }
       c.x += c.vx; c.y += c.vy;
       if(dScroll) c.y -= dScroll * (0.03 + c.d * 0.55);
@@ -8261,12 +8270,14 @@ function sndCineHover(){ playTone(659, 0.14, 'sine', 0.012, 0, 2000); }
       const ux = c.vx / sp, uy = c.vy / sp;
       const ex = c.x - ux * c.tail, ey = c.y - uy * c.tail;
 
+      const ca = calm ? c.a * 0.42 : c.a;
       // Nahe Kometen bekommen unter dem Kernstrich einen breiten, weichen
       // Lichtschleier - so leuchten sie, statt nur gezeichnet zu sein.
-      if(c.d > 0.5){
+      // Ab Build 15 nicht mehr: der Schleier zog den Blick vom Zeichen weg.
+      if(c.d > 0.5 && !calm){
         const gw = ctx.createLinearGradient(c.x, c.y, ex, ey);
-        gw.addColorStop(0,   tempRgba(c.temp, c.a * 0.28));
-        gw.addColorStop(0.5, tempRgba(c.temp, c.a * 0.06));
+        gw.addColorStop(0,   tempRgba(c.temp, ca * 0.28));
+        gw.addColorStop(0.5, tempRgba(c.temp, ca * 0.06));
         gw.addColorStop(1,   tempRgba(c.temp, 0));
         ctx.strokeStyle = gw;
         ctx.lineWidth = c.wd * 4.2;
@@ -8274,9 +8285,9 @@ function sndCineHover(){ playTone(659, 0.14, 'sine', 0.012, 0, 2000); }
       }
 
       const g = ctx.createLinearGradient(c.x, c.y, ex, ey);
-      g.addColorStop(0,    `rgba(255,244,214,${c.a})`);
-      g.addColorStop(0.07, tempRgba(c.temp, c.a * 0.85));
-      g.addColorStop(0.42, tempRgba(c.temp, c.a * 0.2));
+      g.addColorStop(0,    `rgba(255,244,214,${ca})`);
+      g.addColorStop(0.07, tempRgba(c.temp, ca * 0.85));
+      g.addColorStop(0.42, tempRgba(c.temp, ca * 0.2));
       g.addColorStop(1,    tempRgba(c.temp, 0));
       ctx.strokeStyle = g;
       ctx.lineWidth = c.wd;
@@ -8285,8 +8296,8 @@ function sndCineHover(){ playTone(659, 0.14, 'sine', 0.012, 0, 2000); }
       // Der Kopf: heller Kern, weicher Hof - bei nahen groesser.
       const hr = c.wd * (3.4 + c.d * 2.6);
       const hg = ctx.createRadialGradient(c.x, c.y, 0, c.x, c.y, hr);
-      hg.addColorStop(0, `rgba(255,250,232,${c.a})`);
-      hg.addColorStop(0.35, tempRgba(Math.min(1, c.temp + 0.3), c.a * 0.45));
+      hg.addColorStop(0, `rgba(255,250,232,${ca})`);
+      hg.addColorStop(0.35, tempRgba(Math.min(1, c.temp + 0.3), ca * 0.45));
       hg.addColorStop(1, tempRgba(c.temp, 0));
       ctx.fillStyle = hg;
       ctx.beginPath(); ctx.arc(c.x, c.y, hr, 0, Math.PI * 2); ctx.fill();
