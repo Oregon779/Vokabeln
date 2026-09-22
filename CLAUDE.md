@@ -103,6 +103,14 @@ Groesse, Position, Drehung je Stuetzstelle) - dort wird nachjustiert, nicht
 in der Render-Schleife. Aendert sich die Zahl oder Hoehe der Szenen,
 verschieben sich die p-Werte und `KEYS` muss mit.
 
+Der Umriss des L (`L_OUTLINE`) ist **kein handgezeichneter Pfad**, sondern der
+echte Glyph aus Fraunces SemiBold Italic (SIL OFL) - derselbe Schnitt wie die
+Wortmarke. Ausgelesen mit fontTools, auf Hoehe 1.12 normiert, als flache
+Tabelle abgelegt (0 = hingehen, 1 = Linie, 2 = quadratische Kurve). Ein von
+Hand nachgezeichnetes L las sich neben dem gesetzten "Lumière" wie ein fremder
+Buchstabe. Aendert sich die Schrift der Wortmarke, muss die Tabelle neu
+erzeugt werden.
+
 Das Emblem begleitet die ganze Reise; nur der Turm schickt es von der Buehne
 (`eo` haengt allein an `towerShown`). Alle `FLOURISH_EVERY` Sekunden macht es
 eine Pirouette: `advanceSpin()` integriert eine Glockenkurve, die ueber die
@@ -115,6 +123,36 @@ Die x/y in `KEYS` sind fuer den Desktop gedacht. `applyTransform` holt sie auf
 den sichtbaren Rand zurueck und schiebt hochkant alles, was seitlich stehen
 sollte (grosses |x|), in den freien Streifen ueber den Text - auf dem Handy
 ist neben der Schrift kein Platz.
+
+## Lichtschlieren und Nachgluehen
+
+Was die Referenz (activetheory.net) teuer aussehen laesst, ist nicht die
+Geometrie des Zeichens, sondern was darum herum passiert. Zwei Teile:
+
+- **`makeStreaks` / `updateStreaks`**: Lichtbaender, die in grossen Boegen um
+  die Achse ziehen. Jede Schliere ist ein Punkt auf einer Bahn; die Spur ist
+  einfach dieselbe Bahn zeitversetzt (`TRAIL_STEP` je Stuetzpunkt), es wird
+  also nichts gespeichert. Gezeichnet wird sie als Band aus zwei Streifen -
+  Kante (schwarz) zur Mitte (hell) und zurueck. Ein einzelner Streifen haette
+  eine harte Kante und saehe nach gezeichnetem Strich aus, nicht nach Licht.
+  Bei additiver Ueberlagerung ist Schwarz zugleich das Ausblenden, deshalb
+  braucht es keinen Alphakanal pro Ecke.
+  Die Bahnen lassen in der Mitte einen Streifen frei (`y0` mit Luecke) und
+  liegen bei `z = -2.5`, sonst zieht eine Schliere dicht an der Kamera vorbei
+  und fuellt als breites Band das halbe Bild. Kosten: rund 1,3 ms pro Bild
+  bei 26 Schlieren, 0,15 ms bei 10 - reines JS, unabhaengig von der GPU.
+- **Bloom** (`UnrealBloomPass` im `EffectComposer`): faellt auf schwachen
+  Geraeten (`lite`) ganz weg, dort rendert `draw()` direkt.
+
+**Falle:** `Float32BufferAttribute` legt eine **Kopie** des uebergebenen
+Feldes an. Wer den Puffer jeden Frame neu beschreibt, muss mit
+`geo.attributes.<name>.array` arbeiten - schreibt man in das hineingereichte
+Feld, bleibt das Mesh leer und es gibt keine Fehlermeldung.
+
+**Falle:** Mit Bloom rendert die Szene deckend (`scene.background`), ein
+Nachbearbeitungspass und ein durchscheinender Kanal vertragen sich schlecht.
+Die Grundfarbe kommt deshalb als `bg` aus `index.html` (dort aus `--bg`
+gelesen) - optisch derselbe Ton wie der Rest der Seite, nur eben deckend.
 
 Zwei Fallen, die schon einmal Zeit gekostet haben:
 - `overflow-x` auf `<body>` zwingt `overflow-y` auf `auto`. Damit wird

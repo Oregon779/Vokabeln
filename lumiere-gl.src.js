@@ -12,12 +12,16 @@ import {
   TorusGeometry, TubeGeometry, ExtrudeGeometry, Shape, CatmullRomCurve3,
   BufferGeometry, Float32BufferAttribute, Box3,
   MeshPhysicalMaterial, MeshStandardMaterial, PointsMaterial,
-  Color, Vector3, CanvasTexture, EquirectangularReflectionMapping,
-  PMREMGenerator, PointLight, AmbientLight,
+  Color, Vector2, Vector3, CanvasTexture, EquirectangularReflectionMapping,
+  PMREMGenerator, PointLight, AmbientLight, MeshBasicMaterial, DoubleSide,
   ACESFilmicToneMapping, SRGBColorSpace, AdditiveBlending,
 } from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
+import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js';
 
 const GOLD        = 0xf0a92c;   // kraeftiger als das Seiten-Gold: das Emblem
 const GOLD_BRIGHT = 0xffc94a;   // und der Turm sollen leuchten, nicht nur
@@ -43,10 +47,12 @@ function makeEnvTexture(){
   g.fillStyle = grad; g.fillRect(0, 0, 512, 256);
   // Einzelne Lichtquellen, damit die Kanten echte Glanzpunkte bekommen.
   const lamps = [
-    [110,  60,  98, 'rgba(255,240,190,.85)'],
-    [352,  44,  80, 'rgba(255,205,100,.70)'],
+    [110,  56,  64, 'rgba(255,248,214,1)'],
+    [352,  40,  52, 'rgba(255,214,116,.95)'],
     [246, 178, 130, 'rgba(40,70,130,.42)'],
-    [452, 146,  92, 'rgba(255,160,50,.38)'],
+    [452, 142,  62, 'rgba(255,170,56,.62)'],
+    [ 34, 104,  38, 'rgba(255,255,240,.9)'],   // kleine, harte Glanzpunkte
+    [190,  92,  30, 'rgba(255,236,190,.85)'],
   ];
   for(const [x, y, r, col] of lamps){
     const rg = g.createRadialGradient(x, y, 0, x, y, r);
@@ -64,22 +70,57 @@ function makeEnvTexture(){
 // Das L als eigener Körper: ein Schriftzug liesse sich nur mit einer
 // Schriftdatei bauen, deshalb ist es hier als Umriss gezeichnet und
 // extrudiert - ein Blockserifen-L, das im Ring als Monogramm liest.
+// Der Umriss des L, ausgelesen aus Fraunces SemiBold Italic (SIL OFL) - der
+// Schnitt, in dem auch der Schriftzug "Lumière" auf der Seite steht. Von Hand
+// nachgezeichnet sah das L wie ein fremder Buchstabe neben der Wortmarke aus.
+// Die Tabelle ist flach: 0 = hingehen (x,y), 1 = Linie (x,y),
+// 2 = quadratische Kurve (Kontrollpunkt, Ziel). Auf Hoehe 1.12 normiert und
+// um den eigenen Mittelpunkt gelegt.
+const L_OUTLINE = [
+  0, 0.095, -0.5388, 1, -0.3814, -0.5388, 2, -0.4081, -0.5388, -0.4183,
+  -0.5286, 2, -0.4285, -0.5184, -0.4278, -0.5035, 2, -0.427, -0.4886,
+  -0.4164, -0.478, 2, -0.4058, -0.4674, -0.3877, -0.4619, 1, -0.3453,
+  -0.4525, 2, -0.3234, -0.4462, -0.3116, -0.4317, 2, -0.2998, -0.4172,
+  -0.2904, -0.3873, 2, -0.2826, -0.3583, -0.2684, -0.3065, 2, -0.2543,
+  -0.2547, -0.2362, -0.188, 2, -0.2182, -0.1213, -0.1986, -0.0475, 2,
+  -0.1789, 0.0263, -0.1597, 0.0997, 2, -0.1405, 0.1731, -0.1236, 0.2386, 2,
+  -0.1067, 0.3041, -0.0946, 0.3536, 2, -0.0824, 0.403, -0.0777, 0.4297, 2,
+  -0.0738, 0.4478, -0.0797, 0.4588, 2, -0.0856, 0.4697, -0.0997, 0.4737, 1,
+  -0.146, 0.4854, 2, -0.1609, 0.4909, -0.1695, 0.4988, 2, -0.1782, 0.5066,
+  -0.1782, 0.52, 2, -0.1782, 0.538, -0.164, 0.549, 2, -0.1499, 0.56,
+  -0.1248, 0.56, 1, 0.2417, 0.56, 2, 0.2676, 0.56, 0.2774, 0.5502, 2,
+  0.2873, 0.5404, 0.2873, 0.5255, 2, 0.2873, 0.5098, 0.2763, 0.4992, 2,
+  0.2653, 0.4886, 0.2496, 0.4831, 1, 0.1994, 0.4721, 2, 0.1813, 0.4682,
+  0.1711, 0.4564, 2, 0.1609, 0.4446, 0.1523, 0.4179, 2, 0.1413, 0.3811,
+  0.1256, 0.3253, 2, 0.1099, 0.2696, 0.0914, 0.2025, 2, 0.073, 0.1354,
+  0.0542, 0.0632, 2, 0.0353, -0.009, 0.0169, -0.0793, 2, -0.0016, -0.1495,
+  -0.0169, -0.2107, 2, -0.0322, -0.272, -0.0432, -0.3183, 2, -0.0542,
+  -0.3646, -0.0589, -0.3881, 2, -0.0683, -0.4329, -0.0522, -0.4513, 2,
+  -0.0361, -0.4697, 0, -0.4697, 1, 0.1005, -0.4697, 2, 0.1507, -0.4697,
+  0.1895, -0.4485, 2, 0.2284, -0.4274, 0.2633, -0.3783, 2, 0.2982, -0.3293,
+  0.3375, -0.2468, 2, 0.35, -0.2209, 0.363, -0.2103, 2, 0.3759, -0.1997,
+  0.3916, -0.1997, 2, 0.4121, -0.1997, 0.4203, -0.2127, 2, 0.4285, -0.2256,
+  0.4285, -0.2468, 2, 0.4262, -0.3151, 0.4089, -0.3728, 2, 0.3916, -0.4305,
+  0.363, -0.4721, 2, 0.3344, -0.5137, 0.2975, -0.5368, 2, 0.2606, -0.56,
+  0.2174, -0.56, 2, 0.1978, -0.56, 0.1813, -0.5545, 2, 0.1648, -0.549,
+  0.1448, -0.5439, 2, 0.1248, -0.5388, 0.095, -0.5388
+];
+
 function makeLetterL(mat){
-  // Ein L mit Masse. Der Strich ist breit genug, dass die Extrusion eine
-  // sichtbare Flanke bekommt, und tief genug, dass man beim Drehen die
-  // Seite sieht - eine Monolinie waere von schraeg vorn nur ein Strich.
-  const w = 0.20;
   const s = new Shape();
-  s.moveTo(-0.32, -0.56);
-  s.lineTo( 0.34, -0.56);
-  s.lineTo( 0.34, -0.56 + w);
-  s.lineTo(-0.32 + w, -0.56 + w);
-  s.lineTo(-0.32 + w,  0.56);
-  s.lineTo(-0.32,      0.56);
+  for(let i = 0; i < L_OUTLINE.length; ){
+    const op = L_OUTLINE[i++];
+    if(op === 0)      s.moveTo(L_OUTLINE[i++], L_OUTLINE[i++]);
+    else if(op === 1) s.lineTo(L_OUTLINE[i++], L_OUTLINE[i++]);
+    else              s.quadraticCurveTo(L_OUTLINE[i++], L_OUTLINE[i++],
+                                         L_OUTLINE[i++], L_OUTLINE[i++]);
+  }
   s.closePath();
+  // Tief genug, dass beim Drehen die Flanke sichtbar wird, mit einer Fase,
+  // die das Licht an der Kante zu einem Grat zieht.
   const geo = new ExtrudeGeometry(s, {
-    depth: 0.34, bevelEnabled: true, bevelThickness: 0.055,
-    bevelSize: 0.048, bevelSegments: lite ? 1 : 3, curveSegments: 3,
+    depth: 0.34, bevelEnabled: true, bevelThickness: 0.05,
+    bevelSize: 0.038, bevelSegments: lite ? 1 : 3, curveSegments: lite ? 4 : 8,
   });
   geo.center();
   return new Mesh(geo, mat);
@@ -97,6 +138,137 @@ function makeRibbon(mat, lite){
     g.add(new Mesh(new TubeGeometry(curve, lite ? 20 : 48, 0.058, lite ? 6 : 10, false), mat));
   }
   return g;
+}
+
+/* ---------------------------------------------------------- Lichtschlieren */
+
+// Was die Referenz teuer aussehen laesst, ist nicht das Zeichen - es sind die
+// Lichtbaender, die in grossen Boegen daran vorbeiziehen. Jede Schliere ist
+// ein Punkt, der eine Bahn um die Achse zieht und eine Spur hinter sich
+// herschleppt; die Spur wird als schmales Band gezeichnet, das nach hinten
+// duenner und dunkler wird. Additiv ueberlagert heisst: Schwarz ist
+// unsichtbar, der Verlauf ins Dunkle ist also zugleich das Ausblenden - das
+// spart den Alphakanal pro Ecke.
+const STREAK_LEN = () => (lite ? 14 : 26);   // Stuetzpunkte je Spur
+const STREAK_NUM = () => (lite ? 10 : 26);
+const TRAIL_STEP = 0.1;      // Sekunden zwischen zwei Stuetzpunkten der Spur
+
+function makeStreaks(){
+  const n = STREAK_NUM(), len = STREAK_LEN();
+  // Jedes Glied wird aus zwei Baendern gebaut: von der Kante (schwarz) zur
+  // Mitte (hell) und wieder zur Kante. Ein einzelnes Band haette eine harte
+  // Kante und saehe nach gezeichnetem Strich aus, nicht nach Licht.
+  const verts = (len - 1) * 4 * 3;           // vier Dreiecke je Glied
+  const geo = new BufferGeometry();
+  geo.setAttribute('position', new Float32BufferAttribute(new Float32Array(n * verts * 3), 3));
+  geo.setAttribute('color',    new Float32BufferAttribute(new Float32Array(n * verts * 3), 3));
+  // ACHTUNG: Float32BufferAttribute legt eine Kopie des uebergebenen Feldes
+  // an. Wer jeden Frame neu hineinschreibt, muss mit dem Feld des Attributs
+  // arbeiten - schreibt man in das hineingereichte, bleibt das Mesh leer.
+  const pos = geo.attributes.position.array;
+  const col = geo.attributes.color.array;
+  const mat = new MeshBasicMaterial({
+    vertexColors: true, transparent: true, opacity: 0,
+    blending: AdditiveBlending, depthWrite: false, side: DoubleSide,
+  });
+  const mesh = new Mesh(geo, mat);
+  mesh.frustumCulled = false;                // die Spuren reichen weit hinaus
+
+  const band = [];
+  for(let i = 0; i < n; i++){
+    const warm = Math.random();
+    band.push({
+      a:  Math.random() * Math.PI * 2,       // Winkel auf der Umlaufbahn
+      w:  (0.24 + Math.random() * 0.5) * (Math.random() < 0.3 ? -1 : 1),
+      r0: 2.2 + Math.random() * 3.3,         // Grundabstand von der Achse
+      ar: 0.4 + Math.random() * 1.2,         // wie stark der Abstand atmet
+      fr: 0.18 + Math.random() * 0.5,
+      // Ueber und unter dem Text, nicht hindurch: in der Mitte bleibt ein
+      // Streifen frei, sonst kaempfen Schlieren und Schrift gegeneinander.
+      y0: (Math.random() < 0.5 ? -1 : 1) * (1.9 + Math.random() * 2.6),
+      ay: 0.2 + Math.random() * 0.6,
+      fy: 0.2 + Math.random() * 0.55,
+      ph: Math.random() * 6.28,
+      wd: (lite ? 0.009 : 0.005) + Math.random() * 0.011,
+      // Warmes Gold bis helles Champagner - dieselbe Familie wie der Rest.
+      c:  new Color(1, 0.66 + warm * 0.2, 0.2 + warm * 0.34),
+      trail: null,
+    });
+  }
+  mesh.userData = { band, len, pos, col };
+  return mesh;
+}
+
+const _dir = new Vector3(), _side = new Vector3(), _toCam = new Vector3(), _p = new Vector3();
+
+function updateStreaks(mesh, t, dt, amount){
+  const mat = mesh.material;
+  mat.opacity = amount;
+  mesh.visible = amount > 0.004;
+  if(!mesh.visible) return;
+
+  const { band, len, pos, col } = mesh.userData;
+  let o = 0;
+  for(const b of band){
+    b.a += b.w * dt;
+    // Die Bahn eines Gliedes - dieselbe Formel fuer den Kopf und fuer jeden
+    // Punkt der Spur, nur zeitversetzt. Dadurch braucht es keinen Verlauf im
+    // Speicher: die Spur ist die Vergangenheit der Bahn.
+    if(!b.trail) b.trail = new Float32Array(len * 3);
+    for(let i = 0; i < len; i++){
+      const tt = t - i * TRAIL_STEP;
+      const ang = b.a - b.w * (i * TRAIL_STEP);
+      const r = b.r0 + Math.sin(tt * b.fr + b.ph) * b.ar;
+      b.trail[i * 3]     = Math.cos(ang) * r;
+      b.trail[i * 3 + 1] = b.y0 + Math.sin(tt * b.fy + b.ph * 1.7) * b.ay;
+      b.trail[i * 3 + 2] = Math.sin(ang) * r;
+    }
+    for(let i = 0; i < len - 1; i++){
+      const j = i * 3, k = j + 3;
+      _p.set(b.trail[j], b.trail[j + 1], b.trail[j + 2]);
+      _dir.set(b.trail[k] - b.trail[j], b.trail[k + 1] - b.trail[j + 1],
+               b.trail[k + 2] - b.trail[j + 2]);
+      if(_dir.lengthSq() < 1e-10) _dir.set(0, 1, 0);
+      _toCam.copy(camera.position).sub(_p);
+      // Das Band steht immer quer zur Blickrichtung - sonst verschwindet es,
+      // sobald man genau auf seine Kante schaut.
+      _side.crossVectors(_dir, _toCam).normalize();
+
+      const u0 = i / (len - 1), u1 = (i + 1) / (len - 1);
+      // Breite: null am Kopf, Maximum kurz dahinter, null am Ende. Damit hat
+      // die Schliere die Form eines Blattes statt abgehackter Enden.
+      const w0 = b.wd * Math.sin(Math.PI * Math.pow(u0, 0.42));
+      const w1 = b.wd * Math.sin(Math.PI * Math.pow(u1, 0.42));
+      // Helligkeit: vorn gleissend (ueber der Bloom-Schwelle), nach hinten
+      // ins Schwarze - additiv ueberlagert ist Schwarz das Ausblenden.
+      const g0 = 1.15 * Math.pow(1 - u0, 1.8), g1 = 1.15 * Math.pow(1 - u1, 1.8);
+      const c = b.c;
+      const ax = b.trail[j], ay = b.trail[j + 1], az = b.trail[j + 2];
+      const bx = b.trail[k], by = b.trail[k + 1], bz = b.trail[k + 2];
+      const sx = _side.x, sy = _side.y, sz = _side.z;
+      // Kante oben / Mitte / Kante unten, je an beiden Enden des Gliedes
+      const A = [ax + sx * w0, ay + sy * w0, az + sz * w0,
+                 ax, ay, az,
+                 ax - sx * w0, ay - sy * w0, az - sz * w0];
+      const B = [bx + sx * w1, by + sy * w1, bz + sz * w1,
+                 bx, by, bz,
+                 bx - sx * w1, by - sy * w1, bz - sz * w1];
+      // Zwei Vierecke: Kante->Mitte und Mitte->Kante.
+      const idx = [0,1,3, 1,4,3, 1,2,4, 2,5,4];
+      const P = [A[0],A[1],A[2], A[3],A[4],A[5], A[6],A[7],A[8],
+                 B[0],B[1],B[2], B[3],B[4],B[5], B[6],B[7],B[8]];
+      // Nur die Mittellinie leuchtet; die Kanten laufen nach Schwarz aus.
+      const G = [0, g0, 0, 0, g1, 0];
+      for(let q = 0; q < 12; q++){
+        const v = idx[q] * 3, g = G[idx[q]];
+        pos[o]     = P[v];     pos[o + 1] = P[v + 1]; pos[o + 2] = P[v + 2];
+        col[o]     = c.r * g;  col[o + 1] = c.g * g;  col[o + 2] = c.b * g;
+        o += 3;
+      }
+    }
+  }
+  mesh.geometry.attributes.position.needsUpdate = true;
+  mesh.geometry.attributes.color.needsUpdate = true;
 }
 
 /* ----------------------------------------------------------------- Turm  */
@@ -191,8 +363,8 @@ function loadTower(url){
 //        p     scale     x      y      z     rotX   rotY   rotZ
 const KEYS = [
   [0.00, 0.28,  0.00,  1.28,  0.00,  0.16,  0.00,  0.00],  // Eintritt - gross und mittig
-  [0.11, 0.20,  3.40,  1.00, -2.80,  0.30,  0.85,  0.14],  // Das Wort - rechts, Text steht links
-  [0.25, 0.20,  3.70, -0.60, -3.00,  0.42,  1.75, -0.22],  // Methode  - rechts unten
+  [0.11, 0.20,  3.95,  1.00, -2.80,  0.30,  0.85,  0.14],  // Das Wort - rechts, Text steht links
+  [0.25, 0.20,  4.60, -0.60, -3.00,  0.42,  1.75, -0.22],  // Methode  - rechts, neben dem Fliesstext
   [0.32, 0.13,  3.10, -1.60, -3.60,  0.52,  2.20,  0.16],  // zieht sich vor dem Turm zurueck
   [0.55, 0.05,  0.00, -2.60, -6.50,  0.50,  2.60,  0.10],  // Turm     - geparkt, ohnehin unsichtbar
   [0.80, 0.10,  0.00, -3.30, -3.80,  0.44,  3.00, -0.20],  // taucht unter dem Turm wieder auf
@@ -209,12 +381,14 @@ function sampleKeys(p, out){
   return out;
 }
 
-let renderer, scene, camera, clock;
+let renderer, scene, camera, clock, composer, bloom;
+let streaks;
 let emblem, ringMain, tower, towerMats = [], emblemMats = [];
 let raf = 0, running = false, lite = false, ready = false;
 let progress = 0, shown = 0;
 let spin = 0, spinT = 0;
 let towerAmt = 0, towerShown = 0, tourP = 0, tourShown = 0;
+let streakAmt = 0;
 let pointerX = 0, pointerY = 0, px = 0, py = 0;
 
 function init(canvas, opts){
@@ -232,6 +406,10 @@ function init(canvas, opts){
   renderer.outputColorSpace = SRGBColorSpace;
 
   scene = new Scene();
+  // Mit Bloom wird undurchsichtig gerendert: ein Nachbearbeitungspass und ein
+  // durchscheinender Kanal vertragen sich schlecht. Der Grund kommt deshalb
+  // aus der Seite (--bg) - optisch derselbe Ton, nur eben deckend.
+  if(opts.bg) scene.background = new Color(opts.bg);
   camera = new PerspectiveCamera(42, 1, 0.1, 100);
   camera.position.set(0, 0, 7);
 
@@ -252,18 +430,18 @@ function init(canvas, opts){
   // Auf dem Desktop echtes Glas mit Brechung, auf schwachen Geräten
   // poliertes Metall - optisch verwandt, aber ohne Extra-Renderpass.
   const glass = () => lite
-    ? new MeshStandardMaterial({ color: GOLD, metalness: 1, roughness: 0.16, envMapIntensity: 1.7, transparent: true })
+    ? new MeshStandardMaterial({ color: GOLD, metalness: 1, roughness: 0.11, envMapIntensity: 2.4, transparent: true })
     : new MeshPhysicalMaterial({
-        color: 0xffffff, metalness: 0, roughness: 0.055,
+        color: 0xffffff, metalness: 0, roughness: 0.028,
         transmission: 1, thickness: 0.10, ior: 1.42,
         attenuationColor: new Color(0xb2660b), attenuationDistance: 0.028,
-        emissive: new Color(GOLD), emissiveIntensity: 0.55,
+        emissive: new Color(GOLD), emissiveIntensity: 0.24,
         specularColor: new Color(CHAMPAGNE), specularIntensity: 1,
         // Kraeftiges Irisieren: beim Drehen wandert ein Schimmer ueber die
         // Kante, wie das verchromte Zeichen in der Referenz.
         iridescence: 0.92, iridescenceIOR: 1.38, iridescenceThicknessRange: [180, 760],
         clearcoat: 1, clearcoatRoughness: 0.03,
-        envMapIntensity: 2.3, transparent: true,
+        envMapIntensity: 3.4, transparent: true,
       });
 
   const mainMat = glass();
@@ -275,8 +453,8 @@ function init(canvas, opts){
 
   // Das L sitzt als eigener, etwas dickerer Körper mittig im Ring.
   const letterMat = new MeshStandardMaterial({
-    color: GOLD_BRIGHT, emissive: new Color(GOLD), emissiveIntensity: 0.7,
-    metalness: 1, roughness: 0.14, envMapIntensity: 2.4, transparent: true,
+    color: GOLD_BRIGHT, emissive: new Color(GOLD), emissiveIntensity: 0.2,
+    metalness: 1, roughness: 0.075, envMapIntensity: 3.6, transparent: true,
   });
   const letter = makeLetterL(letterMat);
   letter.scale.setScalar(1.85);
@@ -307,6 +485,25 @@ function init(canvas, opts){
   const rim  = new PointLight(CHAMPAGNE,   120, 90); rim.position.set(-11, 3, 6);   scene.add(rim);
   const back = new PointLight(NIGHT_BLUE,  260, 90); back.position.set(-7, -6, -10); scene.add(back);
   const warm = new PointLight(AMBER_DEEP,  200, 90); warm.position.set(11, 1, -7);  scene.add(warm);
+
+  /* --- Lichtschlieren und Nachglühen ------------------------------------ */
+  streaks = makeStreaks();
+  streaks.position.z = -2.5;
+  scene.add(streaks);
+
+  // Der Bloom ist das, was die Referenz teuer macht: helle Stellen bluehen in
+  // weiche Hoefe aus. Auf schwachen Geraeten faellt der Pass weg - dort wird
+  // direkt gerendert.
+  if(!lite){
+    composer = new EffectComposer(renderer);
+    composer.addPass(new RenderPass(scene, camera));
+    bloom = new UnrealBloomPass(new Vector2(window.innerWidth, window.innerHeight),
+                                0.42,   // Staerke
+                                0.78,   // Radius - lieber weit und weich
+                                0.80);  // Schwelle - nur wirklich Helles blueht
+    composer.addPass(bloom);
+    composer.addPass(new OutputPass());
+  }
 
   clock = new Clock();
   resize();
@@ -414,6 +611,10 @@ function applyTransform(p, t){
   // Das Emblem begleitet die ganze Reise. Nur der Turm schickt es von der
   // Buehne - danach kommt es unterhalb von ihm wieder herein.
   const eo = 1 - smoothstep(Math.min(1, tw * 1.25));
+  // Die Schlieren teilen sich das Schicksal des Emblems und ziehen am Anfang
+  // und am Ende der Reise am kraeftigsten - dort, wo sonst nur Grund waere.
+  const ends = Math.max(1 - p / 0.16, (p - 0.86) / 0.14);
+  streakAmt = eo * (0.62 + 0.38 * Math.max(0, Math.min(1, ends)));
   emblem.visible = eo > 0.01;
   for(const m of emblemMats) m.opacity = eo;
 
@@ -460,15 +661,25 @@ function frame(){
   py += (pointerY - py) * Math.min(1, dt * 2.4);
   spinTilt = advanceSpin(dt);
   applyTransform(shown, t);
+  // Die Schlieren gehen mit dem Emblem: waehrend der Turm die Buehne hat,
+  // sollen sie nicht durch sein Gitterwerk ziehen.
+  updateStreaks(streaks, t, dt, streakAmt);
 
-  renderer.render(scene, camera);
+  draw();
   raf = requestAnimationFrame(frame);
+}
+
+function draw(){
+  if(composer) composer.render();
+  else renderer.render(scene, camera);
 }
 
 function resize(){
   if(!ready) return;
   const w = window.innerWidth, h = window.innerHeight;
   renderer.setSize(w, h, false);
+  if(composer) composer.setSize(w, h);
+  if(bloom) bloom.setSize(w, h);
   camera.aspect = w / h;
   camera.updateProjectionMatrix();
 }
@@ -489,7 +700,8 @@ function renderOnce(){
   shown = progress; towerShown = towerAmt; tourShown = tourP; px = pointerX; py = pointerY;
   spin = 0; spinTilt = 0;   // bei prefers-reduced-motion steht das Emblem still
   applyTransform(shown, 0);
-  renderer.render(scene, camera);
+  updateStreaks(streaks, 0, 0, streakAmt * 0.5);
+  draw();
 }
 
 window.LumiereGL = { init, start, stop, resize, setProgress, setTower, setPointer,

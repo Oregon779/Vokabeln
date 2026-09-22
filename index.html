@@ -4824,7 +4824,7 @@
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="./lumiere-gl.js?v=10" defer></script>
+<script src="./lumiere-gl.js?v=11" defer></script>
 <script>
 /* ============================================================
    WICHTIG: Bei jedem inhaltlichen Deploy hochzaehlen (wie CACHE_NAME
@@ -4835,7 +4835,7 @@
       unten) - neue, noch nicht "veroeffentlichte" Features hinter
       isReleased(N) verstecken; Admins sehen sie trotzdem sofort.
    ============================================================ */
-const APP_VERSION = 10;
+const APP_VERSION = 11;
 
 // Site-weites Feature-Gate: neue, aber noch nicht freigegebene Funktionen
 // hinter isReleased(<APP_VERSION beim Einbau>) verstecken. Admins (echtes
@@ -8091,7 +8091,11 @@ function sndCineHover(){ playTone(659, 0.14, 'sine', 0.012, 0, 2000); }
       }
       return;
     }
-    glReady = window.LumiereGL.init(glCanvas, { lite });
+    // Der Grund kommt aus der Seite: mit Bloom rendert die 3D-Ebene deckend,
+    // und sie soll denselben Ton haben wie der Rest der Startseite.
+    const bg = getComputedStyle(document.documentElement)
+      .getPropertyValue('--bg').trim() || '#0f131c';
+    glReady = window.LumiereGL.init(glCanvas, { lite, bg });
     if(!glReady){ document.body.classList.add('no-webgl'); return; }
     then && then();
   }
