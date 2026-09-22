@@ -4824,7 +4824,7 @@
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="./lumiere-gl.js?v=9" defer></script>
+<script src="./lumiere-gl.js?v=10" defer></script>
 <script>
 /* ============================================================
    WICHTIG: Bei jedem inhaltlichen Deploy hochzaehlen (wie CACHE_NAME
@@ -4835,7 +4835,7 @@
       unten) - neue, noch nicht "veroeffentlichte" Features hinter
       isReleased(N) verstecken; Admins sehen sie trotzdem sofort.
    ============================================================ */
-const APP_VERSION = 9;
+const APP_VERSION = 10;
 
 // Site-weites Feature-Gate: neue, aber noch nicht freigegebene Funktionen
 // hinter isReleased(<APP_VERSION beim Einbau>) verstecken. Admins (echtes
@@ -6069,6 +6069,8 @@ function applyMaintenanceMode(){
   } else {
     overlay.hidden = true;
   }
+  // Die Wartung entscheidet mit, ob ein bereitliegendes Update greifen darf.
+  if(window.lumiereUpdateRecheck) window.lumiereUpdateRecheck();
 }
 
 // --- Admin-Panel -----------------------------------------------------------
@@ -6946,6 +6948,9 @@ async function initAuth(){
       currentProfile = null;
       authInPasswordRecovery = false;
       updateAccountUI();
+      // Ohne das behielt ein Admin, der sich abmeldet, die Seite offen,
+      // obwohl die Wartung laeuft - die Tafel gilt ab jetzt auch fuer ihn.
+      applyMaintenanceMode();
       applyReleaseGate();
       sendSessionHeartbeat();
     }
@@ -7113,6 +7118,7 @@ document.getElementById('authDeleteAccountBtn').addEventListener('click', async 
     currentUser = null; currentProfile = null;
     closeAccountModal();
     updateAccountUI();
+    applyMaintenanceMode();
     applyReleaseGate();
     showToast('Konto und alle Cloud-Daten wurden gelöscht.');
   }catch(err){
@@ -7289,38 +7295,103 @@ function reducedMotionActive(){
 // --- Update-Check: erkennt, wenn auf dem Server per git pull eine neuere
 // index.html liegt, als in diesem bereits offenen Tab laeuft. Vergleicht
 // APP_VERSION (oben) gegen version.json, das bei jedem Deploy mitgeht.
-// Rein informativ fuer bereits offene Tabs - ein neuer Seitenaufruf laedt
-// ohnehin automatisch die aktuelle Version.
+//
+// Zwei Regeln bestimmen, was dann passiert:
+//   * Normale Nutzer sollen gar nicht erst gefragt werden - sie holen sich
+//     die neue Fassung von selbst, sobald es nicht mitten in etwas
+//     hineinplatzt. Der Hinweisbalken bleibt den Admins vorbehalten, die
+//     beim Arbeiten selbst entscheiden wollen, wann sie neu laden.
+//   * Waehrend der Wartung passiert nichts. Wer die Wartungstafel sieht,
+//     braucht daneben keinen Update-Hinweis; sobald die Wartung endet,
+//     ruft applyMaintenanceMode() hier wieder herein.
 (function initUpdateCheck(){
   const banner = document.getElementById('updateBanner');
   if(!banner) return;
   const CHECK_INTERVAL_MS = 5 * 60 * 1000;
-  let notified = false;
+  // Ansichten, in die ein Neuladen mitten hineinplatzen wuerde: laufende
+  // Runde, laufendes Spiel, Ergebnisseite. Dort wird gewartet, bis der
+  // Nutzer von selbst weitergeht.
+  const BUSY_VIEWS = new Set(['sessionSetup', 'practice', 'match', 'results', 'game', 'arcadeGame']);
+  const RELOAD_KEY = 'lumiere_auto_reload';
+  let pending = false, activeView = 'hub';
+
+  const isAdmin = () => !!(currentProfile && currentProfile.is_admin);
+  const inMaintenance = () => !!(siteSettings && siteSettings.maintenance_mode) && !isAdmin();
+
+  function busy(){
+    if(BUSY_VIEWS.has(activeView)) return true;
+    if(document.querySelector('.modal-backdrop.open')) return true;
+    // Eine angefangene Eingabe nicht wegreissen.
+    const el = document.activeElement;
+    if(el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') && el.value) return true;
+    return false;
+  }
+
+  function showBanner(){
+    if(!banner.hidden) return;
+    banner.hidden = false;
+    void banner.offsetWidth;
+    requestAnimationFrame(() => banner.classList.add('show'));
+  }
+
+  function reloadNow(){
+    // Schutz vor einer Endlosschleife: liefert ein Cache noch die alte
+    // index.html aus, waehrend version.json schon die neue Zahl nennt,
+    // wuerde sich die Seite sonst immer wieder neu laden. Nach zwei
+    // Versuchen bleibt es beim Hinweisbalken.
+    let tries = 0;
+    try{ tries = Number(sessionStorage.getItem(RELOAD_KEY)) || 0; }catch(e){}
+    if(tries >= 2){ showBanner(); return; }
+    try{ sessionStorage.setItem(RELOAD_KEY, String(tries + 1)); }catch(e){}
+    showToast('Neue Fassung von Lumière — die Seite lädt sich gerade neu.', 'info');
+    setTimeout(() => location.reload(), 1200);
+  }
+
+  // Entscheidet, was mit einer bereitliegenden Fassung geschieht. Wird immer
+  // dann erneut aufgerufen, wenn sich die Lage geaendert haben koennte.
+  function apply(){
+    if(!pending || inMaintenance()) return;
+    if(isAdmin()){ showBanner(); return; }
+    if(busy()) return;
+    reloadNow();
+  }
 
   async function checkOnce(){
-    if(notified) return;
+    if(pending) return;
     try{
       const res = await fetch('./version.json?t=' + Date.now(), { cache: 'no-store' });
       if(!res.ok) return;
       const data = await res.json();
-      if(typeof data.version === 'number' && data.version > APP_VERSION){
-        notified = true;
-        banner.hidden = false;
-        void banner.offsetWidth;
-        requestAnimationFrame(() => banner.classList.add('show'));
-      }
+      if(typeof data.version !== 'number') return;
+      if(data.version > APP_VERSION){ pending = true; apply(); }
+      // Dieser Tab laeuft auf dem aktuellen Stand - der Schleifenzaehler
+      // aus einem frueheren Neuladen kann weg.
+      else { try{ sessionStorage.removeItem(RELOAD_KEY); }catch(e){} }
     }catch(e){ /* offline oder version.json fehlt noch - einfach still ignorieren */ }
   }
 
-  document.getElementById('updateBannerReload').addEventListener('click', () => location.reload());
+  document.getElementById('updateBannerReload').addEventListener('click', () => {
+    try{ sessionStorage.removeItem(RELOAD_KEY); }catch(e){}
+    location.reload();
+  });
   document.getElementById('updateBannerClose').addEventListener('click', () => {
     banner.classList.remove('show');
     setTimeout(() => { banner.hidden = true; }, 400);
   });
 
+  // showView() meldet jeden Seitenwechsel - der beste Moment, um ein
+  // aufgeschobenes Update nachzuholen.
+  window.addEventListener('lumiere:viewchange', (e) => {
+    if(e.detail && e.detail.view) activeView = e.detail.view;
+    apply();
+  });
+  // Damit applyMaintenanceMode() und der Anmeldevorgang nachfassen koennen,
+  // wenn sich Wartung oder Admin-Status geaendert haben.
+  window.lumiereUpdateRecheck = apply;
+
   checkOnce();
-  setInterval(checkOnce, CHECK_INTERVAL_MS);
-  document.addEventListener('visibilitychange', () => { if(!document.hidden) checkOnce(); });
+  setInterval(() => { checkOnce(); apply(); }, CHECK_INTERVAL_MS);
+  document.addEventListener('visibilitychange', () => { if(!document.hidden){ checkOnce(); apply(); } });
 })();
 
 function recordDailyProgress(n = 1){

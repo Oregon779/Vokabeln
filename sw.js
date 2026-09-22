@@ -2,7 +2,7 @@
 // WICHTIG: CACHE_NAME bei jedem Deploy mit inhaltlichen Aenderungen hochzaehlen -
 // sonst bleiben Nutzer (v.a. als "Zum Home-Bildschirm hinzugefuegt" auf iOS)
 // unter Umstaenden dauerhaft auf einem alten, kaputten Stand haengen.
-const CACHE_NAME = 'lumiere-v9';
+const CACHE_NAME = 'lumiere-v10';
 const APP_SHELL = ['./', './index.html', './manifest.json', './lumiere-gl.js'];
 
 self.addEventListener('install', (event) => {
@@ -27,6 +27,11 @@ self.addEventListener('fetch', (event) => {
   if (url.hostname.includes('googleapis.com') || url.hostname.includes('anthropic.com')) return;
   // Nur eigene Herkunft cachen, keine fremden Ressourcen (z.B. Google Fonts) mitschneiden.
   if (url.origin !== self.location.origin) return;
+  // version.json treibt den Update-Check. Es darf nie aus dem Cache kommen:
+  // sonst vergleicht ein offener Tab gegen einen alten Stand und merkt nie,
+  // dass laengst eine neue Fassung online ist. Ohne respondWith() macht der
+  // Browser die Anfrage selbst - und haelt sich an ihr 'no-store'.
+  if (url.pathname.endsWith('/version.json')) return;
 
   // Die eigentliche App-Seite (HTML-Navigation) IMMER zuerst frisch aus dem Netz
   // laden statt aus dem Cache - sonst haengen v.a. installierte iOS-PWAs auf

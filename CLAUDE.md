@@ -31,6 +31,28 @@ freigeben. Deshalb gilt für **jede neue Funktion**:
 4. Reine Umgestaltungen ohne neues Markup: `html.build-N-live` als
    CSS-Hook nutzen statt das Markup zu verdoppeln.
 
+### Update-Check (`initUpdateCheck`)
+
+`version.json` gegen `APP_VERSION`. Was dann passiert, haengt am Nutzer:
+
+- **Normale Nutzer** werden nicht gefragt - die Seite laedt sich selbst neu,
+  sobald es nicht hineinplatzt (nicht in `BUSY_VIEWS`, kein offener Dialog,
+  keine angefangene Eingabe). Ist es gerade ungelegen, wartet es und holt es
+  beim naechsten Seitenwechsel nach (`lumiere:viewchange`).
+- **Admins** bekommen weiter den Hinweisbalken und entscheiden selbst.
+- **Waehrend der Wartung** passiert gar nichts. `applyMaintenanceMode()` ruft
+  ueber `window.lumiereUpdateRecheck()` zurueck, sobald die Wartung endet.
+
+Zwei Fallen dabei:
+- `version.json` ist in `sw.js` vom Cache ausgenommen. Ohne das serviert der
+  Service Worker es stale-while-revalidate, und ein offener Tab vergleicht
+  ewig gegen einen alten Stand - `cache: 'no-store'` im fetch hilft nicht,
+  weil die Anfrage vorher durch den Worker laeuft.
+- `RELOAD_KEY` in der sessionStorage zaehlt die automatischen Neuladungen.
+  Liefert ein Cache noch die alte `index.html`, waehrend `version.json` schon
+  die neue Zahl nennt, wuerde sich die Seite sonst endlos neu laden. Nach zwei
+  Versuchen bleibt es beim Hinweisbalken.
+
 `applyReleaseGate()` wendet das an — beim Start, bei Profil-/
 Einstellungswechsel, beim Abmelden und direkt nach dem Veröffentlichen.
 Freigegeben wird im Admin-Panel unter "Version" (schreibt
