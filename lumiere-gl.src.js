@@ -121,22 +121,35 @@ function makeLetterL(mat){
   // die das Licht an der Kante zu einem Grat zieht.
   const geo = new ExtrudeGeometry(s, {
     depth: 0.34, bevelEnabled: true, bevelThickness: 0.05,
-    bevelSize: 0.038, bevelSegments: lite ? 1 : 3, curveSegments: lite ? 4 : 8,
+    bevelSize: 0.038, bevelSegments: lite ? 1 : 5, curveSegments: lite ? 4 : 14,
   });
   geo.center();
   return new Mesh(geo, mat);
 }
 
-// Die zwei Bänder, die unter dem Ring hängen und sich kreuzen.
-function makeRibbon(mat, lite){
+// Zwei Baender, die sich umeinander winden und nach unten spitz auslaufen -
+// eine Doppelhelix statt der frueheren gekreuzten Schlaufe. Weil sich das
+// Zeichen staendig dreht, sieht man die Windung wirklich als Raum; gekreuzte
+// Boegen lasen sich beim Drehen nur als flackernde Linien.
+function makeHelix(mat, lite){
   const g = new Group();
-  const arcs = [
-    [[-0.58, -1.86, 0], [-1.20, -2.75, 0.16], [ 0.72, -3.85, 0]],
-    [[ 0.58, -1.86, 0], [ 1.20, -2.75, -0.16], [-0.72, -3.85, 0]],
-  ];
-  for(const pts of arcs){
-    const curve = new CatmullRomCurve3(pts.map(p => new Vector3(...p)));
-    g.add(new Mesh(new TubeGeometry(curve, lite ? 20 : 48, 0.058, lite ? 6 : 10, false), mat));
+  const TURNS = 4.6;              // Windungen ueber die ganze Laenge
+  const TOP = -1.88, BOT = -9.6;  // reicht weit nach unten und verliert sich
+  const R0 = 1.08, R1 = 0.03;     // Radius laeuft nach unten auf einen Punkt zu
+  for(const phase of [0, Math.PI]){
+    const pts = [];
+    const steps = lite ? 44 : 110;
+    for(let i = 0; i <= steps; i++){
+      const u = i / steps;
+      const y = TOP + (BOT - TOP) * u;
+      // Der Exponent laesst den Radius oben langsam und unten schnell
+      // schrumpfen - dadurch wirkt die Spitze gezogen statt abgeschnitten.
+      const r = R1 + (R0 - R1) * Math.pow(1 - u, 1.45);
+      const a = phase + u * TURNS * Math.PI * 2;
+      pts.push(new Vector3(Math.cos(a) * r, y, Math.sin(a) * r));
+    }
+    const curve = new CatmullRomCurve3(pts);
+    g.add(new Mesh(new TubeGeometry(curve, lite ? 70 : 190, 0.04, lite ? 4 : 8, false), mat));
   }
   return g;
 }
@@ -156,7 +169,7 @@ function makeSegmentRing(mat, radius, count, lite){
       pts.push(new Vector3(Math.cos(a) * radius, Math.sin(a) * radius, 0));
     }
     const curve = new CatmullRomCurve3(pts);
-    g.add(new Mesh(new TubeGeometry(curve, lite ? 3 : 6, 0.026, lite ? 4 : 6, false), mat));
+    g.add(new Mesh(new TubeGeometry(curve, lite ? 3 : 8, 0.026, lite ? 4 : 8, false), mat));
   }
   return g;
 }
@@ -436,14 +449,14 @@ function loadTower(url){
 // eine Sinuskurve alle anderen mitverbiegt.
 //        p     scale     x      y      z     rotX   rotY   rotZ
 const KEYS = [
-  [0.00, 0.28,  0.00,  1.28,  0.00,  0.16,  0.00,  0.00],  // Eintritt - gross und mittig
-  [0.11, 0.20,  3.95,  1.00, -2.80,  0.30,  0.85,  0.14],  // Das Wort - rechts, Text steht links
-  [0.25, 0.20,  4.60, -0.60, -3.00,  0.42,  1.75, -0.22],  // Methode  - rechts, neben dem Fliesstext
-  [0.32, 0.13,  3.10, -1.60, -3.60,  0.52,  2.20,  0.16],  // zieht sich vor dem Turm zurueck
-  [0.55, 0.05,  0.00, -2.60, -6.50,  0.50,  2.60,  0.10],  // Turm     - geparkt, ohnehin unsichtbar
-  [0.80, 0.10,  0.00, -3.30, -3.80,  0.44,  3.00, -0.20],  // taucht unter dem Turm wieder auf
-  [0.90, 0.20, -2.90, -0.60, -3.20,  0.46,  3.40,  0.18],  // Atelier  - links, Inhalt steht rechts
-  [1.00, 0.30,  0.00,  1.35, -0.15,  0.22,  4.20,  0.00],  // Abschluss- wieder gross
+  [0.00, 0.40,  0.00,  1.55,  0.00,  0.30,  0.00,  0.00],  // Eintritt - gross und mittig
+  [0.11, 0.40,  0.70,  0.95, -2.60,  0.34,  0.00,  0.10],  // Das Wort - gross hinter dem Text
+  [0.25, 0.40, -0.55,  0.60, -2.80,  0.32,  0.00, -0.12],  // Methode  - dito, andere Seite
+  [0.32, 0.22,  1.90, -1.10, -3.60,  0.38,  0.00,  0.12],  // zieht sich vor dem Turm zurueck
+  [0.55, 0.05,  0.00, -2.60, -6.50,  0.36,  0.00,  0.08],  // Turm     - geparkt, ohnehin unsichtbar
+  [0.80, 0.14,  0.00, -3.10, -3.80,  0.34,  0.00, -0.14],  // taucht unter dem Turm wieder auf
+  [0.90, 0.36, -1.60, -0.15, -2.90,  0.33,  0.00,  0.12],  // Atelier  - links hinter den Zahlen
+  [1.00, 0.44,  0.00,  1.60, -0.15,  0.26,  0.00,  0.00],  // Abschluss- wieder gross
 ];
 function smoothstep(t){ return t * t * (3 - 2 * t); }
 function sampleKeys(p, out){
@@ -522,7 +535,7 @@ function init(canvas, opts){
   // Ein Reif mit Volumen statt einer gezogenen Linie: der dicke Querschnitt
   // bricht das Licht in einzelne Facetten, so dass man beim Drehen jederzeit
   // sieht, wo vorn und wo hinten ist.
-  ringMain = new Mesh(new TorusGeometry(1.9, 0.168, lite ? 6 : 14, lite ? 96 : 240), mainMat);
+  ringMain = new Mesh(new TorusGeometry(1.9, 0.168, lite ? 6 : 22, lite ? 96 : 340), mainMat);
   emblem.add(ringMain);
 
   // Das L sitzt als eigener, etwas dickerer Körper mittig im Ring.
@@ -536,7 +549,7 @@ function init(canvas, opts){
   emblem.userData.letter = letter;
 
   const ribbonMat = glass();
-  emblem.add(makeRibbon(ribbonMat, lite));
+  emblem.add(makeHelix(ribbonMat, lite));
 
   // Ein zweiter, schmaler Reif dicht innen. Er sitzt eine Spur vor dem
   // grossen und gibt dem Zeichen eine zweite Ebene - ohne ihn sieht ein
@@ -545,7 +558,7 @@ function init(canvas, opts){
     color: GOLD_BRIGHT, emissive: new Color(GOLD), emissiveIntensity: 0.95,
     metalness: 1, roughness: 0.11, envMapIntensity: 2.7, transparent: true,
   });
-  const band = new Mesh(new TorusGeometry(1.63, 0.042, lite ? 5 : 10, lite ? 72 : 168), bandMat);
+  const band = new Mesh(new TorusGeometry(1.63, 0.042, lite ? 5 : 14, lite ? 72 : 240), bandMat);
   band.position.z = 0.06;
   emblem.add(band);
 
@@ -556,7 +569,7 @@ function init(canvas, opts){
     color: GOLD_BRIGHT, emissive: new Color(GOLD), emissiveIntensity: 0.5,
     metalness: 0.8, roughness: 0.22, transparent: true,
   });
-  const pulse = new Mesh(new TorusGeometry(2.06, 0.019, lite ? 5 : 8, lite ? 80 : 180), pulseMat);
+  const pulse = new Mesh(new TorusGeometry(2.06, 0.019, lite ? 5 : 12, lite ? 80 : 260), pulseMat);
   emblem.add(pulse);
   emblem.userData.pulse = pulse;
 
@@ -639,29 +652,16 @@ function tourCamera(q){
   _lookTour.set(0, look, 0);
 }
 
-/* Das Emblem begleitet die ganze Reise, also muss es von sich aus etwas tun.
-   Grundton ist ein langsames, stetiges Drehen; alle paar Sekunden kommt eine
-   Pirouette dazu - eine zusaetzliche volle Umdrehung, die weich an- und
-   wieder abschwillt, damit der Blick kurz hinwandert. Die Drehrate wird
-   aufsummiert statt aus der Uhrzeit berechnet: so gibt es keinen Sprung,
-   wenn die Animation pausiert (Tab im Hintergrund) und wieder anlaeuft. */
-const FLOURISH_EVERY = 11;      // Sekunden zwischen zwei Pirouetten
-const FLOURISH_LEN   = 1.9;     // wie lange eine dauert
+/* Das Zeichen dreht sich durch - wie in der Referenz. Damit es dabei nie auf
+   der reinen Kante steht, bleibt eine feste Neigung aus der KEYS-Tabelle
+   (rotX) stehen: bei einer Vierteldrehung sieht man dann eine schmale
+   Ellipse statt eines Strichs. Die Drehung wird aufsummiert statt aus der
+   Uhrzeit berechnet, damit es keinen Sprung gibt, wenn die Animation
+   pausiert (Tab im Hintergrund) und wieder anlaeuft. */
+const SPIN_RATE = Math.PI * 2 / 14;    // eine Umdrehung in 14 Sekunden
 function advanceSpin(dt){
-  spinT += dt;
-  const cyc = spinT % FLOURISH_EVERY;
-  let tilt = 0;
-  if(cyc < FLOURISH_LEN){
-    const u = cyc / FLOURISH_LEN;
-    // Die Glocke (1-cos)/2 integriert sich ueber die Dauer zu L/2 - mit
-    // 4*PI/L als Hoehe kommt also genau eine volle Umdrehung heraus. Das
-    // Zeichen steht danach wieder genau von vorn.
-    spin += (4 * Math.PI / FLOURISH_LEN) * (1 - Math.cos(2 * Math.PI * u)) / 2 * dt;
-    tilt  = Math.sin(2 * Math.PI * u) * 0.5;
-  }
-  // Dazwischen nur ein leises Wiegen, damit das Licht ueber die Kanten
-  // wandert - eine Dauerdrehung waere als Marke nicht mehr lesbar.
-  return tilt;
+  spin += SPIN_RATE * dt;
+  return 0;
 }
 let spinTilt = 0;
 
@@ -695,12 +695,12 @@ function applyTransform(p, t){
                       Math.max(-maxY, Math.min(maxY, ky)), k[3]);
   // Der Zeiger kippt das Emblem nur leicht mit - genug, dass es auf die Maus
   // reagiert, zu wenig, um die inszenierte Bahn zu überschreiben.
-  emblem.rotation.set(k[4] + py * 0.16 + Math.sin(t * 0.25) * 0.04 + spinTilt,
-                      k[5] + px * 0.22 + spin + Math.sin(t * 0.42) * 0.17,
+  emblem.rotation.set(k[4] + py * 0.16 + Math.sin(t * 0.25) * 0.04,
+                      k[5] + px * 0.22 + spin,
                       k[6] + Math.sin(t * 0.19) * 0.05);
   // Das L dreht dem Reif ein Stueck entgegen, damit es nicht wie aufgeklebt
   // mitfaehrt, sondern wie ein eigener Koerper im Ring schwebt.
-  if(emblem.userData.letter) emblem.userData.letter.rotation.y = -spin * 0.45 + Math.sin(t * 0.35) * 0.08;
+  if(emblem.userData.letter) emblem.userData.letter.rotation.y = Math.sin(t * 0.35) * 0.06;
   // Drei Ebenen mit eigenem Takt: der grosse Reif dreht langsam im
   // Uhrzeigersinn, der Segmentreif schneller dagegen, der duenne Reif atmet.
   if(ringMain) ringMain.rotation.z = -t * (Math.PI * 2 / 20);

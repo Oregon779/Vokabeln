@@ -4824,7 +4824,7 @@
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="./lumiere-gl.js?v=12" defer></script>
+<script src="./lumiere-gl.js?v=13" defer></script>
 <script>
 /* ============================================================
    WICHTIG: Bei jedem inhaltlichen Deploy hochzaehlen (wie CACHE_NAME
@@ -4835,7 +4835,7 @@
       unten) - neue, noch nicht "veroeffentlichte" Features hinter
       isReleased(N) verstecken; Admins sehen sie trotzdem sofort.
    ============================================================ */
-const APP_VERSION = 12;
+const APP_VERSION = 13;
 
 // Site-weites Feature-Gate: neue, aber noch nicht freigegebene Funktionen
 // hinter isReleased(<APP_VERSION beim Einbau>) verstecken. Admins (echtes
@@ -8140,6 +8140,10 @@ function sndCineHover(){ playTone(659, 0.14, 'sine', 0.012, 0, 2000); }
       y: seeded ? Math.random() * h : Math.random() * h * 1.3 - h * 0.25,
       vx: Math.cos(ang) * sp * dir,
       vy: Math.sin(ang) * sp + 0.5,
+      // Die Grundrichtung: nach einem Stoss durch den Zeiger findet der
+      // Komet hierher zurueck.
+      hx: Math.cos(ang) * sp * dir,
+      hy: Math.sin(ang) * sp + 0.5,
       tail: (big ? 260 : 110) + Math.random() * (lite ? 130 : (big ? 300 : 190)),
       wd:  (big ? 2.2 : 1.1) + Math.random() * (big ? 1.7 : 1.0),
       a:   (big ? 0.72 : 0.44) + Math.random() * 0.26,
@@ -8175,19 +8179,27 @@ function sndCineHover(){ playTone(659, 0.14, 'sine', 0.012, 0, 2000); }
       const c = motes[i];
       if(c.wait > 0){ c.wait--; continue; }
 
-      // Der Zeiger lenkt ab: nahe Kometen werden sanft angezogen und
-      // bekommen einen Drall mit der Mausbewegung.
+      // Der Zeiger stoesst ab, statt anzuziehen. Angezogene Kometen wurden
+      // eingefangen und kreiselten um die Maus - das ergab die Schnoerkel,
+      // die wie Gekrakel aussahen. Abgestossen machen sie einen Bogen und
+      // ziehen ihre Bahn weiter.
       if(pointer.active && !coarse){
-        const dx = pointer.x - c.x, dy = pointer.y - c.y;
+        const dx = c.x - pointer.x, dy = c.y - pointer.y;
         const d2 = dx * dx + dy * dy;
-        if(d2 < 90000){
-          const f = (1 - d2 / 90000) * 0.06;
-          c.vx += dx * f * 0.05 + pointer.vx * 0.012;
-          c.vy += dy * f * 0.05 + pointer.vy * 0.012;
+        if(d2 < 62500 && d2 > 1){
+          const d = Math.sqrt(d2);
+          // Quadratisch abfallend: dicht am Zeiger deutlich, am Rand des
+          // Einflussbereichs praktisch null - so gibt es keine Kante.
+          const f = (1 - d / 250) * (1 - d / 250) * 1.9;
+          c.vx += (dx / d) * f;
+          c.vy += (dy / d) * f;
         }
       }
+      // Die Bahn zieht wieder auf ihre urspruengliche Richtung zurueck, sonst
+      // sammelt sich jeder Stoss auf und der Komet driftet davon.
+      c.vx += (c.hx - c.vx) * 0.035;
+      c.vy += (c.hy - c.vy) * 0.035;
       c.x += c.vx; c.y += c.vy;
-      c.vx *= 0.998; c.vy *= 0.998;
 
       if(c.x < -500 || c.x > w + 500 || c.y > h + 500 || c.y < -500){
         motes[i] = newComet(false);
@@ -8350,9 +8362,9 @@ function sndCineHover(){ playTone(659, 0.14, 'sine', 0.012, 0, 2000); }
     }
     if(glReady && window.LumiereGL.setTower) window.LumiereGL.setTower(towerAmt, tourProgress);
 
-    const dip = Math.max(0, 1 - Math.abs(p - 0.25) / 0.14);
+    const dip = Math.max(0, 1 - Math.abs(p - 0.19) / 0.20);
     const tail = Math.max(0, Math.min(1, (vh - last.bottom) / (vh * 0.45)));
-    glCanvas.style.setProperty('--gl-op', ((0.94 - dip * 0.12) * (1 - tail)).toFixed(3));
+    glCanvas.style.setProperty('--gl-op', ((0.94 - dip * 0.34) * (1 - tail)).toFixed(3));
 
     if(top && top.key && top.key !== lastSceneKey){
       if(lastSceneKey) sndCineScene();

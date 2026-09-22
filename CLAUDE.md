@@ -119,10 +119,36 @@ der Drehung ist `sin(2*PI*u)`, nicht `sin(PI*u)`: sein Maximum muss auf die
 Viertelumdrehung fallen, wo der Reif sonst auf der Kante stuende und fast
 verschwinden wuerde.
 
+Das Zeichen steht mitten in der Reise **gross hinter dem Text**, nicht mehr
+klein daneben. Dafuer nimmt sich die 3D-Ebene dort zurueck: `--gl-op` faellt
+ueber `dip` um etwa ein Drittel, sonst kaempft Gold gegen Schrift.
+
 Die x/y in `KEYS` sind fuer den Desktop gedacht. `applyTransform` holt sie auf
 den sichtbaren Rand zurueck und schiebt hochkant alles, was seitlich stehen
 sollte (grosses |x|), in den freien Streifen ueber den Text - auf dem Handy
 ist neben der Schrift kein Platz.
+
+## Die Doppelhelix unter dem Zeichen
+
+`makeHelix` baut zwei Tuben, die sich um eine gemeinsame Achse winden und
+nach unten auf einen Punkt zulaufen (`TURNS`, `TOP`/`BOT`, `R0`/`R1`). Der
+Exponent 1.45 im Radius laesst ihn oben langsam und unten schnell
+schrumpfen - sonst wirkt die Spitze abgeschnitten statt gezogen. Sie reicht
+absichtlich weit nach unten und laeuft durch die Wortmarke; das war eine
+bewusste Entscheidung des Nutzers, kein Versehen.
+
+## Das Zeichen dreht durch
+
+`SPIN_RATE` = eine Umdrehung in 14 s, dauerhaft. **Die `KEYS`-Spalte rotY
+muss dabei ueberall 0 bleiben.** Frueher standen dort aufsteigende Winkel
+(0.85, 1.75, 2.20 …) aus einem aelteren Entwurf - bei 1.75 rad = 100 Grad
+stand der Reif fast auf der Kante und war in der ganzen Szene nur ein
+Streifen, egal wie gross er skaliert war. Genau das sah aus wie "uebelst
+klein an der Ecke".
+
+Damit das Zeichen bei einer Vierteldrehung nicht zum reinen Strich wird,
+bleibt eine feste Neigung in rotX stehen (etwa 0.3): man sieht dann eine
+schmale Ellipse statt einer Linie.
 
 ## Das Emblem hat drei Ringebenen
 
@@ -178,6 +204,12 @@ Geometrie des Zeichens, sondern was darum herum passiert. Zwei Teile:
   drei. Laeuft nach `OutputPass`, sitzt also auf dem fertigen Bild. Der
   Farbsaum waechst nach aussen (in der Mitte null, sonst flimmert Schrift),
   das Korn wirkt nur in dunklen Flaechen - sonst rauscht das Gold.
+
+**Falle:** Der Zeiger **stoesst die Kometen ab**, er zieht sie nicht an.
+Angezogene Kometen wurden eingefangen und kreiselten um die Maus - das ergab
+die Schnoerkel, die wie Gekrakel aussahen. Jede Bahn merkt sich ausserdem
+ihre Grundrichtung (`hx`/`hy`) und zieht dorthin zurueck, sonst summieren
+sich die Stoesse und der Komet driftet davon.
 
 **Falle:** `Float32BufferAttribute` legt eine **Kopie** des uebergebenen
 Feldes an. Wer den Puffer jeden Frame neu beschreibt, muss mit
