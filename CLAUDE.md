@@ -44,7 +44,7 @@ taugt das Gate nicht (beide Fassungen müssten gleichzeitig in der Datei
 liegen, mit doppelten Element-IDs). In dem Fall **vorher fragen**, ob der
 Nutzer erst nach seiner Abnahme pullt oder den doppelten Aufwand will.
 
-## Der 3D-Ring der Startseite
+## Die 3D-Ebene der Startseite
 
 `lumiere-gl.js` ist ein gebautes Buendel und wird nicht von Hand bearbeitet.
 Die Quelle ist `lumiere-gl.src.js`; nach einer Aenderung neu buendeln:
@@ -55,10 +55,23 @@ npx esbuild lumiere-gl.src.js --bundle --minify --format=iife \
   --target=es2019 --outfile=lumiere-gl.js
 ```
 
-Die Bahn des Rings steckt in der Tabelle `KEYS` (Scroll-Fortschritt, Groesse,
-Position, Drehung je Stuetzstelle) - dort wird nachjustiert, nicht in der
-Render-Schleife. Gesteuert wird sie von `scrub()` in index.html, das aus der
-Lage der Szenen den Fortschritt 0..1 ableitet.
+Zwei Auftritte teilen sich die Szene: das Emblem (Ring, das L als eigener
+Glaskoerper, die gekreuzte Schlaufe) und der Eiffelturm. `setProgress(p)`
+steuert das Emblem, `setTower(t)` blendet den Turm darueber ein - beides
+kommt aus `scrub()` in index.html.
+
+Die Bahn des Emblems steckt in der Tabelle `KEYS` (Scroll-Fortschritt,
+Groesse, Position, Drehung je Stuetzstelle) - dort wird nachjustiert, nicht
+in der Render-Schleife. Aendert sich die Zahl oder Hoehe der Szenen,
+verschieben sich die p-Werte und `KEYS` muss mit.
+
+Zwei Fallen, die schon einmal Zeit gekostet haben:
+- `overflow-x` auf `<body>` zwingt `overflow-y` auf `auto`. Damit wird
+  `<body>` zum Scrollcontainer und jedes `position:sticky` klebt nicht mehr.
+  Die Sperre gehoert auf `<html>`.
+- Der Kaertchen-Stapel steht in einem `perspective`-Container. Alle Kaertchen
+  liegen hinter z=0, der Container selbst davor - ohne
+  `pointer-events:none` auf dem Container faengt er jeden Klick ab.
 
 Wichtig: `lumiere-gl.js` gehoert in die App-Shell in `sw.js`, und `CACHE_NAME`
 dort muss bei jedem Deploy mit hochgezaehlt werden.

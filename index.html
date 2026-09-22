@@ -64,7 +64,10 @@
   }
   *{box-sizing:border-box;}
   html{scroll-behavior:smooth; overflow-x:hidden;}
-  body{margin:0; background:var(--bg); color:var(--text); font-family:var(--font-sans); line-height:1.5; -webkit-font-smoothing:antialiased; overflow-x:hidden; overflow-anchor:none;}
+  /* overflow-x auf <body> zwingt overflow-y auf 'auto' - damit wird <body>
+     zum Scrollcontainer und position:sticky klebt nie mehr (die Buehne der
+     Turm-Szene braucht das). Die Sperre sitzt deshalb allein auf <html>. */
+  body{margin:0; background:var(--bg); color:var(--text); font-family:var(--font-sans); line-height:1.5; -webkit-font-smoothing:antialiased; overflow-anchor:none;}
   code{font-family:var(--font-mono);}
   html{scrollbar-width:thin; scrollbar-color:rgba(217,165,72,.3) #0c0f16;}
   ::-webkit-scrollbar{width:9px; height:9px;}
@@ -1894,14 +1897,14 @@
     margin-top:-6.2rem; background:#07080c;
   }
   @media (min-width:700px){ .view-cine{ margin-top:-6.6rem; } }
-  .view-cine .exam-banner{ position:relative; z-index:4; max-width:60rem; margin:5.5rem auto 0; }
+  .view-cine .exam-banner{ position:relative; z-index:5; max-width:60rem; margin:5.5rem auto 0; }
 
   .cine-gl, .cine-field{
     position:fixed; top:0; left:0; width:100%; height:100%;
     pointer-events:none; opacity:0; transition:opacity .5s var(--ease-premium);
   }
-  .cine-gl{ z-index:0; }
-  .cine-field{ z-index:1; }
+  .cine-gl{ z-index:1; }
+  .cine-field{ z-index:2; }
   .cine-field.is-live{ opacity:1; }
   /* Wo der Ring gross wird, laeuft er hinter der Schrift durch. Dort nimmt er
      sich zurueck (--gl-op kommt aus dem Scroll-Fortschritt), sonst waere der
@@ -1917,7 +1920,7 @@
   /* Die Szenen. Zwei davon bekommen mehr Hoehe, damit der Ring zwischen den
      Stationen Zeit hat, sich zu verwandeln - die Reise soll nicht hetzen. */
   .cine-scene{
-    position:relative; z-index:2; min-height:100svh; display:flex;
+    position:relative; z-index:3; min-height:100svh; display:flex;
     align-items:center; padding:6rem 1.5rem; box-sizing:border-box;
   }
   .cine-mot, .cine-methode{ min-height:135svh; }
@@ -1946,6 +1949,11 @@
   @media (prefers-reduced-motion: reduce){
     .cine-scene > *{ opacity:1 !important; filter:none !important; transform:none !important; }
   }
+
+  /* Eintritt und Abschluss: der Text sitzt unter dem Emblem, nicht darin.
+     Deshalb haengt der Block am unteren Rand statt mittig zu stehen. */
+  .cine-seuil, .cine-entrer{ align-items:flex-end; padding-bottom:24vh; }
+  .cine-entrer{ padding-bottom:30vh; }
 
   .cine-kicker{
     font-family:var(--font-mono); font-size:.66rem; text-transform:uppercase; letter-spacing:.34em;
@@ -2017,7 +2025,8 @@
   /* --- Szene: Das Wort --- */
   .cine-mot-word{
     font-family:var(--font-serif); font-style:italic; font-weight:500;
-    font-size:clamp(2.6rem, 8.5vw, 6.2rem); line-height:1; letter-spacing:-.025em;
+    font-size:clamp(1.9rem, 8.5vw, 6.2rem); line-height:1.02; letter-spacing:-.025em;
+    overflow-wrap:anywhere;
     color:var(--ember-bright); margin:0;
     text-shadow:0 0 7px rgba(7,8,12,.9), 0 0 28px rgba(246,195,92,.1), 0 0 120px rgba(246,195,92,.12);
   }
@@ -2063,6 +2072,119 @@
     font-size:clamp(1.9rem, 5.4vw, 3.6rem); line-height:1.2; color:var(--text); margin:0 0 2.8rem;
   }
 
+
+
+  /* --- Farbwäschen: die Wärme der Seite ----------------------------------
+     Drei grosse, sehr weiche Lichtkreise, die langsam wandern. Bewusst ohne
+     filter:blur() - der Verlauf ist von sich aus weich genug, und blur auf
+     einer halben Bildschirmbreite kostet auf Handys spürbar. */
+  .cine-glow{ position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; }
+  .cine-glow span{ position:absolute; border-radius:50%; display:block; }
+  .cine-glow-a{
+    width:78vmax; height:78vmax; left:-24vmax; top:-30vmax;
+    background:radial-gradient(circle closest-side, rgba(217,165,72,.30), rgba(217,165,72,.10) 45%, transparent 72%);
+    animation:cineGlowA 34s var(--ease-premium) infinite alternate;
+  }
+  .cine-glow-b{
+    width:70vmax; height:70vmax; right:-26vmax; bottom:-28vmax;
+    background:radial-gradient(circle closest-side, rgba(150,32,46,.34), rgba(120,28,40,.12) 45%, transparent 72%);
+    animation:cineGlowB 42s var(--ease-premium) infinite alternate;
+  }
+  .cine-glow-c{
+    width:56vmax; height:56vmax; left:34vw; top:46vh;
+    background:radial-gradient(circle closest-side, rgba(196,110,28,.26), rgba(196,110,28,.08) 48%, transparent 74%);
+    animation:cineGlowC 28s var(--ease-premium) infinite alternate;
+  }
+  @keyframes cineGlowA{ to{ transform:translate3d(12vw, 8vh, 0) scale(1.14); } }
+  @keyframes cineGlowB{ to{ transform:translate3d(-14vw, -10vh, 0) scale(1.18); } }
+  @keyframes cineGlowC{ to{ transform:translate3d(-18vw, -16vh, 0) scale(.86); } }
+  @media (prefers-reduced-motion: reduce){ .cine-glow span{ animation:none; } }
+
+  /* --- Szene: der Turm und die sieben Kärtchen ---------------------------
+     Der hohe Track gibt den Scrollweg, die Bühne darin bleibt stehen,
+     während die Kärtchen in echter Perspektive nachrücken. Positioniert
+     werden sie pro Bild aus dem Scroll-Fortschritt (siehe layoutDeck). */
+  .cine-tour{ display:block; min-height:0; padding:0; }
+  .cine-tour > *{ opacity:1 !important; filter:none !important; transform:none !important; }
+  .cine-tour-track{ position:relative; height:560svh; }
+  .cine-tour-stage{
+    position:sticky; top:0; height:100svh; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; gap:2rem; padding:6rem 1.2rem 4rem; box-sizing:border-box;
+    /* Die hinteren Kaertchen schwenken weit nach aussen - hier abschneiden,
+       sonst waechst die Seite in die Breite. Die Buehne ist selbst das
+       sticky-Element, ihr eigenes overflow stoert das Kleben nicht. */
+    overflow:hidden;
+  }
+  .cine-tour-kicker{
+    margin:0; font-family:var(--font-mono); font-size:.66rem; text-transform:uppercase;
+    letter-spacing:.34em; color:var(--gold-bright);
+  }
+
+  .cine-deck{
+    position:relative; width:100%; flex:1; min-height:0;
+    perspective:1500px; transform-style:preserve-3d;
+    /* Die Kaertchen stehen alle hinter z=0, der Container selbst liegt davor
+       und faenge sonst jeden Klick und jedes Hover ab. */
+    pointer-events:none;
+  }
+  .cine-card{
+    position:absolute; top:50%; left:50%;
+    width:min(86vw, 42rem); height:min(54svh, 26rem);
+    margin:0; padding:0; border:1px solid rgba(246,195,92,.34); border-radius:20px;
+    background:#0b0a0d; overflow:hidden; cursor:pointer; text-align:left;
+    box-shadow:0 30px 80px rgba(0,0,0,.6), 0 0 0 1px rgba(0,0,0,.4);
+    will-change:transform, opacity; backface-visibility:hidden;
+    transform-origin:50% 50%; pointer-events:none;
+  }
+  .cine-card.is-front{ pointer-events:auto; border-color:rgba(246,195,92,.7); }
+  .cine-card img{
+    position:absolute; inset:0; width:100%; height:100%; object-fit:cover;
+    filter:saturate(1.25) contrast(1.06); transition:transform .8s var(--ease-premium);
+  }
+  .cine-card.is-front:hover img{ transform:scale(1.045); }
+  .cine-card-veil{
+    position:absolute; inset:0; display:block;
+    background:linear-gradient(180deg, rgba(10,7,4,.18) 0%, rgba(10,7,4,.62) 46%, rgba(8,6,4,.94) 100%),
+               linear-gradient(90deg, rgba(120,58,10,.30), transparent 60%);
+  }
+  .cine-card-body{
+    position:absolute; left:0; right:0; bottom:0; display:block;
+    padding:clamp(1.4rem, 3.4vw, 2.4rem);
+  }
+  .cine-card-idx{
+    display:block; font-family:var(--font-mono); font-size:.62rem; letter-spacing:.3em;
+    color:var(--ember); margin-bottom:.7rem;
+  }
+  .cine-card-title{
+    display:block; font-family:var(--font-serif); font-weight:600; font-style:italic;
+    font-size:clamp(1.8rem, 4.6vw, 3rem); line-height:1; letter-spacing:-.02em;
+    color:var(--text); margin-bottom:.8rem;
+  }
+  .cine-card-text{
+    display:block; max-width:34rem; font-size:.9rem; line-height:1.65; color:var(--stone);
+  }
+  .cine-card-go{
+    display:inline-block; margin-top:1.2rem; font-family:var(--font-mono); font-size:.66rem;
+    text-transform:uppercase; letter-spacing:.22em; color:var(--ember-bright);
+    border-bottom:1px solid rgba(246,195,92,.45); padding-bottom:.25rem;
+    transition:letter-spacing .3s var(--ease), border-color .3s var(--ease);
+  }
+  .cine-card.is-front:hover .cine-card-go{ letter-spacing:.3em; border-bottom-color:var(--ember-bright); }
+
+  .cine-deck-dots{ display:flex; gap:.55rem; margin:0; padding:0; list-style:none; }
+  .cine-deck-dots li{
+    width:6px; height:6px; border-radius:50%; background:rgba(167,156,136,.3);
+    transition:background .3s var(--ease), transform .3s var(--ease-spring);
+  }
+  .cine-deck-dots li.is-on{ background:var(--ember-bright); transform:scale(1.6); }
+
+  @media (max-width:700px){
+    .cine-tour-track{ height:520svh; }
+    .cine-deck{ perspective:900px; }
+    .cine-card{ width:min(80vw, 23rem); height:min(56svh, 28rem); border-radius:16px; }
+    .cine-card-title{ font-size:1.65rem; }
+    .cine-card-text{ font-size:.82rem; line-height:1.55; }
+  }
 
   /* --- Seiten-Footer (Startseite) ----------------------------------------
      Aufbau nach dem uebergebenen Footer-Entwurf: Lichtschein oben in der Mitte,
@@ -3161,6 +3283,9 @@
   <section id="view-hub" class="view view-cine">
     <!-- Zwei feste Ebenen hinter allen Szenen: der 3D-Ring (WebGL) und
          darueber das Lichtspur-Feld (2D-Canvas, reagiert auf den Zeiger). -->
+    <div class="cine-glow" aria-hidden="true">
+      <span class="cine-glow-a"></span><span class="cine-glow-b"></span><span class="cine-glow-c"></span>
+    </div>
     <canvas id="cineGl" class="cine-gl" aria-hidden="true"></canvas>
     <canvas id="cineField" class="cine-field" aria-hidden="true"></canvas>
 
@@ -3225,7 +3350,93 @@
       </div>
     </section>
 
-    <!-- 4 · L'ATELIER — die eigenen Zahlen, rechts angeschlagen -->
+    <!-- 4 · LA TOUR — die Seite in sieben Kärtchen, die am Eiffelturm
+         vorbeiziehen. Der hohe Track gibt den Scrollweg, die Bühne darin
+         bleibt stehen (sticky), waehrend die Kärtchen nachruecken. -->
+    <section class="cine-scene cine-tour" data-scene="tour">
+      <div class="cine-tour-track" id="cineTourTrack">
+        <div class="cine-tour-stage">
+          <p class="cine-tour-kicker">Was dich erwartet</p>
+
+          <div class="cine-deck" id="cineDeck">
+            <button type="button" class="cine-card" data-goto="home">
+              <img src="./feat-lernsets.jpg" alt="" loading="lazy" decoding="async">
+              <span class="cine-card-veil" aria-hidden="true"></span>
+              <span class="cine-card-body">
+                <span class="cine-card-idx">01</span>
+                <span class="cine-card-title">Lernsets</span>
+                <span class="cine-card-text">Deine eigenen Sammlungen — der Stoff deiner Klausur, nicht der eines Lehrplans.</span>
+                <span class="cine-card-go">Öffnen</span>
+              </span>
+            </button>
+            <button type="button" class="cine-card" data-goto="listen">
+              <img src="./feat-aussprache.jpg" alt="" loading="lazy" decoding="async">
+              <span class="cine-card-veil" aria-hidden="true"></span>
+              <span class="cine-card-body">
+                <span class="cine-card-idx">02</span>
+                <span class="cine-card-title">Aussprache</span>
+                <span class="cine-card-text">Jedes Wort vorgesprochen und phonetisch notiert — so, wie es in Paris klingt.</span>
+                <span class="cine-card-go">Öffnen</span>
+              </span>
+            </button>
+            <button type="button" class="cine-card" data-goto="grammar">
+              <img src="./feat-grammatik.jpg" alt="" loading="lazy" decoding="async">
+              <span class="cine-card-veil" aria-hidden="true"></span>
+              <span class="cine-card-body">
+                <span class="cine-card-idx">03</span>
+                <span class="cine-card-title">Grammatik</span>
+                <span class="cine-card-text">Regeln erklärt, wenn du sie brauchst — nicht vorher, nicht auf Vorrat.</span>
+                <span class="cine-card-go">Öffnen</span>
+              </span>
+            </button>
+            <button type="button" class="cine-card" data-goto="rewards">
+              <img src="./feat-belohnungen.jpg" alt="" loading="lazy" decoding="async">
+              <span class="cine-card-veil" aria-hidden="true"></span>
+              <span class="cine-card-body">
+                <span class="cine-card-idx">04</span>
+                <span class="cine-card-title">Belohnungen</span>
+                <span class="cine-card-text">Münzen fürs Üben, vier Spiele in der Spielhalle und eine Rangliste.</span>
+                <span class="cine-card-go">Öffnen</span>
+              </span>
+            </button>
+            <button type="button" class="cine-card" data-goto="calendar">
+              <img src="./feat-kalender.jpg" alt="" loading="lazy" decoding="async">
+              <span class="cine-card-veil" aria-hidden="true"></span>
+              <span class="cine-card-body">
+                <span class="cine-card-idx">05</span>
+                <span class="cine-card-title">Kalender</span>
+                <span class="cine-card-text">Klausuren eintragen, und die Wörter kommen rechtzeitig zurück.</span>
+                <span class="cine-card-go">Öffnen</span>
+              </span>
+            </button>
+            <button type="button" class="cine-card" data-goto="appDownload">
+              <img src="./feat-app.jpg" alt="" loading="lazy" decoding="async">
+              <span class="cine-card-veil" aria-hidden="true"></span>
+              <span class="cine-card-body">
+                <span class="cine-card-idx">06</span>
+                <span class="cine-card-title">Als App</span>
+                <span class="cine-card-text">Auf dem Handy installieren und offline weiterlernen.</span>
+                <span class="cine-card-go">Öffnen</span>
+              </span>
+            </button>
+            <button type="button" class="cine-card" data-goto="about">
+              <img src="./feat-ueberuns.jpg" alt="" loading="lazy" decoding="async">
+              <span class="cine-card-veil" aria-hidden="true"></span>
+              <span class="cine-card-body">
+                <span class="cine-card-idx">07</span>
+                <span class="cine-card-title">Über uns</span>
+                <span class="cine-card-text">Wer dahintersteckt, was mit deinen Daten passiert und was das Ganze soll.</span>
+                <span class="cine-card-go">Öffnen</span>
+              </span>
+            </button>
+          </div>
+
+          <ol class="cine-deck-dots" id="cineDeckDots" aria-hidden="true"></ol>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5 · L'ATELIER — die eigenen Zahlen, rechts angeschlagen -->
     <section class="cine-scene cine-atelier" data-scene="atelier" data-from="right">
       <div class="cine-stack cine-stack-right">
         <p class="cine-kicker">Dein Atelier</p>
@@ -3238,7 +3449,7 @@
       </div>
     </section>
 
-    <!-- 5 · ENTRER — Schluss -->
+    <!-- 6 · ENTRER — Schluss -->
     <section class="cine-scene cine-entrer" data-scene="entrer" data-from="center">
       <div class="cine-stack cine-stack-center">
         <p class="cine-close-line">Fang mit einem Wort an.</p>
@@ -4553,7 +4764,7 @@
       unten) - neue, noch nicht "veroeffentlichte" Features hinter
       isReleased(N) verstecken; Admins sehen sie trotzdem sofort.
    ============================================================ */
-const APP_VERSION = 3;
+const APP_VERSION = 4;
 
 // Site-weites Feature-Gate: neue, aber noch nicht freigegebene Funktionen
 // hinter isReleased(<APP_VERSION beim Einbau>) verstecken. Admins (echtes
@@ -7703,6 +7914,10 @@ function sndCineHover(){ playTone(659, 0.14, 'sine', 0.012, 0, 2000); }
   const ctx = canvas.getContext('2d');
 
   const scenes   = Array.from(view.querySelectorAll('.cine-scene'));
+  const tourTrack = document.getElementById('cineTourTrack');
+  const deck      = document.getElementById('cineDeck');
+  const deckDots  = document.getElementById('cineDeckDots');
+  const cards     = deck ? Array.from(deck.querySelectorAll('.cine-card')) : [];
   const morph    = view.querySelector('.cine-morph');
   const morphFr  = document.getElementById('cineMorphFr');
   const morphDe  = document.getElementById('cineMorphDe');
@@ -7717,6 +7932,7 @@ function sndCineHover(){ playTone(659, 0.14, 'sine', 0.012, 0, 2000); }
   let glReady = false, glTried = false;
   let pointer = { x: -9999, y: -9999, vx: 0, vy: 0, active: false };
   let motes = [], pairIndex = 0, lastSceneKey = '';
+  let deckIndex = -1;
 
   function reduced(){ return reducedMotionActive(); }
 
@@ -7853,6 +8069,50 @@ function sndCineHover(){ playTone(659, 0.14, 'sine', 0.012, 0, 2000); }
     rafId = requestAnimationFrame(step);
   }
 
+  // Der Stapel. `pos` ist die Position im Stapel als Kommazahl - 0 heisst
+  // das erste Kaertchen steht vorn, 2.5 heisst zwischen dem dritten und dem
+  // vierten. Daraus ergibt sich fuer jedes Kaertchen sein Abstand zur Front
+  // und damit Versatz, Tiefe, Drehung und Deckkraft.
+  function layoutDeck(pos){
+    if(cards.length === 0) return;
+    // Auf schmalen Schirmen flacher stapeln: weniger Tiefe, weniger Drehung.
+    const flat = lite || window.innerWidth < 760;
+    const stepX = flat ? 30 : 46;
+    const stepZ = flat ? 260 : 380;
+    const stepR = flat ? 7 : 22;
+    for(let i = 0; i < cards.length; i++){
+      const d = i - pos, ad = Math.abs(d);
+      const card = cards[i];
+      if(ad > 3.1){ card.style.opacity = '0'; card.style.visibility = 'hidden'; continue; }
+      card.style.visibility = 'visible';
+      card.style.transform =
+        `translate(-50%, -50%) translate3d(${(d * stepX).toFixed(2)}%, ${(-ad * 2.2).toFixed(2)}%, ` +
+        `${(-ad * stepZ).toFixed(0)}px) rotateY(${(-d * stepR).toFixed(2)}deg)`;
+      // Die vorderste Karte muss voll deckend bleiben, sonst scheint der Turm
+      // durch sie hindurch. Erst ab einem halben Schritt Abstand faellt sie ab.
+      // Auf schmalen Schirmen verschwinden die Nachbarn schneller, weil sie
+      // dort nicht seitlich Platz haben, um sich zu zeigen.
+      const fade = Math.max(0, ad - 0.55);
+      card.style.opacity = Math.max(0, 1 - fade / (flat ? 0.9 : 1.95)).toFixed(3);
+      card.style.filter = fade > 0 ? `blur(${Math.min(7, fade * 3).toFixed(1)}px)` : 'none';
+      card.style.zIndex = String(120 - Math.round(ad * 20));
+      card.classList.toggle('is-front', ad < 0.5);
+    }
+    const idx = Math.round(pos);
+    if(idx !== deckIndex){
+      deckIndex = idx;
+      if(deckDots){
+        Array.from(deckDots.children).forEach((li, i) => li.classList.toggle('is-on', i === idx));
+      }
+      sndCineScene();
+    }
+  }
+
+  function buildDots(){
+    if(!deckDots || deckDots.children.length) return;
+    for(let i = 0; i < cards.length; i++) deckDots.appendChild(document.createElement('li'));
+  }
+
   // Szenen-Scrubbing. Nebenbei faellt hier der Gesamt-Fortschritt der
   // Startseite ab (0 = erste Szene liegt oben an, 1 = letzte tritt unten
   // aus) - genau das, was den Ring steuert.
@@ -7875,9 +8135,27 @@ function sndCineHover(){ playTone(659, 0.14, 'sine', 0.012, 0, 2000); }
     if(glReady) window.LumiereGL.setProgress(p);
     // Rund um die Mitte der Reise fuellt der Ring das Bild und laeuft hinter
     // der Schrift durch - dort wird er durchscheinender.
-    const dip = Math.max(0, 1 - Math.abs(p - 0.49) / 0.22);
+    // Der Turm uebernimmt, waehrend der hohe Track vor der Kamera steht, und
+    // blendet an beiden Enden ueber eine halbe Bildschirmhoehe ein und aus.
+    let towerAmt = 0;
+    if(tourTrack){
+      const tr = tourTrack.getBoundingClientRect();
+      const fadeIn  = Math.max(0, Math.min(1, (vh - tr.top) / (vh * 0.6)));
+      const fadeOut = Math.max(0, Math.min(1, tr.bottom / (vh * 0.6)));
+      towerAmt = Math.min(fadeIn, fadeOut);
+      const span = tr.height - vh;
+      const tp = span > 0 ? Math.max(0, Math.min(1, -tr.top / span)) : 0;
+      // Vorne und hinten etwas Luft, damit das erste und das letzte Kaertchen
+      // einen Moment stehen bleiben, statt sofort weiterzurutschen.
+      const raw = Math.max(0, Math.min(1, (tp - 0.09) / 0.82)) * (cards.length - 1);
+      const base = Math.floor(raw), f = raw - base;
+      layoutDeck(base + f * f * f * (f * (f * 6 - 15) + 10));
+    }
+    if(glReady) window.LumiereGL.setTower(towerAmt);
+
+    const dip = Math.max(0, 1 - Math.abs(p - 0.25) / 0.14);
     const tail = Math.max(0, Math.min(1, (vh - last.bottom) / (vh * 0.45)));
-    glCanvas.style.setProperty('--gl-op', ((0.86 - dip * 0.34) * (1 - tail)).toFixed(3));
+    glCanvas.style.setProperty('--gl-op', ((0.9 - dip * 0.32) * (1 - tail)).toFixed(3));
 
     if(top && top.key && top.key !== lastSceneKey){
       if(lastSceneKey) sndCineScene();
@@ -7903,6 +8181,7 @@ function sndCineHover(){ playTone(659, 0.14, 'sine', 0.012, 0, 2000); }
     running = true;
     resize();
     if(motes.length === 0) seed();
+    buildDots();
     canvas.classList.add('is-live');
     ensureGl(() => {
       glCanvas.classList.add('is-live');
@@ -7938,6 +8217,18 @@ function sndCineHover(){ playTone(659, 0.14, 'sine', 0.012, 0, 2000); }
   document.addEventListener('visibilitychange', () => {
     if(document.hidden) stop(); else if(!view.hidden) start();
   });
+
+  // Nur die vorderste Karte nimmt Klicks an - das regelt pointer-events in
+  // layoutDeck(). Ein zweiter Waechter hier waere nicht nur ueberfluessig,
+  // sondern schaedlich: schiebt der Browser die Karte vor dem Klick noch ins
+  // Bild (Tastatur-Fokus, scrollIntoView), aendert sich die Stapelposition
+  // und der Klick ginge verloren.
+  for(const card of cards){
+    card.addEventListener('click', () => {
+      sndCineEnter();
+      goToDestination(card.dataset.goto);
+    });
+  }
 
   setInterval(cycleWord, 4200);
   window.cineFieldStart = start;
