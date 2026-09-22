@@ -2136,12 +2136,20 @@
     letter-spacing:.34em; color:var(--gold-bright);
   }
 
+  /* Die Kaertchen stehen an festen Plaetzen auf einer Wendel um den Turm -
+     sie bewegen sich nicht. Bewegt wird die Welt um sie herum, genau
+     gegenlaeufig zur Kamera (siehe layoutDeck). Dadurch stimmt die
+     Perspektive von selbst: das naechste Kaertchen steht wirklich tiefer,
+     weiter rechts und weiter weg, statt nur daneben geschoben zu sein. */
   .cine-deck{
     position:relative; width:100%; flex:1; min-height:0;
-    perspective:1500px; transform-style:preserve-3d;
-    /* Die Kaertchen stehen alle hinter z=0, der Container selbst liegt davor
-       und faenge sonst jeden Klick und jedes Hover ab. */
+    perspective:1800px; perspective-origin:50% 36%;
+    /* Der Container liegt vor den Kaertchen und faenge sonst jeden Klick ab. */
     pointer-events:none;
+  }
+  .cine-deck-world{
+    position:absolute; inset:0; transform-style:preserve-3d;
+    will-change:transform;
   }
   .cine-card{
     position:absolute; top:50%; left:50%;
@@ -2149,8 +2157,8 @@
     margin:0; padding:0; border:none; border-radius:26px;
     background:#0b0a0d; overflow:hidden; cursor:pointer; text-align:left;
     box-shadow:0 34px 90px rgba(0,0,0,.66), 0 2px 0 rgba(255,225,170,.06) inset;
-    will-change:transform, opacity; backface-visibility:hidden;
-    transform-origin:50% 50%; pointer-events:none;
+    will-change:opacity; backface-visibility:hidden;
+    transform-origin:0 0; pointer-events:none;
   }
   /* Der Rahmen ist ein Verlauf, kein Strich: oben ein heller Lichtsaum,
      unten laeuft er ins Dunkel aus - wie eine Kante, auf die Licht faellt. */
@@ -2219,7 +2227,12 @@
   }
   .cine-card.is-front:hover .cine-card-go{ letter-spacing:.3em; border-bottom-color:var(--ember-bright); }
 
-  .cine-deck-dots{ display:flex; gap:.55rem; margin:0; padding:0; list-style:none; }
+  /* Die Punkte stehen ausserhalb der 3D-Welt, damit ein tiefer haengendes
+     Kaertchen nicht darueber laeuft. */
+  .cine-deck-dots{
+    position:absolute; left:50%; bottom:1.6rem; transform:translateX(-50%);
+    display:flex; gap:.55rem; margin:0; padding:0; list-style:none; z-index:2;
+  }
   .cine-deck-dots li{
     width:6px; height:6px; border-radius:50%; background:rgba(167,156,136,.3);
     transition:background .3s var(--ease), transform .3s var(--ease-spring);
@@ -3418,6 +3431,7 @@
           <p class="cine-tour-lede">Sieben Bereiche, eine Seite. Scroll weiter — sie ziehen an dir vorbei.</p>
 
           <div class="cine-deck" id="cineDeck">
+            <div class="cine-deck-world" id="cineDeckWorld">
             <button type="button" class="cine-card" data-goto="home">
               <img src="./feat-lernsets.jpg" alt="" loading="lazy" decoding="async">
               <span class="cine-card-veil" aria-hidden="true"></span>
@@ -3495,6 +3509,7 @@
                 <span class="cine-card-go">Öffnen</span>
               </span>
             </button>
+            </div>
           </div>
 
           <ol class="cine-deck-dots" id="cineDeckDots" aria-hidden="true"></ol>
@@ -4830,7 +4845,7 @@
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="./lumiere-gl.js" defer></script>
+<script src="./lumiere-gl.js?v=6" defer></script>
 <script>
 /* ============================================================
    WICHTIG: Bei jedem inhaltlichen Deploy hochzaehlen (wie CACHE_NAME
@@ -4841,7 +4856,7 @@
       unten) - neue, noch nicht "veroeffentlichte" Features hinter
       isReleased(N) verstecken; Admins sehen sie trotzdem sofort.
    ============================================================ */
-const APP_VERSION = 5;
+const APP_VERSION = 6;
 
 // Site-weites Feature-Gate: neue, aber noch nicht freigegebene Funktionen
 // hinter isReleased(<APP_VERSION beim Einbau>) verstecken. Admins (echtes
@@ -7993,6 +8008,7 @@ function sndCineHover(){ playTone(659, 0.14, 'sine', 0.012, 0, 2000); }
   const scenes   = Array.from(view.querySelectorAll('.cine-scene'));
   const tourTrack = document.getElementById('cineTourTrack');
   const deck      = document.getElementById('cineDeck');
+  const deckWorld = document.getElementById('cineDeckWorld');
   const deckDots  = document.getElementById('cineDeckDots');
   const cards     = deck ? Array.from(deck.querySelectorAll('.cine-card')) : [];
   const morph    = view.querySelector('.cine-morph');
@@ -8146,35 +8162,65 @@ function sndCineHover(){ playTone(659, 0.14, 'sine', 0.012, 0, 2000); }
     rafId = requestAnimationFrame(step);
   }
 
-  // Der Stapel. `pos` ist die Position im Stapel als Kommazahl - 0 heisst
-  // das erste Kaertchen steht vorn, 2.5 heisst zwischen dem dritten und dem
-  // vierten. Daraus ergibt sich fuer jedes Kaertchen sein Abstand zur Front
-  // und damit Versatz, Tiefe, Drehung und Deckkraft.
-  function layoutDeck(pos){
-    if(cards.length === 0) return;
-    // Auf schmalen Schirmen flacher stapeln: weniger Tiefe, weniger Drehung.
-    const flat = lite || window.innerWidth < 760;
-    const stepX = flat ? 30 : 46;
-    const stepZ = flat ? 260 : 380;
-    const stepR = flat ? 7 : 22;
-    for(let i = 0; i < cards.length; i++){
-      const d = i - pos, ad = Math.abs(d);
-      const card = cards[i];
-      if(ad > 3.1){ card.style.opacity = '0'; card.style.visibility = 'hidden'; continue; }
-      card.style.visibility = 'visible';
+  /* Der Stapel ist eine Wendel um den Turm: jedes Kaertchen hat einen festen
+     Platz (Winkel, Hoehe, Abstand von der Achse) und bleibt dort stehen.
+     Bewegt wird die Welt um sie herum - genau gegenlaeufig zur Kamera, so
+     dass das aktuelle Kaertchen im Ursprung landet und flach vor dem
+     Betrachter steht. Dadurch stimmt die Perspektive von selbst: das
+     naechste steht wirklich tiefer, weiter rechts und weiter weg, statt nur
+     daneben geschoben zu sein. */
+  function deckGeom(){
+    const narrow = window.innerWidth < 900;
+    return {
+      narrow,
+      // Flacher Winkel, dafuer ein grosser Hoehenschritt: das naechste
+      // Kaertchen soll deutlich TIEFER und nur etwas weiter rechts stehen.
+      // Ein grosser Winkel schoebe es seitlich aus dem Bild.
+      ang:  14 * Math.PI / 180,   // Winkelschritt von Kaertchen zu Kaertchen
+      rad:  narrow ? 700 : 1500,  // Abstand von der Achse
+      drop: narrow ? 380 : 500,   // Hoehenschritt (in CSS zeigt +Y nach unten)
+    };
+  }
+
+  // Die Plaetze stehen fest und haengen nur von der Bildschirmbreite ab -
+  // sie werden einmal gesetzt und nicht in jedem Bild neu gerechnet.
+  function placeCards(){
+    const g = deckGeom();
+    cards.forEach((card, i) => {
+      const a = i * g.ang;
       card.style.transform =
-        `translate(-50%, -50%) translate3d(${(d * stepX).toFixed(2)}%, ${(-ad * 2.2).toFixed(2)}%, ` +
-        `${(-ad * stepZ).toFixed(0)}px) rotateY(${(-d * stepR).toFixed(2)}deg)`;
-      // Die vorderste Karte muss voll deckend bleiben, sonst scheint der Turm
-      // durch sie hindurch. Erst ab einem halben Schritt Abstand faellt sie ab.
-      // Auf schmalen Schirmen verschwinden die Nachbarn schneller, weil sie
-      // dort nicht seitlich Platz haben, um sich zu zeigen.
-      const fade = Math.max(0, ad - 0.55);
-      card.style.opacity = Math.max(0, 1 - fade / (flat ? 0.9 : 1.95)).toFixed(3);
-      card.style.filter = fade > 0 ? `blur(${Math.min(7, fade * 3).toFixed(1)}px)` : 'none';
-      card.style.zIndex = String(120 - Math.round(ad * 20));
+        `translate3d(${(Math.sin(a) * g.rad).toFixed(1)}px, ${(i * g.drop).toFixed(1)}px, ` +
+        `${(Math.cos(a) * g.rad).toFixed(1)}px) rotateY(${(a * 180 / Math.PI).toFixed(3)}deg) ` +
+        `translate(-50%, -50%)`;
+    });
+  }
+
+  function layoutDeck(pos){
+    if(cards.length === 0 || !deckWorld) return;
+    const g = deckGeom();
+    const ac = pos * g.ang;
+    deckWorld.style.transform =
+      `rotateY(${(-ac * 180 / Math.PI).toFixed(3)}deg) ` +
+      `translate3d(${(-Math.sin(ac) * g.rad).toFixed(1)}px, ${(-pos * g.drop).toFixed(1)}px, ` +
+      `${(-Math.cos(ac) * g.rad).toFixed(1)}px)`;
+
+    for(let i = 0; i < cards.length; i++){
+      const card = cards[i], ad = Math.abs(i - pos);
+      // Nur das aktuelle Kaertchen und sein direkter Nachbar sollen zu sehen
+      // sein; alles weiter hinten - und damit auch alles, was hinter den Turm
+      // wandert - verschwindet.
+      const op = Math.max(0, 1 - Math.max(0, ad - 0.5) / 0.88);
+      if(op <= 0.012){
+        if(card.style.visibility !== 'hidden'){ card.style.visibility = 'hidden'; card.style.opacity = '0'; }
+        card.classList.remove('is-front');
+        continue;
+      }
+      card.style.visibility = 'visible';
+      card.style.opacity = op.toFixed(3);
+      card.style.filter = ad > 0.5 ? `blur(${Math.min(5, (ad - 0.5) * 3.2).toFixed(1)}px)` : 'none';
       card.classList.toggle('is-front', ad < 0.5);
     }
+
     const idx = Math.round(pos);
     if(idx !== deckIndex){
       deckIndex = idx;
@@ -8225,14 +8271,19 @@ function sndCineHover(){ playTone(659, 0.14, 'sine', 0.012, 0, 2000); }
       const tp = tourProgress;
       // Das Modell erst holen, wenn die Szene in Sichtweite kommt - zwei
       // Bildschirmhoehen vorher, damit es rechtzeitig da ist.
-      if(glReady && tr.top < vh * 2 && tr.bottom > -vh) window.LumiereGL.loadTower('./tower.glb');
+      if(glReady && window.LumiereGL.loadTower && tr.top < vh * 2 && tr.bottom > -vh){
+        window.LumiereGL.loadTower('./tower.glb?v=' + APP_VERSION);
+      }
       // Vorne und hinten etwas Luft, damit das erste und das letzte Kaertchen
       // einen Moment stehen bleiben, statt sofort weiterzurutschen.
       const raw = Math.max(0, Math.min(1, (tp - 0.09) / 0.82)) * (cards.length - 1);
-      const base = Math.floor(raw), f = raw - base;
+      const base = Math.floor(raw);
+      // Totzone vorn und hinten: knapp ein Fuenftel des Weges zwischen zwei
+      // Kaertchen steht das Bild still, damit man in Ruhe lesen kann.
+      const f = Math.max(0, Math.min(1, (raw - base - 0.19) / 0.62));
       layoutDeck(base + f * f * f * (f * (f * 6 - 15) + 10));
     }
-    if(glReady) window.LumiereGL.setTower(towerAmt, tourProgress);
+    if(glReady && window.LumiereGL.setTower) window.LumiereGL.setTower(towerAmt, tourProgress);
 
     const dip = Math.max(0, 1 - Math.abs(p - 0.25) / 0.14);
     const tail = Math.max(0, Math.min(1, (vh - last.bottom) / (vh * 0.45)));
@@ -8263,6 +8314,7 @@ function sndCineHover(){ playTone(659, 0.14, 'sine', 0.012, 0, 2000); }
     resize();
     if(motes.length === 0) seed();
     buildDots();
+    placeCards();
     canvas.classList.add('is-live');
     ensureGl(() => {
       glCanvas.classList.add('is-live');
@@ -8284,7 +8336,7 @@ function sndCineHover(){ playTone(659, 0.14, 'sine', 0.012, 0, 2000); }
     ctx.clearRect(0, 0, w, h);
   }
 
-  window.addEventListener('resize', () => { if(running){ resize(); seed(); scrub(); } }, { passive:true });
+  window.addEventListener('resize', () => { if(running){ resize(); seed(); placeCards(); scrub(); } }, { passive:true });
   window.addEventListener('scroll', () => {
     if(!running) return;
     scrub();

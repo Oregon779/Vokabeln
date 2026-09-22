@@ -89,8 +89,18 @@ Zwei Fallen, die schon einmal Zeit gekostet haben:
   liegen hinter z=0, der Container selbst davor - ohne
   `pointer-events:none` auf dem Container faengt er jeden Klick ab.
 
-Wichtig: `lumiere-gl.js` gehoert in die App-Shell in `sw.js`, und `CACHE_NAME`
-dort muss bei jedem Deploy mit hochgezaehlt werden.
+Wichtig bei jedem Deploy, sonst bekommen Nutzer ein altes Buendel zu neuem
+Markup (daher kam einmal "LumiereGL.setTower is not a function"):
+- `CACHE_NAME` in `sw.js` hochzaehlen
+- den Versionsanhang im Script-Tag mitziehen:
+  `<script src="./lumiere-gl.js?v=N" defer>` - der Dateiname aendert sich nie,
+  ohne den Anhang liefern Cloudflare und Browser-Cache die alte Datei aus.
+
+Der Kaertchen-Stapel ist eine Wendel: jedes Kaertchen steht fest an seinem
+Platz (`placeCards`), bewegt wird die Welt darum (`layoutDeck`), genau
+gegenlaeufig zur Kamera. Die Kaertchen brauchen dafuer `transform-origin:0 0` -
+mit dem voreingestellten Mittelpunkt heben sich die beiden Drehungen nicht
+auf und die vorderste Karte wandert seitlich weg.
 
 ## Vor jedem Commit
 
