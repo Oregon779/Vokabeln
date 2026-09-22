@@ -8,15 +8,16 @@
 // Nach aussen gibt es nur window.LumiereGL. Die Seite selbst weiss nichts
 // von Three.js.
 import {
-  WebGLRenderer, Scene, PerspectiveCamera, Group, Mesh, InstancedMesh, Points,
-  Clock, Object3D, Matrix4, Euler, Quaternion,
-  TorusGeometry, BoxGeometry, CylinderGeometry, ConeGeometry, TubeGeometry,
-  ExtrudeGeometry, Shape, CatmullRomCurve3, BufferGeometry, Float32BufferAttribute,
+  WebGLRenderer, Scene, PerspectiveCamera, Group, Mesh, Points, Clock,
+  TorusGeometry, TubeGeometry, ExtrudeGeometry, Shape, CatmullRomCurve3,
+  BufferGeometry, Float32BufferAttribute, Box3,
   MeshPhysicalMaterial, MeshStandardMaterial, PointsMaterial,
   Color, Vector3, CanvasTexture, EquirectangularReflectionMapping,
   PMREMGenerator, PointLight, AmbientLight,
   ACESFilmicToneMapping, SRGBColorSpace, AdditiveBlending,
 } from 'three';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
 
 const GOLD        = 0xd9a548;
 const GOLD_BRIGHT = 0xf6c35c;
@@ -96,127 +97,85 @@ function makeRibbon(mat, lite){
 
 /* ----------------------------------------------------------------- Turm  */
 
-// Der Umriss des Eiffelturms: die halbe Breite über die Höhe. Die Kurve ist
-// nicht gemessen, sondern so gewählt, dass die Silhouette stimmt - genau die
-// trägt das Wiedererkennen, nicht die Zahl der Streben.
-function towerHalfWidth(h){
-  return 0.50 * Math.pow(1 - Math.min(h, 1), 1.85) + 0.030;
+// Der Eiffelturm kommt als Modell (tower.glb, Johnson Martin, CC-BY-4.0) und
+// wird erst geholt, wenn man sich seiner Szene naehert - der erste
+// Seitenaufruf soll davon nichts merken.
+const TOWER_HEIGHT = 10;        // Zielhoehe in Weltmassen, das Modell wird skaliert
+let towerLoading = false;
+
+function applyTowerLook(root, lite){
+  // Das Modell bringt eigene, matte Materialien mit. Sie werden komplett
+  // ersetzt: poliertes Gold, das von innen glimmt.
+  const mat = new MeshStandardMaterial({
+    color: GOLD, emissive: new Color(AMBER_DEEP), emissiveIntensity: 0.42,
+    metalness: 0.94, roughness: 0.34, envMapIntensity: 1.55, transparent: true,
+  });
+  root.traverse(o => {
+    if(o.isMesh){
+      if(o.material && o.material.dispose) o.material.dispose();
+      o.material = mat;
+      o.castShadow = o.receiveShadow = false;
+      o.frustumCulled = true;
+    }
+  });
+  return mat;
 }
 
-function buildTower(matFrame, matGlow, lite){
-  const g = new Group();
-  const H = 7.2;                       // Gesamthöhe in Weltmaßen
-  const SEG = lite ? 22 : 40;
-
-  // Vier Eckpfeiler. Alle haben denselben Verlauf, nur um 90° gedreht -
-  // deshalb wird die Kurve einmal gebaut und viermal verwendet.
-  const postPts = [];
-  for(let i = 0; i <= SEG; i++){
-    const h = i / SEG;
-    const w = towerHalfWidth(h);
-    postPts.push(new Vector3(w, h * H, w));
-  }
-  const postGeo = new TubeGeometry(new CatmullRomCurve3(postPts), SEG, 0.032, lite ? 4 : 7, false);
-  for(let i = 0; i < 4; i++){
-    const m = new Mesh(postGeo, matFrame);
-    m.rotation.y = i * Math.PI / 2;
-    g.add(m);
-  }
-
-  // Gitterwerk: waagerechte Ringe und dazwischen gekreuzte Streben. Alles in
-  // einem einzigen InstancedMesh, sonst wären es hunderte Zeichenaufrufe.
-  const dummy = new Object3D();
-  const bars = [];
-  const levels = lite ? 13 : 24;
-  for(let i = 0; i < levels; i++){
-    const h0 = i / levels, h1 = (i + 1) / levels;
-    const w0 = towerHalfWidth(h0), w1 = towerHalfWidth(h1);
-    const y0 = h0 * H, y1 = h1 * H;
-    for(let f = 0; f < 4; f++){
-      const rot = f * Math.PI / 2;
-      // waagerechte Strebe am unteren Rand des Feldes
-      bars.push({ a: cornerAt(w0, y0, rot), b: cornerAt(w0, y0, rot + Math.PI / 2), r: 0.013 });
-      // zwei Diagonalen, die sich in der Feldmitte kreuzen
-      bars.push({ a: cornerAt(w0, y0, rot), b: cornerAt(w1, y1, rot + Math.PI / 2), r: 0.010 });
-      bars.push({ a: cornerAt(w0, y0, rot + Math.PI / 2), b: cornerAt(w1, y1, rot), r: 0.010 });
-    }
-  }
-  const lattice = new InstancedMesh(new BoxGeometry(1, 1, 1), matFrame, bars.length);
-  const up = new Vector3(0, 1, 0), dir = new Vector3(), mid = new Vector3();
-  const quat = new Quaternion();
-  bars.forEach((bar, i) => {
-    dir.subVectors(bar.b, bar.a);
-    const len = dir.length();
-    mid.addVectors(bar.a, bar.b).multiplyScalar(0.5);
-    quat.setFromUnitVectors(up, dir.normalize());
-    dummy.position.copy(mid);
-    dummy.quaternion.copy(quat);
-    dummy.scale.set(bar.r, len, bar.r);
-    dummy.updateMatrix();
-    lattice.setMatrixAt(i, dummy.matrix);
-  });
-  lattice.instanceMatrix.needsUpdate = true;
-  g.add(lattice);
-
-  // Die Bogen unter der ersten Plattform - sie tragen die Silhouette
-  // genauso wie die Pfeiler.
-  for(let f = 0; f < 4; f++){
-    const rot = f * Math.PI / 2;
-    const a = cornerAt(towerHalfWidth(0), 0, rot);
-    const b = cornerAt(towerHalfWidth(0), 0, rot + Math.PI / 2);
-    const mid = a.clone().add(b).multiplyScalar(0.5);
-    mid.y = H * 0.125;
-    mid.multiplyScalar(0.84); mid.y = H * 0.125;
-    const arc = new CatmullRomCurve3([a, mid, b]);
-    g.add(new Mesh(new TubeGeometry(arc, lite ? 10 : 22, 0.018, lite ? 4 : 6, false), matFrame));
-  }
-
-  // Die drei Plattformen als flache Rahmen.
-  for(const [h, thick] of [[0.155, 0.055], [0.345, 0.045], [0.80, 0.038]]){
-    const w = towerHalfWidth(h) * 1.5;
-    const p = new Mesh(new BoxGeometry(w * 2, thick, w * 2), matFrame);
-    p.position.y = h * H;
-    g.add(p);
-  }
-
-  // Die Spitze mit der Antenne.
-  const spire = new Mesh(new ConeGeometry(towerHalfWidth(0.94) * 1.1, H * 0.09, lite ? 6 : 10), matFrame);
-  spire.position.y = H * 0.975;
-  g.add(spire);
-  const mast = new Mesh(new CylinderGeometry(0.012, 0.016, H * 0.10, 6), matGlow);
-  mast.position.y = H * 1.06;
-  g.add(mast);
-
-  // Das Funkeln: Punkte entlang der Silhouette, die im Wechsel aufblitzen -
-  // das stündliche Lichtspiel, nur ruhiger.
-  const count = lite ? 160 : 420;
+// Das Funkeln: Punkte im Volumen des Turms, die im Wechsel aufblitzen -
+// das stuendliche Lichtspiel, nur ruhiger.
+function makeSparks(height, lite){
+  const count = lite ? 200 : 520;
   const pos = new Float32Array(count * 3);
   for(let i = 0; i < count; i++){
     const h = Math.random();
-    const w = towerHalfWidth(h) * (0.55 + Math.random() * 0.75);
+    // Die Breite folgt grob dem Umriss, damit die Funken auf dem Bauwerk
+    // sitzen und nicht daneben in der Luft.
+    const w = (0.34 * Math.pow(1 - h, 1.85) + 0.02) * height * (0.4 + Math.random() * 0.9);
     const a = Math.random() * Math.PI * 2;
     pos[i * 3]     = Math.cos(a) * w;
-    pos[i * 3 + 1] = h * H;
+    pos[i * 3 + 1] = h * height;
     pos[i * 3 + 2] = Math.sin(a) * w;
   }
-  const sparkGeo = new BufferGeometry();
-  sparkGeo.setAttribute('position', new Float32BufferAttribute(pos, 3));
-  const sparks = new Points(sparkGeo, new PointsMaterial({
-    color: CHAMPAGNE, size: lite ? 0.048 : 0.032, transparent: true,
-    opacity: 0.9, blending: AdditiveBlending, depthWrite: false, sizeAttenuation: true,
+  const geo = new BufferGeometry();
+  geo.setAttribute('position', new Float32BufferAttribute(pos, 3));
+  return new Points(geo, new PointsMaterial({
+    color: CHAMPAGNE, size: lite ? 0.075 : 0.05, transparent: true,
+    opacity: 0, blending: AdditiveBlending, depthWrite: false, sizeAttenuation: true,
   }));
-  g.add(sparks);
-
-  // Innen wird der Turm um seine eigene Mitte zentriert, aussen wird er
-  // bewegt. Zwei Gruppen, damit sich beides nicht ins Gehege kommt.
-  g.position.y = -H * 0.5;
-  const outer = new Group();
-  outer.add(g);
-  outer.userData.sparks = sparks;
-  return outer;
 }
-function cornerAt(w, y, rot){
-  return new Vector3(Math.cos(rot) * w * Math.SQRT2 * 0.7071, y, Math.sin(rot) * w * Math.SQRT2 * 0.7071);
+
+function loadTower(url){
+  if(tower || towerLoading || !ready) return;
+  towerLoading = true;
+  const loader = new GLTFLoader();
+  loader.setMeshoptDecoder(MeshoptDecoder);
+  loader.load(url, gltf => {
+    const model = gltf.scene;
+    const mat = applyTowerLook(model, lite);
+
+    // Auf eine feste Hoehe bringen und den Fuss auf y=0 setzen, damit die
+    // Kamerafahrt mit festen Zahlen rechnen kann.
+    const box = new Box3().setFromObject(model);
+    const size = box.getSize(new Vector3());
+    const k = TOWER_HEIGHT / (size.y || 1);
+    model.scale.setScalar(k);
+    model.position.set(-((box.min.x + box.max.x) / 2) * k, -box.min.y * k,
+                       -((box.min.z + box.max.z) / 2) * k);
+
+    const g = new Group();
+    g.add(model);
+    const sparks = makeSparks(TOWER_HEIGHT, lite);
+    g.add(sparks);
+    g.visible = false;
+    scene.add(g);
+    tower = g;
+    towerMats = [mat, sparks.material];
+    tower.userData.sparks = sparks;
+    towerLoading = false;
+  }, undefined, err => {
+    console.warn('Turm-Modell konnte nicht geladen werden:', err);
+    towerLoading = false;
+  });
 }
 
 /* --------------------------------------------------------------- Ablauf  */
@@ -248,7 +207,7 @@ let renderer, scene, camera, clock;
 let emblem, ringMain, tower, towerMats = [], emblemMats = [];
 let raf = 0, running = false, lite = false, ready = false;
 let progress = 0, shown = 0;
-let towerAmt = 0, towerShown = 0;
+let towerAmt = 0, towerShown = 0, tourP = 0, tourShown = 0;
 let pointerX = 0, pointerY = 0, px = 0, py = 0;
 
 function init(canvas, opts){
@@ -316,26 +275,14 @@ function init(canvas, opts){
   // auch vor sehr dunklem Grund eine Kante behält.
   emblemMats = [mainMat, letterMat, ribbonMat];
 
-  /* --- Turm ------------------------------------------------------------- */
-  const frameMat = new MeshStandardMaterial({
-    color: GOLD, emissive: new Color(AMBER_DEEP), emissiveIntensity: 0.55,
-    metalness: 0.95, roughness: 0.32, envMapIntensity: 1.6, transparent: true,
-  });
-  const glowMat = new MeshStandardMaterial({
-    color: CHAMPAGNE, emissive: new Color(GOLD_BRIGHT), emissiveIntensity: 2.4,
-    metalness: 1, roughness: 0.2, transparent: true,
-  });
-  tower = buildTower(frameMat, glowMat, lite);
-  tower.visible = false;
-  scene.add(tower);
-  towerMats = [frameMat, glowMat, tower.userData.sparks.material];
-
-  /* --- Licht: warm von oben, Weinrot als Gegenlicht von unten ----------- */
-  scene.add(new AmbientLight(0xffe2ad, 0.55));
-  const key  = new PointLight(GOLD_BRIGHT, 70, 40); key.position.set(4, 6, 6);   scene.add(key);
-  const rim  = new PointLight(CHAMPAGNE,   30, 40); rim.position.set(-6, -2, 3); scene.add(rim);
-  const back = new PointLight(WINE,        55, 40); back.position.set(-3, -6, -4); scene.add(back);
-  const warm = new PointLight(AMBER_DEEP,  45, 40); warm.position.set(5, -4, -2); scene.add(warm);
+  /* --- Licht: warm von oben, Weinrot als Gegenlicht von unten -----------
+     Die Reichweite muss den Turm mit abdecken (10 Einheiten hoch), deshalb
+     stehen die Lampen weiter draussen als fuer das Emblem noetig waere. */
+  scene.add(new AmbientLight(0xffe2ad, 0.6));
+  const key  = new PointLight(GOLD_BRIGHT, 260, 90); key.position.set(9, 14, 12);   scene.add(key);
+  const rim  = new PointLight(CHAMPAGNE,   120, 90); rim.position.set(-11, 3, 6);   scene.add(rim);
+  const back = new PointLight(WINE,        220, 90); back.position.set(-7, -6, -10); scene.add(back);
+  const warm = new PointLight(AMBER_DEEP,  200, 90); warm.position.set(11, 1, -7);  scene.add(warm);
 
   clock = new Clock();
   resize();
@@ -347,8 +294,31 @@ function init(canvas, opts){
 // das Emblem. setTower() blendet davon unabhängig den Turm ein: 0 = Emblem
 // spielt, 1 = der Turm hat die Bühne.
 function setProgress(p){ progress = Math.max(0, Math.min(1, p)); }
-function setTower(t){ towerAmt = Math.max(0, Math.min(1, t)); }
+// `amount` blendet den Turm ein (0 = Emblem spielt, 1 = Turm hat die Buehne),
+// `p` ist der Fortschritt innerhalb der Turm-Szene und fuehrt die Kamera.
+function setTower(amount, p){
+  towerAmt = Math.max(0, Math.min(1, amount));
+  if(typeof p === 'number') tourP = Math.max(0, Math.min(1, p));
+}
 function setPointer(nx, ny){ pointerX = nx; pointerY = ny; }
+
+/* Die Fahrt um den Turm: oben an der Spitze los, eine halbe Umrundung nach
+   rechts und dabei hinunter zum Fuss. Zwei Stuetzstellen reichen - Winkel,
+   Hoehe, Abstand und Blickpunkt werden dazwischen weich interpoliert. */
+const TOUR = {
+  from: { ang: -0.45,             y: 9.2, dist: 7.2, look: 8.4 },  // an der Spitze
+  to:   { ang: Math.PI - 0.45,    y: 2.1, dist: 9.4, look: 2.6 },  // am Fuss
+};
+const _camTour = new Vector3(), _lookTour = new Vector3(), _look = new Vector3();
+function tourCamera(q){
+  const e = smoothstep(q);
+  const ang  = TOUR.from.ang  + (TOUR.to.ang  - TOUR.from.ang)  * e;
+  const y    = TOUR.from.y    + (TOUR.to.y    - TOUR.from.y)    * e;
+  const dist = TOUR.from.dist + (TOUR.to.dist - TOUR.from.dist) * e;
+  const look = TOUR.from.look + (TOUR.to.look - TOUR.from.look) * e;
+  _camTour.set(Math.sin(ang) * dist, y, Math.cos(ang) * dist);
+  _lookTour.set(0, look, 0);
+}
 
 const _k = new Array(7);
 function applyTransform(p, t){
@@ -373,23 +343,33 @@ function applyTransform(p, t){
   emblem.visible = eo > 0.01;
   for(const m of emblemMats) m.opacity = eo;
 
-  tower.visible = tw > 0.01;
-  if(tower.visible){
-    const rise = smoothstep(tw);
-    // Massstab so, dass der ganze Turm ins Bild passt - bei Kamera z=7 und
-    // 42 Grad sind das rund 5.4 Welteinheiten Hoehe.
-    tower.scale.setScalar((0.50 + rise * 0.16) * fit);
-    // Hochkant liegt das Kaertchen ueber der Mitte des Turms. Dort rueckt er
-    // nach oben, damit wenigstens die obere Haelfte frei steht.
-    const portrait = camera.aspect < 0.95;
-    tower.position.set(0, (portrait ? 1.20 : -0.25) + rise * 0.35, -0.8 - (1 - rise) * 5);
-    tower.rotation.y = t * 0.09 + px * 0.28 + tw * 0.5;
-    tower.rotation.x = py * 0.05;
-    for(const m of towerMats) m.opacity = smoothstep(Math.min(1, tw * 1.6));
-    // Funkeln: ein ruhiges Pulsieren, kein Stroboskop.
-    const s = tower.userData.sparks.material;
-    s.opacity = (0.35 + 0.55 * (0.5 + 0.5 * Math.sin(t * 2.1))) * smoothstep(Math.min(1, tw * 1.6));
+  if(tower){
+    tower.visible = tw > 0.01;
+    if(tower.visible){
+      // Auf einem hochkantigen Schirm faellt der Turm schmaler aus, sonst
+      // passt er nicht zwischen Kopfleiste und Kaertchen.
+      tower.scale.setScalar(fit);
+      tower.position.set(0, -TOWER_HEIGHT * 0.5 * fit, 0);
+      tower.rotation.y = px * 0.06;   // nur ein Hauch Zeiger-Reaktion
+      const app = smoothstep(Math.min(1, tw * 1.6));
+      for(const m of towerMats) m.opacity = app;
+      // Funkeln: ein ruhiges Pulsieren, kein Stroboskop.
+      tower.userData.sparks.material.opacity =
+        (0.3 + 0.6 * (0.5 + 0.5 * Math.sin(t * 2.1))) * app;
+    }
   }
+
+  // Die Kamera: waehrend der Turm-Szene faehrt sie um ihn herum, sonst steht
+  // sie vor dem Emblem. Dazwischen wird ueberblendet, damit nichts springt.
+  tourCamera(tourShown);
+  const yOff = -TOWER_HEIGHT * 0.5 * fit;
+  const ez = 7 - p * 1.2;
+  const b = smoothstep(tw);
+  camera.position.set(_camTour.x * b,
+                      (_camTour.y + yOff) * b,
+                      ez + (_camTour.z - ez) * b);
+  _look.set(0, (_lookTour.y + yOff) * b, 0);
+  camera.lookAt(_look);
 }
 
 function frame(){
@@ -397,8 +377,9 @@ function frame(){
   const dt = Math.min(clock.getDelta(), 0.05);
   const t = clock.elapsedTime;
 
-  shown      += (progress  - shown)      * Math.min(1, dt * 3.2);
-  towerShown += (towerAmt  - towerShown) * Math.min(1, dt * 3.6);
+  shown      += (progress - shown)     * Math.min(1, dt * 3.2);
+  towerShown += (towerAmt - towerShown) * Math.min(1, dt * 3.6);
+  tourShown  += (tourP    - tourShown)  * Math.min(1, dt * 3.4);
   px += (pointerX - px) * Math.min(1, dt * 2.4);
   py += (pointerY - py) * Math.min(1, dt * 2.4);
   applyTransform(shown, t);
@@ -428,10 +409,12 @@ function stop(){
 // Ein einzelnes Standbild - für prefers-reduced-motion, wo nichts laufen darf.
 function renderOnce(){
   if(!ready) return;
-  shown = progress; towerShown = towerAmt; px = pointerX; py = pointerY;
+  shown = progress; towerShown = towerAmt; tourShown = tourP; px = pointerX; py = pointerY;
   applyTransform(shown, 0);
   renderer.render(scene, camera);
 }
 
-window.LumiereGL = { init, start, stop, resize, setProgress, setTower, setPointer, renderOnce,
-  get ready(){ return ready; } };
+window.LumiereGL = { init, start, stop, resize, setProgress, setTower, setPointer,
+  renderOnce, loadTower,
+  get ready(){ return ready; },
+  get hasTower(){ return !!tower; } };

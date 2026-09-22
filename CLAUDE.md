@@ -57,8 +57,24 @@ npx esbuild lumiere-gl.src.js --bundle --minify --format=iife \
 
 Zwei Auftritte teilen sich die Szene: das Emblem (Ring, das L als eigener
 Glaskoerper, die gekreuzte Schlaufe) und der Eiffelturm. `setProgress(p)`
-steuert das Emblem, `setTower(t)` blendet den Turm darueber ein - beides
-kommt aus `scrub()` in index.html.
+steuert das Emblem, `setTower(amount, p)` blendet den Turm ein und fuehrt
+die Kamerafahrt - beides kommt aus `scrub()` in index.html.
+
+Der Turm ist `tower.glb` (Johnson Martin, Sketchfab, **CC-BY-4.0** - die
+Namensnennung im Footer ist Lizenzbedingung und darf nicht entfallen). Die
+Datei wird erst geholt, wenn die Turm-Szene in Sichtweite kommt. Das
+Original war 17 MB mit veralteten specGloss-Materialien, die three.js nicht
+mehr laedt; aufbereitet wurde es so:
+
+```bash
+npx @gltf-transform/cli metalrough eiffel.glb t1.glb
+npx @gltf-transform/cli optimize t1.glb tower.glb --compress meshopt \
+  --simplify true --simplify-error 0.004
+```
+
+Die Kamerafahrt steht in der Tabelle `TOUR` (Winkel, Hoehe, Abstand und
+Blickpunkt je an der Spitze und am Fuss) - eine halbe Umrundung von oben
+nach unten.
 
 Die Bahn des Emblems steckt in der Tabelle `KEYS` (Scroll-Fortschritt,
 Groesse, Position, Drehung je Stuetzstelle) - dort wird nachjustiert, nicht
