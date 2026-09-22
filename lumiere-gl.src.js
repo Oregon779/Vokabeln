@@ -19,11 +19,11 @@ import {
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
 
-const GOLD        = 0xd9a548;
-const GOLD_BRIGHT = 0xf6c35c;
-const CHAMPAGNE   = 0xf3e2b8;
-const AMBER_DEEP  = 0x8c4a12;
-const WINE        = 0x6d1f28;
+const GOLD        = 0xf0a92c;   // kraeftiger als das Seiten-Gold: das Emblem
+const GOLD_BRIGHT = 0xffc94a;   // und der Turm sollen leuchten, nicht nur
+const CHAMPAGNE   = 0xfff0c4;   // vorhanden sein
+const AMBER_DEEP  = 0xb35c06;
+const NIGHT_BLUE  = 0x18243f;   // das Blau der Seite als Gegenlicht
 
 // Die Umgebung, in der sich das Glas spiegelt. Statt eine HDR-Datei zu laden
 // wird sie hier gezeichnet: dunkler Grund, ein warmer Lichtbogen oben, ein
@@ -34,19 +34,19 @@ function makeEnvTexture(){
   c.width = 512; c.height = 256;
   const g = c.getContext('2d');
   const grad = g.createLinearGradient(0, 0, 0, 256);
-  grad.addColorStop(0.00, '#1a1205');
-  grad.addColorStop(0.26, '#9c6f24');
-  grad.addColorStop(0.42, '#ffd777');
-  grad.addColorStop(0.56, '#5a3312');
-  grad.addColorStop(0.78, '#3d121c');
-  grad.addColorStop(1.00, '#08070c');
+  grad.addColorStop(0.00, '#0b1220');
+  grad.addColorStop(0.24, '#b87c12');
+  grad.addColorStop(0.40, '#ffd257');
+  grad.addColorStop(0.55, '#6b4409');
+  grad.addColorStop(0.74, '#16233c');
+  grad.addColorStop(1.00, '#070a12');
   g.fillStyle = grad; g.fillRect(0, 0, 512, 256);
   // Einzelne Lichtquellen, damit die Kanten echte Glanzpunkte bekommen.
   const lamps = [
-    [110,  62,  95, 'rgba(255,238,196,.70)'],
-    [352,  48,  76, 'rgba(255,214,140,.55)'],
-    [246, 176, 130, 'rgba(190,60,72,.30)'],
-    [452, 150,  90, 'rgba(255,170,90,.30)'],
+    [110,  60,  98, 'rgba(255,240,190,.85)'],
+    [352,  44,  80, 'rgba(255,205,100,.70)'],
+    [246, 178, 130, 'rgba(40,70,130,.42)'],
+    [452, 146,  92, 'rgba(255,160,50,.38)'],
   ];
   for(const [x, y, r, col] of lamps){
     const rg = g.createRadialGradient(x, y, 0, x, y, r);
@@ -65,17 +65,20 @@ function makeEnvTexture(){
 // Schriftdatei bauen, deshalb ist es hier als Umriss gezeichnet und
 // extrudiert - ein Blockserifen-L, das im Ring als Monogramm liest.
 function makeLetterL(mat){
+  // Ein Monolinien-L: gleichmaessig duenner Strich statt Blockserife. Der
+  // Umriss IST die Linie - Stamm und Fuss sind nur 0.115 breit.
+  const w = 0.115;
   const s = new Shape();
-  s.moveTo(-0.33, -0.50);
-  s.lineTo( 0.33, -0.50);
-  s.lineTo( 0.33, -0.28);
-  s.lineTo(-0.11, -0.28);
-  s.lineTo(-0.11,  0.50);
-  s.lineTo(-0.33,  0.50);
+  s.moveTo(-0.30, -0.52);
+  s.lineTo( 0.30, -0.52);
+  s.lineTo( 0.30, -0.52 + w);
+  s.lineTo(-0.30 + w, -0.52 + w);
+  s.lineTo(-0.30 + w,  0.52);
+  s.lineTo(-0.30,      0.52);
   s.closePath();
   const geo = new ExtrudeGeometry(s, {
-    depth: 0.26, bevelEnabled: true, bevelThickness: 0.045,
-    bevelSize: 0.04, bevelSegments: 3, curveSegments: 4,
+    depth: 0.085, bevelEnabled: true, bevelThickness: 0.016,
+    bevelSize: 0.014, bevelSegments: 2, curveSegments: 3,
   });
   geo.center();
   return new Mesh(geo, mat);
@@ -90,7 +93,7 @@ function makeRibbon(mat, lite){
   ];
   for(const pts of arcs){
     const curve = new CatmullRomCurve3(pts.map(p => new Vector3(...p)));
-    g.add(new Mesh(new TubeGeometry(curve, lite ? 20 : 48, 0.055, lite ? 5 : 8, false), mat));
+    g.add(new Mesh(new TubeGeometry(curve, lite ? 20 : 48, 0.032, lite ? 5 : 8, false), mat));
   }
   return g;
 }
@@ -221,7 +224,7 @@ function init(canvas, opts){
 
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, lite ? 1.5 : 2));
   renderer.toneMapping = ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.02;
+  renderer.toneMappingExposure = 1.12;
   renderer.outputColorSpace = SRGBColorSpace;
 
   scene = new Scene();
@@ -248,23 +251,28 @@ function init(canvas, opts){
     ? new MeshStandardMaterial({ color: GOLD, metalness: 1, roughness: 0.16, envMapIntensity: 1.7, transparent: true })
     : new MeshPhysicalMaterial({
         color: 0xffffff, metalness: 0, roughness: 0.055,
-        transmission: 1, thickness: 0.20, ior: 1.47,
-        attenuationColor: new Color(0x8f4e0c), attenuationDistance: 0.16,
+        transmission: 1, thickness: 0.10, ior: 1.42,
+        attenuationColor: new Color(0xb2660b), attenuationDistance: 0.028,
+        emissive: new Color(GOLD), emissiveIntensity: 0.55,
         specularColor: new Color(CHAMPAGNE), specularIntensity: 1,
-        iridescence: 0.25, iridescenceIOR: 1.30, iridescenceThicknessRange: [140, 420],
-        clearcoat: 1, clearcoatRoughness: 0.04,
-        envMapIntensity: 1.7, transparent: true,
+        // Kraeftiges Irisieren: beim Drehen wandert ein Schimmer ueber die
+        // Kante, wie das verchromte Zeichen in der Referenz.
+        iridescence: 0.92, iridescenceIOR: 1.38, iridescenceThicknessRange: [180, 760],
+        clearcoat: 1, clearcoatRoughness: 0.03,
+        envMapIntensity: 2.3, transparent: true,
       });
 
   const mainMat = glass();
-  ringMain = new Mesh(new TorusGeometry(1.9, 0.135, lite ? 14 : 36, lite ? 72 : 220), mainMat);
+  ringMain = new Mesh(new TorusGeometry(1.9, 0.052, lite ? 12 : 28, lite ? 90 : 260), mainMat);
   emblem.add(ringMain);
 
   // Das L sitzt als eigener, etwas dickerer Körper mittig im Ring.
-  const letterMat = glass();
-  if(letterMat.thickness !== undefined){ letterMat.thickness = 0.26; letterMat.attenuationDistance = 0.95; letterMat.iridescence = 0.45; }
+  const letterMat = new MeshStandardMaterial({
+    color: GOLD_BRIGHT, emissive: new Color(GOLD), emissiveIntensity: 0.7,
+    metalness: 1, roughness: 0.14, envMapIntensity: 2.4, transparent: true,
+  });
   const letter = makeLetterL(letterMat);
-  letter.scale.setScalar(1.95);
+  letter.scale.setScalar(1.85);
   emblem.add(letter);
   emblem.userData.letter = letter;
 
@@ -281,7 +289,7 @@ function init(canvas, opts){
   scene.add(new AmbientLight(0xffe2ad, 0.6));
   const key  = new PointLight(GOLD_BRIGHT, 260, 90); key.position.set(9, 14, 12);   scene.add(key);
   const rim  = new PointLight(CHAMPAGNE,   120, 90); rim.position.set(-11, 3, 6);   scene.add(rim);
-  const back = new PointLight(WINE,        220, 90); back.position.set(-7, -6, -10); scene.add(back);
+  const back = new PointLight(NIGHT_BLUE,  260, 90); back.position.set(-7, -6, -10); scene.add(back);
   const warm = new PointLight(AMBER_DEEP,  200, 90); warm.position.set(11, 1, -7);  scene.add(warm);
 
   clock = new Clock();
