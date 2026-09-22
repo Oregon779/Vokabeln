@@ -22,6 +22,7 @@ import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js';
+import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
 
 const GOLD        = 0xf0a92c;   // kraeftiger als das Seiten-Gold: das Emblem
 const GOLD_BRIGHT = 0xffc94a;   // und der Turm sollen leuchten, nicht nur
@@ -139,6 +140,79 @@ function makeRibbon(mat, lite){
   }
   return g;
 }
+
+// Ein Reif aus einzelnen Strichen statt einer geschlossenen Linie. Er laeuft
+// dem grossen Reif entgegen - zwei Drehungen in verschiedene Richtungen
+// lesen sich als Mechanik, eine allein nur als Wackeln.
+function makeSegmentRing(mat, radius, count, lite){
+  const g = new Group();
+  const seg = (Math.PI * 2 / count) * 0.42;      // Strich, dann Luecke
+  for(let i = 0; i < count; i++){
+    const a0 = (i / count) * Math.PI * 2;
+    const pts = [];
+    const steps = lite ? 3 : 6;
+    for(let k = 0; k <= steps; k++){
+      const a = a0 + seg * (k / steps);
+      pts.push(new Vector3(Math.cos(a) * radius, Math.sin(a) * radius, 0));
+    }
+    const curve = new CatmullRomCurve3(pts);
+    g.add(new Mesh(new TubeGeometry(curve, lite ? 3 : 6, 0.026, lite ? 4 : 6, false), mat));
+  }
+  return g;
+}
+
+/* ------------------------------------------------------ Bildabschluss ---- */
+
+// Vignette, Farbsaum und Korn in einem einzigen Durchgang. Drei getrennte
+// Paesse waeren drei Mal die ganze Flaeche lesen und schreiben - das hier
+// kostet einen Durchgang und laesst sich gemeinsam abstimmen.
+const GradeShader = {
+  uniforms: {
+    tDiffuse: { value: null },
+    uTime:    { value: 0 },
+    uAmount:  { value: 1 },     // faehrt mit der Startseite hoch und runter
+  },
+  vertexShader: `
+    varying vec2 vUv;
+    void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }
+  `,
+  fragmentShader: `
+    uniform sampler2D tDiffuse;
+    uniform float uTime;
+    uniform float uAmount;
+    varying vec2 vUv;
+
+    // Billiges, stabiles Rauschen - fuer Korn reicht es voellig.
+    float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123); }
+
+    void main(){
+      vec2 c = vUv - 0.5;
+      float r2 = dot(c, c);
+
+      // Farbsaum: die Kanaele werden zum Rand hin auseinandergezogen. In der
+      // Bildmitte bleibt alles deckungsgleich, sonst wuerde Schrift flimmern.
+      float disp = 0.0007 * uAmount * r2 * 4.0;
+      vec2 dir = normalize(c + 1e-6);
+      vec4 col;
+      col.r = texture2D(tDiffuse, vUv + dir * disp).r;
+      col.g = texture2D(tDiffuse, vUv).g;
+      col.b = texture2D(tDiffuse, vUv - dir * disp).b;
+      col.a = 1.0;
+
+      // Vignette: zum Rand hin abdunkeln, damit der Blick in der Mitte bleibt.
+      float vig = smoothstep(0.95, 0.28, r2 * 1.9);
+      col.rgb *= mix(1.0, mix(0.52, 1.0, vig), uAmount);
+
+      // Korn: in den dunklen Flaechen am staerksten, in den hellen kaum -
+      // sonst rauscht das Gold, statt dass der Grund lebendig wird.
+      float g = hash(vUv * vec2(1920.0, 1080.0) + fract(uTime) * 91.7) - 0.5;
+      float luma = dot(col.rgb, vec3(0.299, 0.587, 0.114));
+      col.rgb += g * 0.038 * uAmount * (1.0 - smoothstep(0.0, 0.7, luma));
+
+      gl_FragColor = col;
+    }
+  `,
+};
 
 /* ---------------------------------------------------------- Lichtschlieren */
 
@@ -381,7 +455,7 @@ function sampleKeys(p, out){
   return out;
 }
 
-let renderer, scene, camera, clock, composer, bloom;
+let renderer, scene, camera, clock, composer, bloom, grade;
 let streaks;
 let emblem, ringMain, tower, towerMats = [], emblemMats = [];
 let raf = 0, running = false, lite = false, ready = false;
@@ -475,7 +549,27 @@ function init(canvas, opts){
   band.position.z = 0.06;
   emblem.add(band);
 
-  emblemMats = [mainMat, letterMat, ribbonMat, bandMat];
+  // Ein duenner Reif, der im Takt atmet. Er liegt knapp ausserhalb des
+  // grossen und leuchtet staerker als alles andere - im Nachgluehen wird
+  // daraus ein weicher Puls statt einer harten Linie.
+  const pulseMat = new MeshStandardMaterial({
+    color: GOLD_BRIGHT, emissive: new Color(GOLD), emissiveIntensity: 0.5,
+    metalness: 0.8, roughness: 0.22, transparent: true,
+  });
+  const pulse = new Mesh(new TorusGeometry(2.06, 0.019, lite ? 5 : 8, lite ? 80 : 180), pulseMat);
+  emblem.add(pulse);
+  emblem.userData.pulse = pulse;
+
+  // Der Segmentreif laeuft aussen herum, dem grossen Reif entgegen.
+  const segMat = new MeshStandardMaterial({
+    color: GOLD_BRIGHT, emissive: new Color(GOLD), emissiveIntensity: 0.8,
+    metalness: 1, roughness: 0.16, envMapIntensity: 2.2, transparent: true,
+  });
+  const segRing = makeSegmentRing(segMat, 2.34, lite ? 12 : 22, lite);
+  emblem.add(segRing);
+  emblem.userData.segRing = segRing;
+
+  emblemMats = [mainMat, letterMat, ribbonMat, bandMat, pulseMat, segMat];
 
   /* --- Licht: warm von oben, Weinrot als Gegenlicht von unten -----------
      Die Reichweite muss den Turm mit abdecken (10 Einheiten hoch), deshalb
@@ -503,6 +597,10 @@ function init(canvas, opts){
                                 0.80);  // Schwelle - nur wirklich Helles blueht
     composer.addPass(bloom);
     composer.addPass(new OutputPass());
+    // Nach dem Farbraum, damit Korn und Vignette auf dem fertigen Bild
+    // sitzen und nicht noch durch die Tonwertkurve gezogen werden.
+    grade = new ShaderPass(GradeShader);
+    composer.addPass(grade);
   }
 
   clock = new Clock();
@@ -603,6 +701,15 @@ function applyTransform(p, t){
   // Das L dreht dem Reif ein Stueck entgegen, damit es nicht wie aufgeklebt
   // mitfaehrt, sondern wie ein eigener Koerper im Ring schwebt.
   if(emblem.userData.letter) emblem.userData.letter.rotation.y = -spin * 0.45 + Math.sin(t * 0.35) * 0.08;
+  // Drei Ebenen mit eigenem Takt: der grosse Reif dreht langsam im
+  // Uhrzeigersinn, der Segmentreif schneller dagegen, der duenne Reif atmet.
+  if(ringMain) ringMain.rotation.z = -t * (Math.PI * 2 / 20);
+  if(emblem.userData.segRing) emblem.userData.segRing.rotation.z = t * (Math.PI * 2 / 12);
+  if(emblem.userData.pulse){
+    const beat = 1 + 0.04 - Math.cos(t * (Math.PI * 2 / 2.5)) * 0.04;
+    emblem.userData.pulse.scale.setScalar(beat);
+    emblem.userData.pulse.material.emissiveIntensity = 0.42 + (beat - 1) * 9;
+  }
   camera.position.z = 7 - p * 1.2;
 
   // Überblendung. Der Turm steigt beim Auftritt leicht an und dreht sich
@@ -640,26 +747,44 @@ function applyTransform(p, t){
   const yOff = -TOWER_HEIGHT * 0.5 * fit;
   const ez = 7 - p * 1.2;
   const b = smoothstep(tw);
-  camera.position.set(_camTour.x * b,
-                      (_camTour.y + yOff) * b,
-                      ez + (_camTour.z - ez) * b);
-  _look.set(0, (_lookTour.y + yOff) * b, 0);
+  // Ein Driften, das nie aufhoert: selbst wenn niemand scrollt, atmet das
+  // Bild. Drei Perioden ohne gemeinsamen Teiler, damit sich die Bahn nicht
+  // hoerbar wiederholt. Waehrend der Turmfahrt faellt es weg - dort fuehrt
+  // die Kamerafahrt, und ein zweiter Impuls wuerde sie nur verwackeln.
+  const idle = 1 - b;
+  const dx = Math.sin(t * 0.11) * 0.2  * idle;
+  const dy = Math.sin(t * 0.083) * 0.15 * idle;
+  const dz = Math.sin(t * 0.061) * 0.28 * idle;
+  camera.position.set(_camTour.x * b + dx,
+                      (_camTour.y + yOff) * b + dy,
+                      ez + (_camTour.z - ez) * b + dz);
+  // Der Blick bleibt am Ziel haengen, damit das Driften eine Parallaxe
+  // erzeugt statt das ganze Bild zu verschieben.
+  _look.set(dx * 0.35, (_lookTour.y + yOff) * b + dy * 0.35, 0);
   camera.lookAt(_look);
 }
 
 function frame(){
   if(!running){ raf = 0; return; }
-  const dt = Math.min(clock.getDelta(), 0.05);
+  const dtRaw = clock.getDelta();
+  const dt = Math.min(dtRaw, 0.05);          // fuer Bewegung: begrenzt den Sprung
   const t = clock.elapsedTime;
 
-  shown      += (progress - shown)     * Math.min(1, dt * 3.2);
-  // Zuegig ausblenden: der Turm soll weg sein, bevor die naechste Szene
-  // steht - beim Scrollen sah man sonst beide gleichzeitig halb im Bild.
-  towerShown += (towerAmt - towerShown) * Math.min(1, dt * 7);
-  tourShown  += (tourP    - tourShown)  * Math.min(1, dt * 3.4);
-  px += (pointerX - px) * Math.min(1, dt * 2.4);
-  py += (pointerY - py) * Math.min(1, dt * 2.4);
+  // Ueberblendungen muessen an der echten Zeit haengen, nicht an der Bildrate.
+  // Mit `min(1, dt * k)` und gedeckeltem dt lief eine Ueberblendung pro BILD
+  // ab: bei 60 Bildern/s war der Turm nach einer Sekunde weg, bei 2 Bildern/s
+  // erst nach fuenf - auf schwachen Geraeten stand er also noch mitten in der
+  // naechsten Szene. Die Exponentialform braucht immer gleich lang.
+  const smooth = (k) => 1 - Math.exp(-k * Math.min(dtRaw, 0.25));
+
+  shown      += (progress - shown)      * smooth(3.2);
+  // Zuegig ausblenden: der Turm soll weg sein, bevor die naechste Szene steht.
+  towerShown += (towerAmt - towerShown) * smooth(7);
+  tourShown  += (tourP    - tourShown)  * smooth(3.4);
+  px += (pointerX - px) * smooth(2.4);
+  py += (pointerY - py) * smooth(2.4);
   spinTilt = advanceSpin(dt);
+  if(grade) grade.uniforms.uTime.value = t;
   applyTransform(shown, t);
   // Die Schlieren gehen mit dem Emblem: waehrend der Turm die Buehne hat,
   // sollen sie nicht durch sein Gitterwerk ziehen.

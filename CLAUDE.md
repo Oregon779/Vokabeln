@@ -124,6 +124,37 @@ den sichtbaren Rand zurueck und schiebt hochkant alles, was seitlich stehen
 sollte (grosses |x|), in den freien Streifen ueber den Text - auf dem Handy
 ist neben der Schrift kein Platz.
 
+## Das Emblem hat drei Ringebenen
+
+Aus der Referenz uebernommen, in Gold statt Cyan - jede Ebene mit eigenem
+Takt, das liest sich als Mechanik statt als Wackeln:
+
+- `ringMain` dreht sich in 20 s einmal im Uhrzeigersinn (`rotation.z`).
+- `segRing` (aus `makeSegmentRing`) laeuft in 12 s einmal dagegen.
+- `pulse` atmet im 2,5-s-Takt, Maszstab 1 → 1.04 → 1, und hebt dabei seine
+  `emissiveIntensity` - im Nachgluehen wird daraus ein weicher Puls.
+
+Die Werte sind knapp gehalten: mit `emissiveIntensity` ueber 1 frisst der
+Bloom die Form des Zeichens auf, es bleibt ein gelber Klumpen.
+
+## Die Kamera steht nie still
+
+`applyTransform` legt auf die vom Scroll vorgegebene Position ein Driften
+(±0.2 / ±0.15 / ±0.28, drei Perioden ohne gemeinsamen Teiler). Waehrend der
+Turmfahrt faellt es weg (`idle = 1 - b`), sonst verwackelt es die
+inszenierte Kamerafahrt. Der Blickpunkt geht nur zu 35 % mit, damit das
+Driften eine Parallaxe erzeugt statt das ganze Bild zu verschieben.
+
+## Ueberblendungen haengen an der Zeit, nicht an der Bildrate
+
+**Wichtig, das war ein echter Fehler:** `towerShown += delta * Math.min(1,
+dt * 7)` mit gedeckeltem `dt` liess eine Ueberblendung pro BILD ablaufen.
+Bei 60 Bildern/s war der Turm nach einer Sekunde weg, bei 2 Bildern/s erst
+nach fuenf - auf einem schwachen Geraet stand er also noch mitten in der
+naechsten Szene. Jetzt: `smooth(k) = 1 - exp(-k * dtRaw)`, mit dem echten
+dt (nur gegen Sprünge nach einem Tabwechsel bei 0.25 s gedeckelt). Fuer
+Bewegung bleibt das gedeckelte `dt`, fuer Ueberblendungen `smooth()`.
+
 ## Lichtschlieren und Nachgluehen
 
 Was die Referenz (activetheory.net) teuer aussehen laesst, ist nicht die
@@ -143,6 +174,10 @@ Geometrie des Zeichens, sondern was darum herum passiert. Zwei Teile:
   bei 26 Schlieren, 0,15 ms bei 10 - reines JS, unabhaengig von der GPU.
 - **Bloom** (`UnrealBloomPass` im `EffectComposer`): faellt auf schwachen
   Geraeten (`lite`) ganz weg, dort rendert `draw()` direkt.
+- **`GradeShader`**: Vignette, Farbsaum und Korn in EINEM Durchgang statt in
+  drei. Laeuft nach `OutputPass`, sitzt also auf dem fertigen Bild. Der
+  Farbsaum waechst nach aussen (in der Mitte null, sonst flimmert Schrift),
+  das Korn wirkt nur in dunklen Flaechen - sonst rauscht das Gold.
 
 **Falle:** `Float32BufferAttribute` legt eine **Kopie** des uebergebenen
 Feldes an. Wer den Puffer jeden Frame neu beschreibt, muss mit
