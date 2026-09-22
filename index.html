@@ -1936,6 +1936,10 @@
   .cine-stack-right{ align-items:flex-start; text-align:left; margin-left:auto; }
   @media (min-width:900px){
     .cine-stack-left{ max-width:46rem; }
+    /* 'l'émerveillement' ist lang - die Wortszene braucht mehr Breite,
+       sonst bricht das Wort mittendrin um. */
+    .cine-mot .cine-stack-left{ max-width:64rem; }
+    .cine-methode .cine-split{ max-width:78rem; }
     .cine-stack-right{ max-width:46rem; align-items:flex-end; text-align:right; }
   }
 
@@ -2045,15 +2049,15 @@
   /* --- Szene: Das Wort --- */
   .cine-mot-word{
     font-family:var(--font-serif); font-style:italic; font-weight:500;
-    font-size:clamp(1.9rem, 8.5vw, 6.2rem); line-height:1.02; letter-spacing:-.025em;
+    font-size:clamp(2.2rem, 8vw, 6.4rem); line-height:1; letter-spacing:-.03em;
     overflow-wrap:anywhere;
     color:var(--ember-bright); margin:0;
     text-shadow:0 0 7px rgba(7,8,12,.9), 0 0 28px rgba(246,195,92,.1), 0 0 120px rgba(246,195,92,.12);
   }
   .cine-mot-meta{ display:flex; align-items:baseline; gap:1.6rem; flex-wrap:wrap; margin:1.6rem 0 0; }
   .cine-mot-phon{ font-family:var(--font-mono); font-size:.82rem; letter-spacing:.14em; color:var(--ember-dim); margin:0; }
-  .cine-mot-de{ font-family:var(--font-serif); font-size:clamp(1.2rem,3vw,1.9rem); color:var(--text); margin:0; }
-  .cine-mot-note{ font-size:.92rem; line-height:1.7; color:var(--stone); margin:2.6rem 0 0; max-width:28em; }
+  .cine-mot-de{ font-family:var(--font-serif); font-size:clamp(1.4rem,3.6vw,2.4rem); color:var(--text); margin:0; }
+  .cine-mot-note{ font-size:1.02rem; line-height:1.75; color:var(--stone); margin:2.8rem 0 0; max-width:26em; }
 
   /* --- Szene: Methode. Schlagzeile und Fliesstext nebeneinander, wie in
      der Referenz auf zwei optischen Ebenen statt in einem Block. --- */
@@ -2063,15 +2067,15 @@
   }
   .cine-headline{
     font-family:var(--font-serif); font-weight:600; font-style:italic;
-    font-size:clamp(2.8rem, 8vw, 6.4rem); line-height:.95; letter-spacing:-.035em;
+    font-size:clamp(3rem, 9.5vw, 8rem); line-height:.94; letter-spacing:-.038em;
     color:var(--text); margin:0; flex-shrink:0;
   }
   .cine-notes{ max-width:30rem; }
   .cine-notes .cine-kicker{ color:var(--gold-bright); }
   @media (min-width:900px){ .cine-notes{ padding-top:clamp(1rem, 6vw, 5rem); } }
   .cine-notes p:not(.cine-kicker){
-    font-family:var(--font-mono); font-size:.82rem; line-height:1.85; letter-spacing:.02em;
-    color:var(--text); margin:0 0 1.5rem;
+    font-family:var(--font-mono); font-size:.92rem; line-height:1.85; letter-spacing:.02em;
+    color:var(--text); margin:0 0 1.6rem;
   }
   .cine-notes p:last-child{ margin-bottom:0; }
 
@@ -2093,32 +2097,6 @@
   }
 
 
-
-  /* --- Farbwäschen: die Wärme der Seite ----------------------------------
-     Drei grosse, sehr weiche Lichtkreise, die langsam wandern. Bewusst ohne
-     filter:blur() - der Verlauf ist von sich aus weich genug, und blur auf
-     einer halben Bildschirmbreite kostet auf Handys spürbar. */
-  .cine-glow{ position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; }
-  .cine-glow span{ position:absolute; border-radius:50%; display:block; }
-  .cine-glow-a{
-    width:78vmax; height:78vmax; left:-24vmax; top:-30vmax;
-    background:radial-gradient(circle closest-side, rgba(255,186,60,.34), rgba(240,169,44,.11) 44%, transparent 72%);
-    animation:cineGlowA 34s var(--ease-premium) infinite alternate;
-  }
-  .cine-glow-b{
-    width:70vmax; height:70vmax; right:-26vmax; bottom:-28vmax;
-    background:radial-gradient(circle closest-side, rgba(38,74,150,.46), rgba(28,52,106,.18) 45%, transparent 74%);
-    animation:cineGlowB 42s var(--ease-premium) infinite alternate;
-  }
-  .cine-glow-c{
-    width:56vmax; height:56vmax; left:34vw; top:46vh;
-    background:radial-gradient(circle closest-side, rgba(255,160,36,.26), rgba(214,120,28,.08) 48%, transparent 76%);
-    animation:cineGlowC 28s var(--ease-premium) infinite alternate;
-  }
-  @keyframes cineGlowA{ to{ transform:translate3d(12vw, 8vh, 0) scale(1.14); } }
-  @keyframes cineGlowB{ to{ transform:translate3d(-14vw, -10vh, 0) scale(1.18); } }
-  @keyframes cineGlowC{ to{ transform:translate3d(-18vw, -16vh, 0) scale(.86); } }
-  @media (prefers-reduced-motion: reduce){ .cine-glow span{ animation:none; } }
 
   /* --- Szene: der Turm und die sieben Kärtchen ---------------------------
      Der hohe Track gibt den Scrollweg, die Bühne darin bleibt stehen,
@@ -2147,7 +2125,7 @@
      weiter rechts und weiter weg, statt nur daneben geschoben zu sein. */
   .cine-deck{
     position:relative; width:100%; flex:1; min-height:0;
-    perspective:1800px; perspective-origin:50% 36%;
+    perspective:1500px; perspective-origin:50% 38%;
     /* Der Container liegt vor den Kaertchen und faenge sonst jeden Klick ab. */
     pointer-events:none;
   }
@@ -2157,7 +2135,7 @@
   }
   .cine-card{
     position:absolute; top:50%; left:50%;
-    width:min(86vw, 42rem); height:min(56svh, 27rem);
+    width:min(92vw, 50rem); height:min(62svh, 31rem);
     margin:0; padding:0; border:none; border-radius:26px;
     background:#0b0a0d; overflow:hidden; cursor:pointer; text-align:left;
     box-shadow:0 34px 90px rgba(0,0,0,.66), 0 2px 0 rgba(255,225,170,.06) inset;
@@ -2246,7 +2224,7 @@
   @media (max-width:700px){
     .cine-tour-track{ height:520svh; }
     .cine-deck{ perspective:900px; }
-    .cine-card{ width:min(80vw, 23rem); height:min(56svh, 28rem); border-radius:16px; }
+    .cine-card{ width:min(88vw, 25rem); height:min(60svh, 30rem); border-radius:18px; }
     .cine-card-title{ font-size:1.65rem; }
     .cine-card-text{ font-size:.82rem; line-height:1.55; }
   }
@@ -3355,9 +3333,6 @@
   <section id="view-hub" class="view view-cine">
     <!-- Zwei feste Ebenen hinter allen Szenen: der 3D-Ring (WebGL) und
          darueber das Lichtspur-Feld (2D-Canvas, reagiert auf den Zeiger). -->
-    <div class="cine-glow" aria-hidden="true">
-      <span class="cine-glow-a"></span><span class="cine-glow-b"></span><span class="cine-glow-c"></span>
-    </div>
     <canvas id="cineGl" class="cine-gl" aria-hidden="true"></canvas>
     <canvas id="cineField" class="cine-field" aria-hidden="true"></canvas>
 
@@ -4849,7 +4824,7 @@
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="./lumiere-gl.js?v=7" defer></script>
+<script src="./lumiere-gl.js?v=8" defer></script>
 <script>
 /* ============================================================
    WICHTIG: Bei jedem inhaltlichen Deploy hochzaehlen (wie CACHE_NAME
@@ -4860,7 +4835,7 @@
       unten) - neue, noch nicht "veroeffentlichte" Features hinter
       isReleased(N) verstecken; Admins sehen sie trotzdem sofort.
    ============================================================ */
-const APP_VERSION = 7;
+const APP_VERSION = 8;
 
 // Site-weites Feature-Gate: neue, aber noch nicht freigegebene Funktionen
 // hinter isReleased(<APP_VERSION beim Einbau>) verstecken. Admins (echtes
@@ -8028,7 +8003,7 @@ function sndCineHover(){ playTone(659, 0.14, 'sine', 0.012, 0, 2000); }
   let dpr = 1, w = 0, h = 0, rafId = 0, running = false;
   let glReady = false, glTried = false;
   let pointer = { x: -9999, y: -9999, vx: 0, vy: 0, active: false };
-  let motes = [], sparks = [], pairIndex = 0, lastSceneKey = '';
+  let motes = [], pairIndex = 0, lastSceneKey = '';
   let deckIndex = -1;
   let deckTarget = 0, deckShown = 0;
 
@@ -8061,31 +8036,40 @@ function sndCineHover(){ playTone(659, 0.14, 'sine', 0.012, 0, 2000); }
 
   // Dichte an die Flaeche koppeln, damit ein grosser Monitor nicht dieselbe
   // duenne Streuung bekommt wie ein Handy - und Handys nicht ueberlastet werden.
-  // Zwei Sorten Licht teilen sich dieselbe Leinwand:
-  //   Regen  - lange, langsame Streifen, die auch ohne Maus fallen
-  //   Funken - kurze, schnelle Spuren, die beim Bewegen vom Zeiger wegschiessen
-  // Beide zeichnen sich additiv, damit sich Ueberlagerungen aufhellen statt
-  // sich gegenseitig zu verdecken.
+  // Kometen. Wenige, gross, mit langem Schweif - eher Ereignis als Rauschen.
+  // Sie ziehen schraeg durchs Bild, und der Zeiger lenkt sie ab, wenn er
+  // nahe kommt. Ausser ihnen gibt es auf der Leinwand nichts.
+  const COMET_MAX = () => (lite ? 2 : 3);
+
   function seed(){
-    const area = w * h;
-    const count = Math.round(Math.min(lite ? 26 : 70, Math.max(12, area / (lite ? 44000 : 24000))));
     motes = [];
-    for(let i = 0; i < count; i++) motes.push(newDrop(Math.random() * h));
+    for(let i = 0; i < COMET_MAX(); i++) motes.push(newComet(true));
   }
-  function newDrop(y){
-    const t = Math.random();
+
+  function newComet(seeded){
+    // Von links oben nach rechts unten oder umgekehrt - nie waagerecht,
+    // sonst wirkt es wie ein Laufband.
+    const dir = Math.random() < 0.5 ? 1 : -1;
+    const ang = (Math.random() * 0.5 + 0.28) * (Math.random() < 0.5 ? 1 : -1);
+    const sp  = 2.4 + Math.random() * 3.4;
+    const t   = Math.random();
     return {
-      x: Math.random() * w, y,
-      len: 60 + Math.random() * (lite ? 120 : 220),
-      vy: 0.7 + Math.random() * 2.2,
-      vx: (Math.random() - 0.5) * 0.5,
-      wd: 0.5 + Math.random() * 1.3,
-      a: 0.22 + Math.random() * 0.6,
-      temp: t, rgb: tempRgb(Math.min(1, t + 0.25)),
+      x: dir > 0 ? -160 : w + 160,
+      y: Math.random() * h * 1.3 - h * 0.15,
+      vx: Math.cos(ang) * sp * dir,
+      vy: Math.sin(ang) * sp + 0.6,
+      tail: 220 + Math.random() * (lite ? 160 : 320),
+      wd: 1.6 + Math.random() * 2.2,
+      a: 0.5 + Math.random() * 0.5,
+      temp: t,
+      // Beim ersten Saeen mitten im Bild starten, damit nicht alle
+      // gleichzeitig von aussen hereinkommen.
+      warm: seeded ? Math.random() * 0.8 : 0,
+      wait: seeded ? 0 : 40 + Math.random() * 220,
     };
   }
 
-  // 0 = Bernstein, .5 = Gold, 1 = Champagner
+  // 0 = Bernstein, .5 = Gold, 1 = helles Gold
   function tempRgb(t){
     return `rgb(${Math.round(205 + t * 50)},${Math.round(118 + t * 90)},${Math.round(18 + t * 74)})`;
   }
@@ -8093,36 +8077,11 @@ function sndCineHover(){ playTone(659, 0.14, 'sine', 0.012, 0, 2000); }
     return `rgba(${Math.round(205 + t * 50)},${Math.round(118 + t * 90)},${Math.round(18 + t * 74)},${a})`;
   }
 
-  // Funken entstehen nur aus echter Zeigerbewegung: je schneller, desto mehr
-  // und desto laenger. Die Obergrenze verhindert, dass wildes Kreisen mit der
-  // Maus die Bildrate frisst.
-  function spawnSparks(speed){
-    if(coarse || reduced()) return;
-    const cap = lite ? 90 : 320;
-    const n = Math.min(lite ? 2 : 5, Math.round(speed * 0.38));
-    const base = Math.atan2(pointer.vy, pointer.vx);
-    for(let i = 0; i < n && sparks.length < cap; i++){
-      const spread = 0.55 + Math.random() * 1.5;
-      const ang = base + (Math.random() - 0.5) * 2 * spread;
-      const v = 3.2 + Math.random() * (4 + speed * 0.5);
-      const t = Math.random();
-      sparks.push({
-        x: pointer.x + (Math.random() - 0.5) * 14,
-        y: pointer.y + (Math.random() - 0.5) * 14,
-        vx: Math.cos(ang) * v, vy: Math.sin(ang) * v,
-        life: 1, decay: 0.012 + Math.random() * 0.022,
-        wd: 0.7 + Math.random() * 1.9,
-        temp: t,
-      });
-    }
-  }
-
   function onPointer(e){
     const x = e.touches ? e.touches[0].clientX : e.clientX;
     const y = e.touches ? e.touches[0].clientY : e.clientY;
     if(pointer.active){ pointer.vx = x - pointer.x; pointer.vy = y - pointer.y; }
     pointer.x = x; pointer.y = y; pointer.active = true;
-    if(running) spawnSparks(Math.min(Math.hypot(pointer.vx, pointer.vy), 70));
     if(glReady) window.LumiereGL.setPointer((x / w) * 2 - 1, (y / h) * 2 - 1);
   }
 
@@ -8132,41 +8091,51 @@ function sndCineHover(){ playTone(659, 0.14, 'sine', 0.012, 0, 2000); }
     ctx.globalCompositeOperation = 'lighter';
     ctx.lineCap = 'round';
 
-    // --- Lichtregen ---
-    for(const m of motes){
-      m.x += m.vx; m.y += m.vy;
-      if(m.y - m.len > h){ Object.assign(m, newDrop(-m.len - Math.random() * h * 0.4)); continue; }
-      if(m.x < -40) m.x = w + 40; else if(m.x > w + 40) m.x = -40;
-      const g = ctx.createLinearGradient(m.x, m.y, m.x - m.vx * 12, m.y - m.len);
-      g.addColorStop(0,   tempRgba(m.temp, m.a));
-      g.addColorStop(0.3, tempRgba(m.temp, m.a * 0.35));
-      g.addColorStop(1,   tempRgba(m.temp, 0));
-      ctx.strokeStyle = g;
-      ctx.lineWidth = m.wd;
-      ctx.beginPath(); ctx.moveTo(m.x, m.y); ctx.lineTo(m.x - m.vx * 12, m.y - m.len); ctx.stroke();
-    }
+    for(let i = 0; i < motes.length; i++){
+      const c = motes[i];
+      if(c.wait > 0){ c.wait--; continue; }
+      if(c.warm > 0){
+        // Vorlauf: den Kometen ins Bild hineinrechnen, ohne ihn zu zeichnen.
+        c.x += c.vx * c.warm * 90; c.y += c.vy * c.warm * 90; c.warm = 0;
+      }
 
-    // --- Funken am Zeiger ---
-    for(let i = sparks.length - 1; i >= 0; i--){
-      const s = sparks[i];
-      s.x += s.vx; s.y += s.vy;
-      s.vx *= 0.963; s.vy *= 0.963;
-      s.vy += 0.012;                 // ein Hauch Schwere, damit sie absinken
-      s.life -= s.decay;
-      if(s.life <= 0){ sparks.splice(i, 1); continue; }
-      // Der Schweif waechst mit der Geschwindigkeit und dem Alter: kurz beim
-      // Entstehen, lang im Flug, wieder kurz beim Verloeschen.
-      const sp = Math.hypot(s.vx, s.vy);
-      const tail = Math.min(230, sp * (7 + (1 - s.life) * 26));
-      const ex = s.x - s.vx / (sp || 1) * tail, ey = s.y - s.vy / (sp || 1) * tail;
-      const al = s.life * s.life;
-      const g = ctx.createLinearGradient(s.x, s.y, ex, ey);
-      g.addColorStop(0,    `rgba(255,236,186,${al})`);
-      g.addColorStop(0.18, tempRgba(s.temp, al * 0.8));
-      g.addColorStop(1,    tempRgba(s.temp, 0));
+      // Der Zeiger lenkt ab: nahe Kometen werden sanft angezogen und
+      // bekommen einen Drall mit der Mausbewegung.
+      if(pointer.active && !coarse){
+        const dx = pointer.x - c.x, dy = pointer.y - c.y;
+        const d2 = dx * dx + dy * dy;
+        if(d2 < 90000){
+          const f = (1 - d2 / 90000) * 0.06;
+          c.vx += dx * f * 0.05 + pointer.vx * 0.012;
+          c.vy += dy * f * 0.05 + pointer.vy * 0.012;
+        }
+      }
+      c.x += c.vx; c.y += c.vy;
+      c.vx *= 0.998; c.vy *= 0.998;
+
+      if(c.x < -500 || c.x > w + 500 || c.y > h + 500 || c.y < -500){
+        motes[i] = newComet(false);
+        continue;
+      }
+
+      const sp = Math.hypot(c.vx, c.vy) || 1;
+      const ex = c.x - (c.vx / sp) * c.tail, ey = c.y - (c.vy / sp) * c.tail;
+      const g = ctx.createLinearGradient(c.x, c.y, ex, ey);
+      g.addColorStop(0,    `rgba(255,240,200,${c.a})`);
+      g.addColorStop(0.08, tempRgba(c.temp, c.a * 0.85));
+      g.addColorStop(0.45, tempRgba(c.temp, c.a * 0.22));
+      g.addColorStop(1,    tempRgba(c.temp, 0));
       ctx.strokeStyle = g;
-      ctx.lineWidth = s.wd * (0.4 + s.life * 0.9);
-      ctx.beginPath(); ctx.moveTo(s.x, s.y); ctx.lineTo(ex, ey); ctx.stroke();
+      ctx.lineWidth = c.wd;
+      ctx.beginPath(); ctx.moveTo(c.x, c.y); ctx.lineTo(ex, ey); ctx.stroke();
+
+      // Der Kopf: ein kleiner heller Kern mit Hof.
+      const hg = ctx.createRadialGradient(c.x, c.y, 0, c.x, c.y, c.wd * 5);
+      hg.addColorStop(0, `rgba(255,248,224,${c.a})`);
+      hg.addColorStop(0.4, tempRgba(Math.min(1, c.temp + 0.3), c.a * 0.5));
+      hg.addColorStop(1, tempRgba(c.temp, 0));
+      ctx.fillStyle = hg;
+      ctx.beginPath(); ctx.arc(c.x, c.y, c.wd * 5, 0, Math.PI * 2); ctx.fill();
     }
 
     ctx.globalAlpha = 1;
@@ -8197,7 +8166,7 @@ function sndCineHover(){ playTone(659, 0.14, 'sine', 0.012, 0, 2000); }
       // Sieben Kaertchen auf genau eine volle Umdrehung: nach dem letzten
       // steht man wieder dort, wo man angefangen hat.
       ang:  2 * Math.PI / 7,      // Winkelschritt von Kaertchen zu Kaertchen
-      rad:  narrow ? 300 : 1150,  // Abstand von der Achse
+      rad:  narrow ? 300 : 1050,  // Abstand von der Achse
       drop: narrow ? 200 : 260,   // Hoehenschritt (in CSS zeigt +Y nach unten)
       // Wie stark die Kaertchen der Kreisbahn folgen. 1 = echt im Kreis,
       // stark angeschnitten (Desktop). Auf schmalen Schirmen drehen sie sich
@@ -8285,7 +8254,9 @@ function sndCineHover(){ playTone(659, 0.14, 'sine', 0.012, 0, 2000); }
     if(tourTrack){
       const tr = tourTrack.getBoundingClientRect();
       const fadeIn  = Math.max(0, Math.min(1, (vh - tr.top) / (vh * 0.6)));
-      const fadeOut = Math.max(0, Math.min(1, tr.bottom / (vh * 0.6)));
+      // Lang ausblenden: der Turm soll weg sein, bevor die Atelier-Zahlen
+      // einsetzen - sonst stehen beide gleichzeitig halb im Bild.
+      const fadeOut = Math.max(0, Math.min(1, tr.bottom / (vh * 1.5)));
       towerAmt = Math.min(fadeIn, fadeOut);
       const span = tr.height - vh;
       tourProgress = span > 0 ? Math.max(0, Math.min(1, -tr.top / span)) : 0;
@@ -8297,7 +8268,9 @@ function sndCineHover(){ playTone(659, 0.14, 'sine', 0.012, 0, 2000); }
       }
       // Vorne und hinten etwas Luft, damit das erste und das letzte Kaertchen
       // einen Moment stehen bleiben, statt sofort weiterzurutschen.
-      deckTarget = Math.max(0, Math.min(1, (tp - 0.07) / 0.86)) * (cards.length - 1);
+      // Vorne und hinten Luft lassen: die Kaertchen sind durch, bevor die
+      // Kamera sich vom Turm loest.
+      deckTarget = Math.max(0, Math.min(1, (tp - 0.06) / 0.72)) * (cards.length - 1);
     }
     if(glReady && window.LumiereGL.setTower) window.LumiereGL.setTower(towerAmt, tourProgress);
 
@@ -8349,7 +8322,6 @@ function sndCineHover(){ playTone(659, 0.14, 'sine', 0.012, 0, 2000); }
     if(rafId){ cancelAnimationFrame(rafId); rafId = 0; }
     canvas.classList.remove('is-live');
     glCanvas.classList.remove('is-live');
-    sparks.length = 0;
     if(glReady) window.LumiereGL.stop();
     ctx.clearRect(0, 0, w, h);
   }

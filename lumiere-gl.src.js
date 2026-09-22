@@ -189,12 +189,12 @@ function loadTower(url){
 // eine Sinuskurve alle anderen mitverbiegt.
 //        p     scale     x      y      z     rotX   rotY   rotZ
 const KEYS = [
-  [0.00, 0.28,  0.00,  1.28,  0.00,  0.16,  0.00,  0.00],  // Eintritt - klein, über der Wortmarke
-  [0.20, 0.72,  1.25, -0.10, -0.20,  0.40,  0.85,  0.14],  // Das Wort - wandert nach rechts
-  [0.40, 1.22, -0.70,  0.06,  0.70,  0.70,  1.75, -0.28],  // Methode  - gross, gekippt, vorn
-  [0.62, 0.70,  0.00,  0.00, -4.00,  0.50,  2.60,  0.10],  // Turm      - Emblem tritt ab
-  [0.82, 0.86, -1.45,  0.20, -1.20,  0.46,  3.30,  0.18],  // Atelier   - links, Inhalt steht rechts
-  [1.00, 0.28,  0.00,  1.35, -0.15,  0.22,  4.20,  0.00],  // Abschluss - wieder klein, über dem Satz
+  [0.00, 0.28,  0.00,  1.28,  0.00,  0.16,  0.00,  0.00],  // Eintritt - gross und mittig
+  [0.11, 0.085, 2.55,  1.15, -3.40,  0.40,  0.85,  0.14],  // Das Wort - nur noch ein Lichtpunkt
+  [0.25, 0.075,-2.70,  1.35, -3.80,  0.70,  1.75, -0.28],  // Methode  - dito, andere Seite
+  [0.55, 0.05,  0.00,  0.00, -6.50,  0.50,  2.60,  0.10],  // Turm     - ganz zurueckgezogen
+  [0.90, 0.09, -2.55, -1.10, -3.60,  0.46,  3.30,  0.18],  // Atelier  - links, Inhalt steht rechts
+  [1.00, 0.30,  0.00,  1.35, -0.15,  0.22,  4.20,  0.00],  // Abschluss- wieder gross
 ];
 function smoothstep(t){ return t * t * (3 - 2 * t); }
 function sampleKeys(p, out){
@@ -347,7 +347,11 @@ function applyTransform(p, t){
   // Überblendung. Der Turm steigt beim Auftritt leicht an und dreht sich
   // langsam, damit das Gitterwerk aus allen Richtungen Licht fängt.
   const tw = towerShown;
-  const eo = 1 - smoothstep(Math.min(1, tw * 1.25));
+  // Das Emblem gehoert an den Anfang und ans Ende der Reise - dazwischen
+  // ruht es ganz, statt als kleiner Fleck im Bild herumzustehen.
+  const head = 1 - smoothstep(Math.max(0, Math.min(1, (p - 0.035) / 0.05)));
+  const tail = smoothstep(Math.max(0, Math.min(1, (p - 0.92) / 0.055)));
+  const eo = (1 - smoothstep(Math.min(1, tw * 1.25))) * Math.max(head, tail);
   emblem.visible = eo > 0.01;
   for(const m of emblemMats) m.opacity = eo;
 
@@ -386,7 +390,9 @@ function frame(){
   const t = clock.elapsedTime;
 
   shown      += (progress - shown)     * Math.min(1, dt * 3.2);
-  towerShown += (towerAmt - towerShown) * Math.min(1, dt * 3.6);
+  // Zuegig ausblenden: der Turm soll weg sein, bevor die naechste Szene
+  // steht - beim Scrollen sah man sonst beide gleichzeitig halb im Bild.
+  towerShown += (towerAmt - towerShown) * Math.min(1, dt * 7);
   tourShown  += (tourP    - tourShown)  * Math.min(1, dt * 3.4);
   px += (pointerX - px) * Math.min(1, dt * 2.4);
   py += (pointerY - py) * Math.min(1, dt * 2.4);
