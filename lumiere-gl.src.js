@@ -14,6 +14,7 @@ import {
   MeshPhysicalMaterial, MeshStandardMaterial, PointsMaterial,
   Color, Vector2, Vector3, CanvasTexture, EquirectangularReflectionMapping,
   PMREMGenerator, PointLight, AmbientLight, MeshBasicMaterial, DoubleSide,
+  ConeGeometry, ShaderMaterial,
   ACESFilmicToneMapping, SRGBColorSpace, AdditiveBlending,
 } from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
@@ -127,29 +128,46 @@ function makeLetterL(mat){
   return new Mesh(geo, mat);
 }
 
-// Zwei Baender, die sich umeinander winden und nach unten spitz auslaufen -
-// eine Doppelhelix statt der frueheren gekreuzten Schlaufe. Weil sich das
-// Zeichen staendig dreht, sieht man die Windung wirklich als Raum; gekreuzte
-// Boegen lasen sich beim Drehen nur als flackernde Linien.
+// Die Spirale unter dem Zeichen, wie in der Referenz: zwei Straenge
+// verlassen den Reif genau an seiner linken und rechten Seite und winden sich
+// mit GLEICHBLEIBENDEM Radius eine halbe Drehung um die Hochachse. Von vorn
+// kreuzen sie sich dadurch zu einem X und laufen wieder auseinander; von der
+// Seite (Muenze hochkant) bilden sie eine Linse, die unten zusammenlaeuft.
+// Beides zeigt dieselbe Form - erst die Drehung macht sie als Raum lesbar.
+const HELIX_R = 1.9;          // = Radius des grossen Reifs, dort setzen sie an
+const HELIX_LEN = 10.6;       // Kreuzung bei halber Laenge, ~2,8 Radien unter der Mitte
+const HELIX_TWIST = Math.PI;  // halbe Drehung: kreuzt genau einmal
 function makeHelix(mat, lite){
   const g = new Group();
-  const TURNS = 4.6;              // Windungen ueber die ganze Laenge
-  const TOP = -1.88, BOT = -9.6;  // reicht weit nach unten und verliert sich
-  const R0 = 1.08, R1 = 0.03;     // Radius laeuft nach unten auf einen Punkt zu
+  const steps = lite ? 48 : 120;
+  const tubular = lite ? 72 : 200, radial = lite ? 5 : 8, thick = 0.046;
   for(const phase of [0, Math.PI]){
     const pts = [];
-    const steps = lite ? 44 : 110;
     for(let i = 0; i <= steps; i++){
       const u = i / steps;
-      const y = TOP + (BOT - TOP) * u;
-      // Der Exponent laesst den Radius oben langsam und unten schnell
-      // schrumpfen - dadurch wirkt die Spitze gezogen statt abgeschnitten.
-      const r = R1 + (R0 - R1) * Math.pow(1 - u, 1.45);
-      const a = phase + u * TURNS * Math.PI * 2;
-      pts.push(new Vector3(Math.cos(a) * r, y, Math.sin(a) * r));
+      // Die Drehung setzt weich ein und laeuft weich aus - so verlassen die
+      // Straenge den Reif senkrecht, wie an ihm entlanggezogen.
+      const a = phase + HELIX_TWIST * (u * u * (3 - 2 * u));
+      pts.push(new Vector3(Math.cos(a) * HELIX_R, -u * HELIX_LEN, Math.sin(a) * HELIX_R));
     }
     const curve = new CatmullRomCurve3(pts);
-    g.add(new Mesh(new TubeGeometry(curve, lite ? 70 : 190, 0.04, lite ? 4 : 8, false), mat));
+    const geo = new TubeGeometry(curve, tubular, thick, radial, false);
+    // Am Ende nicht abgeschnitten aufhoeren, sondern duenn auslaufen: jeder
+    // Querschnittsring wird zur Kurvenmitte hin zusammengezogen.
+    const pos = geo.attributes.position, c = new Vector3(), v = new Vector3();
+    for(let r = 0; r <= tubular; r++){
+      const u = r / tubular;
+      const k = u < 0.72 ? 1 : 1 - 0.9 * Math.pow((u - 0.72) / 0.28, 1.4);
+      if(k === 1) continue;
+      curve.getPointAt(u, c);
+      for(let j = 0; j <= radial; j++){
+        const idx = r * (radial + 1) + j;
+        v.fromBufferAttribute(pos, idx).sub(c).multiplyScalar(k).add(c);
+        pos.setXYZ(idx, v.x, v.y, v.z);
+      }
+    }
+    geo.computeVertexNormals();
+    g.add(new Mesh(geo, mat));
   }
   return g;
 }
@@ -407,6 +425,69 @@ function makeSparks(height, lite){
   }));
 }
 
+// Der Suchscheinwerfer auf der Spitze - der echte Turm hat einen, der nachts
+// kreist. Zwei gegenlaeufige Lichtkegel, als offener Kegelmantel mit einem
+// Shader, der zur Kegelachse hin hell und zum Rand und zum Ende hin durchsichtig
+// wird. Additiv, ohne Tiefenschreiben: so wirkt er wie Licht im Dunst statt
+// wie ein fester Koerper.
+const BEAM_LEN = 38, BEAM_R = 1.7;
+function makeBeacon(lite){
+  const geo = new ConeGeometry(BEAM_R, BEAM_LEN, lite ? 16 : 32, 1, true);
+  geo.translate(0, -BEAM_LEN / 2, 0);        // Spitze in den Ursprung, Kegel nach -Y
+  const mat = new ShaderMaterial({
+    uniforms: { uOpacity: { value: 0 }, uColor: { value: new Color(0xffd98a) } },
+    vertexShader: `
+      varying float vLen;
+      varying vec3 vNormal;
+      varying vec3 vView;
+      varying vec3 vAxis;
+      void main(){
+        vLen = -position.y / ${BEAM_LEN.toFixed(1)};
+        vec4 mv = modelViewMatrix * vec4(position, 1.0);
+        vView = -mv.xyz;
+        vNormal = normalize(normalMatrix * normal);
+        vAxis = normalize(mat3(modelViewMatrix) * vec3(0.0, -1.0, 0.0));
+        gl_Position = projectionMatrix * mv;
+      }`,
+    fragmentShader: `
+      uniform float uOpacity;
+      uniform vec3 uColor;
+      varying float vLen;
+      varying vec3 vNormal;
+      varying vec3 vView;
+      varying vec3 vAxis;
+      void main(){
+        // Am hellsten ist ein Lichtkegel in der Mitte: dort geht der Blick am
+        // laengsten durch ihn hindurch und trifft den Mantel vorn und hinten
+        // frontal. Zum Rand hin streift der Blick nur noch - dort laeuft er
+        // weich aus. (Umgekehrt gerechnet leuchteten die Raender, und der
+        // Kegel sah aus wie zwei Klingen.)
+        float facing = abs(dot(normalize(vNormal), normalize(vView)));
+        float core = pow(facing, 1.6);
+        float fall = pow(1.0 - vLen, 1.6) * smoothstep(0.0, 0.05, vLen);
+        // Schaut man in die Oeffnung des Kegels hinein, liegt der ganze Mantel
+        // flach im Blick und wuerde zu einer milchigen Scheibe - dort blendet
+        // der Strahl sich aus. Ein echter Scheinwerfer blendet in dem Moment
+        // ohnehin nur kurz auf.
+        float along = abs(dot(normalize(vAxis), normalize(vView)));
+        float endOn = 1.0 - smoothstep(0.45, 0.9, along);
+        gl_FragColor = vec4(uColor * core * fall * endOn * uOpacity, 1.0);
+      }`,
+    transparent: true, depthWrite: false, blending: AdditiveBlending, side: DoubleSide,
+  });
+  const g = new Group();
+  for(const a of [0, Math.PI]){
+    const beam = new Mesh(geo, mat);
+    // -Y nach aussen drehen, fast waagrecht wie beim echten Turm: die Kegel
+    // ziehen knapp ueber die Kamera hinweg und sind weiter draussen am Himmel
+    // im Bild. Steiler angehoben liefen sie nur ueber den oberen Bildrand.
+    beam.rotation.set(0, a, Math.PI / 2 + 0.05);
+    g.add(beam);
+  }
+  g.userData.mat = mat;
+  return g;
+}
+
 function loadTower(url){
   if(tower || towerLoading || !ready) return;
   towerLoading = true;
@@ -429,11 +510,15 @@ function loadTower(url){
     g.add(model);
     const sparks = makeSparks(TOWER_HEIGHT, lite);
     g.add(sparks);
+    const beacon = makeBeacon(lite);
+    beacon.position.y = TOWER_HEIGHT * 0.985;
+    g.add(beacon);
     g.visible = false;
     scene.add(g);
     tower = g;
     towerMats = [mat, sparks.material];
     tower.userData.sparks = sparks;
+    tower.userData.beacon = beacon;
     towerLoading = false;
   }, undefined, err => {
     console.warn('Turm-Modell konnte nicht geladen werden:', err);
@@ -449,14 +534,14 @@ function loadTower(url){
 // eine Sinuskurve alle anderen mitverbiegt.
 //        p     scale     x      y      z     rotX   rotY   rotZ
 const KEYS = [
-  [0.00, 0.40,  0.00,  1.55,  0.00,  0.30,  0.00,  0.00],  // Eintritt - gross und mittig
-  [0.11, 0.40,  0.70,  0.95, -2.60,  0.34,  0.00,  0.10],  // Das Wort - gross hinter dem Text
-  [0.25, 0.40, -0.55,  0.60, -2.80,  0.32,  0.00, -0.12],  // Methode  - dito, andere Seite
-  [0.32, 0.22,  1.90, -1.10, -3.60,  0.38,  0.00,  0.12],  // zieht sich vor dem Turm zurueck
-  [0.55, 0.05,  0.00, -2.60, -6.50,  0.36,  0.00,  0.08],  // Turm     - geparkt, ohnehin unsichtbar
-  [0.80, 0.14,  0.00, -3.10, -3.80,  0.34,  0.00, -0.14],  // taucht unter dem Turm wieder auf
-  [0.90, 0.36, -1.60, -0.15, -2.90,  0.33,  0.00,  0.12],  // Atelier  - links hinter den Zahlen
-  [1.00, 0.44,  0.00,  1.60, -0.15,  0.26,  0.00,  0.00],  // Abschluss- wieder gross
+  [0.00, 0.40,  0.00,  1.55,  0.00,  0.12,  0.00,  0.00],  // Eintritt - gross und mittig
+  [0.11, 0.40,  0.70,  0.95, -2.60,  0.12,  0.00,  0.10],  // Das Wort - gross hinter dem Text
+  [0.25, 0.40, -0.55,  0.60, -2.80,  0.12,  0.00, -0.12],  // Methode  - dito, andere Seite
+  [0.32, 0.22,  1.90, -1.10, -3.60,  0.12,  0.00,  0.12],  // zieht sich vor dem Turm zurueck
+  [0.55, 0.05,  0.00, -2.60, -6.50,  0.12,  0.00,  0.08],  // Turm     - geparkt, ohnehin unsichtbar
+  [0.80, 0.14,  0.00, -3.10, -3.80,  0.12,  0.00, -0.14],  // taucht unter dem Turm wieder auf
+  [0.90, 0.36, -1.60, -0.15, -2.90,  0.12,  0.00,  0.12],  // Atelier  - links hinter den Zahlen
+  [1.00, 0.44,  0.00,  1.60, -0.15,  0.12,  0.00,  0.00],  // Abschluss- wieder gross
 ];
 function smoothstep(t){ return t * t * (3 - 2 * t); }
 function sampleKeys(p, out){
@@ -652,18 +737,14 @@ function tourCamera(q){
   _lookTour.set(0, look, 0);
 }
 
-/* Das Zeichen dreht sich durch - wie in der Referenz. Damit es dabei nie auf
-   der reinen Kante steht, bleibt eine feste Neigung aus der KEYS-Tabelle
-   (rotX) stehen: bei einer Vierteldrehung sieht man dann eine schmale
-   Ellipse statt eines Strichs. Die Drehung wird aufsummiert statt aus der
-   Uhrzeit berechnet, damit es keinen Sprung gibt, wenn die Animation
-   pausiert (Tab im Hintergrund) und wieder anlaeuft. */
-const SPIN_RATE = Math.PI * 2 / 14;    // eine Umdrehung in 14 Sekunden
-function advanceSpin(dt){
-  spin += SPIN_RATE * dt;
-  return 0;
-}
-let spinTilt = 0;
+/* Die Drehung kommt vom Scrollen, nicht von der Uhr: index.html meldet ueber
+   setTurn(), wie viele Szenen man schon hinter sich hat (0 = Start, 1 = Das
+   Wort, ...). Eine Szene ist eine volle Umdrehung - in jeder Szenenmitte
+   steht das Zeichen also wieder genau von vorn, dazwischen dreht es sich.
+   Im Stand dreht nichts, es schwebt nur. */
+let turnTarget = 0, turnShown = 0;
+function setTurn(t){ if(typeof t === 'number' && isFinite(t)) turnTarget = t; }
+
 
 const _k = new Array(7);
 function applyTransform(p, t){
@@ -695,9 +776,11 @@ function applyTransform(p, t){
                       Math.max(-maxY, Math.min(maxY, ky)), k[3]);
   // Der Zeiger kippt das Emblem nur leicht mit - genug, dass es auf die Maus
   // reagiert, zu wenig, um die inszenierte Bahn zu überschreiben.
-  emblem.rotation.set(k[4] + py * 0.16 + Math.sin(t * 0.25) * 0.04,
-                      k[5] + px * 0.22 + spin,
-                      k[6] + Math.sin(t * 0.19) * 0.05);
+  emblem.rotation.set(k[4] + Math.sin(t * 0.25) * 0.03,
+                      k[5] + spin,
+                      k[6] + Math.sin(t * 0.19) * 0.04);
+  // Im Stand nur ein leises Schweben - die Drehung gehoert dem Scroll.
+  emblem.position.y += Math.sin(t * 0.85) * 0.14 * k[0] * efit;
   // Das L dreht dem Reif ein Stueck entgegen, damit es nicht wie aufgeklebt
   // mitfaehrt, sondern wie ein eigener Koerper im Ring schwebt.
   if(emblem.userData.letter) emblem.userData.letter.rotation.y = Math.sin(t * 0.35) * 0.06;
@@ -732,12 +815,17 @@ function applyTransform(p, t){
       // passt er nicht zwischen Kopfleiste und Kaertchen.
       tower.scale.setScalar(fit);
       tower.position.set(0, -TOWER_HEIGHT * 0.5 * fit, 0);
-      tower.rotation.y = px * 0.06;   // nur ein Hauch Zeiger-Reaktion
       const app = smoothstep(Math.min(1, tw * 1.6));
       for(const m of towerMats) m.opacity = app;
       // Funkeln: ein ruhiges Pulsieren, kein Stroboskop.
       tower.userData.sparks.material.opacity =
         (0.3 + 0.6 * (0.5 + 0.5 * Math.sin(t * 2.1))) * app;
+      // Der Scheinwerfer kreist in 16 Sekunden einmal.
+      const beacon = tower.userData.beacon;
+      if(beacon){
+        beacon.rotation.y = t * (Math.PI * 2 / 16);
+        beacon.userData.mat.uniforms.uOpacity.value = 0.42 * app;
+      }
     }
   }
 
@@ -783,7 +871,9 @@ function frame(){
   tourShown  += (tourP    - tourShown)  * smooth(3.4);
   px += (pointerX - px) * smooth(2.4);
   py += (pointerY - py) * smooth(2.4);
-  spinTilt = advanceSpin(dt);
+  // Weich nachziehen, damit ein Mausrad-Sprung nicht als Ruck dreht.
+  turnShown += (turnTarget - turnShown) * smooth(5);
+  spin = turnShown * Math.PI * 2;
   if(grade) grade.uniforms.uTime.value = t;
   applyTransform(shown, t);
   // Die Schlieren gehen mit dem Emblem: waehrend der Turm die Buehne hat,
@@ -823,13 +913,13 @@ function stop(){
 function renderOnce(){
   if(!ready) return;
   shown = progress; towerShown = towerAmt; tourShown = tourP; px = pointerX; py = pointerY;
-  spin = 0; spinTilt = 0;   // bei prefers-reduced-motion steht das Emblem still
+  turnShown = turnTarget; spin = turnShown * Math.PI * 2;   // Standbild folgt dem Scroll direkt
   applyTransform(shown, 0);
   updateStreaks(streaks, 0, 0, streakAmt * 0.5);
   draw();
 }
 
-window.LumiereGL = { init, start, stop, resize, setProgress, setTower, setPointer,
+window.LumiereGL = { init, start, stop, resize, setProgress, setTower, setPointer, setTurn,
   renderOnce, loadTower,
   get ready(){ return ready; },
   get hasTower(){ return !!tower; } };

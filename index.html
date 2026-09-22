@@ -2153,13 +2153,13 @@
   }
   .cine-card.is-front{ pointer-events:auto; }
   .cine-card.is-front::after{ opacity:1; }
-  .cine-card.is-front:hover{ box-shadow:0 38px 100px rgba(0,0,0,.7), 0 0 0 1px rgba(246,195,92,.3), 0 0 60px rgba(217,165,72,.22); }
+  html:not(.build-14-live) .cine-card.is-front:hover{ box-shadow:0 38px 100px rgba(0,0,0,.7), 0 0 0 1px rgba(246,195,92,.3), 0 0 60px rgba(217,165,72,.22); }
   .cine-card img{
     position:absolute; inset:0; width:100%; height:100%; object-fit:cover;
     filter:saturate(1.35) contrast(1.1) brightness(1.12);
     transform:scale(1.02); transition:transform 1.1s var(--ease-premium), filter .6s var(--ease);
   }
-  .cine-card.is-front:hover img{ transform:scale(1.07); filter:saturate(1.45) contrast(1.12) brightness(1.2); }
+  html:not(.build-14-live) .cine-card.is-front:hover img{ transform:scale(1.07); filter:saturate(1.45) contrast(1.12) brightness(1.2); }
   /* Der Schleier setzt erst unten an, damit vom Foto wirklich etwas zu sehen
      ist - vorher lag er als gleichmaessiges Grau ueber dem ganzen Bild. */
   .cine-card-veil{
@@ -2174,7 +2174,7 @@
     transform:translateX(-60%); opacity:0;
     transition:transform 1.1s var(--ease-premium), opacity .4s var(--ease);
   }
-  .cine-card.is-front:hover .cine-card-veil::after{ transform:translateX(60%); opacity:1; }
+  html:not(.build-14-live) .cine-card.is-front:hover .cine-card-veil::after{ transform:translateX(60%); opacity:1; }
   .cine-card-body{
     position:absolute; left:0; right:0; bottom:0; display:block;
     padding:clamp(1.4rem, 3.4vw, 2.4rem);
@@ -2200,14 +2200,70 @@
     border:1px solid rgba(246,195,92,.22); border-radius:999px; padding:.3rem .6rem;
     transition:background .35s var(--ease), border-color .35s var(--ease);
   }
-  .cine-card.is-front:hover .cine-card-points span{ background:rgba(246,195,92,.15); border-color:rgba(246,195,92,.4); }
+  html:not(.build-14-live) .cine-card.is-front:hover .cine-card-points span{ background:rgba(246,195,92,.15); border-color:rgba(246,195,92,.4); }
   .cine-card-go{
     display:inline-block; margin-top:1.1rem; font-family:var(--font-mono); font-size:.66rem;
     text-transform:uppercase; letter-spacing:.22em; color:var(--ember-bright);
     border-bottom:1px solid rgba(246,195,92,.45); padding-bottom:.25rem;
     transition:letter-spacing .3s var(--ease), border-color .3s var(--ease);
   }
-  .cine-card.is-front:hover .cine-card-go{ letter-spacing:.3em; border-bottom-color:var(--ember-bright); }
+  html:not(.build-14-live) .cine-card.is-front:hover .cine-card-go{ letter-spacing:.3em; border-bottom-color:var(--ember-bright); }
+
+  /* --- Build 14: Licht an den Karten -----------------------------------
+     Keine Hover-Reaktion mehr - bewegt wird nur durchs Scrollen. Dafuer vier
+     ruhige Lichtwirkungen: eine Lichtkante, die um die vordere Karte laeuft,
+     ein Glanz, der beim Drehen ueber die Karte zieht (Position kommt aus
+     layoutDeck), ein warmer Hof hinter der vorderen Karte und Goldstaub
+     (eigene Leinwand, siehe drawDust). */
+  @property --beam-a{ syntax:'<angle>'; inherits:false; initial-value:0deg; }
+  html.build-14-live .cine-card::before{
+    content:''; position:absolute; inset:0; border-radius:inherit; pointer-events:none; z-index:3;
+    padding:2px;
+    background:conic-gradient(from var(--beam-a), transparent 0deg 262deg,
+      rgba(255,214,128,0) 276deg, rgba(255,222,150,.8) 326deg, rgba(255,250,232,1) 347deg, rgba(255,222,150,0) 360deg);
+    -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite:xor; mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    mask-composite:exclude; opacity:0; transition:opacity .6s var(--ease-premium);
+  }
+  /* Nur die vordere Karte laesst den Lichtpunkt laufen - sieben gleichzeitig
+     animierte Raender waeren Unruhe und kosten jedes Bild. */
+  html.build-14-live .cine-card.is-front::before{
+    opacity:1; animation:cineBeam 6.5s linear infinite;
+    /* Ein Schein um den Lichtpunkt, damit er auch ueber hellen Fotostellen
+       sichtbar bleibt. Nur auf der einen vorderen Karte - das bleibt billig. */
+    filter:drop-shadow(0 0 4px rgba(255,205,115,.9)) drop-shadow(0 0 10px rgba(240,169,44,.55));
+  }
+  @media (max-width:700px){ html.build-14-live .cine-card.is-front::before{ filter:drop-shadow(0 0 4px rgba(255,205,115,.85)); } }
+  @keyframes cineBeam{ to{ --beam-a:360deg; } }
+  html.build-14-live .cine-card.is-front{
+    box-shadow:0 34px 90px rgba(0,0,0,.66), 0 0 0 1px rgba(246,195,92,.16), 0 0 46px rgba(240,169,44,.18);
+  }
+  html.build-14-live .cine-card-veil::after{
+    background:linear-gradient(105deg, transparent 40%, rgba(255,232,180,.2) 47%,
+      rgba(255,246,222,.32) 50%, rgba(255,232,180,.2) 53%, transparent 60%);
+    transform:translateX(var(--sheen-x, -45%)); opacity:var(--sheen-o, 0); transition:none;
+  }
+  .cine-deck-halo{
+    position:absolute; left:50%; top:50%; width:min(118vw, 66rem); height:min(94svh, 46rem);
+    pointer-events:none; opacity:calc(.4 + .6 * var(--halo, 1));
+    background:radial-gradient(ellipse at center, rgba(246,190,86,.3) 0%, rgba(226,148,40,.13) 34%,
+      rgba(160,90,20,.045) 56%, transparent 70%);
+    transform:translate(-50%, -50%) scale(1);
+    animation:cineHalo 5.5s ease-in-out infinite alternate;
+  }
+  @keyframes cineHalo{ to{ transform:translate(-50%, -50%) scale(1.07); } }
+  .cine-dust{ position:absolute; inset:0; width:100%; height:100%; pointer-events:none; z-index:1; }
+  @media (prefers-reduced-motion: reduce){
+    html.build-14-live .cine-card.is-front::before{ animation:none; --beam-a:30deg; }
+    .cine-deck-halo{ animation:none; }
+  }
+  html.reduce-motion.build-14-live .cine-card.is-front::before{ animation:none; --beam-a:30deg; }
+  html.reduce-motion .cine-deck-halo{ animation:none; }
+
+  /* Build 14: keine Maus-Effekte mehr - normaler Systemzeiger, keine Funken,
+     kein Lichtschein, der dem Zeiger folgt. */
+  html.build-14-live .cursor-dot, html.build-14-live .cursor-ring,
+  html.build-14-live .cursor-spotlight, html.build-14-live #mouseTrailCanvas{ display:none !important; }
 
   /* Die Punkte stehen ausserhalb der 3D-Welt, damit ein tiefer haengendes
      Kaertchen nicht darueber laeuft. */
@@ -3410,6 +3466,7 @@
           <p class="cine-tour-lede">Sieben Bereiche, eine Seite. Scroll weiter — sie ziehen an dir vorbei.</p>
 
           <div class="cine-deck" id="cineDeck">
+            <div class="cine-deck-halo" id="cineDeckHalo" data-build="14" aria-hidden="true"></div>
             <div class="cine-deck-world" id="cineDeckWorld">
             <button type="button" class="cine-card" data-goto="home">
               <img src="./feat-lernsets.jpg" alt="" loading="lazy" decoding="async">
@@ -3492,6 +3549,7 @@
           </div>
 
           <ol class="cine-deck-dots" id="cineDeckDots" aria-hidden="true"></ol>
+          <canvas class="cine-dust" id="cineDust" data-build="14" aria-hidden="true"></canvas>
         </div>
       </div>
     </section>
@@ -4824,7 +4882,7 @@
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="./lumiere-gl.js?v=13" defer></script>
+<script src="./lumiere-gl.js?v=14" defer></script>
 <script>
 /* ============================================================
    WICHTIG: Bei jedem inhaltlichen Deploy hochzaehlen (wie CACHE_NAME
@@ -4835,7 +4893,7 @@
       unten) - neue, noch nicht "veroeffentlichte" Features hinter
       isReleased(N) verstecken; Admins sehen sie trotzdem sofort.
    ============================================================ */
-const APP_VERSION = 13;
+const APP_VERSION = 14;
 
 // Site-weites Feature-Gate: neue, aber noch nicht freigegebene Funktionen
 // hinter isReleased(<APP_VERSION beim Einbau>) verstecken. Admins (echtes
@@ -7591,6 +7649,7 @@ if(!reducedMotionActive()){
   }
 
   function onMove(e){
+    if(mouseFxOff()) return;
     if(reducedMotionActive()){ particles.length = 0; lastSpawn = null; return; }
     if(e.target.closest && e.target.closest(TRAIL_PAUSE_SELECTOR)){ lastSpawn = null; return; }
     const now = performance.now();
@@ -7645,6 +7704,11 @@ if(!reducedMotionActive()){
 // Maus-Geraeten und ohne reduzierte Bewegung. Der native Zeiger wird bewusst
 // erst nach dem ersten gezeichneten Bild ausgeblendet - startet das hier nicht,
 // bleibt der gewohnte Zeiger erhalten statt gar keiner.
+// Ab Build 14 reagiert nichts mehr auf die Maus: kein eigener Zeiger, keine
+// Funken, kein Lichtschein. Gefragt wird bei jedem Ereignis neu, weil die
+// Freigabe (und damit die Klasse) erst nach dem Laden der Einstellungen feststeht.
+function mouseFxOff(){ return document.documentElement.classList.contains('build-14-live'); }
+
 (function initCustomCursor(){
   if(!window.matchMedia('(hover:hover) and (pointer:fine)').matches) return;
   if(reducedMotionActive()) return;
@@ -7665,6 +7729,11 @@ if(!reducedMotionActive()){
   let rafId = null, gestartet = false;
 
   function frame(){
+    if(mouseFxOff()){
+      document.body.classList.remove('custom-cursor-on');
+      rafId = null;
+      return;
+    }
     rx += (px - rx) * LERP;
     ry += (py - ry) * LERP;
     dot.style.transform = `translate3d(${px}px, ${py}px, 0)`;
@@ -7698,7 +7767,7 @@ if(!reducedMotionActive()){
     document.body.classList.remove('custom-cursor-on');
   });
   document.addEventListener('pointerenter', () => {
-    if(gestartet) document.body.classList.add('custom-cursor-on');
+    if(gestartet && !mouseFxOff()) document.body.classList.add('custom-cursor-on');
   });
   // Beim Tippen auf einem Touchscreen (Hybrid-Geraet) wieder zum normalen Zeiger.
   window.addEventListener('pointerdown', (e) => {
@@ -8060,6 +8129,9 @@ function sndCineHover(){ playTone(659, 0.14, 'sine', 0.012, 0, 2000); }
   const deck      = document.getElementById('cineDeck');
   const deckWorld = document.getElementById('cineDeckWorld');
   const deckDots  = document.getElementById('cineDeckDots');
+  const deckHalo  = document.getElementById('cineDeckHalo');
+  const dustCanvas = document.getElementById('cineDust');
+  const dustCtx   = dustCanvas ? dustCanvas.getContext('2d') : null;
   const cards     = deck ? Array.from(deck.querySelectorAll('.cine-card')) : [];
   const morph    = view.querySelector('.cine-morph');
   const morphFr  = document.getElementById('cineMorphFr');
@@ -8077,6 +8149,7 @@ function sndCineHover(){ playTone(659, 0.14, 'sine', 0.012, 0, 2000); }
   let motes = [], pairIndex = 0, lastSceneKey = '';
   let deckIndex = -1;
   let deckTarget = 0, deckShown = 0;
+  let tourVis = 0;
 
   function reduced(){ return reducedMotionActive(); }
 
@@ -8109,11 +8182,11 @@ function sndCineHover(){ playTone(659, 0.14, 'sine', 0.012, 0, 2000); }
     if(glReady) window.LumiereGL.resize();
   }
 
-  // Kometen. Sie sollen an jeder Stelle der Seite zu sehen sein, nicht nur
-  // alle paar Sekunden einmal - deshalb haengt die Zahl an der Bildflaeche,
-  // und es gibt zwei Groessen: wenige grosse mit langem Schweif als
-  // Ereignis, dazu viele kleine, die das Feld durchgehend tragen. Ausser
-  // ihnen gibt es auf der Leinwand nichts.
+  // Kometen mit Tiefe. Jeder bekommt eine Tiefe d (0 = weit weg, 1 = nah),
+  // und alles haengt daran: nahe Kometen sind gross, hell, schnell und haben
+  // lange Schweife, ferne sind klein, matt und langsam. Die meisten liegen
+  // weit hinten - nahe sind selten, dadurch werden sie zum Ereignis.
+  // Auf die Maus reagieren sie nicht; sie sind einfach da.
   const COMET_MAX = () => {
     const n = Math.round((w * h) / 145000);
     return Math.max(lite ? 9 : 13, Math.min(lite ? 12 : 20, n));
@@ -8122,32 +8195,28 @@ function sndCineHover(){ playTone(659, 0.14, 'sine', 0.012, 0, 2000); }
   function seed(){
     motes = [];
     for(let i = 0; i < COMET_MAX(); i++) motes.push(newComet(true));
+    motes.sort((p, q) => p.d - q.d);          // hinten zuerst, vorn zuletzt
   }
 
   function newComet(seeded){
+    const d = Math.pow(Math.random(), 1.7);
     // Von links oben nach rechts unten oder umgekehrt - nie waagerecht,
     // sonst wirkt es wie ein Laufband.
     const dir = Math.random() < 0.5 ? 1 : -1;
     const ang = (Math.random() * 0.5 + 0.28) * (Math.random() < 0.5 ? 1 : -1);
-    // Jeder vierte ist ein grosser: heller Kopf, langer Schweif. Die
-    // kleinen tragen das Feld, damit nie ein leerer Himmel dasteht.
-    const big = Math.random() < 0.28;
-    const sp  = (big ? 3.0 : 1.8) + Math.random() * (big ? 3.0 : 2.2);
+    const sp  = (0.7 + d * 5.4) * (0.85 + Math.random() * 0.3);
     return {
+      d,
       // Beim ersten Saeen irgendwo im Bild starten - sonst ist die Seite in
       // den ersten Sekunden leer, egal wie viele Kometen unterwegs sind.
-      x: seeded ? Math.random() * w : (dir > 0 ? -200 : w + 200),
+      x: seeded ? Math.random() * w : (dir > 0 ? -220 : w + 220),
       y: seeded ? Math.random() * h : Math.random() * h * 1.3 - h * 0.25,
       vx: Math.cos(ang) * sp * dir,
-      vy: Math.sin(ang) * sp + 0.5,
-      // Die Grundrichtung: nach einem Stoss durch den Zeiger findet der
-      // Komet hierher zurueck.
-      hx: Math.cos(ang) * sp * dir,
-      hy: Math.sin(ang) * sp + 0.5,
-      tail: (big ? 260 : 110) + Math.random() * (lite ? 130 : (big ? 300 : 190)),
-      wd:  (big ? 2.2 : 1.1) + Math.random() * (big ? 1.7 : 1.0),
-      a:   (big ? 0.72 : 0.44) + Math.random() * 0.26,
-      temp: Math.random(),
+      vy: Math.sin(ang) * sp + 0.4 * (0.4 + d),
+      tail: (70 + d * (lite ? 300 : 430)) * (0.8 + Math.random() * 0.4),
+      wd:  0.5 + d * 3.3,
+      a:   0.2 + d * 0.74,
+      temp: 0.25 + Math.random() * 0.75,
       // Nachruecker warten nur kurz, damit die Dichte nicht einbricht.
       wait: seeded ? 0 : Math.random() * 70,
     };
@@ -8161,13 +8230,7 @@ function sndCineHover(){ playTone(659, 0.14, 'sine', 0.012, 0, 2000); }
     return `rgba(${Math.round(205 + t * 50)},${Math.round(118 + t * 90)},${Math.round(18 + t * 74)},${a})`;
   }
 
-  function onPointer(e){
-    const x = e.touches ? e.touches[0].clientX : e.clientX;
-    const y = e.touches ? e.touches[0].clientY : e.clientY;
-    if(pointer.active){ pointer.vx = x - pointer.x; pointer.vy = y - pointer.y; }
-    pointer.x = x; pointer.y = y; pointer.active = true;
-    if(glReady) window.LumiereGL.setPointer((x / w) * 2 - 1, (y / h) * 2 - 1);
-  }
+  let lastScrollY = window.scrollY;
 
   function step(){
     if(!running){ rafId = 0; return; }
@@ -8175,56 +8238,60 @@ function sndCineHover(){ playTone(659, 0.14, 'sine', 0.012, 0, 2000); }
     ctx.globalCompositeOperation = 'lighter';
     ctx.lineCap = 'round';
 
+    // Scroll-Parallaxe: ziehen die Szenen beim Scrollen nach oben, ziehen
+    // nahe Kometen deutlich mit, ferne kaum. Das macht die Tiefe spuerbar,
+    // ohne dass irgendetwas auf die Maus reagiert.
+    const sy = window.scrollY, dScroll = sy - lastScrollY;
+    lastScrollY = sy;
+
+    let replaced = false;
     for(let i = 0; i < motes.length; i++){
       const c = motes[i];
       if(c.wait > 0){ c.wait--; continue; }
-
-      // Der Zeiger stoesst ab, statt anzuziehen. Angezogene Kometen wurden
-      // eingefangen und kreiselten um die Maus - das ergab die Schnoerkel,
-      // die wie Gekrakel aussahen. Abgestossen machen sie einen Bogen und
-      // ziehen ihre Bahn weiter.
-      if(pointer.active && !coarse){
-        const dx = c.x - pointer.x, dy = c.y - pointer.y;
-        const d2 = dx * dx + dy * dy;
-        if(d2 < 62500 && d2 > 1){
-          const d = Math.sqrt(d2);
-          // Quadratisch abfallend: dicht am Zeiger deutlich, am Rand des
-          // Einflussbereichs praktisch null - so gibt es keine Kante.
-          const f = (1 - d / 250) * (1 - d / 250) * 1.9;
-          c.vx += (dx / d) * f;
-          c.vy += (dy / d) * f;
-        }
-      }
-      // Die Bahn zieht wieder auf ihre urspruengliche Richtung zurueck, sonst
-      // sammelt sich jeder Stoss auf und der Komet driftet davon.
-      c.vx += (c.hx - c.vx) * 0.035;
-      c.vy += (c.hy - c.vy) * 0.035;
       c.x += c.vx; c.y += c.vy;
+      if(dScroll) c.y -= dScroll * (0.03 + c.d * 0.55);
 
-      if(c.x < -500 || c.x > w + 500 || c.y > h + 500 || c.y < -500){
+      if(c.x < -560 || c.x > w + 560 || c.y > h + 560 || c.y < -560){
         motes[i] = newComet(false);
+        replaced = true;
         continue;
       }
 
       const sp = Math.hypot(c.vx, c.vy) || 1;
-      const ex = c.x - (c.vx / sp) * c.tail, ey = c.y - (c.vy / sp) * c.tail;
+      const ux = c.vx / sp, uy = c.vy / sp;
+      const ex = c.x - ux * c.tail, ey = c.y - uy * c.tail;
+
+      // Nahe Kometen bekommen unter dem Kernstrich einen breiten, weichen
+      // Lichtschleier - so leuchten sie, statt nur gezeichnet zu sein.
+      if(c.d > 0.5){
+        const gw = ctx.createLinearGradient(c.x, c.y, ex, ey);
+        gw.addColorStop(0,   tempRgba(c.temp, c.a * 0.28));
+        gw.addColorStop(0.5, tempRgba(c.temp, c.a * 0.06));
+        gw.addColorStop(1,   tempRgba(c.temp, 0));
+        ctx.strokeStyle = gw;
+        ctx.lineWidth = c.wd * 4.2;
+        ctx.beginPath(); ctx.moveTo(c.x, c.y); ctx.lineTo(ex, ey); ctx.stroke();
+      }
+
       const g = ctx.createLinearGradient(c.x, c.y, ex, ey);
-      g.addColorStop(0,    `rgba(255,240,200,${c.a})`);
-      g.addColorStop(0.08, tempRgba(c.temp, c.a * 0.85));
-      g.addColorStop(0.45, tempRgba(c.temp, c.a * 0.22));
+      g.addColorStop(0,    `rgba(255,244,214,${c.a})`);
+      g.addColorStop(0.07, tempRgba(c.temp, c.a * 0.85));
+      g.addColorStop(0.42, tempRgba(c.temp, c.a * 0.2));
       g.addColorStop(1,    tempRgba(c.temp, 0));
       ctx.strokeStyle = g;
       ctx.lineWidth = c.wd;
       ctx.beginPath(); ctx.moveTo(c.x, c.y); ctx.lineTo(ex, ey); ctx.stroke();
 
-      // Der Kopf: ein kleiner heller Kern mit Hof.
-      const hg = ctx.createRadialGradient(c.x, c.y, 0, c.x, c.y, c.wd * 5);
-      hg.addColorStop(0, `rgba(255,248,224,${c.a})`);
-      hg.addColorStop(0.4, tempRgba(Math.min(1, c.temp + 0.3), c.a * 0.5));
+      // Der Kopf: heller Kern, weicher Hof - bei nahen groesser.
+      const hr = c.wd * (3.4 + c.d * 2.6);
+      const hg = ctx.createRadialGradient(c.x, c.y, 0, c.x, c.y, hr);
+      hg.addColorStop(0, `rgba(255,250,232,${c.a})`);
+      hg.addColorStop(0.35, tempRgba(Math.min(1, c.temp + 0.3), c.a * 0.45));
       hg.addColorStop(1, tempRgba(c.temp, 0));
       ctx.fillStyle = hg;
-      ctx.beginPath(); ctx.arc(c.x, c.y, c.wd * 5, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(c.x, c.y, hr, 0, Math.PI * 2); ctx.fill();
     }
+    if(replaced) motes.sort((p, q) => p.d - q.d);
 
     ctx.globalAlpha = 1;
     ctx.globalCompositeOperation = 'source-over';
@@ -8236,7 +8303,7 @@ function sndCineHover(){ playTone(659, 0.14, 'sine', 0.012, 0, 2000); }
       layoutDeck(deckShown);
     }
 
-    pointer.vx *= 0.86; pointer.vy *= 0.86;
+    drawDust();
     rafId = requestAnimationFrame(step);
   }
 
@@ -8297,6 +8364,19 @@ function sndCineHover(){ playTone(659, 0.14, 'sine', 0.012, 0, 2000); }
       card.style.opacity = op.toFixed(3);
       card.style.filter = ad > 0.4 ? `blur(${Math.min(5, (ad - 0.4) * 3.4).toFixed(1)}px)` : 'none';
       card.classList.toggle('is-front', ad < 0.5);
+      // Der Glanz haengt am Drehwinkel: kommt die Karte nach vorn oder geht
+      // sie, zieht ein Lichtreflex ueber sie hinweg. Steht sie still vorn,
+      // ist er weg - sonst laege dauerhaft ein Streifen quer ueber dem Foto.
+      const rel = i - pos;
+      const sheenOn = Math.max(0, Math.min(1, (ad - 0.03) / 0.17)) * (1 - Math.max(0, Math.min(1, (ad - 0.5) / 0.3)));
+      card.style.setProperty('--sheen-x', (rel * -45).toFixed(1) + '%');
+      card.style.setProperty('--sheen-o', sheenOn.toFixed(3));
+    }
+    // Der Lichthof hinter der vorderen Karte: am hellsten, wenn eine Karte
+    // genau vorn steht, gedaempft waehrend des Wechsels.
+    if(deckHalo){
+      const off = Math.abs(pos - Math.round(pos));
+      deckHalo.style.setProperty('--halo', (1 - Math.min(1, off * 1.6)).toFixed(3));
     }
 
     const idx = Math.round(pos);
@@ -8307,6 +8387,90 @@ function sndCineHover(){ playTone(659, 0.14, 'sine', 0.012, 0, 2000); }
       }
       sndCineScene();
     }
+  }
+
+  /* Goldstaub um die vordere Karte - wie Staub im Licht eines Scheinwerfers.
+     Eine eigene kleine Leinwand in der Turm-Buehne; gezeichnet wird nur,
+     solange die Turm-Szene sichtbar ist. Die Teilchen entstehen vor allem in
+     einem Ring knapp um die Kartenkante, wenige ueber der Karte selbst, und
+     steigen langsam auf. Der Lichtpunkt ist ein einmal vorgerendertes Bild,
+     das nur noch skaliert gestempelt wird - das kostet fast nichts. */
+  let dust = [], dustW = 0, dustH = 0, dustDpr = 1, dustCx = 0, dustCy = 0, dustRx = 0, dustRy = 0;
+  let dustTick = 0;
+  const DUST_N = () => (lite ? 26 : 72);
+  const dustSprite = (() => {
+    const c = document.createElement('canvas'); c.width = c.height = 32;
+    const x = c.getContext('2d');
+    const g = x.createRadialGradient(16, 16, 0, 16, 16, 16);
+    g.addColorStop(0, 'rgba(255,246,220,1)');
+    g.addColorStop(0.25, 'rgba(255,214,130,.55)');
+    g.addColorStop(1, 'rgba(240,169,44,0)');
+    x.fillStyle = g; x.fillRect(0, 0, 32, 32);
+    return c;
+  })();
+
+  function sizeDust(){
+    if(!dustCanvas) return;
+    const stage = dustCanvas.parentElement;
+    const sr = stage.getBoundingClientRect();
+    dustDpr = Math.min(window.devicePixelRatio || 1, lite ? 1.5 : 2);
+    dustW = sr.width; dustH = sr.height;
+    dustCanvas.width = Math.round(dustW * dustDpr);
+    dustCanvas.height = Math.round(dustH * dustDpr);
+    dustCtx.setTransform(dustDpr, 0, 0, dustDpr, 0, 0);
+    // Die vordere Karte steht immer in der Mitte des Stapels.
+    const dr = deck ? deck.getBoundingClientRect() : sr;
+    dustCx = dr.left - sr.left + dr.width / 2;
+    dustCy = dr.top - sr.top + dr.height / 2;
+    const card = cards[0];
+    dustRx = (card ? card.offsetWidth : 600) * 0.6;
+    dustRy = (card ? card.offsetHeight : 380) * 0.64;
+  }
+
+  function newDust(fresh){
+    const th = Math.random() * Math.PI * 2;
+    const inside = Math.random() < 0.2;
+    const f = inside ? Math.random() * 0.8 : 0.86 + Math.random() * 0.34;
+    return {
+      x: dustCx + Math.cos(th) * dustRx * f,
+      y: dustCy + Math.sin(th) * dustRy * f,
+      vx: (Math.random() - 0.5) * 0.12,
+      vy: -(0.08 + Math.random() * 0.26),
+      r: 0.6 + Math.pow(Math.random(), 2.2) * 2.4,
+      a: inside ? 0.35 : 0.8,
+      age: fresh ? Math.random() * 400 : 0,
+      life: 240 + Math.random() * 300,
+      tw: 0.04 + Math.random() * 0.08,
+      ph: Math.random() * 6.28,
+    };
+  }
+
+  function drawDust(){
+    if(!dustCtx || dustCanvas.hidden) return;
+    if(tourVis < 0.02){
+      if(dust.length){ dustCtx.clearRect(0, 0, dustW, dustH); dust = []; }
+      return;
+    }
+    if(!dustW) sizeDust();
+    if(dust.length === 0) for(let i = 0; i < DUST_N(); i++) dust.push(newDust(true));
+    dustTick++;
+    dustCtx.clearRect(0, 0, dustW, dustH);
+    dustCtx.globalCompositeOperation = 'lighter';
+    for(let i = 0; i < dust.length; i++){
+      const d = dust[i];
+      d.age++;
+      if(d.age > d.life){ dust[i] = newDust(false); continue; }
+      d.x += d.vx + Math.sin(d.age * 0.02 + d.ph) * 0.06;
+      d.y += d.vy;
+      // Auf- und Abblenden ueber die Lebenszeit, dazu ein leises Funkeln.
+      const life = Math.sin(Math.PI * d.age / d.life);
+      const twinkle = 0.55 + 0.45 * Math.sin(dustTick * d.tw + d.ph);
+      dustCtx.globalAlpha = Math.max(0, life * twinkle * d.a * tourVis);
+      const size = d.r * 5;
+      dustCtx.drawImage(dustSprite, d.x - size / 2, d.y - size / 2, size, size);
+    }
+    dustCtx.globalAlpha = 1;
+    dustCtx.globalCompositeOperation = 'source-over';
   }
 
   function buildDots(){
@@ -8321,11 +8485,13 @@ function sndCineHover(){ playTone(659, 0.14, 'sine', 0.012, 0, 2000); }
     if(view.hidden || scenes.length === 0) return;
     const vh = window.innerHeight;
     let top = null, first = null, last = null;
+    const mids = [];
     for(const s of scenes){
       const r = s.getBoundingClientRect();
       if(first === null) first = r;
       last = r;
       const mid = r.top + r.height / 2;
+      mids.push(mid);
       const dist = Math.abs(mid - vh / 2) / vh;
       const enter = Math.max(0, Math.min(1, 1.35 - dist * 1.9));
       s.style.setProperty('--enter', enter.toFixed(3));
@@ -8334,6 +8500,23 @@ function sndCineHover(){ playTone(659, 0.14, 'sine', 0.012, 0, 2000); }
     const span = (last.bottom - first.top) - vh;
     const p = span > 0 ? Math.max(0, Math.min(1, -first.top / span)) : 0;
     if(glReady) window.LumiereGL.setProgress(p);
+    // Die Drehung des Zeichens: eine volle Umdrehung pro Szene. Gezaehlt
+    // wird, zwischen welchen zwei Szenenmitten die Bildmitte gerade steht -
+    // genau in einer Szenenmitte ergibt das eine ganze Zahl, das Zeichen
+    // steht dort also wieder von vorn.
+    let turn = 0;
+    const cy = vh / 2;
+    if(cy <= mids[0]) turn = 0;
+    else if(cy >= mids[mids.length - 1]) turn = mids.length - 1;
+    else {
+      for(let i = 0; i < mids.length - 1; i++){
+        if(cy >= mids[i] && cy < mids[i + 1]){
+          turn = i + (cy - mids[i]) / (mids[i + 1] - mids[i]);
+          break;
+        }
+      }
+    }
+    if(glReady && window.LumiereGL.setTurn) window.LumiereGL.setTurn(turn);
     // Rund um die Mitte der Reise fuellt der Ring das Bild und laeuft hinter
     // der Schrift durch - dort wird er durchscheinender.
     // Der Turm uebernimmt, waehrend der hohe Track vor der Kamera steht, und
@@ -8361,6 +8544,7 @@ function sndCineHover(){ playTone(659, 0.14, 'sine', 0.012, 0, 2000); }
       deckTarget = Math.max(0, Math.min(1, (tp - 0.06) / 0.72)) * (cards.length - 1);
     }
     if(glReady && window.LumiereGL.setTower) window.LumiereGL.setTower(towerAmt, tourProgress);
+    tourVis = towerAmt;
 
     const dip = Math.max(0, 1 - Math.abs(p - 0.19) / 0.20);
     const tail = Math.max(0, Math.min(1, (vh - last.bottom) / (vh * 0.45)));
@@ -8414,7 +8598,7 @@ function sndCineHover(){ playTone(659, 0.14, 'sine', 0.012, 0, 2000); }
     ctx.clearRect(0, 0, w, h);
   }
 
-  window.addEventListener('resize', () => { if(running){ resize(); seed(); scrub(); } }, { passive:true });
+  window.addEventListener('resize', () => { if(running){ resize(); seed(); dustW = 0; dust = []; scrub(); } }, { passive:true });
   window.addEventListener('scroll', () => {
     if(!running) return;
     scrub();
@@ -8424,8 +8608,6 @@ function sndCineHover(){ playTone(659, 0.14, 'sine', 0.012, 0, 2000); }
       if(glReady) window.LumiereGL.renderOnce();
     }
   }, { passive:true });
-  window.addEventListener('mousemove', onPointer, { passive:true });
-  window.addEventListener('touchmove', onPointer, { passive:true });
   window.addEventListener('lumiere:viewchange', (e) => {
     if(e.detail && e.detail.view === 'hub') start(); else stop();
   });
@@ -8464,7 +8646,7 @@ function renderHub(){
   if(window.cineFieldStart) window.cineFieldStart();
 }
 document.querySelectorAll('#view-hub .cine-link').forEach(el => {
-  el.addEventListener('mouseenter', () => sndCineHover());
+  el.addEventListener('mouseenter', () => { if(!mouseFxOff()) sndCineHover(); });
 });
 document.getElementById('btnHubSets').addEventListener('click', () => { sndCineEnter(); renderHome(); });
 document.getElementById('btnHubListen').addEventListener('click', () => openGlobalListen());

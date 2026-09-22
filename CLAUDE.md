@@ -112,12 +112,7 @@ Buchstabe. Aendert sich die Schrift der Wortmarke, muss die Tabelle neu
 erzeugt werden.
 
 Das Emblem begleitet die ganze Reise; nur der Turm schickt es von der Buehne
-(`eo` haengt allein an `towerShown`). Alle `FLOURISH_EVERY` Sekunden macht es
-eine Pirouette: `advanceSpin()` integriert eine Glockenkurve, die ueber die
-Dauer genau 2*PI ergibt - danach steht es wieder von vorn. Der Kipper waehrend
-der Drehung ist `sin(2*PI*u)`, nicht `sin(PI*u)`: sein Maximum muss auf die
-Viertelumdrehung fallen, wo der Reif sonst auf der Kante stuende und fast
-verschwinden wuerde.
+(`eo` haengt allein an `towerShown`).
 
 Das Zeichen steht mitten in der Reise **gross hinter dem Text**, nicht mehr
 klein daneben. Dafuer nimmt sich die 3D-Ebene dort zurueck: `--gl-op` faellt
@@ -128,27 +123,30 @@ den sichtbaren Rand zurueck und schiebt hochkant alles, was seitlich stehen
 sollte (grosses |x|), in den freien Streifen ueber den Text - auf dem Handy
 ist neben der Schrift kein Platz.
 
-## Die Doppelhelix unter dem Zeichen
+## Die Spirale unter dem Zeichen
 
-`makeHelix` baut zwei Tuben, die sich um eine gemeinsame Achse winden und
-nach unten auf einen Punkt zulaufen (`TURNS`, `TOP`/`BOT`, `R0`/`R1`). Der
-Exponent 1.45 im Radius laesst ihn oben langsam und unten schnell
-schrumpfen - sonst wirkt die Spitze abgeschnitten statt gezogen. Sie reicht
-absichtlich weit nach unten und laeuft durch die Wortmarke; das war eine
-bewusste Entscheidung des Nutzers, kein Versehen.
+`makeHelix` baut die Form aus der Referenz (activetheory.net): zwei Straenge
+setzen genau an der linken und rechten Seite des grossen Reifs an und winden
+sich mit **gleichbleibendem Radius** (`HELIX_R` = Reifradius) eine **halbe
+Drehung** (`HELIX_TWIST = PI`) um die Hochachse. Von vorn kreuzen sie sich
+dadurch einmal zum X, von der Seite (Muenze hochkant) bilden sie eine Linse,
+die unten zusammenlaeuft - beides ist dieselbe Form. Die Drehung setzt weich
+ein (smoothstep), damit die Straenge den Reif senkrecht verlassen. Am Ende
+werden die Querschnitte zur Kurvenmitte zusammengezogen, damit der Strang
+duenn auslaeuft statt abgeschnitten aufzuhoeren.
 
-## Das Zeichen dreht durch
+Nicht wieder zum Korkenzieher machen (verjuengter Radius, viele Windungen):
+das war die vorige Fassung und sah nicht aus wie die Referenz.
 
-`SPIN_RATE` = eine Umdrehung in 14 s, dauerhaft. **Die `KEYS`-Spalte rotY
-muss dabei ueberall 0 bleiben.** Frueher standen dort aufsteigende Winkel
-(0.85, 1.75, 2.20 …) aus einem aelteren Entwurf - bei 1.75 rad = 100 Grad
-stand der Reif fast auf der Kante und war in der ganzen Szene nur ein
-Streifen, egal wie gross er skaliert war. Genau das sah aus wie "uebelst
-klein an der Ecke".
+## Die Drehung kommt vom Scrollen
 
-Damit das Zeichen bei einer Vierteldrehung nicht zum reinen Strich wird,
-bleibt eine feste Neigung in rotX stehen (etwa 0.3): man sieht dann eine
-schmale Ellipse statt einer Linie.
+`scrub()` in index.html zaehlt, zwischen welchen zwei Szenenmitten die
+Bildmitte steht, und meldet das ueber `LumiereGL.setTurn(turn)` - eine
+Szene = eine volle Umdrehung. In jeder Szenenmitte ist `turn` ganzzahlig,
+das Zeichen steht dort also genau von vorn. Im Stand dreht nichts, es
+schwebt nur (`emblem.position.y += sin(...)`). **Die `KEYS`-Spalte rotY muss
+ueberall 0 bleiben** - aufsteigende Winkel dort haben das Zeichen frueher
+auf die Kante gestellt. rotX steht bei 0.12, eine kleine Neigung.
 
 ## Das Emblem hat drei Ringebenen
 
@@ -205,11 +203,53 @@ Geometrie des Zeichens, sondern was darum herum passiert. Zwei Teile:
   Farbsaum waechst nach aussen (in der Mitte null, sonst flimmert Schrift),
   das Korn wirkt nur in dunklen Flaechen - sonst rauscht das Gold.
 
-**Falle:** Der Zeiger **stoesst die Kometen ab**, er zieht sie nicht an.
-Angezogene Kometen wurden eingefangen und kreiselten um die Maus - das ergab
-die Schnoerkel, die wie Gekrakel aussahen. Jede Bahn merkt sich ausserdem
-ihre Grundrichtung (`hx`/`hy`) und zieht dorthin zurueck, sonst summieren
-sich die Stoesse und der Komet driftet davon.
+## Keine Maus-Effekte mehr (ab Build 14)
+
+Seit Build 14 reagiert nichts auf die Maus: kein eigener Zeiger (Punkt +
+Ring), keine Gold-Funken hinter dem Zeiger (`initMouseEmbers`), kein
+Lichtschein (`.cursor-spotlight`), kein Hover-Klang auf der Startseite,
+keine Neigung des Zeichens, keine Reaktion der Kometen, kein Hover auf den
+Tour-Karten. Gesteuert ueber `mouseFxOff()` (= `html.build-14-live`) - die
+Klasse steht erst nach dem Laden der Einstellungen fest, deshalb wird bei
+jedem Ereignis neu gefragt. Die Karten-Hover auf anderen Seiten (Lernsets
+usw.) und die Klick-Rueckmeldung sind davon bewusst nicht betroffen.
+
+## Kometen mit Tiefe
+
+Jeder Komet hat eine Tiefe `d` (0 fern, 1 nah; `pow(random, 1.7)`, also
+meist fern). Daran haengen Geschwindigkeit, Strichbreite, Schweiflaenge,
+Helligkeit und Kopfgroesse. Nahe (d > 0.5) bekommen einen breiten weichen
+Lichtschleier unter dem Kernstrich. Gezeichnet wird hinten zuerst. Beim
+Scrollen ziehen nahe Kometen deutlich mit, ferne kaum (`dScroll * (0.03 +
+d * 0.55)`) - das macht die Tiefe spuerbar, ohne jede Maus.
+
+## Die Karten am Turm
+
+Vier Lichtwirkungen, alle ohne Hover: eine Lichtkante, die um die vordere
+Karte laeuft (`::before`, konischer Verlauf, `@property --beam-a`), ein
+Glanz, der beim Drehen ueber die Karte zieht (`--sheen-x`/`--sheen-o` aus
+`layoutDeck`, bei stillstehender Karte aus), ein warmer Hof hinter der
+vorderen Karte (`#cineDeckHalo`, `--halo`) und Goldstaub (`#cineDust`,
+`drawDust`, nur solange die Turm-Szene sichtbar ist).
+
+## Der Suchscheinwerfer
+
+`makeBeacon` setzt zwei gegenlaeufige Lichtkegel auf die Turmspitze, eine
+Umdrehung in 16 s, fast waagrecht (Neigung 0.05) - steiler angehoben liefen
+sie nur ueber den oberen Bildrand. Der Shader ist **in der Mitte hell und am
+Rand weich** (`pow(|N·V|, 1.6)`); umgekehrt leuchteten die Raender und der
+Kegel sah aus wie zwei Klingen. Schaut man in die Oeffnung des Kegels,
+blendet er sich aus (`endOn`) - sonst entsteht eine milchige Scheibe.
+
+## Testen mit Freigabe-Gate
+
+Lokal gibt es kein Supabase, also ist niemand Admin und alle Build-14-Teile
+sind versteckt. Im Test deshalb nach dem Laden:
+`currentProfile = { is_admin:true }; applyReleaseGate();`
+Und: die Seite scrollt weich (`scroll-behavior:smooth`). Bei der niedrigen
+Bildrate der Testmaschine kommt ein `scrollTo` erst Sekunden spaeter an -
+Szenen sehen dann unscharf aus, obwohl alles stimmt. Fuer Standbilder
+`scrollTo({ top, behavior:'instant' })` nehmen.
 
 **Falle:** `Float32BufferAttribute` legt eine **Kopie** des uebergebenen
 Feldes an. Wer den Puffer jeden Frame neu beschreibt, muss mit
