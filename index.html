@@ -4824,7 +4824,7 @@
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="./lumiere-gl.js?v=8" defer></script>
+<script src="./lumiere-gl.js?v=9" defer></script>
 <script>
 /* ============================================================
    WICHTIG: Bei jedem inhaltlichen Deploy hochzaehlen (wie CACHE_NAME
@@ -4835,7 +4835,7 @@
       unten) - neue, noch nicht "veroeffentlichte" Features hinter
       isReleased(N) verstecken; Admins sehen sie trotzdem sofort.
    ============================================================ */
-const APP_VERSION = 8;
+const APP_VERSION = 9;
 
 // Site-weites Feature-Gate: neue, aber noch nicht freigegebene Funktionen
 // hinter isReleased(<APP_VERSION beim Einbau>) verstecken. Admins (echtes
@@ -8034,12 +8034,15 @@ function sndCineHover(){ playTone(659, 0.14, 'sine', 0.012, 0, 2000); }
     if(glReady) window.LumiereGL.resize();
   }
 
-  // Dichte an die Flaeche koppeln, damit ein grosser Monitor nicht dieselbe
-  // duenne Streuung bekommt wie ein Handy - und Handys nicht ueberlastet werden.
-  // Kometen. Wenige, gross, mit langem Schweif - eher Ereignis als Rauschen.
-  // Sie ziehen schraeg durchs Bild, und der Zeiger lenkt sie ab, wenn er
-  // nahe kommt. Ausser ihnen gibt es auf der Leinwand nichts.
-  const COMET_MAX = () => (lite ? 2 : 3);
+  // Kometen. Sie sollen an jeder Stelle der Seite zu sehen sein, nicht nur
+  // alle paar Sekunden einmal - deshalb haengt die Zahl an der Bildflaeche,
+  // und es gibt zwei Groessen: wenige grosse mit langem Schweif als
+  // Ereignis, dazu viele kleine, die das Feld durchgehend tragen. Ausser
+  // ihnen gibt es auf der Leinwand nichts.
+  const COMET_MAX = () => {
+    const n = Math.round((w * h) / 145000);
+    return Math.max(lite ? 9 : 13, Math.min(lite ? 12 : 20, n));
+  };
 
   function seed(){
     motes = [];
@@ -8051,21 +8054,23 @@ function sndCineHover(){ playTone(659, 0.14, 'sine', 0.012, 0, 2000); }
     // sonst wirkt es wie ein Laufband.
     const dir = Math.random() < 0.5 ? 1 : -1;
     const ang = (Math.random() * 0.5 + 0.28) * (Math.random() < 0.5 ? 1 : -1);
-    const sp  = 2.4 + Math.random() * 3.4;
-    const t   = Math.random();
+    // Jeder vierte ist ein grosser: heller Kopf, langer Schweif. Die
+    // kleinen tragen das Feld, damit nie ein leerer Himmel dasteht.
+    const big = Math.random() < 0.28;
+    const sp  = (big ? 3.0 : 1.8) + Math.random() * (big ? 3.0 : 2.2);
     return {
-      x: dir > 0 ? -160 : w + 160,
-      y: Math.random() * h * 1.3 - h * 0.15,
+      // Beim ersten Saeen irgendwo im Bild starten - sonst ist die Seite in
+      // den ersten Sekunden leer, egal wie viele Kometen unterwegs sind.
+      x: seeded ? Math.random() * w : (dir > 0 ? -200 : w + 200),
+      y: seeded ? Math.random() * h : Math.random() * h * 1.3 - h * 0.25,
       vx: Math.cos(ang) * sp * dir,
-      vy: Math.sin(ang) * sp + 0.6,
-      tail: 220 + Math.random() * (lite ? 160 : 320),
-      wd: 1.6 + Math.random() * 2.2,
-      a: 0.5 + Math.random() * 0.5,
-      temp: t,
-      // Beim ersten Saeen mitten im Bild starten, damit nicht alle
-      // gleichzeitig von aussen hereinkommen.
-      warm: seeded ? Math.random() * 0.8 : 0,
-      wait: seeded ? 0 : 40 + Math.random() * 220,
+      vy: Math.sin(ang) * sp + 0.5,
+      tail: (big ? 260 : 110) + Math.random() * (lite ? 130 : (big ? 300 : 190)),
+      wd:  (big ? 2.2 : 1.1) + Math.random() * (big ? 1.7 : 1.0),
+      a:   (big ? 0.72 : 0.44) + Math.random() * 0.26,
+      temp: Math.random(),
+      // Nachruecker warten nur kurz, damit die Dichte nicht einbricht.
+      wait: seeded ? 0 : Math.random() * 70,
     };
   }
 
@@ -8094,10 +8099,6 @@ function sndCineHover(){ playTone(659, 0.14, 'sine', 0.012, 0, 2000); }
     for(let i = 0; i < motes.length; i++){
       const c = motes[i];
       if(c.wait > 0){ c.wait--; continue; }
-      if(c.warm > 0){
-        // Vorlauf: den Kometen ins Bild hineinrechnen, ohne ihn zu zeichnen.
-        c.x += c.vx * c.warm * 90; c.y += c.vy * c.warm * 90; c.warm = 0;
-      }
 
       // Der Zeiger lenkt ab: nahe Kometen werden sanft angezogen und
       // bekommen einen Drall mit der Mausbewegung.
@@ -8276,7 +8277,7 @@ function sndCineHover(){ playTone(659, 0.14, 'sine', 0.012, 0, 2000); }
 
     const dip = Math.max(0, 1 - Math.abs(p - 0.25) / 0.14);
     const tail = Math.max(0, Math.min(1, (vh - last.bottom) / (vh * 0.45)));
-    glCanvas.style.setProperty('--gl-op', ((0.9 - dip * 0.32) * (1 - tail)).toFixed(3));
+    glCanvas.style.setProperty('--gl-op', ((0.94 - dip * 0.12) * (1 - tail)).toFixed(3));
 
     if(top && top.key && top.key !== lastSceneKey){
       if(lastSceneKey) sndCineScene();

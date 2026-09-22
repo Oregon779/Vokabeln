@@ -81,6 +81,19 @@ Groesse, Position, Drehung je Stuetzstelle) - dort wird nachjustiert, nicht
 in der Render-Schleife. Aendert sich die Zahl oder Hoehe der Szenen,
 verschieben sich die p-Werte und `KEYS` muss mit.
 
+Das Emblem begleitet die ganze Reise; nur der Turm schickt es von der Buehne
+(`eo` haengt allein an `towerShown`). Alle `FLOURISH_EVERY` Sekunden macht es
+eine Pirouette: `advanceSpin()` integriert eine Glockenkurve, die ueber die
+Dauer genau 2*PI ergibt - danach steht es wieder von vorn. Der Kipper waehrend
+der Drehung ist `sin(2*PI*u)`, nicht `sin(PI*u)`: sein Maximum muss auf die
+Viertelumdrehung fallen, wo der Reif sonst auf der Kante stuende und fast
+verschwinden wuerde.
+
+Die x/y in `KEYS` sind fuer den Desktop gedacht. `applyTransform` holt sie auf
+den sichtbaren Rand zurueck und schiebt hochkant alles, was seitlich stehen
+sollte (grosses |x|), in den freien Streifen ueber den Text - auf dem Handy
+ist neben der Schrift kein Platz.
+
 Zwei Fallen, die schon einmal Zeit gekostet haben:
 - `overflow-x` auf `<body>` zwingt `overflow-y` auf `auto`. Damit wird
   `<body>` zum Scrollcontainer und jedes `position:sticky` klebt nicht mehr.

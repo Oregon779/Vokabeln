@@ -65,20 +65,21 @@ function makeEnvTexture(){
 // Schriftdatei bauen, deshalb ist es hier als Umriss gezeichnet und
 // extrudiert - ein Blockserifen-L, das im Ring als Monogramm liest.
 function makeLetterL(mat){
-  // Ein Monolinien-L: gleichmaessig duenner Strich statt Blockserife. Der
-  // Umriss IST die Linie - Stamm und Fuss sind nur 0.115 breit.
-  const w = 0.115;
+  // Ein L mit Masse. Der Strich ist breit genug, dass die Extrusion eine
+  // sichtbare Flanke bekommt, und tief genug, dass man beim Drehen die
+  // Seite sieht - eine Monolinie waere von schraeg vorn nur ein Strich.
+  const w = 0.20;
   const s = new Shape();
-  s.moveTo(-0.30, -0.52);
-  s.lineTo( 0.30, -0.52);
-  s.lineTo( 0.30, -0.52 + w);
-  s.lineTo(-0.30 + w, -0.52 + w);
-  s.lineTo(-0.30 + w,  0.52);
-  s.lineTo(-0.30,      0.52);
+  s.moveTo(-0.32, -0.56);
+  s.lineTo( 0.34, -0.56);
+  s.lineTo( 0.34, -0.56 + w);
+  s.lineTo(-0.32 + w, -0.56 + w);
+  s.lineTo(-0.32 + w,  0.56);
+  s.lineTo(-0.32,      0.56);
   s.closePath();
   const geo = new ExtrudeGeometry(s, {
-    depth: 0.085, bevelEnabled: true, bevelThickness: 0.016,
-    bevelSize: 0.014, bevelSegments: 2, curveSegments: 3,
+    depth: 0.34, bevelEnabled: true, bevelThickness: 0.055,
+    bevelSize: 0.048, bevelSegments: lite ? 1 : 3, curveSegments: 3,
   });
   geo.center();
   return new Mesh(geo, mat);
@@ -93,7 +94,7 @@ function makeRibbon(mat, lite){
   ];
   for(const pts of arcs){
     const curve = new CatmullRomCurve3(pts.map(p => new Vector3(...p)));
-    g.add(new Mesh(new TubeGeometry(curve, lite ? 20 : 48, 0.032, lite ? 5 : 8, false), mat));
+    g.add(new Mesh(new TubeGeometry(curve, lite ? 20 : 48, 0.058, lite ? 6 : 10, false), mat));
   }
   return g;
 }
@@ -190,10 +191,12 @@ function loadTower(url){
 //        p     scale     x      y      z     rotX   rotY   rotZ
 const KEYS = [
   [0.00, 0.28,  0.00,  1.28,  0.00,  0.16,  0.00,  0.00],  // Eintritt - gross und mittig
-  [0.11, 0.085, 2.55,  1.15, -3.40,  0.40,  0.85,  0.14],  // Das Wort - nur noch ein Lichtpunkt
-  [0.25, 0.075,-2.70,  1.35, -3.80,  0.70,  1.75, -0.28],  // Methode  - dito, andere Seite
-  [0.55, 0.05,  0.00,  0.00, -6.50,  0.50,  2.60,  0.10],  // Turm     - ganz zurueckgezogen
-  [0.90, 0.09, -2.55, -1.10, -3.60,  0.46,  3.30,  0.18],  // Atelier  - links, Inhalt steht rechts
+  [0.11, 0.20,  3.40,  1.00, -2.80,  0.30,  0.85,  0.14],  // Das Wort - rechts, Text steht links
+  [0.25, 0.20,  3.70, -0.60, -3.00,  0.42,  1.75, -0.22],  // Methode  - rechts unten
+  [0.32, 0.13,  3.10, -1.60, -3.60,  0.52,  2.20,  0.16],  // zieht sich vor dem Turm zurueck
+  [0.55, 0.05,  0.00, -2.60, -6.50,  0.50,  2.60,  0.10],  // Turm     - geparkt, ohnehin unsichtbar
+  [0.80, 0.10,  0.00, -3.30, -3.80,  0.44,  3.00, -0.20],  // taucht unter dem Turm wieder auf
+  [0.90, 0.20, -2.90, -0.60, -3.20,  0.46,  3.40,  0.18],  // Atelier  - links, Inhalt steht rechts
   [1.00, 0.30,  0.00,  1.35, -0.15,  0.22,  4.20,  0.00],  // Abschluss- wieder gross
 ];
 function smoothstep(t){ return t * t * (3 - 2 * t); }
@@ -210,6 +213,7 @@ let renderer, scene, camera, clock;
 let emblem, ringMain, tower, towerMats = [], emblemMats = [];
 let raf = 0, running = false, lite = false, ready = false;
 let progress = 0, shown = 0;
+let spin = 0, spinT = 0;
 let towerAmt = 0, towerShown = 0, tourP = 0, tourShown = 0;
 let pointerX = 0, pointerY = 0, px = 0, py = 0;
 
@@ -263,7 +267,10 @@ function init(canvas, opts){
       });
 
   const mainMat = glass();
-  ringMain = new Mesh(new TorusGeometry(1.9, 0.052, lite ? 12 : 28, lite ? 90 : 260), mainMat);
+  // Ein Reif mit Volumen statt einer gezogenen Linie: der dicke Querschnitt
+  // bricht das Licht in einzelne Facetten, so dass man beim Drehen jederzeit
+  // sieht, wo vorn und wo hinten ist.
+  ringMain = new Mesh(new TorusGeometry(1.9, 0.168, lite ? 6 : 14, lite ? 96 : 240), mainMat);
   emblem.add(ringMain);
 
   // Das L sitzt als eigener, etwas dickerer Körper mittig im Ring.
@@ -279,9 +286,18 @@ function init(canvas, opts){
   const ribbonMat = glass();
   emblem.add(makeRibbon(ribbonMat, lite));
 
-  // Ein dünner, heller Reif - er zeichnet die Silhouette nach, damit der Ring
-  // auch vor sehr dunklem Grund eine Kante behält.
-  emblemMats = [mainMat, letterMat, ribbonMat];
+  // Ein zweiter, schmaler Reif dicht innen. Er sitzt eine Spur vor dem
+  // grossen und gibt dem Zeichen eine zweite Ebene - ohne ihn sieht ein
+  // einzelner Reif von vorn immer noch flach aus.
+  const bandMat = new MeshStandardMaterial({
+    color: GOLD_BRIGHT, emissive: new Color(GOLD), emissiveIntensity: 0.95,
+    metalness: 1, roughness: 0.11, envMapIntensity: 2.7, transparent: true,
+  });
+  const band = new Mesh(new TorusGeometry(1.63, 0.042, lite ? 5 : 10, lite ? 72 : 168), bandMat);
+  band.position.z = 0.06;
+  emblem.add(band);
+
+  emblemMats = [mainMat, letterMat, ribbonMat, bandMat];
 
   /* --- Licht: warm von oben, Weinrot als Gegenlicht von unten -----------
      Die Reichweite muss den Turm mit abdecken (10 Einheiten hoch), deshalb
@@ -328,30 +344,76 @@ function tourCamera(q){
   _lookTour.set(0, look, 0);
 }
 
+/* Das Emblem begleitet die ganze Reise, also muss es von sich aus etwas tun.
+   Grundton ist ein langsames, stetiges Drehen; alle paar Sekunden kommt eine
+   Pirouette dazu - eine zusaetzliche volle Umdrehung, die weich an- und
+   wieder abschwillt, damit der Blick kurz hinwandert. Die Drehrate wird
+   aufsummiert statt aus der Uhrzeit berechnet: so gibt es keinen Sprung,
+   wenn die Animation pausiert (Tab im Hintergrund) und wieder anlaeuft. */
+const FLOURISH_EVERY = 11;      // Sekunden zwischen zwei Pirouetten
+const FLOURISH_LEN   = 1.9;     // wie lange eine dauert
+function advanceSpin(dt){
+  spinT += dt;
+  const cyc = spinT % FLOURISH_EVERY;
+  let tilt = 0;
+  if(cyc < FLOURISH_LEN){
+    const u = cyc / FLOURISH_LEN;
+    // Die Glocke (1-cos)/2 integriert sich ueber die Dauer zu L/2 - mit
+    // 4*PI/L als Hoehe kommt also genau eine volle Umdrehung heraus. Das
+    // Zeichen steht danach wieder genau von vorn.
+    spin += (4 * Math.PI / FLOURISH_LEN) * (1 - Math.cos(2 * Math.PI * u)) / 2 * dt;
+    tilt  = Math.sin(2 * Math.PI * u) * 0.5;
+  }
+  // Dazwischen nur ein leises Wiegen, damit das Licht ueber die Kanten
+  // wandert - eine Dauerdrehung waere als Marke nicht mehr lesbar.
+  return tilt;
+}
+let spinTilt = 0;
+
 const _k = new Array(7);
 function applyTransform(p, t){
   const k = sampleKeys(p, _k);
   // Die Kamera misst senkrecht. Auf einem hochkantigen Schirm würde der Ring
   // deshalb das ganze Bild füllen - dort fällt er entsprechend kleiner aus.
   const fit = Math.max(0.50, Math.min(1, camera.aspect / 1.35));
-  emblem.scale.setScalar(k[0] * fit);
-  emblem.position.set(k[1], k[2], k[3]);
+  // Das Emblem darf auf dem Handy nicht ganz so stark schrumpfen wie der
+  // Turm - sonst bleibt von der Marke nur ein Fleck uebrig.
+  const efit = Math.max(0.62, Math.min(1, camera.aspect / 1.35));
+  emblem.scale.setScalar(k[0] * efit);
+  // Die x/y der Tabelle sind fuer den Desktop gedacht. Auf einem schmalen
+  // Schirm liegen sie ausserhalb des Bildes, deshalb werden sie auf den
+  // tatsaechlich sichtbaren Rand zurueckgeholt - abzueglich des Reifs selbst.
+  const dist  = Math.max(0.6, (7 - p * 1.2) - k[3]);
+  const halfH = Math.tan((camera.fov * Math.PI / 180) / 2) * dist;
+  const halfW = halfH * camera.aspect;
+  const edge  = 1.9 * k[0] * efit + 0.18;
+  const maxX  = Math.max(0, halfW - edge);
+  const maxY  = Math.max(0, halfH - edge);
+  // Hochkant gibt es neben dem Text keinen Platz. Stuetzstellen, die das
+  // Emblem an die Seite stellen wollten (grosses |x|), ruecken dort in den
+  // freien Streifen ueber dem Text; mittig gedachte bleiben, wo sie sind.
+  const port = Math.max(0, Math.min(1, (1 - camera.aspect) / 0.45))
+             * Math.min(1, Math.abs(k[1]) / 2.2);
+  const kx = k[1] * (1 - port);
+  const ky = k[2] + (halfH * 0.64 - k[2]) * port;
+  emblem.position.set(Math.max(-maxX, Math.min(maxX, kx)),
+                      Math.max(-maxY, Math.min(maxY, ky)), k[3]);
   // Der Zeiger kippt das Emblem nur leicht mit - genug, dass es auf die Maus
   // reagiert, zu wenig, um die inszenierte Bahn zu überschreiben.
-  emblem.rotation.set(k[4] + py * 0.16 + Math.sin(t * 0.25) * 0.04,
-                      k[5] + px * 0.22,
-                      k[6]);
-  if(emblem.userData.letter) emblem.userData.letter.rotation.y = -k[5] * 0.5 + Math.sin(t * 0.35) * 0.06;
+  emblem.rotation.set(k[4] + py * 0.16 + Math.sin(t * 0.25) * 0.04 + spinTilt,
+                      k[5] + px * 0.22 + spin + Math.sin(t * 0.42) * 0.17,
+                      k[6] + Math.sin(t * 0.19) * 0.05);
+  // Das L dreht dem Reif ein Stueck entgegen, damit es nicht wie aufgeklebt
+  // mitfaehrt, sondern wie ein eigener Koerper im Ring schwebt.
+  if(emblem.userData.letter) emblem.userData.letter.rotation.y = -spin * 0.45 + Math.sin(t * 0.35) * 0.08;
   camera.position.z = 7 - p * 1.2;
 
   // Überblendung. Der Turm steigt beim Auftritt leicht an und dreht sich
   // langsam, damit das Gitterwerk aus allen Richtungen Licht fängt.
   const tw = towerShown;
-  // Das Emblem gehoert an den Anfang und ans Ende der Reise - dazwischen
-  // ruht es ganz, statt als kleiner Fleck im Bild herumzustehen.
-  const head = 1 - smoothstep(Math.max(0, Math.min(1, (p - 0.035) / 0.05)));
-  const tail = smoothstep(Math.max(0, Math.min(1, (p - 0.92) / 0.055)));
-  const eo = (1 - smoothstep(Math.min(1, tw * 1.25))) * Math.max(head, tail);
+  // Das Emblem begleitet die ganze Reise. Nur der Turm schickt es von der
+  // Buehne - danach kommt es unterhalb von ihm wieder herein.
+  const eo = 1 - smoothstep(Math.min(1, tw * 1.25));
   emblem.visible = eo > 0.01;
   for(const m of emblemMats) m.opacity = eo;
 
@@ -396,6 +458,7 @@ function frame(){
   tourShown  += (tourP    - tourShown)  * Math.min(1, dt * 3.4);
   px += (pointerX - px) * Math.min(1, dt * 2.4);
   py += (pointerY - py) * Math.min(1, dt * 2.4);
+  spinTilt = advanceSpin(dt);
   applyTransform(shown, t);
 
   renderer.render(scene, camera);
@@ -424,6 +487,7 @@ function stop(){
 function renderOnce(){
   if(!ready) return;
   shown = progress; towerShown = towerAmt; tourShown = tourP; px = pointerX; py = pointerY;
+  spin = 0; spinTilt = 0;   // bei prefers-reduced-motion steht das Emblem still
   applyTransform(shown, 0);
   renderer.render(scene, camera);
 }
