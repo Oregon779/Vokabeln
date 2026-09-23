@@ -14,7 +14,7 @@ import {
   MeshPhysicalMaterial, MeshStandardMaterial, PointsMaterial,
   Color, Vector2, Vector3, CanvasTexture, EquirectangularReflectionMapping,
   PMREMGenerator, PointLight, AmbientLight, MeshBasicMaterial, DoubleSide,
-  ConeGeometry, ShaderMaterial, Sprite, SpriteMaterial, WebGLRenderTarget,
+  ConeGeometry, ShaderMaterial, Sprite, SpriteMaterial, WebGLRenderTarget, VideoTexture,
   ACESFilmicToneMapping, SRGBColorSpace, AdditiveBlending,
 } from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
@@ -702,11 +702,142 @@ function makeDust(curves){
 // schemenhaft, aber sie bleibt Hintergrund.
 const PARIS = {
   rt: () => (lite ? [128, 72] : [256, 144]),
-  grid: () => (lite ? [100, 56] : [200, 112]),
+  grid: () => (lite ? [128, 72] : [256, 144]),
   // Das Punktfeld: ein Stueck Zylindermantel hinter dem Turm, zur Flugbahn hin
   // gewoelbt. Mittelpunkt, Radius, Oeffnungswinkel, Hoehe.
   C: new Vector3(0, 3, -10), R: 50, ARC: 1.6, H: 44,
 };
+
+// Ein Vorhang aus Punkten, der seine Farben aus einer Textur liest (Video
+// oder Render). Die Punkte liegen auf einem Stueck Zylindermantel, der zur
+// Kamera hin gewoelbt ist; helle Stellen treten nach vorn und werden
+// groesser, Dunkles bleibt leer. `gold` = 0: echte Farben mit Goldstich,
+// 1: nur die Helligkeit zaehlt, gezeichnet in Gold (fuer Schwarz-Weiss).
+function makeVideoSheet(o){
+  const [gw, gh] = o.grid;
+  const n = gw * gh;
+  const pos = new Float32Array(n * 3), nrm = new Float32Array(n * 3);
+  const uv = new Float32Array(n * 2), seed = new Float32Array(n);
+  let q = 0;
+  for(let j = 0; j < gh; j++){
+    for(let i = 0; i < gw; i++, q++){
+      const u = (i + 0.5 + (Math.random() - 0.5) * 0.8) / gw;
+      const v = (j + 0.5 + (Math.random() - 0.5) * 0.8) / gh;
+      const ang = (u - 0.5) * o.ARC;
+      pos[q * 3]     = o.C.x + Math.sin(ang) * o.R;
+      pos[q * 3 + 1] = o.C.y + (v - 0.5) * o.H;
+      pos[q * 3 + 2] = o.C.z - Math.cos(ang) * o.R;
+      // Nach innen, zur Kamera hin - dorthin treten helle Stellen vor.
+      nrm[q * 3] = -Math.sin(ang); nrm[q * 3 + 1] = 0; nrm[q * 3 + 2] = Math.cos(ang);
+      uv[q * 2] = u; uv[q * 2 + 1] = v;
+      seed[q] = Math.random();
+    }
+  }
+  const geo = new BufferGeometry();
+  geo.setAttribute('position', new Float32BufferAttribute(pos, 3));
+  geo.setAttribute('aN',       new Float32BufferAttribute(nrm, 3));
+  geo.setAttribute('aUV',      new Float32BufferAttribute(uv, 2));
+  geo.setAttribute('aSeed',    new Float32BufferAttribute(seed, 1));
+  const mat = new ShaderMaterial({
+    uniforms: {
+      uTex: { value: o.tex || null }, uTime: { value: 0 }, uVis: { value: 0 },
+      uViewH: { value: 900 }, uGold: { value: o.gold || 0 },
+      uPush: { value: o.push || 5 },
+      uLo: { value: o.lo != null ? o.lo : 0.1 }, uHi: { value: o.hi || 0.5 },
+      uGain: { value: o.gain || 1.1 },
+      // Auf schwachen Geraeten gibt es weniger Punkte und kein Nachgluehen -
+      // dort werden sie groesser und kraeftiger, sonst sieht man nichts.
+      uSize: { value: lite ? 1.6 : 1 }, uBoost: { value: lite ? 1.7 : 1 },
+    },
+    vertexShader: `
+      attribute vec3 aN;
+      attribute vec2 aUV;
+      attribute float aSeed;
+      uniform sampler2D uTex;
+      uniform float uTime, uViewH, uGold, uPush, uLo, uHi, uGain, uSize, uBoost;
+      varying vec3 vCol;
+      varying float vA, vBig;
+      void main(){
+        vec3 col = texture2D(uTex, aUV).rgb;
+        float lum = dot(col, vec3(0.3, 0.59, 0.11));
+        float s = aSeed * 6.2831;
+        vec3 p = position + aN * (lum * uPush + sin(uTime * 0.4 + s) * 0.5);
+        p += vec3(sin(uTime * 0.13 + s), cos(uTime * 0.11 + s * 1.3), 0.0) * 0.25;
+        vec4 mv = modelViewMatrix * vec4(p, 1.0);
+        gl_Position = projectionMatrix * mv;
+        float d = max(1.0, -mv.z);
+        float world = (0.07 + lum * 0.3) * uSize;
+        gl_PointSize = clamp(world * projectionMatrix[1][1] * uViewH * 0.5 / d, 1.0, 14.0);
+        vBig = smoothstep(0.35, 0.8, lum);
+        // Leichter Goldstich, damit es zur Seite passt - oder ganz in Gold.
+        vec3 tint = mix(col, col * vec3(1.08, 0.94, 0.74), 0.4) * uGain;
+        vec3 gold = mix(vec3(0.62, 0.32, 0.08), vec3(1.0, 0.76, 0.42), lum) * (0.35 + lum * 1.1);
+        vCol = mix(tint, gold, uGold);
+        // Nur wirklich Helles wird zum Punkt; der dunkle Grund bleibt leer.
+        vA = min(1.0, smoothstep(uLo, uHi, lum) * 0.85 * uBoost) * (0.75 + 0.25 * sin(uTime * (0.7 + aSeed) + s * 5.0));
+      }`,
+    fragmentShader: `
+      uniform float uVis;
+      varying vec3 vCol;
+      varying float vA, vBig;
+      void main(){
+        vec2 c = gl_PointCoord * 2.0 - 1.0;
+        float r = length(c);
+        if(r > 1.0) discard;
+        float a = mix(exp(-r * r * 3.5),
+                      smoothstep(1.0, 0.78, r) * (0.5 + 0.5 * smoothstep(0.45, 0.9, r)), vBig);
+        gl_FragColor = vec4(vCol, a * vA * uVis);
+      }`,
+    transparent: true, depthWrite: false, blending: AdditiveBlending,
+  });
+  const sheet = new Points(geo, mat);
+  sheet.frustumCulled = false;
+  sheet.renderOrder = -2;
+  sheet.visible = false;
+  return sheet;
+}
+
+/* ------------------------------------------------------------ Videos  */
+
+// Zwei kurze Schleifen (Pexels, freie Lizenz), auf 320 x 180 verkleinert:
+// die Seine-Bruecke fuer den Weg zum Turm, die Strassenbahn fuer das
+// Hinabsinken. Jede liegt als MP4 (H.264, fuer Safari/iPhone) und als WebM
+// (VP9) vor; genommen wird, was der Browser kann. Abgespielt wird nur,
+// solange man die Punkte sieht - sonst steht das Video.
+let videoUrls = null;
+const videos = {};
+function setVideos(urls){ videoUrls = urls || null; }
+function makeVideo(base){
+  const el = document.createElement('video');
+  el.muted = true; el.defaultMuted = true; el.loop = true; el.playsInline = true;
+  el.setAttribute('muted', ''); el.setAttribute('playsinline', ''); el.setAttribute('webkit-playsinline', '');
+  el.preload = 'auto';
+  const v = { el, tex: null, ready: false, failed: false, blocked: false, playing: false };
+  el.addEventListener('loadeddata', () => { v.ready = true; });
+  el.addEventListener('error', () => { v.failed = true; });
+  const mp4 = el.canPlayType('video/mp4; codecs="avc1.4D401E"');
+  const url = base.replace(/\.mp4(\?|$)/, mp4 ? '.mp4$1' : '.webm$1');
+  el.src = url;
+  el.load();
+  const tex = new VideoTexture(el);
+  tex.colorSpace = SRGBColorSpace;
+  v.tex = tex;
+  return v;
+}
+// Abspielen, solange man es sieht. Lehnt der Browser ab (iPhone im
+// Stromsparmodus spielt nichts automatisch ab), bleibt es beim Ersatz.
+function driveVideo(v, want){
+  if(!v || v.failed) return;
+  if(want && !v.playing && !v.blocked){
+    v.playing = true;
+    const pr = v.el.play();
+    if(pr && pr.catch) pr.catch(() => { v.playing = false; v.blocked = true; });
+  }else if(!want && v.playing){
+    v.el.pause();
+    v.playing = false;
+  }
+}
+function videoUsable(v){ return !!(v && v.ready && !v.failed && !v.blocked); }
 
 function makeParisLights(){
   // Stadtlichter als Punkte in der Ebene y=0. Jedes Licht hat eine Farbe,
@@ -827,80 +958,12 @@ function makeParis(){
   beacon.userData.mat.uniforms.uOpacity.value = 0.55;
   sc.add(beacon);
 
-  // Der Punktvorhang in der Hauptszene.
-  const [gw, gh] = PARIS.grid();
-  const n = gw * gh;
-  const pos = new Float32Array(n * 3), nrm = new Float32Array(n * 3);
-  const uv = new Float32Array(n * 2), seed = new Float32Array(n);
-  let q = 0;
-  for(let j = 0; j < gh; j++){
-    for(let i = 0; i < gw; i++, q++){
-      const u = (i + 0.5 + (Math.random() - 0.5) * 0.8) / gw;
-      const v = (j + 0.5 + (Math.random() - 0.5) * 0.8) / gh;
-      const ang = (u - 0.5) * PARIS.ARC;
-      const px = PARIS.C.x + Math.sin(ang) * PARIS.R;
-      const pz = PARIS.C.z - Math.cos(ang) * PARIS.R;
-      const py = PARIS.C.y + (v - 0.5) * PARIS.H;
-      pos[q * 3] = px; pos[q * 3 + 1] = py; pos[q * 3 + 2] = pz;
-      // Nach innen, zur Flugbahn hin - dorthin treten helle Stellen vor.
-      nrm[q * 3] = -Math.sin(ang); nrm[q * 3 + 1] = 0; nrm[q * 3 + 2] = Math.cos(ang);
-      uv[q * 2] = u; uv[q * 2 + 1] = v;
-      seed[q] = Math.random();
-    }
-  }
-  const geo = new BufferGeometry();
-  geo.setAttribute('position', new Float32BufferAttribute(pos, 3));
-  geo.setAttribute('aN',       new Float32BufferAttribute(nrm, 3));
-  geo.setAttribute('aUV',      new Float32BufferAttribute(uv, 2));
-  geo.setAttribute('aSeed',    new Float32BufferAttribute(seed, 1));
-  const mat = new ShaderMaterial({
-    uniforms: {
-      uTex: { value: rt.texture }, uTime: { value: 0 }, uVis: { value: 0 },
-      uViewH: { value: 900 },
-    },
-    vertexShader: `
-      attribute vec3 aN;
-      attribute vec2 aUV;
-      attribute float aSeed;
-      uniform sampler2D uTex;
-      uniform float uTime, uViewH;
-      varying vec3 vCol;
-      varying float vA, vBig;
-      void main(){
-        vec3 col = texture2D(uTex, aUV).rgb;
-        float lum = dot(col, vec3(0.3, 0.59, 0.11));
-        float s = aSeed * 6.2831;
-        vec3 p = position + aN * (lum * 5.0 + sin(uTime * 0.4 + s) * 0.5);
-        p += vec3(sin(uTime * 0.13 + s), cos(uTime * 0.11 + s * 1.3), 0.0) * 0.25;
-        vec4 mv = modelViewMatrix * vec4(p, 1.0);
-        gl_Position = projectionMatrix * mv;
-        float d = max(1.0, -mv.z);
-        float world = 0.07 + lum * 0.3;
-        gl_PointSize = clamp(world * projectionMatrix[1][1] * uViewH * 0.5 / d, 1.0, 14.0);
-        vBig = smoothstep(0.35, 0.8, lum);
-        // Goldstich, damit die Stadt zur Seite passt.
-        vCol = mix(col, col * vec3(1.08, 0.94, 0.74), 0.4) * 1.1;
-        // Nur wirklich Helles wird zum Punkt; der dunkle Grund bleibt leer.
-        vA = smoothstep(0.1, 0.5, lum) * 0.85 * (0.75 + 0.25 * sin(uTime * (0.7 + aSeed) + s * 5.0));
-      }`,
-    fragmentShader: `
-      uniform float uVis;
-      varying vec3 vCol;
-      varying float vA, vBig;
-      void main(){
-        vec2 c = gl_PointCoord * 2.0 - 1.0;
-        float r = length(c);
-        if(r > 1.0) discard;
-        float a = mix(exp(-r * r * 3.5),
-                      smoothstep(1.0, 0.78, r) * (0.5 + 0.5 * smoothstep(0.45, 0.9, r)), vBig);
-        gl_FragColor = vec4(vCol, a * vA * uVis);
-      }`,
-    transparent: true, depthWrite: false, blending: AdditiveBlending,
+  // Der Punktvorhang in der Hauptszene. Er liest zuerst aus dem Render;
+  // sobald das Seine-Video laeuft, aus dem Video (siehe frame()).
+  const sheet = makeVideoSheet({
+    grid: PARIS.grid(), C: PARIS.C, R: PARIS.R, ARC: PARIS.ARC, H: PARIS.H,
+    tex: rt.texture, gold: 0,
   });
-  const sheet = new Points(geo, mat);
-  sheet.frustumCulled = false;
-  sheet.renderOrder = -2;
-  sheet.visible = false;
 
   // Der weiche, helle Schein hinter dem Turm - in der Referenz das, was die
   // Punktwelt zusammenhaelt.
@@ -1039,7 +1102,7 @@ let progress = 0, shown = 0;
 let spin = 0, spinT = 0;
 let towerAmt = 0, towerShown = 0, tourP = 0, tourShown = 0;
 let streakAmt = 0, parisVis = 0;
-let halo, dust, paris = null;
+let halo, dust, paris = null, tramSheet = null, tramVis = 0;
 let pointerX = 0, pointerY = 0, px = 0, py = 0;
 
 function init(canvas, opts){
@@ -1183,6 +1246,13 @@ function init(canvas, opts){
   paris = makeParis();
   scene.add(paris.sheet);
   scene.add(paris.shine);
+  // Die Strassenbahn aus Punkten, ganz schwach hinter dem Zeichen, waehrend
+  // man von "Das Wort" zur Methode hinabsinkt - wie der Wald in der Referenz.
+  tramSheet = makeVideoSheet({
+    grid: lite ? [96, 54] : [192, 108],
+    C: new Vector3(0, 0.5, 20), R: 40, ARC: 1.1, H: 24, gold: 1, push: 2.5, lo: 0.06, hi: 0.4,
+  });
+  scene.add(tramSheet);
 
   // Der Bloom ist das, was die Referenz teuer macht: helle Stellen bluehen in
   // weiche Hoefe aus. Auf schwachen Geraeten faellt der Pass weg - dort wird
@@ -1410,6 +1480,16 @@ function applyTransform(p, t){
     paris.sheet.material.uniforms.uVis.value = parisVis;
     paris.shine.material.opacity = 0.32 * parisVis;
   }
+  // Die Strassenbahn zeigt sich zwischen "Das Wort" und der Methode und ist
+  // weg, bevor der Flug zum Turm beginnt.
+  if(tramSheet){
+    tramVis = smoothstep(Math.max(0, Math.min(1, (p - 0.04) / 0.07)))
+            * (1 - smoothstep(Math.max(0, Math.min(1, (p - 0.26) / 0.05))))
+            * (1 - b);
+    const ok = videoUsable(videos.tram);
+    tramSheet.visible = ok && tramVis > 0.005;
+    tramSheet.material.uniforms.uVis.value = tramVis * 0.36;
+  }
 }
 
 function frame(){
@@ -1439,13 +1519,38 @@ function frame(){
   if(grade) grade.uniforms.uTime.value = t;
   if(dust) dust.material.uniforms.uTime.value = t;
   if(paris) paris.sheet.material.uniforms.uTime.value = t;
+  if(tramSheet) tramSheet.material.uniforms.uTime.value = t;
+  // Die Videos erst holen, wenn sie bald gebraucht werden: die Strassenbahn,
+  // sobald man zu scrollen beginnt, die Seine zusammen mit dem Turm.
+  if(videoUrls){
+    if(!videos.tram && videoUrls.tram && progress > 0.01) videos.tram = makeVideo(videoUrls.tram);
+    if(!videos.seine && videoUrls.seine && (tower || towerLoading)) videos.seine = makeVideo(videoUrls.seine);
+  }
   applyTransform(shown, t);
   // Die Schlieren gehen mit dem Emblem: waehrend der Turm die Buehne hat,
   // sollen sie nicht durch sein Gitterwerk ziehen.
   updateStreaks(streaks, t, dt, streakAmt);
   // Das "Video" nur rendern, solange man es sieht - auf schwachen Geraeten
   // jedes zweite Bild, das faellt bei der Punktgroesse nicht auf.
-  if(paris && parisVis > 0.005 && (!lite || (paris.frame++ & 1) === 0)) renderParis(t);
+  driveVideo(videos.tram, tramVis > 0.005);
+  driveVideo(videos.seine, parisVis > 0.005);
+  if(tramSheet && videos.tram) tramSheet.material.uniforms.uTex.value = videos.tram.tex;
+  const seineOk = videoUsable(videos.seine);
+  if(paris){
+    const u = paris.sheet.material.uniforms;
+    u.uTex.value = seineOk ? videos.seine.tex : paris.rt.texture;
+    // Das Video ist dunkler als das Render (Nachtaufnahme, echte Farben) -
+    // schon mittlere Helligkeit soll zum Punkt werden, sonst bleibt von der
+    // Bruecke nur ein duennes Band.
+    u.uLo.value = seineOk ? 0.05 : 0.1;
+    u.uHi.value = seineOk ? 0.32 : 0.5;
+    u.uGain.value = seineOk ? 1.5 : 1.1;
+    // Weniger Vortreten: bei der Bruecke zaehlt die Form der Boegen, und die
+    // zerfaellt, wenn helle Punkte weit vor die dunklen ruecken.
+    u.uPush.value = seineOk ? 1.8 : 5;
+    // Ohne Video bleibt es beim selbst gerenderten Paris.
+    if(!seineOk && parisVis > 0.005 && (!lite || (paris.frame++ & 1) === 0)) renderParis(t);
+  }
 
   draw();
   raf = requestAnimationFrame(frame);
@@ -1469,6 +1574,7 @@ function resize(){
   const pr = renderer.getPixelRatio();
   if(dust) dust.material.uniforms.uPx.value = (h / 900) * pr;
   if(paris) paris.sheet.material.uniforms.uViewH.value = h * pr;
+  if(tramSheet) tramSheet.material.uniforms.uViewH.value = h * pr;
 }
 
 function start(){
@@ -1488,11 +1594,11 @@ function renderOnce(){
   turnShown = turnTarget; spin = turnShown * Math.PI;   // Standbild folgt dem Scroll direkt
   applyTransform(shown, 0);
   updateStreaks(streaks, 0, 0, streakAmt * 0.5);
-  if(paris && parisVis > 0.005) renderParis(0);
+  if(paris && parisVis > 0.005 && !videoUsable(videos.seine)) renderParis(0);
   draw();
 }
 
 window.LumiereGL = { init, start, stop, resize, setProgress, setTower, setPointer, setTurn,
-  renderOnce, loadTower,
+  renderOnce, loadTower, setVideos,
   get ready(){ return ready; },
   get hasTower(){ return !!tower; } };

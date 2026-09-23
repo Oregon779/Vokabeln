@@ -4894,7 +4894,7 @@
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="./lumiere-gl.js?v=17" defer></script>
+<script src="./lumiere-gl.js?v=18" defer></script>
 <script>
 /* ============================================================
    WICHTIG: Bei jedem inhaltlichen Deploy hochzaehlen (wie CACHE_NAME
@@ -4905,7 +4905,7 @@
       unten) - neue, noch nicht "veroeffentlichte" Features hinter
       isReleased(N) verstecken; Admins sehen sie trotzdem sofort.
    ============================================================ */
-const APP_VERSION = 17;
+const APP_VERSION = 18;
 
 // Site-weites Feature-Gate: neue, aber noch nicht freigegebene Funktionen
 // hinter isReleased(<APP_VERSION beim Einbau>) verstecken. Admins (echtes
@@ -8181,6 +8181,12 @@ function sndCineHover(){ playTone(659, 0.14, 'sine', 0.012, 0, 2000); }
     const bg = getComputedStyle(document.documentElement)
       .getPropertyValue('--bg').trim() || '#0f131c';
     glReady = window.LumiereGL.init(glCanvas, { lite, bg });
+    // Die beiden Punkt-Videos (Build 18). Die 3D-Ebene holt sie erst, wenn
+    // sie gebraucht werden, und nimmt MP4 oder WebM - je nachdem, was der
+    // Browser kann.
+    if(glReady && window.LumiereGL.setVideos){
+      window.LumiereGL.setVideos({ tram: './tram.mp4?v=' + APP_VERSION, seine: './seine.mp4?v=' + APP_VERSION });
+    }
     if(!glReady){ document.body.classList.add('no-webgl'); return; }
     then && then();
   }

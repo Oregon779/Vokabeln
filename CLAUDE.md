@@ -150,6 +150,35 @@ Schein hinter dem Turm (`shine`).
   (er wird mit der Kamera mitgefuehrt). Lag er mitten in ihr, hellte er den
   Boden auf, und der ganze Vorhang wurde zu einer Glitzerwand.
 
+## Die Punkt-Videos (ab Build 18)
+
+Zwei kurze Schleifen von Pexels (freie Lizenz, keine Namensnennung noetig),
+auf 320 x 180 verkleinert, ohne Ton, je als MP4 (H.264 - Safari/iPhone) und
+WebM (VP9 - der Playwright-Chromium kann kein H.264!):
+
+- `seine.*` (Pexels 15312299, Pont Neuf bei Nacht): der Punktvorhang auf dem
+  Weg zum Turm liest daraus statt aus dem Render. Hin und zurueck gespielt
+  (Ping-Pong), dadurch ohne Sprung beim Neustart. Faellt das Video aus
+  (iPhone im Stromsparmodus spielt nichts automatisch ab), bleibt es beim
+  selbst gerenderten Paris - mit Punkt-Turm.
+- `tram.*` (Pexels 14757004, Strassenbahn schwarz-weiss): ganz schwach hinter
+  dem Zeichen zwischen "Das Wort" und Methode (`tramSheet`, `tramVis`), in
+  Gold umgefaerbt (`gold: 1`). Ende blendet in den Anfang ueber (xfade).
+
+Beide nutzen `makeVideoSheet` (Punktvorhang auf einem Zylinderstueck;
+`uLo`/`uHi` = ab welcher Helligkeit ein Punkt entsteht, `uPush` = wie weit
+helle Stellen vortreten). Geholt werden sie erst bei Bedarf (`setVideos` aus
+index.html), gespielt nur, solange man sie sieht (`driveVideo`). `sw.js`
+laesst .mp4/.webm durch: Videos kommen als Range-Anfragen (206), die der
+Cache nicht speichern kann - Safari spielt sie ueber den Worker gar nicht.
+
+Neu kodieren (ffmpeg, z.B. aus `imageio_ffmpeg`):
+
+```bash
+ffmpeg -ss 30 -t 18 -i quelle.mp4 -filter_complex "[0:v]fps=20,scale=320:180,split[a][b];[b]reverse[r];[a][r]concat=n=2:v=1:a=0,format=yuv420p[v]" -map "[v]" -an -c:v libx264 -crf 29 -preset slow -movflags +faststart seine.mp4
+ffmpeg -i seine.mp4 -an -c:v libvpx-vp9 -b:v 0 -crf 40 seine.webm
+```
+
 ## Das Zeichen bleibt mittig (ab Build 17)
 
 Wie in der Referenz: kein Springen mehr nach links und rechts. In `KEYS`
