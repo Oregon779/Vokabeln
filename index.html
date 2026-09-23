@@ -1711,6 +1711,119 @@
     .abo-hist-date{grid-column:1 / -1;}
   }
 
+
+  /* ---------------------------------------------------------------------
+     Profilbild (Build 25): Editor-Fenster, Anzeige in Konto, Kopfleiste,
+     Ranglisten und Admin. Bilder sind immer rund; SVG-Avatare fuellen den
+     Kreis komplett (eigenes Medaillon).
+     --------------------------------------------------------------------- */
+  .pic-fill{display:block; width:100%; height:100%; border-radius:50%; overflow:hidden;}
+  .pic-fill > svg, .pic-fill > img{display:block; width:100%; height:100%; object-fit:cover;}
+  .acc-avatar{position:relative;}
+  .acc-avatar.has-pic{background:none; box-shadow:0 0 0 3px rgba(246,195,92,.22);}
+  .acc-avatar .pic-fill{position:absolute; inset:0;}
+  .acc-avatar.is-editable{cursor:pointer;}
+  .acc-avatar-edit{
+    position:absolute; right:-4px; bottom:-4px; width:28px; height:28px; border-radius:50%; padding:0;
+    display:grid; place-items:center; cursor:pointer; color:#1a1406;
+    background:linear-gradient(135deg, #ffe2a0, #d9a548); border:2px solid #141922;
+  }
+  .acc-avatar-edit svg{width:13px; height:13px;}
+  .acc-photo-status{margin:.6rem 0 0; font-size:.84rem; line-height:1.45; color:var(--stone);}
+  .acc-photo-status strong{color:var(--ember-bright); font-weight:600;}
+  .acc-photo-status.is-no strong{color:#ff9ba0;}
+
+  .account-btn-pic{width:24px; height:24px; flex-shrink:0; margin:-.2rem 0 -.2rem -.25rem;}
+  .account-btn.has-pic .account-dot, .account-btn.has-pic .account-btn-icon{display:none !important;}
+  @media (max-width:560px){ .account-btn-pic{margin:-.25rem;} .account-btn.has-pic{padding:.35rem;} .account-btn-pic{width:26px; height:26px;} }
+
+  .lb-row-avatar.has-pic, .lb-pod-avatar.has-pic{padding:0; overflow:hidden; background:none;}
+  .admin-user-cell{display:flex; align-items:center; gap:.65rem;}
+  .admin-user-pic{width:34px; height:34px; flex-shrink:0; border-radius:50%; display:grid; place-items:center;
+    font-family:var(--font-mono); font-size:.66rem; font-weight:700; color:var(--ember-bright); background:rgba(246,195,92,.1); border:1px solid rgba(246,195,92,.22); overflow:hidden;}
+  .admin-user-pic.has-pic{border:0; background:none;}
+
+  /* Editor */
+  .pic-backdrop{position:fixed; inset:0; z-index:60; display:flex; align-items:center; justify-content:center; padding:1.2rem; background:rgba(6,8,13,.86);}
+  .pic-backdrop[hidden]{display:none;}
+  html.pic-open{overflow:hidden;}
+  .pic-box{
+    width:min(900px, 100%); max-height:calc(100dvh - 2.4rem); overflow-y:auto; overscroll-behavior:contain;
+    background:#141922; border:1px solid var(--border-solid); border-radius:22px; padding:1.4rem 1.5rem 1.2rem;
+    box-shadow:0 30px 80px rgba(0,0,0,.55); display:flex; flex-direction:column;
+  }
+  .pic-head{display:flex; align-items:flex-start; justify-content:space-between; gap:1rem;}
+  .pic-title{font-family:var(--font-serif); font-weight:600; font-size:1.7rem; margin:0; color:var(--text);}
+  .pic-close{width:40px; height:40px; border-radius:50%; border:1px solid rgba(255,255,255,.1); background:none; color:var(--stone); display:grid; place-items:center; cursor:pointer; flex-shrink:0;}
+  .pic-close:hover{color:var(--ember-bright); border-color:rgba(246,195,92,.35);}
+  .pic-tabs{display:grid; grid-template-columns:1fr 1fr; gap:.3rem; padding:.3rem; margin:1.1rem 0 1.2rem; border-radius:14px; background:#0d1118; border:1px solid rgba(255,255,255,.07);}
+  .pic-tab{min-height:44px; border:0; border-radius:10px; background:none; color:var(--stone); font:600 .9rem var(--font-sans); cursor:pointer;}
+  .pic-tab.is-on{background:linear-gradient(120deg, #e9c878, #f6c35c); color:#1a1406;}
+  .pic-pane[hidden]{display:none;}
+  .pic-pane-avatar{display:grid; grid-template-columns:minmax(220px, 280px) 1fr; gap:1.6rem; align-items:start;}
+  .pic-pane-avatar > *{min-width:0;}
+  .pic-box{overflow-x:hidden;}
+  .pic-stage{display:flex; flex-direction:column; align-items:center; gap:.9rem; position:sticky; top:0;}
+  .pic-preview{width:100%; max-width:260px; aspect-ratio:1; border-radius:50%; overflow:hidden; box-shadow:0 0 0 4px rgba(246,195,92,.12), 0 18px 50px rgba(0,0,0,.45);}
+  .pic-preview svg{display:block; width:100%; height:100%;}
+  .pic-stage-actions{display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:.4rem 1rem;}
+  .pic-stage-actions .btn{min-height:42px;}
+  .pic-link{background:none; border:0; padding:.5rem; color:var(--stone); font-size:.86rem; cursor:pointer; text-decoration:underline; text-underline-offset:3px;}
+  .pic-link:hover{color:var(--ember-bright);}
+  .pic-cats{display:flex; flex-wrap:wrap; gap:.4rem; margin-bottom:.9rem;}
+  .pic-cats::-webkit-scrollbar{display:none;}
+  .pic-cat{flex:0 0 auto; min-height:40px; padding:0 1rem; border-radius:999px; border:1px solid rgba(255,255,255,.12); background:none; color:var(--text); font-size:.86rem; cursor:pointer; white-space:nowrap;}
+  .pic-cat.is-on{border-color:var(--ember-bright); background:rgba(246,195,92,.12); color:var(--ember-bright);}
+  .pic-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(86px, 1fr)); gap:.6rem;}
+  .pic-opt{position:relative; display:flex; flex-direction:column; align-items:center; gap:.35rem; padding:.45rem .35rem .4rem; border-radius:14px; border:1.5px solid rgba(255,255,255,.08); background:#0d1118; cursor:pointer; color:var(--stone);}
+  .pic-opt:hover{border-color:rgba(246,195,92,.35);}
+  .pic-opt.is-on{border-color:var(--ember-bright); background:rgba(246,195,92,.08); color:var(--ember-bright);}
+  .pic-opt-img{width:100%; aspect-ratio:1; border-radius:50%; overflow:hidden;}
+  .pic-opt-img.is-crop{border-radius:10px;}
+  .pic-opt-img svg{display:block; width:100%; height:100%;}
+  .pic-opt-label{font-size:.72rem; line-height:1.2; text-align:center;}
+  .pic-opt.is-on::after{content:'✓'; position:absolute; top:.3rem; right:.35rem; width:18px; height:18px; border-radius:50%; background:var(--ember-bright); color:#1a1406; font-size:.7rem; font-weight:700; display:grid; place-items:center;}
+
+  .pic-drop{display:flex; flex-direction:column; align-items:center; gap:.7rem; padding:2.4rem 1.2rem; border-radius:18px; border:1.5px dashed rgba(246,195,92,.35); background:#0d1118; color:var(--ember-bright); text-align:center; transition:border-color .2s var(--ease), background .2s var(--ease);}
+  .pic-drop.is-over{border-color:var(--ember-bright); background:rgba(246,195,92,.07);}
+  .pic-drop-title{margin:0; font-family:var(--font-serif); font-size:1.2rem; color:var(--text);}
+  .pic-drop .btn{min-height:46px;}
+  .pic-crop{display:flex; flex-direction:column; align-items:center; gap:.8rem;}
+  .pic-crop[hidden]{display:none;}
+  .pic-crop-view{position:relative; width:min(300px, 72vw); aspect-ratio:1; border-radius:50%; overflow:hidden; background:#0a0d13; cursor:grab; touch-action:none; box-shadow:0 0 0 4px rgba(246,195,92,.18);}
+  .pic-crop-view.is-drag{cursor:grabbing;}
+  .pic-crop-view img{position:absolute; left:50%; top:50%; max-width:none; user-select:none; -webkit-user-select:none; pointer-events:none;}
+  .pic-crop-hint{margin:0;}
+  .pic-zoom{display:flex; align-items:center; gap:.7rem; width:min(300px, 80vw); color:var(--stone); font-size:1.1rem;}
+  .pic-zoom input{flex:1; accent-color:#f0c469; height:32px;}
+  .pic-current{display:flex; align-items:center; gap:1rem; padding:.9rem 1rem; margin-bottom:1rem; border-radius:14px; background:#0d1118; border:1px solid rgba(255,255,255,.08);}
+  .pic-current[hidden]{display:none;}
+  .pic-current-img{width:64px; height:64px; flex-shrink:0;}
+  .pic-current p{margin:0; font-size:.88rem; color:rgba(246,242,233,.85); line-height:1.45;}
+  .pic-current .btn{margin-left:auto; flex-shrink:0;}
+  .pic-note{margin:1rem 0 0; font-size:.84rem; color:var(--stone); text-align:center; line-height:1.5;}
+  .pic-msg{margin-top:1rem;}
+  .pic-foot{display:flex; align-items:center; justify-content:space-between; gap:1rem; margin-top:1.3rem; padding-top:1rem; border-top:1px solid rgba(255,255,255,.07);}
+  .pic-foot .btn-primary{min-height:50px; padding:0 1.6rem; margin-left:auto;}
+  .pic-remove{color:#ff9ba0;}
+  .pic-remove:hover{color:#ffc7cc;}
+  @media (max-width:700px){
+    .pic-backdrop{padding:0;}
+    .pic-box{width:100%; height:100dvh; max-height:none; border-radius:0; border:0; padding:max(1rem, env(safe-area-inset-top)) 1rem 0;}
+    .pic-pane-avatar{grid-template-columns:1fr; gap:1rem;}
+    .pic-stage{position:static; flex-direction:row; justify-content:center; gap:1rem;}
+    .pic-preview{width:132px; max-width:none; flex-shrink:0;}
+    .pic-stage-actions{flex-direction:column; align-items:flex-start;}
+    .pic-grid{grid-template-columns:repeat(4, minmax(0, 1fr)); gap:.45rem;}
+    .pic-opt{padding:.35rem .25rem .3rem; border-radius:12px;}
+    .pic-opt-label{font-size:.66rem;}
+    .pic-foot{position:sticky; bottom:0; margin:auto -1rem 0; padding:.8rem 1rem max(.8rem, env(safe-area-inset-bottom)); background:#141922;}
+    .pic-foot .btn-primary{flex:1;}
+  }
+  html.pic-open #modalBackdrop{z-index:70;}
+  html.pic-open .toast{z-index:75;}
+  .pic-review-img{width:84px; height:84px; flex-shrink:0; background:#0a0d13; box-shadow:0 0 0 2px rgba(246,195,92,.25);}
+
   /* Admin: Tarif-Anfragen */
   .admin-upgrade-row{display:flex; align-items:center; flex-wrap:wrap; gap:.6rem 1rem; padding:.85rem 0; border-top:1px solid rgba(255,255,255,.06);}
   .admin-upgrade-row:first-child{border-top:0;}
@@ -3298,6 +3411,7 @@
     <button class="account-btn" id="btnAccount" type="button" aria-label="Konto &amp; Cloud-Sync">
       <span class="account-dot" id="accountDot" aria-hidden="true"></span>
       <svg class="account-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+      <span class="account-btn-pic" id="accountBtnPic" hidden></span>
       <span class="account-btn-label" id="accountBtnLabel">Konto</span>
     </button>
     <button class="menu-btn" id="btnMenu" type="button" aria-expanded="false" aria-label="Menü öffnen">
@@ -3484,6 +3598,68 @@
 <!-- NEUES PASSWORT - eigene, ruhige Vollbildseite fuer den Link aus der
      Passwort-Mail (Build 22). Fest ueber allem, auch ueber der Wartungstafel:
      wer sein Passwort zuruecksetzt, muss das auch waehrend der Wartung koennen. -->
+
+<!-- PROFILBILD-EDITOR (Build 25): Avatar bauen oder eigenes Foto hochladen.
+     Auf dem Handy bildschirmfuellend. -->
+<div class="pic-backdrop" id="picEditor" hidden role="dialog" aria-modal="true" aria-labelledby="picTitle">
+  <div class="pic-box">
+    <header class="pic-head">
+      <div>
+        <p class="acc-kicker">Mein Konto</p>
+        <h2 class="pic-title" id="picTitle">Profilbild</h2>
+      </div>
+      <button type="button" class="pic-close" id="picClose" aria-label="Schließen">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+      </button>
+    </header>
+    <div class="pic-tabs" role="tablist" aria-label="Art des Profilbilds">
+      <button type="button" class="pic-tab is-on" role="tab" aria-selected="true" data-pic-tab="avatar">Avatar bauen</button>
+      <button type="button" class="pic-tab" role="tab" aria-selected="false" data-pic-tab="photo">Foto hochladen</button>
+    </div>
+
+    <section class="pic-pane pic-pane-avatar" data-pic-pane="avatar">
+      <div class="pic-stage">
+        <div class="pic-preview" id="picPreview"></div>
+        <div class="pic-stage-actions">
+          <button type="button" class="btn btn-secondary btn-small" id="picRandom">Überrasch mich</button>
+          <button type="button" class="pic-link" id="picDownload">Als PNG laden</button>
+        </div>
+      </div>
+      <div class="pic-picker">
+        <div class="pic-cats" id="picCats" role="tablist" aria-label="Teile"></div>
+        <div class="pic-grid" id="picGrid" role="listbox"></div>
+      </div>
+    </section>
+
+    <section class="pic-pane pic-pane-photo" data-pic-pane="photo" hidden>
+      <input type="file" id="picFile" accept="image/jpeg,image/png,image/webp,image/*" hidden>
+      <div class="pic-current" id="picCurrent" hidden></div>
+      <div class="pic-drop" id="picDrop">
+        <svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3"/><circle cx="9" cy="11" r="2"/><path d="m21 16-5-5-8 8"/></svg>
+        <p class="pic-drop-title">Foto hierher ziehen</p>
+        <button type="button" class="btn btn-secondary" id="picChoose">Foto wählen</button>
+        <p class="acc-hint">JPG, PNG oder WebP · wird quadratisch zugeschnitten</p>
+      </div>
+      <div class="pic-crop" id="picCrop" hidden>
+        <div class="pic-crop-view" id="picCropView"><img id="picCropImg" alt="Ausschnitt" draggable="false"></div>
+        <p class="acc-hint pic-crop-hint">Zum Verschieben ziehen, zum Zoomen den Regler nutzen.</p>
+        <label class="pic-zoom">
+          <span aria-hidden="true">−</span>
+          <input type="range" id="picZoom" min="1" max="4" step="0.01" value="1" aria-label="Zoom">
+          <span aria-hidden="true">+</span>
+        </label>
+        <button type="button" class="pic-link" id="picOther">Anderes Foto wählen</button>
+      </div>
+      <p class="pic-note">Fotos schauen wir uns kurz an, bevor andere sie sehen. Bis dahin sehen andere deinen Avatar.</p>
+    </section>
+
+    <p class="acc-msg pic-msg" id="picMsg" hidden></p>
+    <footer class="pic-foot">
+      <button type="button" class="pic-link pic-remove" id="picRemove">Profilbild entfernen</button>
+      <button type="button" class="btn btn-primary" id="picSave">Avatar speichern</button>
+    </footer>
+  </div>
+</div>
 <div class="pwr-screen" id="pwResetScreen" hidden role="dialog" aria-modal="true" aria-labelledby="pwrTitle">
   <div class="pwr-inner">
     <p class="pwr-mark">Lumière</p>
@@ -4773,7 +4949,7 @@
   <section id="view-account" class="view acc-view" hidden>
     <div class="acc-wrap">
       <header class="acc-hero">
-        <div class="acc-avatar" aria-hidden="true"><span id="authAvatarInitials">–</span></div>
+        <div class="acc-avatar" id="accAvatar"><span id="authAvatarInitials" aria-hidden="true">–</span><button type="button" class="acc-avatar-edit" id="accAvatarEdit" data-build="25" aria-label="Profilbild ändern"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4Z"/><path d="m13.5 6.5 4 4"/></svg></button></div>
         <div class="acc-id">
           <p class="acc-kicker">Mein Konto</p>
           <h1 class="acc-name" id="accName">–</h1>
@@ -4783,6 +4959,7 @@
             <span class="acc-badge acc-badge-admin" id="statusAdminBadge" hidden>Admin</span>
             <span class="acc-since" id="authUserSince" hidden></span>
           </div>
+          <div data-build="25"><p class="acc-photo-status" id="accPhotoStatus" hidden></p></div>
         </div>
       </header>
 
@@ -4947,6 +5124,11 @@
                 Anfragen &amp; Abos
                 <span class="admin-nav-badge" id="adminNavBadgeAbos" hidden>0</span>
               </button>
+              <button type="button" class="admin-nav-item" data-admin-tab="photos" data-build="25">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="9" r="3.5"/><path d="M5.5 19.5a7 7 0 0 1 13 0"/><circle cx="12" cy="12" r="9.5"/></svg>
+                Profilfotos
+                <span class="admin-nav-badge" id="adminNavBadgePhotos" hidden>0</span>
+              </button>
             </div>
             <div class="admin-nav-group">
               <span class="admin-nav-heading">Steuerung</span>
@@ -5066,6 +5248,17 @@
                 </div>
                 <p class="admin-empty-note" id="adminSessionsEmpty" hidden>Gerade niemand aktiv.</p>
                 <div class="pagination" id="adminSessionsPagination" hidden></div>
+              </div>
+            </div>
+
+            <!-- Profilfotos pruefen (Build 25) -->
+            <div class="admin-tab-panel" data-admin-panel="photos" id="picReviewRoot" hidden>
+              <div class="settings-card">
+                <p class="settings-title">🖼️ Profilfotos prüfen</p>
+                <p class="settings-desc">Hochgeladene Fotos sehen andere erst nach deiner Freigabe (z.B. in den Ranglisten). Bis dahin zeigen wir ihren Avatar oder die Initialen.</p>
+                <p class="abo-setup-note" id="picReviewNote" hidden></p>
+                <div class="abo-list" id="picReviewList"></div>
+                <p class="admin-empty-note" id="picReviewEmpty" hidden>Keine Fotos zu prüfen.</p>
               </div>
             </div>
 
@@ -5271,7 +5464,7 @@
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="./lumiere-gl.js?v=24" defer></script>
+<script src="./lumiere-gl.js?v=25" defer></script>
 <script>
 /* ============================================================
    WICHTIG: Bei jedem inhaltlichen Deploy hochzaehlen (wie CACHE_NAME
@@ -5282,7 +5475,7 @@
       unten) - neue, noch nicht "veroeffentlichte" Features hinter
       isReleased(N) verstecken; Admins sehen sie trotzdem sofort.
    ============================================================ */
-const APP_VERSION = 24;
+const APP_VERSION = 25;
 
 // Site-weites Feature-Gate: neue, aber noch nicht freigegebene Funktionen
 // hinter isReleased(<APP_VERSION beim Einbau>) verstecken. Admins (echtes
@@ -6609,6 +6802,7 @@ function openAdminPanel(){
   switchAdminTab(currentTabBtn ? currentTabBtn.dataset.adminTab : 'overview');
   loadAdminData();
   loadAdminAbos();
+  loadPicReviews();
 }
 
 function switchAdminTab(tabKey){
@@ -6632,6 +6826,7 @@ function switchAdminTab(tabKey){
   if(crumb && label) crumb.textContent = label;
   persistLastView('admin', tabKey);
   if(tabKey === 'abos') loadAdminAbos();
+  if(tabKey === 'photos') loadPicReviews();
 }
 document.querySelectorAll('#adminSubnav .admin-nav-item').forEach(btn => {
   btn.addEventListener('click', () => { sndClick(); switchAdminTab(btn.dataset.adminTab); });
@@ -6910,7 +7105,7 @@ function renderFilteredAdminUsers(){
         ? `<span class="pill is-err"><span class="pill-indicator err"></span>Gesperrt</span>`
         : `<span class="pill is-ok"><span class="pill-indicator ok"></span>Aktiv</span>`;
     tr.innerHTML = `
-      <td><span class="admin-user-name"><span>${name}</span><span>${email}</span></span></td>
+      <td><span class="admin-user-cell">${picOn() ? `<span class="admin-user-pic${picSource(p) ? ' has-pic' : ''}" aria-hidden="true">${picHTML(p) || escapeHtml(lbInitials(p.display_name || p.email || '?'))}</span>` : ''}<span class="admin-user-name"><span>${name}</span><span>${email}</span></span></span></td>
       <td>${p.ai_requests_today === null || p.ai_requests_today === undefined ? 0 : p.ai_requests_today}</td>
       <td><input type="number" min="1" class="admin-limit-input" value="${p.ai_limit_override === null || p.ai_limit_override === undefined ? '' : p.ai_limit_override}" placeholder="Standard" aria-label="Eigenes KI-Limit"></td>
       <td>${statusPill}</td>
@@ -7338,6 +7533,7 @@ function updateAccountUI(){
   refreshAccountStatus();
   updateWelcomeMessage();
   flushPwMemo();
+  renderOwnPic();
 }
 
 // Personalisierte Begruessung auf der Hub-Seite - nur fuer eingeloggte User
@@ -7599,6 +7795,9 @@ document.getElementById('authDeleteAccountBtn').addEventListener('click', async 
   const btn = document.getElementById('authDeleteAccountBtn');
   btn.disabled = true;
   try{
+    if(currentProfile && (currentProfile.photo_path || currentProfile.photo_pending_path)){
+      try{ await picRemoveAll(); }catch(e){ /* Konto wird trotzdem geloescht */ }
+    }
     const { error } = await sb.rpc('delete_own_account');
     if(error) throw error;
     currentUser = null; currentProfile = null;
@@ -8239,7 +8438,8 @@ function renderAboHistory(done){
   }).join('');
 }
 
-async function loadAdminAbos(){
+const loadAdminAbos = dedupeAsync(loadAdminAbosNow);
+async function loadAdminAbosNow(){
   if(!sb || !currentProfile || !currentProfile.is_admin) return;
   const note = document.getElementById('aboNote');
   const [reqRes, subRes] = await Promise.all([
@@ -8394,6 +8594,681 @@ async function onAboClick(e){
     showToast('Konnte nicht gespeichert werden: ' + (err.message || err), true);
   }finally{
     if(row.isConnected) lock(false);
+  }
+}
+
+// =============================================================================
+// Profilbild: Avatar-Baukasten (Build 25)
+// -----------------------------------------------------------------------------
+// Alles ist SVG in einem 200 x 200-Raster, gezeichnet in feinen Gold-Linien auf
+// einem Medaillon - wie die Wortmarke. Gespeichert wird nur der Bauplan
+// ({ v:1, face:'k-oval', eyes:'a-rund', ... }), daraus entsteht das Bild jedes
+// Mal neu: gestochen scharf in jeder Groesse und spaeter weiter bearbeitbar.
+//
+// NEUE KATEGORIE (z.B. Haare, Mund, Accessoires):
+//   1. Eintrag in AV_CATEGORIES: { key, label, kind:'shape'|'color', items,
+//      draw(item, ctx) }  - items brauchen eine stabile id (die landet im Bauplan).
+//   2. key in AV_LAYERS an die passende Stelle (Zeichenreihenfolge).
+//   Ein fester Teil gleichen Namens in AV_FIXED (z.B. mouth) wird dann von der
+//   Kategorie ersetzt. Alte Bauplaene ohne die neue Kategorie bekommen das erste
+//   Element als Standard - nichts bricht.
+// =============================================================================
+const AV_GOLD = '#f0c469';
+const AV_LINE = 3;
+
+function avMix(a, b, t){
+  const p = (h) => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
+  const A = p(a), B = p(b);
+  return '#' + A.map((v, i) => Math.round(v + (B[i] - v) * t).toString(16).padStart(2, '0')).join('');
+}
+// Geschlossene, weiche Kurve durch Stuetzpunkte (Catmull-Rom -> Bezier).
+function avSmoothClosed(pts){
+  const n = pts.length;
+  let d = `M${pts[0][0].toFixed(1)} ${pts[0][1].toFixed(1)}`;
+  for(let i = 0; i < n; i++){
+    const p0 = pts[(i - 1 + n) % n], p1 = pts[i], p2 = pts[(i + 1) % n], p3 = pts[(i + 2) % n];
+    const c1 = [p1[0] + (p2[0] - p0[0]) / 6, p1[1] + (p2[1] - p0[1]) / 6];
+    const c2 = [p2[0] - (p3[0] - p1[0]) / 6, p2[1] - (p3[1] - p1[1]) / 6];
+    d += `C${c1[0].toFixed(1)} ${c1[1].toFixed(1)} ${c2[0].toFixed(1)} ${c2[1].toFixed(1)} ${p2[0].toFixed(1)} ${p2[1].toFixed(1)}`;
+  }
+  return d + 'Z';
+}
+// Kopfform aus der rechten Haelfte (dx, y), gespiegelt.
+function avHead(top, right, bottom){
+  const R = right.map(([dx, y]) => [100 + dx, y]);
+  const L = right.slice().reverse().map(([dx, y]) => [100 - dx, y]);
+  return avSmoothClosed([[100, top], ...R, [100, bottom], ...L]);
+}
+
+// --- Kopfformen: Umriss + wo die Ohren sitzen (Abstand von der Mitte) --------
+const AV_FACES = [
+  { id: 'k-oval',     label: 'Oval',      ear: 49, d: avHead(44, [[36, 52], [49, 84], [49, 118], [36, 146], [16, 160]], 164) },
+  { id: 'k-rund',     label: 'Rund',      ear: 54, d: avHead(46, [[40, 54], [54, 90], [52, 124], [36, 150], [14, 160]], 162) },
+  { id: 'k-eckig',    label: 'Eckig',     ear: 50, d: avHead(46, [[34, 47], [48, 58], [51, 96], [50, 134], [42, 154], [20, 162]], 163) },
+  { id: 'k-herz',     label: 'Herz',      ear: 51, d: avHead(46, [[40, 51], [53, 80], [50, 112], [34, 142], [12, 162]], 168) },
+  { id: 'k-raute',    label: 'Raute',     ear: 52, d: avHead(40, [[22, 50], [44, 76], [53, 104], [38, 138], [14, 162]], 168) },
+  { id: 'k-lang',     label: 'Lang',      ear: 44, d: avHead(38, [[32, 45], [43, 80], [44, 120], [34, 152], [15, 168]], 173) },
+  { id: 'k-birne',    label: 'Birne',     ear: 48, d: avHead(46, [[30, 52], [44, 84], [52, 122], [46, 148], [22, 162]], 165) },
+  { id: 'k-ei',       label: 'Ei',        ear: 50, d: avHead(44, [[38, 52], [51, 86], [47, 122], [30, 150], [11, 164]], 167) },
+  { id: 'k-wangen',   label: 'Wangen',    ear: 55, d: avHead(46, [[32, 51], [46, 74], [57, 106], [44, 138], [20, 159]], 163) },
+  { id: 'k-kantig',   label: 'Kantig',    ear: 49, d: avHead(42, [[30, 45], [44, 60], [48, 104], [48, 140], [34, 160], [10, 167]], 169) },
+];
+
+// --- Augen: fuer das RECHTE Auge um (0,0) gezeichnet, +x = aussen ------------
+// side: 1 rechts, -1 links (das linke wird gespiegelt; manche Varianten wie
+// "Zwinkern" zeichnen je Seite etwas anderes).
+const avAlmond = 'M-10 0Q0 -9 10 0Q0 8 -10 0Z';
+const AV_EYES = [
+  { id: 'a-punkt',   label: 'Punkt',     draw: () => `<circle r="4.2" fill="${AV_GOLD}"/>` },
+  { id: 'a-rund',    label: 'Rund',      draw: (s, c) => `<circle r="8" fill="${c.white}" stroke="${AV_GOLD}" stroke-width="${AV_LINE}"/><circle r="3.8" fill="${AV_GOLD}"/><circle cx="1.6" cy="-1.6" r="1.2" fill="${c.bg}"/>` },
+  { id: 'a-mandel',  label: 'Mandel',    draw: (s, c) => `<path d="${avAlmond}" fill="${c.white}" stroke="${AV_GOLD}" stroke-width="${AV_LINE}" stroke-linejoin="round"/><circle r="3.4" fill="${AV_GOLD}"/>` },
+  { id: 'a-froh',    label: 'Fröhlich',  draw: () => `<path d="M-9 3Q0 -8 9 3" fill="none" stroke="${AV_GOLD}" stroke-width="${AV_LINE}" stroke-linecap="round"/>` },
+  { id: 'a-muede',   label: 'Verträumt', draw: (s, c) => `<path d="M-9 -1Q0 9 9 -1" fill="${c.white}" stroke="${AV_GOLD}" stroke-width="${AV_LINE}" stroke-linecap="round"/><path d="M-11 -1H11" stroke="${AV_GOLD}" stroke-width="${AV_LINE}" stroke-linecap="round"/><circle cy="2.6" r="2.8" fill="${AV_GOLD}"/>` },
+  { id: 'a-gross',   label: 'Groß',      draw: (s, c) => `<ellipse rx="10" ry="11" fill="${c.white}" stroke="${AV_GOLD}" stroke-width="${AV_LINE}"/><circle cy="1" r="5.2" fill="${AV_GOLD}"/><circle cx="2" cy="-1.4" r="1.9" fill="${c.bg}"/>` },
+  { id: 'a-zwinkern', label: 'Zwinkern', draw: (s, c) => s > 0
+      ? `<path d="M-9 1Q0 -5 9 1" fill="none" stroke="${AV_GOLD}" stroke-width="${AV_LINE}" stroke-linecap="round"/><path d="M6 -2L11 -5" stroke="${AV_GOLD}" stroke-width="2" stroke-linecap="round"/>`
+      : `<path d="${avAlmond}" fill="${c.white}" stroke="${AV_GOLD}" stroke-width="${AV_LINE}" stroke-linejoin="round"/><circle r="3.4" fill="${AV_GOLD}"/>` },
+  { id: 'a-wimpern', label: 'Wimpern',   draw: (s, c) => `<path d="${avAlmond}" fill="${c.white}" stroke="${AV_GOLD}" stroke-width="${AV_LINE}" stroke-linejoin="round"/><circle r="3.4" fill="${AV_GOLD}"/><path d="M4 -5L6 -10M7.5 -3.5L11 -7.5M10 -1L14 -3.5" stroke="${AV_GOLD}" stroke-width="2" stroke-linecap="round"/>` },
+  { id: 'a-funkeln', label: 'Funkeln',   draw: () => `<path d="M0 -9Q1.6 -1.6 9 0Q1.6 1.6 0 9Q-1.6 1.6 -9 0Q-1.6 -1.6 0 -9Z" fill="${AV_GOLD}"/>` },
+  { id: 'a-katze',   label: 'Katzenauge', draw: (s, c) => `<path d="M-10 1Q-1 -8 10 -1L15 -6M-10 1Q0 8 10 -1" fill="${c.white}" stroke="${AV_GOLD}" stroke-width="${AV_LINE}" stroke-linecap="round" stroke-linejoin="round"/><ellipse cx="0.5" cy="0" rx="2.2" ry="3.6" fill="${AV_GOLD}"/>` },
+];
+
+// --- Augenbrauen: ebenfalls rechte Seite um (0,0), +x = aussen -------------------
+const avBrow = (d, w = AV_LINE) => `<path d="${d}" fill="none" stroke="${AV_GOLD}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"/>`;
+const AV_BROWS = [
+  { id: 'b-gerade',   label: 'Gerade',     draw: () => avBrow('M-10 0H10') },
+  { id: 'b-bogen',    label: 'Bogen',      draw: () => avBrow('M-11 3Q0 -6 11 2') },
+  { id: 'b-kraeftig', label: 'Kräftig',    draw: () => avBrow('M-10 1L10 -1', 5.6) },
+  { id: 'b-ernst',    label: 'Ernst',      draw: () => avBrow('M-10 4L10 -3') },
+  { id: 'b-besorgt',  label: 'Besorgt',    draw: () => avBrow('M-10 -4L10 3') },
+  { id: 'b-kurz',     label: 'Kurz',       draw: () => avBrow('M-3 0L6 -1', 4.6) },
+  { id: 'b-hoch',     label: 'Hochbogen',  draw: () => avBrow('M-10 3Q-2 -10 12 -1') },
+  { id: 'b-fein',     label: 'Fein',       draw: () => avBrow('M-12 1Q0 -4 12 1', 1.8) },
+  { id: 'b-buschig',  label: 'Buschig',    draw: () => avBrow('M-11 1Q0 -7 11 1', 2.4) + avBrow('M-10 4Q0 -2 10 4', 2.4) },
+  { id: 'b-skeptisch', label: 'Skeptisch', draw: (s) => s > 0 ? avBrow('M-10 1Q-1 -11 12 -4') : avBrow('M-10 1H10') },
+];
+
+// --- Farben ---------------------------------------------------------------------
+const AV_SKINS = [
+  { id: 'h-1', label: 'Hell',        color: '#f6dcc6' },
+  { id: 'h-2', label: 'Rosig',       color: '#eec3a6' },
+  { id: 'h-3', label: 'Warm',        color: '#dca77b' },
+  { id: 'h-4', label: 'Oliv',        color: '#b98a5e' },
+  { id: 'h-5', label: 'Braun',       color: '#8d5d3d' },
+  { id: 'h-6', label: 'Dunkel',      color: '#5c3b28' },
+];
+const AV_BGS = [
+  { id: 'g-nacht',     label: 'Nachtblau',  color: '#16203a' },
+  { id: 'g-mitternacht', label: 'Mitternacht', color: '#0d111c' },
+  { id: 'g-bordeaux',  label: 'Bordeaux',   color: '#3b1623' },
+  { id: 'g-tanne',     label: 'Tannengrün', color: '#12291f' },
+  { id: 'g-petrol',    label: 'Petrol',     color: '#0f2c36' },
+  { id: 'g-aubergine', label: 'Aubergine',  color: '#2b1735' },
+  { id: 'g-schiefer',  label: 'Schiefer',   color: '#262b35' },
+  { id: 'g-bronze',    label: 'Bronze',     color: '#3a2c12' },
+];
+
+// --- Kategorien (Reihenfolge = Reiter im Editor) ---------------------------------
+const EYE_Y = 104, BROW_Y = 88, EYE_DX = 21;
+function avPair(item, y){
+  return `<g transform="translate(${100 + EYE_DX} ${y})">${item.draw(1, avPair.ctx)}</g>`
+       + `<g transform="translate(${100 - EYE_DX} ${y}) scale(-1 1)">${item.draw(-1, avPair.ctx)}</g>`;
+}
+const AV_CATEGORIES = [
+  { key: 'face',  label: 'Kopf',        kind: 'shape', items: AV_FACES,
+    draw: (it, c) => {
+      const ear = (s) => `<path d="M${100 + s * (it.ear - 4)} 98C${100 + s * (it.ear + 9)} 90 ${100 + s * (it.ear + 12)} 121 ${100 + s * (it.ear - 3)} 122" fill="${c.skinFill}" stroke="${AV_GOLD}" stroke-width="2.4" stroke-linecap="round"/>`;
+      return ear(1) + ear(-1) + `<path d="${it.d}" fill="${c.skinFill}" stroke="${AV_GOLD}" stroke-width="${AV_LINE}" stroke-linejoin="round"/>`;
+    } },
+  { key: 'eyes',  label: 'Augen',       kind: 'shape', items: AV_EYES,  thumb: '62 72 76 76',
+    draw: (it) => avPair(it, EYE_Y) },
+  { key: 'brows', label: 'Brauen',      kind: 'shape', items: AV_BROWS, thumb: '62 60 76 76',
+    draw: (it) => avPair(it, BROW_Y) },
+  { key: 'skin',  label: 'Hautton',     kind: 'color', items: AV_SKINS },
+  { key: 'bg',    label: 'Hintergrund', kind: 'color', items: AV_BGS },
+];
+// Feste Teile, bis es eigene Kategorien dafuer gibt.
+const AV_FIXED = {
+  bg:    (c) => `<rect width="200" height="200" fill="${c.bg}"/><circle cx="100" cy="70" r="90" fill="url(#${c.id}-glow)"/>`,
+  body:  (c) => `<path d="M86 138V156C66 160 44 168 32 206H168C156 168 134 160 114 156V138" fill="${c.skinFill}" stroke="${AV_GOLD}" stroke-width="${AV_LINE}" stroke-linejoin="round"/><path d="M60 172Q100 188 140 172" fill="none" stroke="${AV_GOLD}" stroke-width="1.6" opacity=".55"/>`,
+  nose:  () => `<path d="M100 110Q96 122 100 125Q103 127 107 124" fill="none" stroke="${AV_GOLD}" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" opacity=".9"/>`,
+  mouth: () => `<path d="M88 138Q100 147 112 138" fill="none" stroke="${AV_GOLD}" stroke-width="${AV_LINE}" stroke-linecap="round"/>`,
+  ring:  () => `<circle cx="100" cy="100" r="95" fill="none" stroke="${AV_GOLD}" stroke-width="1.2" opacity=".55"/>`,
+};
+// Zeichenreihenfolge. bg/skin sind Farben und zeichnen nichts eigenes.
+const AV_LAYERS = ['bg', 'body', 'face', 'nose', 'mouth', 'eyes', 'brows', 'ring'];
+
+function avatarDefaults(){
+  const cfg = { v: 1 };
+  AV_CATEGORIES.forEach(cat => { cfg[cat.key] = cat.items[0].id; });
+  cfg.bg = 'g-nacht'; cfg.skin = 'h-3';
+  return cfg;
+}
+function avatarNormalize(cfg){
+  const out = avatarDefaults();
+  if(cfg && typeof cfg === 'object'){
+    AV_CATEGORIES.forEach(cat => {
+      if(cat.items.some(it => it.id === cfg[cat.key])) out[cat.key] = cfg[cat.key];
+    });
+  }
+  return out;
+}
+function avatarRandom(){
+  const cfg = { v: 1 };
+  AV_CATEGORIES.forEach(cat => { cfg[cat.key] = cat.items[Math.floor(Math.random() * cat.items.length)].id; });
+  return cfg;
+}
+let avUid = 0;
+// Fertiges SVG als Text. opts.viewBox schneidet aus (Vorschaukacheln fuer
+// Augen/Brauen zeigen nur die Gesichtsmitte).
+function avatarSVG(cfgIn, opts = {}){
+  const cfg = avatarNormalize(cfgIn);
+  const pick = (key) => {
+    const cat = AV_CATEGORIES.find(c => c.key === key);
+    return cat.items.find(it => it.id === cfg[key]) || cat.items[0];
+  };
+  const skin = pick('skin').color, bg = pick('bg').color;
+  const c = { id: 'av' + (++avUid), bg, skinFill: avMix('#1b140e', skin, 0.52), white: avMix('#141922', '#fff6e6', 0.16) };
+  avPair.ctx = c;
+  let body = '';
+  AV_LAYERS.forEach(layer => {
+    const cat = AV_CATEGORIES.find(x => x.key === layer && x.kind === 'shape');
+    if(cat) body += cat.draw(pick(layer), c);
+    else if(AV_FIXED[layer] && layer !== 'bg' && layer !== 'ring') body += AV_FIXED[layer](c);
+  });
+  const vb = opts.viewBox || '0 0 200 200';
+  const round = opts.viewBox ? '' : ` clip-path="url(#${c.id}-clip)"`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${vb}" role="img" aria-label="${opts.label || 'Avatar'}"${opts.size ? ` width="${opts.size}" height="${opts.size}"` : ''}>`
+    + `<defs><clipPath id="${c.id}-clip"><circle cx="100" cy="100" r="100"/></clipPath>`
+    + `<radialGradient id="${c.id}-glow"><stop offset="0" stop-color="${AV_GOLD}" stop-opacity=".16"/><stop offset="1" stop-color="${AV_GOLD}" stop-opacity="0"/></radialGradient></defs>`
+    + `<g${round}>${AV_FIXED.bg(c)}${body}${opts.viewBox ? '' : AV_FIXED.ring(c)}</g></svg>`;
+}
+
+// --- Profilbild: Anzeige (Build 25) --------------------------------------------------
+// Andere sehen: freigegebenes Foto, sonst den Avatar, sonst die Initialen.
+// Ein wartendes Foto sieht nur der Nutzer selbst (im Editor) und der Admin.
+const PIC_PUBLIC = SUPABASE_URL + '/storage/v1/object/public/avatars/';
+const PIC_DEFAULT_REJECT = 'Dieses Foto können wir leider nicht verwenden. Lade gern ein anderes hoch – am besten ein Porträt nur von dir.';
+function picOn(){ return isReleased(25); }
+function picSource(p){
+  if(!p) return null;
+  if(p.avatar_kind === 'photo' && p.photo_path) return { type: 'photo', url: PIC_PUBLIC + p.photo_path.split('/').map(encodeURIComponent).join('/') };
+  if(p.avatar_config) return { type: 'avatar', cfg: p.avatar_config };
+  return null;
+}
+function picHTML(p, label){
+  const s = picSource(p);
+  if(!s) return '';
+  return `<span class="pic-fill">${s.type === 'photo'
+    ? `<img src="${s.url}" alt="" loading="lazy" decoding="async">`
+    : avatarSVG(s.cfg, { label: label || 'Avatar' })}</span>`;
+}
+// Eigenes Bild: Mein Konto, Kopfleiste, Status-Hinweis.
+function renderOwnPic(){
+  const box = document.getElementById('accAvatar');
+  const head = document.getElementById('btnAccount');
+  const headPic = document.getElementById('accountBtnPic');
+  if(!box || !headPic) return;
+  const on = !!(currentUser && currentProfile && picOn());
+  const html = on ? picHTML(currentProfile, 'Dein Profilbild') : '';
+  const old = box.querySelector('.pic-fill');
+  if(old) old.remove();
+  if(html) box.insertAdjacentHTML('afterbegin', html);
+  box.classList.toggle('has-pic', !!html);
+  box.classList.toggle('is-editable', on);
+  headPic.innerHTML = html;
+  headPic.hidden = !html;
+  head.classList.toggle('has-pic', !!html);
+  const st = document.getElementById('accPhotoStatus');
+  const p = on ? currentProfile : null;
+  if(p && p.photo_status === 'pending'){
+    st.className = 'acc-photo-status';
+    st.innerHTML = '<strong>Dein neues Foto wartet auf Freigabe.</strong> Bis dahin sehen andere dein bisheriges Bild.';
+    st.hidden = false;
+  } else if(p && p.photo_status === 'rejected'){
+    st.className = 'acc-photo-status is-no';
+    st.innerHTML = `<strong>Dein Foto wurde nicht freigegeben.</strong> ${escapeHtml((p.photo_reason || '').trim() || PIC_DEFAULT_REJECT)}`;
+    st.hidden = false;
+  } else {
+    st.hidden = true;
+  }
+}
+// Bilder anderer Konten (Ranglisten): eine Abfrage fuer alle sichtbaren Eintraege,
+// eine Minute zwischengespeichert.
+const picCache = new Map();
+let picCacheAt = 0;
+async function fillPics(root){
+  if(!sb || !root || !picOn()) return;
+  const els = Array.from(root.querySelectorAll('[data-pic-uid]'));
+  if(!els.length) return;
+  if(Date.now() - picCacheAt > 60000){ picCache.clear(); picCacheAt = Date.now(); }
+  if(currentUser && currentProfile) picCache.set(currentUser.id, currentProfile);
+  const need = [...new Set(els.map(e => e.dataset.picUid))].filter(u => u && !picCache.has(u));
+  if(need.length){
+    try{
+      const { data, error } = await sb.rpc('public_avatars', { uids: need });
+      if(error) return;
+      need.forEach(u => picCache.set(u, null));
+      (data || []).forEach(r => picCache.set(r.user_id, r));
+    }catch(e){ return; }
+  }
+  els.forEach(el => {
+    const h = picHTML(picCache.get(el.dataset.picUid));
+    if(h){ el.innerHTML = h; el.classList.add('has-pic'); }
+  });
+}
+
+// --- Profilbild: Editor ---------------------------------------------------------------
+const pic = { tab: 'avatar', cfg: null, cat: AV_CATEGORIES[0].key, busy: false };
+const crop = { on: false, w: 0, h: 0, V: 0, base: 1, z: 1, x: 0, y: 0, url: null, pointers: new Map(), pinch: 0 };
+function picMsg(text, isError){ accMsg(document.getElementById('picMsg'), text, isError); }
+
+function openPicEditor(){
+  if(!currentUser){ openAccountModal(); return; }
+  if(!picOn() || !currentProfile) return;
+  sndClick();
+  pic.cfg = avatarNormalize(currentProfile.avatar_config || avatarDefaults());
+  pic.cat = AV_CATEGORIES[0].key;
+  cropReset();
+  picMsg('', false);
+  document.getElementById('picRemove').hidden = !picSource(currentProfile) && !currentProfile.photo_pending_path;
+  picSetTab(currentProfile.avatar_kind === 'photo' ? 'photo' : 'avatar');
+  document.getElementById('picEditor').hidden = false;
+  document.documentElement.classList.add('pic-open');
+}
+function closePicEditor(){
+  document.getElementById('picEditor').hidden = true;
+  document.documentElement.classList.remove('pic-open');
+  cropReset();
+}
+function picSetTab(tab){
+  pic.tab = tab;
+  document.querySelectorAll('.pic-tab').forEach(b => {
+    const on = b.dataset.picTab === tab;
+    b.classList.toggle('is-on', on);
+    b.setAttribute('aria-selected', on ? 'true' : 'false');
+  });
+  document.querySelectorAll('.pic-pane').forEach(p => { p.hidden = p.dataset.picPane !== tab; });
+  if(tab === 'avatar'){ renderPicPreview(); renderPicCats(); renderPicGrid(); }
+  else renderPicCurrent();
+  picUpdateSave();
+}
+function picUpdateSave(){
+  const btn = document.getElementById('picSave');
+  btn.textContent = pic.tab === 'avatar' ? 'Avatar speichern' : 'Foto speichern';
+  btn.disabled = pic.busy || (pic.tab === 'photo' && !crop.on);
+}
+function renderPicPreview(){
+  document.getElementById('picPreview').innerHTML = avatarSVG(pic.cfg, { label: 'Vorschau deines Avatars' });
+}
+function renderPicCats(){
+  document.getElementById('picCats').innerHTML = AV_CATEGORIES.map(cat =>
+    `<button type="button" class="pic-cat${cat.key === pic.cat ? ' is-on' : ''}" role="tab" aria-selected="${cat.key === pic.cat}" data-pic-cat="${cat.key}">${escapeHtml(cat.label)}</button>`).join('');
+}
+function renderPicGrid(){
+  const cat = AV_CATEGORIES.find(c => c.key === pic.cat);
+  document.getElementById('picGrid').innerHTML = cat.items.map(it => {
+    const cfg = Object.assign({}, pic.cfg, { [cat.key]: it.id });
+    const on = pic.cfg[cat.key] === it.id;
+    return `<button type="button" class="pic-opt${on ? ' is-on' : ''}" role="option" aria-selected="${on}" data-pic-item="${it.id}" aria-label="${escapeHtml(cat.label)}: ${escapeHtml(it.label)}">
+      <span class="pic-opt-img${cat.thumb ? ' is-crop' : ''}">${avatarSVG(cfg, cat.thumb ? { viewBox: cat.thumb, label: it.label } : { label: it.label })}</span>
+      <span class="pic-opt-label">${escapeHtml(it.label)}</span>
+    </button>`;
+  }).join('');
+}
+// Stand des Fotos im Foto-Reiter: wartet / abgelehnt / freigegeben (umschaltbar).
+async function renderPicCurrent(){
+  const box = document.getElementById('picCurrent');
+  const p = currentProfile || {};
+  box.hidden = true;
+  if(crop.on) return;
+  let img = '', text = '', action = '';
+  if(p.photo_status === 'pending' && p.photo_pending_path && sb){
+    try{
+      const { data } = await sb.storage.from('avatars-pending').createSignedUrl(p.photo_pending_path, 600);
+      if(data && data.signedUrl) img = `<img src="${data.signedUrl}" alt="">`;
+    }catch(e){}
+    text = '<strong>Wartet auf Freigabe.</strong> Sobald es freigegeben ist, sehen es auch andere.';
+  } else if(p.photo_path){
+    img = `<img src="${picSource(Object.assign({}, p, { avatar_kind: 'photo' })).url}" alt="">`;
+    text = p.avatar_kind === 'photo' ? '<strong>Dein aktuelles Foto.</strong> Ein neues ersetzt es nach der Freigabe.' : '<strong>Dein freigegebenes Foto.</strong> Gerade zeigst du deinen Avatar.';
+    if(p.avatar_kind !== 'photo') action = '<button type="button" class="btn btn-secondary btn-small" id="picUseApproved">Foto verwenden</button>';
+  } else if(p.photo_status === 'rejected'){
+    text = `<strong>Dein letztes Foto wurde nicht freigegeben.</strong> ${escapeHtml((p.photo_reason || '').trim() || PIC_DEFAULT_REJECT)}`;
+  } else return;
+  box.innerHTML = `${img ? `<span class="pic-current-img pic-fill">${img}</span>` : ''}<p>${text}</p>${action}`;
+  box.hidden = crop.on;
+}
+
+async function picSaveProfile(upd){
+  const { error } = await sb.from('profiles').update(upd).eq('user_id', currentUser.id);
+  if(error) throw error;
+  Object.assign(currentProfile, upd);
+  picCache.delete(currentUser.id);
+  renderOwnPic();
+}
+function picExplain(err){
+  const m = (err && err.message) || String(err || '');
+  if(/bucket not found|avatar_kind|avatar_config|photo_|schema cache|column/i.test(m)) return 'Profilbilder sind auf dem Server noch nicht eingerichtet (SQL aus Build 25 fehlt).';
+  if(/payload too large|exceeded|size/i.test(m)) return 'Das Bild ist zu groß.';
+  return 'Konnte nicht gespeichert werden: ' + m;
+}
+
+// --- Foto zuschneiden: Verschieben + Zoomen im runden Rahmen -------------------------
+function cropReset(){
+  crop.on = false; crop.pointers.clear();
+  if(crop.url){ URL.revokeObjectURL(crop.url); crop.url = null; }
+  const img = document.getElementById('picCropImg');
+  if(img) img.removeAttribute('src');
+  const c = document.getElementById('picCrop'), d = document.getElementById('picDrop');
+  if(c) c.hidden = true;
+  if(d) d.hidden = false;
+  const f = document.getElementById('picFile');
+  if(f) f.value = '';
+}
+function cropLoad(file){
+  if(!file) return;
+  picMsg('', false);
+  if(!/^image\//.test(file.type) && !/\.(jpe?g|png|webp|heic|heif)$/i.test(file.name)){ picMsg('Das ist kein Bild. Bitte JPG, PNG oder WebP wählen.', true); return; }
+  if(file.size > 25 * 1024 * 1024){ picMsg('Das Bild ist größer als 25 MB. Bitte ein kleineres wählen.', true); return; }
+  cropReset();
+  const img = document.getElementById('picCropImg');
+  crop.url = URL.createObjectURL(file);
+  img.onload = () => {
+    crop.w = img.naturalWidth; crop.h = img.naturalHeight; crop.z = 1; crop.x = 0; crop.y = 0; crop.on = true;
+    document.getElementById('picDrop').hidden = true;
+    document.getElementById('picCurrent').hidden = true;
+    document.getElementById('picCrop').hidden = false;
+    document.getElementById('picZoom').value = '1';
+    cropLayout();
+    picUpdateSave();
+  };
+  img.onerror = () => { cropReset(); picMsg('Dieses Bild kann dein Browser nicht öffnen. Bitte ein JPG oder PNG wählen.', true); };
+  img.src = crop.url;
+}
+function cropScale(){ return crop.base * crop.z; }
+function cropLayout(){
+  if(!crop.on) return;
+  crop.V = document.getElementById('picCropView').clientWidth;
+  crop.base = Math.max(crop.V / crop.w, crop.V / crop.h);
+  cropApply();
+}
+function cropApply(){
+  const s = cropScale();
+  const mx = Math.max(0, (crop.w * s - crop.V) / 2), my = Math.max(0, (crop.h * s - crop.V) / 2);
+  crop.x = Math.min(mx, Math.max(-mx, crop.x));
+  crop.y = Math.min(my, Math.max(-my, crop.y));
+  const img = document.getElementById('picCropImg');
+  img.style.width = (crop.w * s) + 'px';
+  img.style.height = (crop.h * s) + 'px';
+  img.style.transform = `translate(calc(-50% + ${crop.x}px), calc(-50% + ${crop.y}px))`;
+}
+function cropZoomTo(z){
+  const before = cropScale();
+  crop.z = Math.min(4, Math.max(1, z));
+  const k = cropScale() / before;
+  crop.x *= k; crop.y *= k;
+  document.getElementById('picZoom').value = String(crop.z);
+  cropApply();
+}
+function cropExport(){
+  const OUT = 512, k = OUT / crop.V, s = cropScale();
+  const cv = document.createElement('canvas');
+  cv.width = cv.height = OUT;
+  const ctx = cv.getContext('2d');
+  ctx.fillStyle = '#141922';
+  ctx.fillRect(0, 0, OUT, OUT);
+  ctx.imageSmoothingQuality = 'high';
+  const dw = crop.w * s * k, dh = crop.h * s * k;
+  ctx.drawImage(document.getElementById('picCropImg'), (OUT - dw) / 2 + crop.x * k, (OUT - dh) / 2 + crop.y * k, dw, dh);
+  // WebP, wo der Browser es kann (aeltere Safari liefern sonst PNG) - dann JPEG.
+  return new Promise(res => cv.toBlob(b => {
+    if(b && b.type === 'image/webp') res(b); else cv.toBlob(res, 'image/jpeg', 0.88);
+  }, 'image/webp', 0.86));
+}
+(() => {
+  const view = document.getElementById('picCropView');
+  const dist = () => { const [a, b] = [...crop.pointers.values()]; return Math.hypot(a.x - b.x, a.y - b.y); };
+  view.addEventListener('pointerdown', (e) => {
+    if(!crop.on) return;
+    view.setPointerCapture(e.pointerId);
+    crop.pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if(crop.pointers.size === 2) crop.pinch = dist();
+    view.classList.add('is-drag');
+  });
+  view.addEventListener('pointermove', (e) => {
+    const p = crop.pointers.get(e.pointerId);
+    if(!p) return;
+    const dx = e.clientX - p.x, dy = e.clientY - p.y;
+    p.x = e.clientX; p.y = e.clientY;
+    if(crop.pointers.size === 1){ crop.x += dx; crop.y += dy; cropApply(); }
+    else if(crop.pointers.size === 2 && crop.pinch){
+      const d = dist();
+      cropZoomTo(crop.z * d / crop.pinch);
+      crop.pinch = d;
+    }
+  });
+  const up = (e) => {
+    crop.pointers.delete(e.pointerId);
+    crop.pinch = crop.pointers.size === 2 ? dist() : 0;
+    if(!crop.pointers.size) view.classList.remove('is-drag');
+  };
+  view.addEventListener('pointerup', up);
+  view.addEventListener('pointercancel', up);
+  view.addEventListener('wheel', (e) => { if(!crop.on) return; e.preventDefault(); cropZoomTo(crop.z * Math.exp(-e.deltaY * 0.0015)); }, { passive: false });
+  document.getElementById('picZoom').addEventListener('input', (e) => cropZoomTo(parseFloat(e.target.value)));
+  window.addEventListener('resize', () => { if(crop.on && !document.getElementById('picEditor').hidden) cropLayout(); });
+})();
+
+// --- Speichern, Hochladen, Entfernen ------------------------------------------------
+async function picUploadPhoto(){
+  const blob = await cropExport();
+  const ext = blob.type === 'image/webp' ? 'webp' : 'jpg';
+  const path = `${currentUser.id}/${Date.now()}.${ext}`;
+  const { error: e1 } = await sb.storage.from('avatars-pending').upload(path, blob, { contentType: blob.type, cacheControl: '3600' });
+  if(e1) throw e1;
+  const oldPending = currentProfile.photo_pending_path;
+  await picSaveProfile({ photo_pending_path: path, photo_status: 'pending', photo_reason: null, avatar_kind: 'photo', photo_updated_at: new Date().toISOString() });
+  if(oldPending) sb.storage.from('avatars-pending').remove([oldPending]).catch(() => {});
+  // Admins pruefen sich nicht selbst.
+  if(currentProfile.is_admin){
+    const done = await picApprove(Object.assign({ user_id: currentUser.id }, currentProfile));
+    Object.assign(currentProfile, done);
+    renderOwnPic();
+    return 'Foto gespeichert.';
+  }
+  return 'Foto hochgeladen – wir schauen es uns kurz an. Bis dahin sehen andere dein bisheriges Bild.';
+}
+async function picRemoveAll(){
+  const p = currentProfile;
+  if(p.photo_path) await sb.storage.from('avatars').remove([p.photo_path]).catch(() => {});
+  if(p.photo_pending_path) await sb.storage.from('avatars-pending').remove([p.photo_pending_path]).catch(() => {});
+  await picSaveProfile({ avatar_kind: null, avatar_config: null, photo_path: null, photo_pending_path: null, photo_status: null, photo_reason: null });
+}
+async function downloadAvatarPNG(){
+  const size = 1024;
+  const url = URL.createObjectURL(new Blob([avatarSVG(pic.cfg, { size })], { type: 'image/svg+xml' }));
+  try{
+    const img = new Image();
+    img.src = url;
+    await img.decode();
+    const cv = document.createElement('canvas');
+    cv.width = cv.height = size;
+    cv.getContext('2d').drawImage(img, 0, 0, size, size);
+    const blob = await new Promise(r => cv.toBlob(r, 'image/png'));
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'lumiere-avatar.png';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  }finally{ URL.revokeObjectURL(url); }
+}
+
+document.getElementById('picEditor').addEventListener('click', async (e) => {
+  if(e.target.id === 'picEditor'){ closePicEditor(); return; }
+  const t = e.target;
+  const tab = t.closest('[data-pic-tab]');
+  if(tab){ sndClick(); picMsg('', false); picSetTab(tab.dataset.picTab); return; }
+  const cat = t.closest('[data-pic-cat]');
+  if(cat){ sndClick(); pic.cat = cat.dataset.picCat; renderPicCats(); renderPicGrid(); return; }
+  const opt = t.closest('[data-pic-item]');
+  if(opt){
+    sndClick();
+    pic.cfg[pic.cat] = opt.dataset.picItem;
+    document.querySelectorAll('#picGrid .pic-opt').forEach(o => { const on = o === opt; o.classList.toggle('is-on', on); o.setAttribute('aria-selected', on); });
+    renderPicPreview();
+    return;
+  }
+  if(t.closest('#picClose')){ sndClick(); closePicEditor(); return; }
+  if(t.closest('#picRandom')){ sndClick(); pic.cfg = avatarNormalize(avatarRandom()); renderPicPreview(); renderPicGrid(); return; }
+  if(t.closest('#picDownload')){ sndClick(); downloadAvatarPNG().catch(() => picMsg('Das Bild konnte nicht erstellt werden.', true)); return; }
+  if(t.closest('#picChoose') || t.closest('#picOther')){ sndClick(); document.getElementById('picFile').click(); return; }
+  if(t.closest('#picUseApproved')){
+    sndClick();
+    try{ await picSaveProfile({ avatar_kind: 'photo' }); showToast('Dein Foto ist wieder dein Profilbild.'); closePicEditor(); }
+    catch(err){ picMsg(picExplain(err), true); }
+    return;
+  }
+  if(t.closest('#picRemove')){
+    sndClick();
+    const ok = await customConfirm('Profilbild entfernen?', 'Dein Avatar und dein Foto werden gelöscht. Danach siehst du wieder deine Initialen.', 'Entfernen');
+    if(!ok) return;
+    try{ await picRemoveAll(); showToast('Profilbild entfernt.'); closePicEditor(); }
+    catch(err){ picMsg(picExplain(err), true); }
+    return;
+  }
+  if(t.closest('#picSave')){
+    if(pic.busy) return;
+    sndClick();
+    pic.busy = true; picUpdateSave(); picMsg('', false);
+    try{
+      if(pic.tab === 'avatar'){
+        await picSaveProfile({ avatar_config: pic.cfg, avatar_kind: 'avatar' });
+        showToast('Avatar gespeichert.');
+        closePicEditor();
+      } else {
+        const text = await picUploadPhoto();
+        showToast(text);
+        closePicEditor();
+      }
+    }catch(err){
+      picMsg(picExplain(err), true);
+    }finally{
+      pic.busy = false; picUpdateSave();
+    }
+  }
+});
+document.getElementById('picFile').addEventListener('change', (e) => cropLoad(e.target.files && e.target.files[0]));
+(() => {
+  const drop = document.getElementById('picDrop');
+  ['dragenter', 'dragover'].forEach(ev => drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.add('is-over'); }));
+  ['dragleave', 'drop'].forEach(ev => drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.remove('is-over'); }));
+  drop.addEventListener('drop', (e) => cropLoad(e.dataTransfer.files && e.dataTransfer.files[0]));
+})();
+document.addEventListener('keydown', (e) => {
+  if(e.key === 'Escape' && !document.getElementById('picEditor').hidden && document.getElementById('modalBackdrop').classList.contains('open') === false) closePicEditor();
+});
+document.getElementById('accAvatar').addEventListener('click', (e) => {
+  if(!picOn() || !currentUser) return;
+  e.preventDefault();
+  openPicEditor();
+});
+
+// --- Admin: Fotos pruefen -----------------------------------------------------------
+// Freigeben = Datei aus dem privaten Ordner in den oeffentlichen kopieren und am
+// Profil eintragen; das alte Foto und die wartende Datei werden geloescht.
+async function picApprove(p){
+  const { data: blob, error: e1 } = await sb.storage.from('avatars-pending').download(p.photo_pending_path);
+  if(e1) throw e1;
+  const ext = (p.photo_pending_path.split('.').pop() || 'webp').toLowerCase();
+  const newPath = `${p.user_id}/${Date.now()}.${ext}`;
+  const { error: e2 } = await sb.storage.from('avatars').upload(newPath, blob, { contentType: blob.type || (ext === 'jpg' ? 'image/jpeg' : 'image/webp'), cacheControl: '31536000' });
+  if(e2) throw e2;
+  const upd = { photo_path: newPath, photo_pending_path: null, photo_status: null, photo_reason: null };
+  const { error: e3 } = await sb.from('profiles').update(upd).eq('user_id', p.user_id);
+  if(e3) throw e3;
+  if(p.photo_path) sb.storage.from('avatars').remove([p.photo_path]).catch(() => {});
+  sb.storage.from('avatars-pending').remove([p.photo_pending_path]).catch(() => {});
+  picCache.delete(p.user_id);
+  return upd;
+}
+async function picReject(p, reason){
+  const { error } = await sb.from('profiles').update({ photo_status: 'rejected', photo_reason: reason || null, photo_pending_path: null }).eq('user_id', p.user_id);
+  if(error) throw error;
+  sb.storage.from('avatars-pending').remove([p.photo_pending_path]).catch(() => {});
+}
+let picReviews = new Map();
+let picReviewBound = false;
+// Laeuft schon ein Laden (Oeffnen des Panels + Reiterwechsel), dasselbe
+// Versprechen zurueckgeben statt doppelt abzufragen.
+function dedupeAsync(fn){ let run = null; return () => run || (run = fn().finally(() => { run = null; })); }
+const loadPicReviews = dedupeAsync(loadPicReviewsNow);
+async function loadPicReviewsNow(){
+  if(!sb || !currentProfile || !currentProfile.is_admin) return;
+  const list = document.getElementById('picReviewList');
+  const note = document.getElementById('picReviewNote');
+  const { data, error } = await sb.from('profiles')
+    .select('user_id, email, display_name, photo_path, photo_pending_path, photo_updated_at')
+    .eq('photo_status', 'pending').order('photo_updated_at', { ascending: true }).limit(50);
+  if(error){
+    note.textContent = 'Es fehlen noch Spalten in Supabase – bitte supabase/build25.sql im SQL-Editor ausführen. (' + error.message + ')';
+    note.hidden = false;
+    return;
+  }
+  note.hidden = true;
+  const rows = (data || []).filter(r => r.photo_pending_path);
+  picReviews = new Map(rows.map(r => [r.user_id, r]));
+  setAdminNavBadge('adminNavBadgePhotos', rows.length);
+  document.getElementById('picReviewEmpty').hidden = rows.length > 0;
+  let urls = {};
+  if(rows.length){
+    try{
+      const { data: signed } = await sb.storage.from('avatars-pending').createSignedUrls(rows.map(r => r.photo_pending_path), 900);
+      (signed || []).forEach(s => { if(s.signedUrl) urls[s.path] = s.signedUrl; });
+    }catch(e){}
+  }
+  list.innerHTML = rows.map(r => `<div class="abo-row" data-user="${r.user_id}">
+      <div class="abo-row-main">
+        <span class="pic-review-img pic-fill">${urls[r.photo_pending_path] ? `<img src="${urls[r.photo_pending_path]}" alt="">` : ''}</span>
+        ${aboWho(r)}
+        <span class="abo-until">${r.photo_updated_at ? 'hochgeladen ' + fmtDay(r.photo_updated_at) : ''}${r.photo_path ? ' · ersetzt ein freigegebenes Foto' : ''}</span>
+        <div class="admin-upgrade-actions">
+          <button type="button" class="btn btn-primary btn-small" data-pic-act="approve">Freigeben</button>
+          <button type="button" class="btn btn-secondary btn-small" data-pic-act="open-reject">Ablehnen</button>
+        </div>
+      </div>
+      <div class="abo-panel" data-panel="reject" hidden>
+        <p class="abo-panel-label">Grund (optional)</p>
+        <textarea class="abo-reason" maxlength="400" placeholder="${escapeHtml(PIC_DEFAULT_REJECT)}"></textarea>
+        <p class="acc-hint">Leer lassen – dann sieht der Nutzer den Standardtext (steht grau im Feld).</p>
+        <div class="abo-panel-actions">
+          <button type="button" class="btn btn-danger" data-pic-act="reject">Ablehnen</button>
+          <button type="button" class="btn btn-secondary" data-pic-act="close">Abbrechen</button>
+        </div>
+      </div>
+    </div>`).join('');
+  if(!picReviewBound){
+    picReviewBound = true;
+    document.getElementById('picReviewRoot').addEventListener('click', async (e) => {
+      const btn = e.target.closest('[data-pic-act]');
+      if(!btn) return;
+      sndClick();
+      const row = btn.closest('.abo-row');
+      const act = btn.dataset.picAct;
+      const panel = row.querySelector('.abo-panel');
+      if(act === 'open-reject'){ panel.hidden = false; row.querySelector('.abo-reason').focus(); return; }
+      if(act === 'close'){ panel.hidden = true; return; }
+      const p = picReviews.get(row.dataset.user);
+      row.querySelectorAll('button, textarea').forEach(b => { b.disabled = true; });
+      try{
+        if(act === 'approve'){ await picApprove(p); showToast('Foto freigegeben.'); }
+        else { await picReject(p, row.querySelector('.abo-reason').value.trim()); showToast('Foto abgelehnt.'); }
+        loadPicReviews();
+      }catch(err){
+        showToast('Konnte nicht gespeichert werden: ' + (err.message || err), true);
+        row.querySelectorAll('button, textarea').forEach(b => { b.disabled = false; });
+      }
+    });
   }
 }
 
@@ -11319,7 +12194,7 @@ async function renderLeaderboard(key){
     const me = currentUser && r.user_id === currentUser.id;
     const name = r.display_name || 'Anonym';
     return `<div class="lb-pod lb-pod-${i + 1}${me ? ' is-me' : ''}">
-      <span class="lb-pod-avatar" aria-hidden="true">${escapeHtml(lbInitials(name))}</span>
+      <span class="lb-pod-avatar" aria-hidden="true" data-pic-uid="${r.user_id}">${escapeHtml(lbInitials(name))}</span>
       <span class="lb-pod-name">${escapeHtml(name)}${me ? ' <em>(du)</em>' : ''}</span>
       <span class="lb-pod-score">${r.score}</span>
       <span class="lb-pod-unit">${escapeHtml(def.unit)}</span>
@@ -11334,7 +12209,7 @@ async function renderLeaderboard(key){
     const name = r.display_name || 'Anonym';
     return `<div class="lb-row${me ? ' is-me' : ''}">
       <span class="lb-row-rank">${rank}</span>
-      <span class="lb-row-avatar" aria-hidden="true">${escapeHtml(lbInitials(name))}</span>
+      <span class="lb-row-avatar" aria-hidden="true" data-pic-uid="${r.user_id}">${escapeHtml(lbInitials(name))}</span>
       <span class="lb-row-name">${escapeHtml(name)}${me ? ' <em>(du)</em>' : ''}</span>
       <span class="lb-row-score">${r.score}<span class="lb-row-unit">${escapeHtml(def.unit)}</span></span>
     </div>`;
@@ -11347,11 +12222,12 @@ async function renderLeaderboard(key){
   if(currentUser && !inList && own > 0){
     list.innerHTML += `<div class="lb-row is-me lb-row-own">
       <span class="lb-row-rank">–</span>
-      <span class="lb-row-avatar" aria-hidden="true">${escapeHtml(lbInitials((currentProfile && currentProfile.display_name) || 'Du'))}</span>
+      <span class="lb-row-avatar" aria-hidden="true" data-pic-uid="${currentUser.id}">${escapeHtml(lbInitials((currentProfile && currentProfile.display_name) || 'Du'))}</span>
       <span class="lb-row-name">Dein Rekord</span>
       <span class="lb-row-score">${own}<span class="lb-row-unit">${escapeHtml(def.unit)}</span></span>
     </div>`;
   }
+  fillPics(list.parentElement);
 }
 
 document.getElementById('btnClaimDaily').addEventListener('click', () => {

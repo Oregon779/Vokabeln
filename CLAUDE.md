@@ -509,6 +509,40 @@ Profil, Status und Sync sind die alten - `updateAccountUI`,
   festlegen" (ab heute) oder "Beenden". Das Einzel-Limit von Admin-Konten
   bleibt dabei immer stehen.
 
+## Profilbilder: Avatar-Baukasten + eigenes Foto (ab Build 25)
+
+- **Baukasten** (`AV_CATEGORIES`, `AV_LAYERS`, `AV_FIXED`, `avatarSVG()`):
+  SVG im 200er-Raster, Gold-Linien auf Medaillon. Gespeichert wird nur der
+  Bauplan (`profiles.avatar_config`, z.B. `{v:1, face:'k-oval', ...}`) mit
+  stabilen Teil-IDs. **Neue Kategorie** (Haare, Mund, ...): Eintrag in
+  `AV_CATEGORIES` (`key`, `label`, `kind:'shape'|'color'`, `items` mit `id`,
+  `draw(item, ctx)`), `key` in `AV_LAYERS` einreihen. Ein gleichnamiger
+  fester Teil in `AV_FIXED` (nose/mouth) wird dann ersetzt; alte Bauplaene
+  bekommen fuer Neues das erste Element (`avatarNormalize`). Augen/Brauen
+  werden fuer das RECHTE Auge um (0,0) gezeichnet, das linke gespiegelt.
+  Vorschaukacheln fuer Augen/Brauen schneiden per `thumb`-viewBox aus.
+- **Foto:** Zuschnitt im runden Rahmen (ziehen, Regler, Mausrad, zwei Finger),
+  Export 512 x 512 WebP (JPEG, wo der Browser kein WebP schreibt). Landet im
+  privaten Bucket `avatars-pending/<uid>/...`, Profil bekommt
+  `photo_status='pending'`. Freigabe im Admin-Reiter "Profilfotos"
+  (`loadPicReviews`, `picApprove`/`picReject`) kopiert die Datei in den
+  oeffentlichen Bucket `avatars` und setzt `photo_path`. Admins werden sofort
+  freigegeben. Ein altes freigegebenes Foto bleibt sichtbar, bis das neue
+  freigegeben ist.
+- **Anzeige** (`picSource`/`picHTML`): Foto nur wenn `avatar_kind='photo'` UND
+  freigegeben, sonst Avatar, sonst Initialen. Eigenes Bild: `renderOwnPic()`
+  (Mein Konto, Kopfleiste, Status-Hinweis) aus `updateAccountUI`. Andere
+  (Ranglisten): `fillPics()` ueber die RPC `public_avatars` (gibt nur Bauplan
+  und freigegebenes Foto heraus - `profiles` selbst ist fuer Fremde nicht
+  lesbar), eine Minute zwischengespeichert. Alles haengt an `isReleased(25)`.
+- `protect_admin_fields` laesst Nutzer nur ihr WARTENDES Foto setzen (Pfad im
+  eigenen Ordner), nie `photo_path` oder einen anderen Status. SQL:
+  `supabase/build25.sql` (Spalten, Buckets, Storage-Policies, RPC).
+- Der Editor liegt bei z 60; `#modalBackdrop` (customConfirm) und der Toast
+  werden waehrenddessen darueber gehoben (`html.pic-open`).
+- Falle: im zweispaltigen Editor braucht jede Spalte `min-width:0`, sonst
+  macht die Chip-Reihe das Raster auf dem Handy breiter als den Bildschirm.
+
 ## Testen mit Freigabe-Gate
 
 Lokal gibt es kein Supabase, also ist niemand Admin und alle Build-14-Teile
