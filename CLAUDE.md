@@ -104,7 +104,7 @@ steuert das Emblem, `setTower(amount, p)` blendet den Turm ein und fuehrt
 die Kamerafahrt - beides kommt aus `scrub()` in index.html.
 
 Der Turm ist `tower.glb` (Johnson Martin, Sketchfab, **CC-BY-4.0** - die
-Namensnennung im Footer ist Lizenzbedingung und darf nicht entfallen). Die
+Namensnennung in der Schlusszeile `.cine-colophon` ist Lizenzbedingung und darf nicht entfallen). Die
 Datei wird erst geholt, wenn die Turm-Szene in Sichtweite kommt. Das
 Original war 17 MB mit veralteten specGloss-Materialien, die three.js nicht
 mehr laedt; aufbereitet wurde es so:
@@ -283,8 +283,8 @@ Das Zeichen soll mehr Aufmerksamkeit bekommen als alles drumherum:
 - **Groesse:** In jeder Szene so gross wie im Startbild. Weil die Szenen
   weiter hinten liegen (z um -2,7), steht in `KEYS` dort ein groesserer
   Massstab (0.54 statt 0.40) - scheinbare Groesse = scale / Abstand zur
-  Kamera. Das Startbild steht bei y 1.30, damit die Kopfleiste den Reif
-  nicht anschneidet; der Schluss bei 0.37 / y 0.95 (naeher an der Kamera).
+  Kamera. Seit Build 27 steht das Startbild kleiner oben (0.30 / y 1.28)
+  und der Schluss klein oben (0.21 / y 1.30, top = 1), damit der Text Platz hat.
   Hochkant ruecken seitliche Stuetzstellen auf `halfH * 0.72`.
 - **Straenge:** poliertes Gold (Metall, fast keine Rauheit, Klarlack) statt
   Glas, mit harter Fresnel-Lichtkante. Ein Glanzlicht laeuft in 6 s einen
@@ -578,6 +578,68 @@ Profil, Status und Sync sind die alten - `updateAccountUI`,
   Hochkant bleibt nur das erste Bild gross, die anderen stehen klein daneben.
 - SQL: `supabase/build26.sql`. Alles haengt an `isReleased(26)` bzw.
   `data-build="26"`.
+
+## Neue Startseite nach Referenzbild (ab Build 27)
+
+Ohne Freigabe-Gate (Neugestaltung - der Nutzer pullt nach Abnahme der
+Screenshots). Ziel: das Zeichen ist schoen, aber der Text soll gelesen werden.
+
+- **Startbild:** Emblem kleiner und oben (`KEYS` erste Zeile: scale 0.30,
+  y 1.28), darunter goldene Wortmarke (Verlauf per `background-clip:text`,
+  Schatten per `filter:drop-shadow` - `text-shadow` wuerde die durchsichtige
+  Schrift verdunkeln), Zierlinie `.cine-ornament`, groesserer Serifentext,
+  zwei Knoepfe `.cine-btn` ("Entdecken" scrollt zu "Das Wort", "Jetzt lernen"
+  = `btnHubSets`). Der Scroll-Hinweis ist im Startbild aus.
+- **Marmor** (`marble.webp`, Handy `marble-s.webp`): prozedural mit numpy
+  erzeugt (keine fremde Bildquelle), in der 3D-Ebene als erstes
+  bildschirmfuellendes Rechteck (`makeBackdrop`). Der Shader legt einen
+  wandernden Schimmer auf die Adern und rechnet die goldenen Linienboegen in
+  den Ecken selbst (Einheit = kuerzere Bildseite, sonst laufen sie hochkant
+  quer ueber den Schirm). `setHero(scrollY / vh)` aus `scrub()` laesst ihn
+  mitziehen und nach einer Bildschirmhoehe in die Nacht uebergehen.
+- **Goldwellen** (`makeWaves`, 6000 Punkte, lite 2200): Fasern + Dunst, ganz
+  im Shader animiert, haengen an Position/Groesse des Emblems (drehen nicht
+  mit). Sichtbar im Startbild und wieder am Ende.
+- **Lorbeerkranz** (`makeLaurel`): ein InstancedMesh fuer alle Blaetter, zwei
+  Stiele; Kind des Emblems, dreht also mit. Die Straenge sind duenner
+  (`thick` 0.03) und im Startbild halb so hell (`hv`), Staub ebenso.
+- **Turm:** Funken blitzen einzeln (`makeSparks`, Shader statt gemeinsamem
+  Pulsieren), Glut steigt auf und Glitter rieselt (`makeEmbers`), ein
+  Lichtfaden windet sich auf der Kamerabahn um den Turm und laeuft ihr um
+  `TRAIL_LEAD` voraus (`makeTrail`). Feuerwerk (`makeFireworks`, drei Garben
+  aus einer Startzeit, alles im Shader): Runde 1 bei `tourShown > 0.8` links/
+  rechts ueber den Karten - die Startpunkte werden aus dem Kamerawinkel
+  berechnet, sonst gingen sie hinter den Karten auf -, Runde 2 beim
+  Zurueckweichen ueber der Spitze. Meldet `lumiere:firework` (Klang).
+- **Karten** zeigen die echte Seite (`shot-*.webp`, Aufnahmen mit
+  Playwright bei 1280 x 800, 880 px breit, zusammen 120 KB statt 930 KB
+  Fotos) in einem goldgerahmten, schraegen Fenster `.cine-card-shot`.
+  `layoutDeck` laesst kommende Karten aus der Tiefe gekippt einfliegen und
+  setzt `--rel` fuer die Parallaxe im Fenster. Neue Aufnahmen: Seiten mit
+  echten Daten fuellen (`makePair`, `store.examEvents`), sonst steht "NaN" da.
+- **Schluss:** kein grosser Footer mehr. `.cine-entrer` zeigt Gaesten
+  "Kostenlos starten" (Registrieren/Anmelden oeffnen das Anmeldefenster ueber
+  `data-auth-tab`, dazu "ohne Konto ausprobieren"), Angemeldeten "Weiter
+  lernen" mit faelligen Woertern (`updateHubStart`). Darunter die schmale
+  `.cine-colophon` mit Links und der **CC-BY-Namensnennung des Turms**.
+  `KEYS` letzte Zeile: Emblem klein oben (top = 1), Text darunter.
+
+## Klaenge und Musik (ab Build 27)
+
+Alles synthetisch (WebAudio), keine Dateien. Ein AudioContext, Graph:
+Effekte (`AUD.sfx`) und Musik (`AUD.music`) -> Kompressor -> Ausgang, beide
+mit Anteil in einen selbst berechneten Hall (Convolver aus abklingendem
+Rauschen). Bausteine `voice`, `bell`, `pluck`, `swoosh`; die alten Namen
+(`playTone`, `sndClick`, `sndCorrect`, ...) bleiben und klingen neu - Spiele
+und Uebungen brauchen deshalb keine Aenderung. Neu: `sndCardTurn` (Karte am
+Turm), `sndShimmer` (Flug zum Turm), `sndFirework`.
+
+"Pariser Abend" (`musicBar`): Akkordfolge in `MUSIC_CHORDS`, alle 5,2 s ein
+Takt per setTimeout (nicht rAF), gezupfter Akkord + weicher Teppich + seltene
+Glockenmelodie. Nur auf der Startseite und nur wenn `store.settings.musicOn`;
+`musicSync()` bei Seitenwechsel und `visibilitychange`, Start mit der ersten
+Beruehrung (Browser-Regel). Knopf `#hubMusic` im Startbild und Schalter +
+Regler in den Einstellungen teilen sich `musicOn`/`musicVolume`.
 
 ## Testen mit Freigabe-Gate
 
