@@ -440,6 +440,11 @@ function updateStreaks(mesh, t, dt, amount){
 // wird erst geholt, wenn man sich seiner Szene naehert - der erste
 // Seitenaufruf soll davon nichts merken.
 const TOWER_HEIGHT = 10;        // Zielhoehe in Weltmassen, das Modell wird skaliert
+// Der Turm steht in derselben Welt wie das Zeichen, weit dahinter. Nichts
+// wird ueberblendet: die Kamera fliegt beim Scrollen einfach hin - durch das
+// Punktfeld, am Zeichen vorbei. Von der Buehne des Zeichens aus sieht man ihn
+// beim Naeherkommen klein am Horizont.
+const TOWER_AT = new Vector3(0, 0, -38);
 let towerLoading = false;
 
 function applyTowerLook(root, lite){
@@ -584,6 +589,105 @@ function loadTower(url){
   });
 }
 
+/* ------------------------------------------------------------ Bokeh  */
+
+// Die kleinen Lichtpunkte aus der Referenz: Staub im Licht, von einer Kamera
+// mit offener Blende gesehen. Jeder Punkt liegt fest im Raum - fliegt die
+// Kamera zum Turm, zieht das Feld an ihr vorbei, und genau das macht den
+// Weg dorthin spuerbar. Unscharf wird ein Punkt, je weiter er von der
+// Schaerfeebene (uFocus) weg liegt: nah heisst gross und weich, fern heisst
+// kleine Scheibe mit hellerem Rand, wie ein echtes Objektiv sie zeichnet.
+const BOKEH_BOX = { x: 17, y0: -9, y1: 12, z0: 7, z1: -58 };
+function makeBokeh(){
+  const n = lite ? 700 : 1700;
+  const pos = new Float32Array(n * 3), col = new Float32Array(n * 3);
+  const size = new Float32Array(n), seed = new Float32Array(n);
+  const B = BOKEH_BOX;
+  for(let i = 0; i < n; i++){
+    pos[i * 3]     = (Math.random() * 2 - 1) * B.x;
+    pos[i * 3 + 1] = B.y0 + Math.random() * (B.y1 - B.y0);
+    pos[i * 3 + 2] = B.z1 + Math.random() * (B.z0 - B.z1);
+    // Warmes Gold bis helles Champagner, alles gedaempft.
+    const w = Math.random(), v = 0.55 + Math.random() * 0.45;
+    col[i * 3]     = v;
+    col[i * 3 + 1] = v * (0.68 + w * 0.24);
+    col[i * 3 + 2] = v * (0.26 + w * 0.42);
+    // Meist Staub, selten ein groesseres Korn.
+    size[i] = 0.012 + Math.pow(Math.random(), 3) * 0.05;
+    seed[i] = Math.random();
+  }
+  const geo = new BufferGeometry();
+  geo.setAttribute('position', new Float32BufferAttribute(pos, 3));
+  geo.setAttribute('color',    new Float32BufferAttribute(col, 3));
+  geo.setAttribute('aSize',    new Float32BufferAttribute(size, 1));
+  geo.setAttribute('aSeed',    new Float32BufferAttribute(seed, 1));
+  const mat = new ShaderMaterial({
+    uniforms: {
+      uTime:    { value: 0 },
+      uFocus:   { value: 8.5 },
+      uAperture:{ value: 16 },
+      uViewH:   { value: 900 },
+      uMaxPx:   { value: 56 },
+      uLift:    { value: 0 },
+      uOpacity: { value: 1 },
+    },
+    vertexShader: `
+      attribute float aSize;
+      attribute float aSeed;
+      attribute vec3 color;
+      uniform float uTime, uFocus, uAperture, uViewH, uMaxPx, uLift;
+      varying vec3 vCol;
+      varying float vBlur, vAlpha;
+      void main(){
+        vec3 p = position;
+        float s = aSeed * 6.2831;
+        // Langsames Schweben, jeder Punkt in eigenem Takt.
+        p.x += sin(uTime * 0.07 + s) * 0.35;
+        p.z += cos(uTime * 0.05 + s * 1.3) * 0.35;
+        // Beim Scrollen steigt das Feld - so sinkt man durch den Raum. Oben
+        // hinaus, unten wieder herein.
+        p.y = ${BOKEH_BOX.y0.toFixed(1)} + mod(p.y - ${BOKEH_BOX.y0.toFixed(1)} + uLift
+              + uTime * (0.03 + aSeed * 0.05), ${(BOKEH_BOX.y1 - BOKEH_BOX.y0).toFixed(1)});
+        vec4 mv = modelViewMatrix * vec4(p, 1.0);
+        float d = max(0.05, -mv.z);
+        float core = aSize * projectionMatrix[1][1] * uViewH * 0.5 / d;
+        float coc  = uAperture * abs(d - uFocus) / d;
+        float px   = clamp(max(core, coc), 2.6, uMaxPx);
+        gl_PointSize = px;
+        gl_Position = projectionMatrix * mv;
+        vBlur = clamp((px - core) / px * 1.6, 0.0, 1.0);
+        // Die Lichtmenge bleibt ungefaehr gleich - je groesser die Scheibe,
+        // desto blasser. Direkt vor der Kamera und ganz hinten blendet aus.
+        float twinkle = 0.75 + 0.25 * sin(uTime * (0.6 + aSeed) + s * 3.0);
+        vAlpha = clamp(1.5 / px, 0.03, 0.42) * twinkle
+               * smoothstep(0.4, 1.6, d) * (1.0 - smoothstep(38.0, 56.0, d));
+        vCol = color;
+      }`,
+    fragmentShader: `
+      uniform float uOpacity;
+      varying vec3 vCol;
+      varying float vBlur, vAlpha;
+      void main(){
+        vec2 c = gl_PointCoord * 2.0 - 1.0;
+        float r = length(c);
+        if(r > 1.0) discard;
+        float sharp = exp(-r * r * 7.0);
+        float disc  = smoothstep(1.0, 0.8, r);
+        float rim   = smoothstep(0.5, 0.9, r) * disc;
+        float bok   = disc * 0.5 + rim * 0.65;
+        float a = mix(sharp, bok, vBlur) * vAlpha * uOpacity;
+        gl_FragColor = vec4(vCol, a);
+      }`,
+    transparent: true, depthWrite: false, blending: AdditiveBlending,
+  });
+  const pts = new Points(geo, mat);
+  pts.frustumCulled = false;
+  // Zuerst zeichnen: was danach kommt (Zeichen, Turm), deckt die Punkte ab,
+  // die vor ihm liegen. So laeuft auch hier nichts ueber das Zeichen.
+  pts.renderOrder = -2;
+  return pts;
+}
+
 /* --------------------------------------------------------------- Ablauf  */
 
 // Der Lichthof: ein weicher Verlauf, additiv - Schwarz am Rand ist also
@@ -646,7 +750,7 @@ let progress = 0, shown = 0;
 let spin = 0, spinT = 0;
 let towerAmt = 0, towerShown = 0, tourP = 0, tourShown = 0;
 let streakAmt = 0;
-let halo;
+let halo, bokeh;
 let pointerX = 0, pointerY = 0, px = 0, py = 0;
 
 function init(canvas, opts){
@@ -668,7 +772,7 @@ function init(canvas, opts){
   // durchscheinender Kanal vertragen sich schlecht. Der Grund kommt deshalb
   // aus der Seite (--bg) - optisch derselbe Ton, nur eben deckend.
   if(opts.bg) scene.background = new Color(opts.bg);
-  camera = new PerspectiveCamera(42, 1, 0.1, 100);
+  camera = new PerspectiveCamera(42, 1, 0.1, 140);
   camera.position.set(0, 0, 7);
 
   const envTex = makeEnvTexture();
@@ -782,6 +886,9 @@ function init(canvas, opts){
   halo = makeHalo();
   scene.add(halo);
 
+  bokeh = makeBokeh();
+  scene.add(bokeh);
+
   // Der Bloom ist das, was die Referenz teuer macht: helle Stellen bluehen in
   // weiche Hoefe aus. Auf schwachen Geraeten faellt der Pass weg - dort wird
   // direkt gerendert.
@@ -823,9 +930,14 @@ function setPointer(nx, ny){ pointerX = nx; pointerY = ny; }
    Hoehe, Abstand und Blickpunkt werden dazwischen weich interpoliert. */
 const TOUR = {
   from: { ang: -0.45,             y: 9.2, dist: 7.2, look: 8.4 },  // an der Spitze
-  to:   { ang: Math.PI - 0.45,    y: 2.1, dist: 9.4, look: 2.6 },  // am Fuss
+  // Eine GANZE Umrundung: die Fahrt endet wieder auf der Seite, von der sie
+  // kam, mit Blick in dieselbe Richtung. Nur so kann die Kamera danach
+  // einfach zurueckweichen - nach einer halben Runde stuende sie hinter dem
+  // Turm, mit dem Ruecken zum Zeichen, und muesste sich umdrehen.
+  to:   { ang: Math.PI * 2 - 0.45, y: 2.1, dist: 9.4, look: 2.6 },  // am Fuss
 };
 const _camTour = new Vector3(), _lookTour = new Vector3(), _look = new Vector3();
+const _dirA = new Vector3(), _dirB = new Vector3();
 function tourCamera(q){
   const e = smoothstep(q);
   const ang  = TOUR.from.ang  + (TOUR.to.ang  - TOUR.from.ang)  * e;
@@ -901,7 +1013,9 @@ function applyTransform(p, t){
   const tw = towerShown;
   // Das Emblem begleitet die ganze Reise. Nur der Turm schickt es von der
   // Buehne - danach kommt es unterhalb von ihm wieder herein.
-  const eo = 1 - smoothstep(Math.min(1, tw * 1.25));
+  // Die Kamera fliegt am Zeichen vorbei; es tritt dabei zurueck, statt ihr
+  // als grosser Fleck durchs Bild zu fahren.
+  const eo = 1 - smoothstep(Math.max(0, Math.min(1, (tw - 0.08) / 0.42)));
   // Die Schlieren teilen sich das Schicksal des Emblems und ziehen am Anfang
   // und am Ende der Reise am kraeftigsten - dort, wo sonst nur Grund waere.
   const ends = Math.max(1 - p / 0.16, (p - 0.86) / 0.14);
@@ -928,8 +1042,10 @@ function applyTransform(p, t){
       // Auf einem hochkantigen Schirm faellt der Turm schmaler aus, sonst
       // passt er nicht zwischen Kopfleiste und Kaertchen.
       tower.scale.setScalar(fit);
-      tower.position.set(0, -TOWER_HEIGHT * 0.5 * fit, 0);
-      const app = smoothstep(Math.min(1, tw * 1.6));
+      tower.position.set(TOWER_AT.x, TOWER_AT.y - TOWER_HEIGHT * 0.5 * fit, TOWER_AT.z);
+      // Taucht am Horizont auf, sobald die Fahrt beginnt - aus der Ferne
+      // ist das ein Auftauchen, kein Ueberblenden.
+      const app = smoothstep(Math.min(1, tw * 4));
       for(const m of towerMats) m.opacity = app;
       // Funkeln: ein ruhiges Pulsieren, kein Stroboskop.
       tower.userData.sparks.material.opacity =
@@ -943,12 +1059,19 @@ function applyTransform(p, t){
     }
   }
 
-  // Die Kamera: waehrend der Turm-Szene faehrt sie um ihn herum, sonst steht
-  // sie vor dem Emblem. Dazwischen wird ueberblendet, damit nichts springt.
+  // Die Kamera: vor dem Zeichen steht sie still und driftet nur, am Turm
+  // faehrt sie um ihn herum. Dazwischen FLIEGT sie - Position und Blick
+  // werden entlang des Scrolls von der einen Einstellung zur anderen
+  // gefuehrt, durch das Punktfeld hindurch. Kein Ueberblenden, kein
+  // Einrasten: man ist einfach irgendwann da.
   tourCamera(tourShown);
+  // Hochkant ist der Turm kleiner (fit). Die Hoehen der Fahrt muessen mit
+  // schrumpfen, sonst schaut die Kamera ueber die Spitze hinweg ins Leere.
+  _camTour.y *= fit; _lookTour.y *= fit;
   const yOff = -TOWER_HEIGHT * 0.5 * fit;
   const ez = 7 - p * 1.2;
-  const b = smoothstep(tw);
+  // Anfahren und Abbremsen weich (smootherstep), dazwischen zuegig.
+  const b = tw * tw * tw * (tw * (tw * 6 - 15) + 10);
   // Ein Driften, das nie aufhoert: selbst wenn niemand scrollt, atmet das
   // Bild. Drei Perioden ohne gemeinsamen Teiler, damit sich die Bahn nicht
   // hoerbar wiederholt. Waehrend der Turmfahrt faellt es weg - dort fuehrt
@@ -957,13 +1080,27 @@ function applyTransform(p, t){
   const dx = Math.sin(t * 0.11) * 0.2  * idle;
   const dy = Math.sin(t * 0.083) * 0.15 * idle;
   const dz = Math.sin(t * 0.061) * 0.28 * idle;
-  camera.position.set(_camTour.x * b + dx,
-                      (_camTour.y + yOff) * b + dy,
-                      ez + (_camTour.z - ez) * b + dz);
-  // Der Blick bleibt am Ziel haengen, damit das Driften eine Parallaxe
-  // erzeugt statt das ganze Bild zu verschieben.
-  _look.set(dx * 0.35, (_lookTour.y + yOff) * b + dy * 0.35, 0);
+  // Unterwegs ein leichter Bogen nach oben - ein Flug, keine Schiene.
+  const arc = Math.sin(Math.PI * b) * 1.6;
+  const tx = TOWER_AT.x + _camTour.x, ty = TOWER_AT.y + _camTour.y + yOff, tz = TOWER_AT.z + _camTour.z;
+  camera.position.set(dx + (tx - dx) * b,
+                      dy + (ty - dy) * b + arc,
+                      ez + dz + (tz - ez - dz) * b);
+  // Die BLICKRICHTUNG wird ueberblendet, nicht der Blickpunkt: unterwegs
+  // kaeme die Kamera ihrem eigenen Zielpunkt sonst so nahe, dass sie sich
+  // wild wegdreht. Vorn der Blick aufs Zeichen (mit 35 % des Driftens, das
+  // gibt die Parallaxe), hinten der Blick der Turmfahrt.
+  _dirA.set(dx * 0.35 - dx, dy * 0.35 - dy, -(ez + dz)).normalize();
+  _dirB.set(_lookTour.x - _camTour.x, _lookTour.y - _camTour.y, _lookTour.z - _camTour.z).normalize();
+  _dirA.lerp(_dirB, b).normalize();
+  _look.copy(camera.position).addScaledVector(_dirA, 10);
   camera.lookAt(_look);
+  if(bokeh){
+    // Die Schaerfe liegt immer auf dem, was gerade die Buehne hat.
+    bokeh.material.uniforms.uFocus.value = 8.5 + (_camTour.length() - 8.5) * b;
+    // Beim Scrollen durch die Szenen steigt das Feld langsam.
+    bokeh.material.uniforms.uLift.value = p * 7;
+  }
 }
 
 function frame(){
@@ -981,14 +1118,17 @@ function frame(){
 
   shown      += (progress - shown)      * smooth(3.2);
   // Zuegig ausblenden: der Turm soll weg sein, bevor die naechste Szene steht.
-  towerShown += (towerAmt - towerShown) * smooth(7);
-  tourShown  += (tourP    - tourShown)  * smooth(3.4);
+  // Kurz nachziehen gegen Mausrad-Stufen, mehr nicht - die Fahrt haengt
+  // am Scroll. Laengeres Nachlaufen fuehlte sich wie Einrasten an.
+  towerShown += (towerAmt - towerShown) * smooth(10);
+  tourShown  += (tourP    - tourShown)  * smooth(8);
   px += (pointerX - px) * smooth(2.4);
   py += (pointerY - py) * smooth(2.4);
   // Weich nachziehen, damit ein Mausrad-Sprung nicht als Ruck dreht.
   turnShown += (turnTarget - turnShown) * smooth(5);
   spin = turnShown * Math.PI * 2;
   if(grade) grade.uniforms.uTime.value = t;
+  if(bokeh) bokeh.material.uniforms.uTime.value = t;
   applyTransform(shown, t);
   // Die Schlieren gehen mit dem Emblem: waehrend der Turm die Buehne hat,
   // sollen sie nicht durch sein Gitterwerk ziehen.
@@ -1011,6 +1151,15 @@ function resize(){
   if(bloom) bloom.setSize(w, h);
   camera.aspect = w / h;
   camera.updateProjectionMatrix();
+  if(bokeh){
+    // Punktgroessen in Geraetepixeln, auf die Bildhoehe bezogen - sonst
+    // waeren die Scheiben auf einem grossen Schirm winzig.
+    const pr = renderer.getPixelRatio(), k = (h / 900) * pr;
+    const u = bokeh.material.uniforms;
+    u.uViewH.value = h * pr;
+    u.uAperture.value = 16 * k;
+    u.uMaxPx.value = 56 * k;
+  }
 }
 
 function start(){

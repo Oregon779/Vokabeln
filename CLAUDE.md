@@ -95,8 +95,40 @@ npx @gltf-transform/cli optimize t1.glb tower.glb --compress meshopt \
 ```
 
 Die Kamerafahrt steht in der Tabelle `TOUR` (Winkel, Hoehe, Abstand und
-Blickpunkt je an der Spitze und am Fuss) - eine halbe Umrundung von oben
-nach unten.
+Blickpunkt je an der Spitze und am Fuss) - seit Build 16 eine GANZE
+Umrundung von oben nach unten. Sie endet also auf der Seite, von der sie
+kam; nur so kann die Kamera danach einfach zurueckweichen. Nach einer halben
+Runde stuende sie hinter dem Turm, mit dem Ruecken zum Zeichen.
+
+## Der Flug zum Turm (ab Build 16)
+
+Der Turm steht in derselben Welt wie das Zeichen, weit dahinter
+(`TOWER_AT = (0, 0, -38)`). Nichts wird mehr ueberblendet: die Kamera
+FLIEGT beim Scrollen von der Buehne des Zeichens zum Startpunkt der
+Turmfahrt, durch das Punktfeld, am Zeichen vorbei (das dabei zuruecktritt,
+`eo`). Nach den Karten weicht sie denselben Weg zurueck, der Turm wird
+kleiner und verschwindet am Horizont.
+
+- `fadeIn` in `scrub()` dauert genau eine Bildschirmhoehe und endet, wenn
+  der Turm-Track festsitzt - der Flug geht nahtlos in die Umrundung ueber.
+- Ueberblendet wird die BLICKRICHTUNG (`_dirA`/`_dirB`), nicht der
+  Blickpunkt: unterwegs kaeme die Kamera ihrem Zielpunkt sonst so nahe,
+  dass sie sich wild wegdreht.
+- Nachziehen nur kurz (`smooth(10)` / `smooth(8)`). Das fruehere lange
+  Nachlaufen (7 / 3,4) fuehlte sich wie Einrasten an.
+- Hochkant (`fit` < 1) schrumpfen auch die Hoehen der Turmfahrt mit, sonst
+  schaut die Kamera ueber die Spitze ins Leere.
+
+## Die Lichtpunkte (Bokeh, ab Build 16)
+
+`makeBokeh`: 1700 Punkte (lite 700) in einem Kasten, der Buehne, Flugweg
+und Turm abdeckt (`BOKEH_BOX`). Ein Shader zeichnet sie wie unscharfe
+Lichter: Groesse = max(echte Groesse, Zerstreuungskreis `uAperture *
+|d - uFocus| / d`), je groesser desto blasser, unscharfe als Scheibe mit
+hellerem Rand, scharfe als weicher Punkt. `uFocus` liegt auf dem, was
+gerade die Buehne hat (Zeichen oder Turm). `uLift` hebt das Feld mit dem
+Scroll, so sinkt man durch den Raum. `renderOrder = -2`: Zeichen und Turm
+decken die Punkte ab, nichts laeuft ueber das Zeichen.
 
 Die Bahn des Emblems steckt in der Tabelle `KEYS` (Scroll-Fortschritt,
 Groesse, Position, Drehung je Stuetzstelle) - dort wird nachjustiert, nicht

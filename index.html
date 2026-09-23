@@ -4882,7 +4882,7 @@
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="./lumiere-gl.js?v=15" defer></script>
+<script src="./lumiere-gl.js?v=16" defer></script>
 <script>
 /* ============================================================
    WICHTIG: Bei jedem inhaltlichen Deploy hochzaehlen (wie CACHE_NAME
@@ -4893,7 +4893,7 @@
       unten) - neue, noch nicht "veroeffentlichte" Features hinter
       isReleased(N) verstecken; Admins sehen sie trotzdem sofort.
    ============================================================ */
-const APP_VERSION = 15;
+const APP_VERSION = 16;
 
 // Site-weites Feature-Gate: neue, aber noch nicht freigegebene Funktionen
 // hinter isReleased(<APP_VERSION beim Einbau>) verstecken. Admins (echtes
@@ -8535,7 +8535,10 @@ function sndCineHover(){ playTone(659, 0.14, 'sine', 0.012, 0, 2000); }
     let towerAmt = 0, tourProgress = 0;
     if(tourTrack){
       const tr = tourTrack.getBoundingClientRect();
-      const fadeIn  = Math.max(0, Math.min(1, (vh - tr.top) / (vh * 0.6)));
+      // Die Fahrt zum Turm dauert genau eine Bildschirmhoehe und endet in
+      // dem Moment, in dem die Turm-Szene festsitzt und die Umrundung
+      // beginnt - so geht der Flug nahtlos in die Kamerafahrt ueber.
+      const fadeIn  = Math.max(0, Math.min(1, (vh - tr.top) / vh));
       // Lang ausblenden: der Turm soll weg sein, bevor die Atelier-Zahlen
       // einsetzen - sonst stehen beide gleichzeitig halb im Bild.
       const fadeOut = Math.max(0, Math.min(1, tr.bottom / (vh * 1.5)));
