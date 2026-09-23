@@ -1673,6 +1673,8 @@
   .acc-decision strong{display:block; color:var(--text); margin-bottom:.15rem;}
   .acc-decision.is-no{background:rgba(239,75,87,.06); border-color:rgba(239,75,87,.28);}
   #accPwView{font-family:var(--font-mono); letter-spacing:.04em; cursor:default;}
+  .acc-link{display:block; margin:1rem auto 0; padding:.5rem; background:none; border:0; color:var(--stone); font-size:.86rem; cursor:pointer; text-decoration:underline; text-underline-offset:3px;}
+  .acc-link:hover{color:var(--ember-bright);}
 
   /* Admin: Anfragen & Abos (Build 23) */
   .abo-setup-note{margin:0 0 1rem; padding:.8rem 1rem; border-radius:12px; font-size:.88rem; line-height:1.5; background:rgba(239,75,87,.08); border:1px solid rgba(239,75,87,.3); color:#ffc7cc;}
@@ -4846,8 +4848,18 @@
           <p class="acc-hint">Gemerkt, als du dich auf diesem Gerät angemeldet oder dein Passwort geändert hast. Beim Abmelden wird es hier gelöscht.</p>
         </div>
         <div id="accPwViewNone">
-          <p class="acc-text">Auf diesem Gerät ist dein Passwort nicht gespeichert – es wird gemerkt, sobald du dich hier das nächste Mal anmeldest. Lumière selbst kennt dein Passwort nicht (es liegt nur verschlüsselt vor).</p>
-          <button type="button" class="btn btn-secondary acc-btn-wide" id="accPwResetMail">Link zum Zurücksetzen schicken</button>
+          <p class="acc-text">Auf diesem Gerät ist dein Passwort noch nicht hinterlegt. Gib es einmal ein – danach steht es hier und du kannst es jederzeit ansehen.</p>
+          <form id="accPwMemoForm" class="acc-form" novalidate>
+            <div class="acc-row">
+              <div class="acc-field">
+                <input type="password" id="accPwMemoInput" class="acc-input" autocomplete="current-password" placeholder="Dein Passwort" aria-label="Dein Passwort">
+                <button type="button" class="pw-eye" data-pw-toggle aria-label="Passwort anzeigen" aria-pressed="false"></button>
+              </div>
+              <button type="submit" class="btn btn-primary acc-btn" id="accPwMemoBtn">Hinterlegen</button>
+            </div>
+            <p class="acc-msg" id="accPwMemoMsg" hidden></p>
+          </form>
+          <button type="button" class="acc-link" id="accPwResetMail">Passwort vergessen? Link zum Zurücksetzen schicken</button>
         </div>
       </section>
 
@@ -5259,7 +5271,7 @@
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="./lumiere-gl.js?v=23" defer></script>
+<script src="./lumiere-gl.js?v=24" defer></script>
 <script>
 /* ============================================================
    WICHTIG: Bei jedem inhaltlichen Deploy hochzaehlen (wie CACHE_NAME
@@ -5270,7 +5282,7 @@
       unten) - neue, noch nicht "veroeffentlichte" Features hinter
       isReleased(N) verstecken; Admins sehen sie trotzdem sofort.
    ============================================================ */
-const APP_VERSION = 23;
+const APP_VERSION = 24;
 
 // Site-weites Feature-Gate: neue, aber noch nicht freigegebene Funktionen
 // hinter isReleased(<APP_VERSION beim Einbau>) verstecken. Admins (echtes
@@ -7325,6 +7337,7 @@ function updateAccountUI(){
   updateGatedNavUI();
   refreshAccountStatus();
   updateWelcomeMessage();
+  flushPwMemo();
 }
 
 // Personalisierte Begruessung auf der Hub-Seite - nur fuer eingeloggte User
@@ -7818,11 +7831,24 @@ async function loadMyUpgradeRequest(){
 // auf DIESEM Geraet, beim Anmelden und Aendern; beim Abmelden wird es geloescht.
 // Liegt damit unverschluesselt im Browser (so mit dem Nutzer besprochen).
 const PW_MEMO_KEY = 'lumiere_pw_memo';
+// Beim Anmelden ist das Profil noch nicht geladen - isReleased(23) waere dann
+// auch fuer Admins falsch und das Passwort ging verloren. Deshalb erst im
+// Speicher halten und nach dem Laden des Profils (updateAccountUI) ablegen.
+let pwMemoPending = null;
 function rememberPassword(email, pw){
-  if(!email || !pw || !isReleased(23)) return;
-  try{ localStorage.setItem(PW_MEMO_KEY, JSON.stringify({ email: email.toLowerCase(), pw })); }catch(e){}
+  if(!email || !pw) return;
+  pwMemoPending = { email: email.toLowerCase(), pw };
+  flushPwMemo();
 }
-function forgetPassword(){ try{ localStorage.removeItem(PW_MEMO_KEY); }catch(e){} }
+function flushPwMemo(){
+  if(!pwMemoPending || !currentUser || !currentProfile || !isReleased(23)) return;
+  if(pwMemoPending.email === (currentUser.email || '').toLowerCase()){
+    try{ localStorage.setItem(PW_MEMO_KEY, JSON.stringify(pwMemoPending)); }catch(e){}
+  }
+  pwMemoPending = null;
+  renderPwView();
+}
+function forgetPassword(){ pwMemoPending = null; try{ localStorage.removeItem(PW_MEMO_KEY); }catch(e){} }
 function recalledPassword(){
   if(!currentUser || !currentUser.email) return null;
   try{
@@ -7842,6 +7868,31 @@ function renderPwView(){
   has.hidden = !pw;
   document.getElementById('accPwViewNone').hidden = !!pw;
 }
+// Einmal eingeben: erst gegen Supabase pruefen, dann hinterlegen.
+document.getElementById('accPwMemoForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  sndClick();
+  const input = document.getElementById('accPwMemoInput');
+  const msg = document.getElementById('accPwMemoMsg');
+  const btn = document.getElementById('accPwMemoBtn');
+  const pw = input.value;
+  if(!pw){ accMsg(msg, 'Bitte gib dein Passwort ein.', true); return; }
+  if(!sb || !currentUser) return;
+  btn.disabled = true;
+  try{
+    const { error } = await sb.auth.signInWithPassword({ email: currentUser.email, password: pw });
+    if(error) throw new Error(/invalid login/i.test(error.message) ? 'Das Passwort stimmt nicht.' : translateAuthError(error.message));
+    try{ localStorage.setItem(PW_MEMO_KEY, JSON.stringify({ email: currentUser.email.toLowerCase(), pw })); }catch(err){}
+    input.value = ''; input.type = 'password';
+    accMsg(msg, '', false);
+    renderPwView();
+    showToast('Passwort hinterlegt.');
+  }catch(err){
+    accMsg(msg, err.message, true);
+  }finally{
+    btn.disabled = false;
+  }
+});
 document.getElementById('accPwResetMail').addEventListener('click', async (e) => {
   sndClick();
   if(!sb || !currentUser) return;
@@ -7997,6 +8048,7 @@ document.getElementById('pwrClose').addEventListener('click', () => {
 const ABO_MONTHS = [1, 3, 12];
 let aboReqs = new Map();            // id -> Anfrage
 let aboSubs = new Map();            // user_id -> Profil mit Tarif
+let aboLegacy = new Map();          // Anfrage-ID -> alte Freischaltung ohne Laufzeit (Build 22)
 let aboBound = false;
 
 async function aboSendMail(requestId){
@@ -8027,7 +8079,7 @@ function aboUpdateSum(panel){
 }
 
 function renderAboStats(reqs, subs, open){
-  const active = subs.filter(planActive);
+  const active = subs.filter(planActive).concat(Array.from(aboLegacy.values()));
   const plus = active.filter(p => p.plan === 'plus').length;
   const pro = active.filter(p => p.plan === 'pro').length;
   const now = new Date();
@@ -8076,6 +8128,36 @@ function renderAboOpen(open){
     </div>`;
   }).join('');
   list.querySelectorAll('.abo-panel[data-panel="grant"]').forEach(aboUpdateSum);
+}
+
+function renderAboLegacy(){
+  const list = document.getElementById('aboActiveList');
+  if(!aboLegacy.size) return;
+  document.getElementById('aboActiveEmpty').hidden = true;
+  list.insertAdjacentHTML('afterbegin', Array.from(aboLegacy.values()).map(r => {
+    const plan = ACC_PLANS.find(x => x.key === r.plan) || { name: r.plan };
+    return `<div class="abo-row" data-legacy="${r.id}" data-user="${r.user_id}">
+      <div class="abo-row-main">
+        ${aboWho(r)}
+        <span class="acc-badge">${escapeHtml(plan.name)}</span>
+        <span class="abo-until is-soon">freigeschaltet ${fmtDay(r.created_at)} · noch ohne Laufzeit</span>
+        <div class="admin-upgrade-actions">
+          <button type="button" class="btn btn-primary btn-small" data-abo="open-legacy">Laufzeit festlegen</button>
+          <button type="button" class="btn btn-secondary btn-small" data-abo="legacy-end">Beenden</button>
+        </div>
+      </div>
+      <div class="abo-panel" data-panel="legacy" data-plan="${r.plan}" data-user="${r.user_id}" hidden>
+        <p class="abo-panel-label">Laufzeit ab heute</p>
+        ${aboMonthsHtml()}
+        <p class="abo-sum"></p>
+        <div class="abo-panel-actions">
+          <button type="button" class="btn btn-primary" data-abo="legacy-set">Übernehmen</button>
+          <button type="button" class="btn btn-secondary" data-abo="close">Abbrechen</button>
+        </div>
+      </div>
+    </div>`;
+  }).join(''));
+  list.querySelectorAll('.abo-panel[data-panel="legacy"]').forEach(aboUpdateSum);
 }
 
 function renderAboActive(subs){
@@ -8174,6 +8256,17 @@ async function loadAdminAbos(){
   const reqs = reqRes.data || [], subs = subRes.data || [];
   aboReqs = new Map(reqs.map(r => [r.id, r]));
   aboSubs = new Map(subs.map(p => [p.user_id, p]));
+  // Build 22 hat beim Freischalten nur das Einzel-Limit gesetzt - ohne Tarif,
+  // Laufzeit und decided_at. Solche Freischaltungen hier mit anzeigen, damit
+  // sie eine Laufzeit bekommen koennen.
+  const legacy = reqs.filter(r => r.status === 'erledigt' && (r.kind || 'anfrage') === 'anfrage'
+    && !r.months && !r.decided_at && !aboSubs.has(r.user_id));
+  aboLegacy = new Map();
+  if(legacy.length){
+    const { data: lp } = await sb.from('profiles').select('user_id, ai_limit_override, is_admin').in('user_id', legacy.map(r => r.user_id));
+    const byUser = new Map((lp || []).map(p => [p.user_id, p]));
+    legacy.forEach(r => aboLegacy.set(r.id, Object.assign({}, r, { profile: byUser.get(r.user_id) || null })));
+  }
   const open = reqs.filter(r => r.status === 'offen').reverse();
   const done = reqs.filter(r => r.status !== 'offen')
     .sort((a, b) => new Date(b.decided_at || b.created_at) - new Date(a.decided_at || a.created_at));
@@ -8181,6 +8274,7 @@ async function loadAdminAbos(){
   renderAboStats(reqs, subs, open);
   renderAboOpen(open);
   renderAboActive(subs);
+  renderAboLegacy();
   renderAboRevenue(reqs);
   renderAboHistory(done);
   if(!aboBound){ aboBound = true; document.getElementById('aboRoot').addEventListener('click', onAboClick); }
@@ -8203,6 +8297,7 @@ async function onAboClick(e){
   if(act === 'open-grant') return showPanel('grant');
   if(act === 'open-deny'){ showPanel('deny'); row.querySelector('.abo-reason').focus(); return; }
   if(act === 'open-extend') return showPanel('extend');
+  if(act === 'open-legacy') return showPanel('legacy');
   if(act === 'close') return showPanel('');
 
   const lock = (on) => row.querySelectorAll('button, textarea').forEach(b => { b.disabled = on; });
@@ -8234,6 +8329,32 @@ async function onAboClick(e){
         const mailErr = await aboSendMail(r.id);
         if(mailErr) showToast(`Abgelehnt – aber die Mail ging nicht raus: ${mailErr}`, true);
         else showToast(`Abgelehnt – Mail ${reason ? 'mit deinem Grund' : 'mit dem Standardtext'} ist raus.`);
+      }
+    } else if(act === 'legacy-set' || act === 'legacy-end'){
+      const r = aboLegacy.get(row.dataset.legacy);
+      const plan = ACC_PLANS.find(p => p.key === r.plan);
+      const prof = r.profile;
+      const dropOverride = prof && !prof.is_admin && (prof.ai_limit_override === 200 || prof.ai_limit_override === 1000);
+      if(act === 'legacy-set'){
+        const months = +row.querySelector('.abo-panel[data-panel="legacy"] .abo-month.is-on').dataset.m;
+        const until = addMonths(new Date(), months);
+        const upd = { plan: r.plan, plan_until: until.toISOString(), plan_reminded_for: null };
+        if(dropOverride) upd.ai_limit_override = null;
+        const { error: e1 } = await sb.from('profiles').update(upd).eq('user_id', r.user_id);
+        if(e1) throw e1;
+        const { error: e2 } = await sb.from('upgrade_requests').update({ months, price_cents: PLAN_CENTS[r.plan] * months, decided_at: new Date().toISOString() }).eq('id', r.id);
+        if(e2) throw e2;
+        showToast(`${plan.name} läuft jetzt bis ${fmtDay(until)}.`);
+      } else {
+        const ok = await customConfirm('Alte Freischaltung beenden?', `${r.display_name || r.email} ist danach wieder im Gratis-Tarif.${prof && prof.is_admin ? ' (Bei Admin-Konten bleibt das Einzel-Limit unter „Nutzer“ unangetastet.)' : ''}`, 'Beenden');
+        if(!ok) return;
+        if(dropOverride){
+          const { error: e1 } = await sb.from('profiles').update({ ai_limit_override: null }).eq('user_id', r.user_id);
+          if(e1) throw e1;
+        }
+        const { error: e2 } = await sb.from('upgrade_requests').update({ decided_at: r.created_at }).eq('id', r.id);
+        if(e2) throw e2;
+        showToast('Alte Freischaltung beendet.');
       }
     } else if(act === 'resend'){
       const mailErr = await aboSendMail(row.dataset.id);

@@ -478,6 +478,15 @@ Profil, Status und Sync sind die alten - `updateAccountUI`,
   (`lumiere_pw_memo`, nur wenn Build 23 freigegeben ist) und loescht es beim
   Abmelden/Loeschen. Unverschluesselt - das Risiko ist mit dem Nutzer
   besprochen, nicht stillschweigend ausweiten (z.B. nie in die Cloud-Sync).
+  Beim Anmelden ist das Profil noch nicht geladen (isReleased waere auch fuer
+  Admins falsch) - deshalb erst `pwMemoPending`, abgelegt von `flushPwMemo()`
+  in `updateAccountUI`. Fehlt es auf einem Geraet, laesst es sich in Mein
+  Konto einmal eingeben (`accPwMemoForm`, vorher per signInWithPassword geprueft).
+- **Alte Freischaltungen (Build 22)** haben nur `ai_limit_override` gesetzt,
+  ohne Tarif/Laufzeit/`decided_at`. `loadAdminAbos` zeigt sie oben in
+  "Laufende Abos" (`aboLegacy`, "noch ohne Laufzeit") mit "Laufzeit
+  festlegen" (ab heute) oder "Beenden". Das Einzel-Limit von Admin-Konten
+  bleibt dabei immer stehen.
 
 ## Testen mit Freigabe-Gate
 
