@@ -1824,6 +1824,69 @@
   html.pic-open .toast{z-index:75;}
   .pic-review-img{width:84px; height:84px; flex-shrink:0; background:#0a0d13; box-shadow:0 0 0 2px rgba(246,195,92,.25);}
 
+
+  /* Nachrichten (Build 26) */
+  .acc-msg-count{display:inline-block; vertical-align:middle; margin-left:.4rem; padding:.18rem .5rem; border-radius:999px; background:#f6c35c; color:#1a1406; font-family:var(--font-mono); font-size:.6rem; letter-spacing:.08em; text-transform:uppercase;}
+  .acc-inbox{display:flex; flex-direction:column; gap:.5rem;}
+  .inbox-item{display:flex; align-items:flex-start; gap:.8rem; padding:.85rem .9rem; border-radius:14px; background:#0f131b; border:1px solid rgba(255,255,255,.06); transition:opacity .25s var(--ease), transform .25s var(--ease);}
+  .inbox-item.is-new{border-color:rgba(246,195,92,.35); background:linear-gradient(170deg, #1d1a12, #0f131b 70%);}
+  .inbox-item.is-leaving{opacity:0; transform:translateX(12px);}
+  .inbox-dot{flex:0 0 auto; width:10px; height:10px; margin-top:.35rem; border-radius:50%; background:#8fb3e8;}
+  .inbox-item.tone-ok .inbox-dot{background:#6fd49a;}
+  .inbox-item.tone-no .inbox-dot{background:#ff8f98;}
+  .inbox-body{flex:1; min-width:0;}
+  .inbox-title{margin:0; font-weight:600; font-size:.95rem; color:var(--text); line-height:1.35;}
+  .inbox-new{display:inline-block; margin-left:.35rem; padding:.1rem .4rem; border-radius:6px; background:rgba(246,195,92,.16); color:var(--ember-bright); font-family:var(--font-mono); font-size:.58rem; letter-spacing:.1em; text-transform:uppercase; vertical-align:middle;}
+  .inbox-text{margin:.3rem 0 0; font-size:.88rem; color:rgba(246,242,233,.78); line-height:1.5; white-space:pre-line; overflow-wrap:anywhere;}
+  .inbox-meta{margin:.4rem 0 0; font-family:var(--font-mono); font-size:.64rem; letter-spacing:.06em; color:var(--stone);}
+  .inbox-del{flex:0 0 auto; width:36px; height:36px; margin:-.3rem -.3rem 0 0; border:0; border-radius:10px; background:none; color:var(--stone); display:grid; place-items:center; cursor:pointer;}
+  .inbox-del:hover{color:#ff9ba0; background:rgba(239,75,87,.08);}
+  .account-btn{position:relative;}
+  .account-btn-badge{position:absolute; top:-5px; right:-5px; min-width:18px; height:18px; padding:0 5px; border-radius:999px; background:#f6c35c; color:#1a1406; font:700 .62rem/18px var(--font-sans); letter-spacing:0; text-align:center; box-shadow:0 0 0 2px #0f131c, 0 0 10px rgba(246,195,92,.5);}
+  .account-btn-badge[hidden]{display:none;}
+
+  /* Editor: Sperr-Hinweis */
+  .pic-lock{margin:0 0 1rem; padding:1rem 1.1rem; border-radius:14px; background:rgba(239,75,87,.07); border:1px solid rgba(239,75,87,.28); color:#ffc7cc; font-size:.92rem; line-height:1.5;}
+  .pic-lock[hidden]{display:none;}
+
+  /* Admin: Profilbild-Fenster */
+  .pad-box{width:min(720px, 100%);}
+  .pad-imgs{display:flex; flex-wrap:wrap; justify-content:center; gap:1.2rem; margin:1.2rem 0 .4rem;}
+  .pad-tile{margin:0; display:flex; flex-direction:column; align-items:center; gap:.55rem;}
+  .pad-img{width:min(200px, 62vw); height:min(200px, 62vw); border-radius:50%; background:#0a0d13; box-shadow:0 0 0 3px rgba(246,195,92,.2), 0 16px 40px rgba(0,0,0,.4);}
+  .pad-tile.is-pending .pad-img{box-shadow:0 0 0 3px rgba(233,200,120,.75), 0 16px 40px rgba(0,0,0,.4);}
+  @media (max-width:640px){
+    .pad-imgs{gap:1rem .9rem;}
+    .pad-tile:first-child{flex-basis:100%;}
+    .pad-tile:not(:first-child) .pad-img{width:30vw; height:30vw;}
+    .pad-tile:not(:first-child) figcaption{font-size:.58rem;}
+  }
+  .pad-tile figcaption{font-family:var(--font-mono); font-size:.66rem; letter-spacing:.12em; text-transform:uppercase; color:var(--stone);}
+  .pad-tile.is-pending figcaption{color:#e9c878;}
+  .pad-initials{display:grid; place-items:center; font-family:var(--font-serif); font-size:2.6rem; color:var(--ember-bright); background:rgba(246,195,92,.08);}
+  .pad-section{margin-top:1.2rem; padding-top:1.1rem; border-top:1px solid rgba(255,255,255,.07);}
+  .pad-section .acc-input{margin-bottom:.6rem;}
+  .pad-actions{display:flex; flex-wrap:wrap; gap:.5rem; margin-top:.8rem;}
+  .pad-actions .btn{min-height:44px;}
+  .pad-locks{display:flex; flex-wrap:wrap; gap:.6rem 1.6rem; margin-top:1rem;}
+  .pad-switch{display:inline-flex; align-items:center; gap:.65rem; cursor:pointer; font-size:.92rem; color:var(--text); min-height:40px;}
+  .pad-switch input{position:absolute; opacity:0; width:1px; height:1px;}
+  .pad-switch-ui{position:relative; width:44px; height:26px; border-radius:999px; background:rgba(255,255,255,.12); transition:background .2s var(--ease); flex-shrink:0;}
+  .pad-switch-ui::after{content:''; position:absolute; top:3px; left:3px; width:20px; height:20px; border-radius:50%; background:#f6f2e9; transition:transform .2s var(--ease);}
+  .pad-switch input:checked + .pad-switch-ui{background:#d9534f;}
+  .pad-switch input:checked + .pad-switch-ui::after{transform:translateX(18px);}
+  .pad-switch input:focus-visible + .pad-switch-ui{outline:2px solid var(--ember-bright); outline-offset:2px;}
+  .pad-msg-body, .bc-body{margin-top:0;}
+  .pic-review-img{cursor:zoom-in; border:0; padding:0;}
+  button.admin-user-pic{cursor:zoom-in; padding:0;}
+  .pic-gallery{display:grid; grid-template-columns:repeat(auto-fill, minmax(104px, 1fr)); gap:.8rem; margin-top:.6rem;}
+  .pic-gal-item{display:flex; flex-direction:column; align-items:center; gap:.4rem; padding:.7rem .4rem; border-radius:14px; border:1px solid rgba(255,255,255,.07); background:#0f131b; cursor:zoom-in; color:var(--text);}
+  .pic-gal-item:hover{border-color:rgba(246,195,92,.4);}
+  .pic-gal-img{width:72px; height:72px; border-radius:50%; overflow:hidden; display:grid; place-items:center;}
+  .pic-gal-img.pad-initials{font-size:1.4rem;}
+  .pic-gal-name{font-size:.8rem; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .pic-gal-flag{font-family:var(--font-mono); font-size:.56rem; letter-spacing:.08em; text-transform:uppercase; color:#ff9ba0; text-align:center;}
+
   /* Admin: Tarif-Anfragen */
   .admin-upgrade-row{display:flex; align-items:center; flex-wrap:wrap; gap:.6rem 1rem; padding:.85rem 0; border-top:1px solid rgba(255,255,255,.06);}
   .admin-upgrade-row:first-child{border-top:0;}
@@ -3412,6 +3475,7 @@
       <span class="account-dot" id="accountDot" aria-hidden="true"></span>
       <svg class="account-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
       <span class="account-btn-pic" id="accountBtnPic" hidden></span>
+      <span class="account-btn-badge" id="accountBtnBadge" hidden aria-label="Neue Nachrichten"></span>
       <span class="account-btn-label" id="accountBtnLabel">Konto</span>
     </button>
     <button class="menu-btn" id="btnMenu" type="button" aria-expanded="false" aria-label="Menü öffnen">
@@ -3617,6 +3681,7 @@
       <button type="button" class="pic-tab" role="tab" aria-selected="false" data-pic-tab="photo">Foto hochladen</button>
     </div>
 
+    <p class="pic-lock" id="picLockNote" hidden></p>
     <section class="pic-pane pic-pane-avatar" data-pic-pane="avatar">
       <div class="pic-stage">
         <div class="pic-preview" id="picPreview"></div>
@@ -3658,6 +3723,51 @@
       <button type="button" class="pic-link pic-remove" id="picRemove">Profilbild entfernen</button>
       <button type="button" class="btn btn-primary" id="picSave">Avatar speichern</button>
     </footer>
+  </div>
+</div>
+
+<!-- ADMIN: Profilbild eines Kontos gross ansehen, loeschen, sperren, anschreiben (Build 26) -->
+<div class="pic-backdrop" id="picAdminDlg" hidden role="dialog" aria-modal="true" aria-labelledby="padTitle">
+  <div class="pic-box pad-box">
+    <header class="pic-head">
+      <div>
+        <p class="acc-kicker">Admin · Profilbild</p>
+        <h2 class="pic-title" id="padTitle">–</h2>
+        <p class="acc-mail" id="padMail"></p>
+      </div>
+      <button type="button" class="pic-close" id="padClose" aria-label="Schließen">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+      </button>
+    </header>
+    <div class="pad-imgs" id="padImgs"></div>
+    <div class="pad-section" id="padReview" hidden>
+      <p class="abo-panel-label">Wartendes Foto</p>
+      <div class="pad-actions">
+        <button type="button" class="btn btn-primary" data-pad="approve">Freigeben</button>
+        <button type="button" class="btn btn-danger" data-pad="reject">Ablehnen</button>
+      </div>
+    </div>
+    <div class="pad-section">
+      <p class="abo-panel-label">Grund (optional – geht als Nachricht an das Konto)</p>
+      <textarea class="abo-reason" id="padReason" maxlength="400" placeholder="Leer lassen = passender Standardtext"></textarea>
+      <div class="pad-actions">
+        <button type="button" class="btn btn-secondary" data-pad="del-avatar">Avatar löschen</button>
+        <button type="button" class="btn btn-secondary" data-pad="del-photo">Foto löschen</button>
+      </div>
+      <div class="pad-locks">
+        <label class="pad-switch"><input type="checkbox" id="padLockAvatar"><span class="pad-switch-ui" aria-hidden="true"></span><span>Avatar-Baukasten sperren</span></label>
+        <label class="pad-switch"><input type="checkbox" id="padLockPhoto"><span class="pad-switch-ui" aria-hidden="true"></span><span>Foto-Upload sperren</span></label>
+      </div>
+      <p class="acc-hint" id="padLockHint"></p>
+    </div>
+    <div class="pad-section">
+      <p class="abo-panel-label">Nachricht an <span id="padMsgTo"></span></p>
+      <input type="text" class="acc-input acc-input-plain" id="padMsgTitle" maxlength="80" placeholder="Betreff (optional)">
+      <textarea class="abo-reason pad-msg-body" id="padMsgBody" maxlength="1000" placeholder="Deine Nachricht …"></textarea>
+      <div class="pad-actions">
+        <button type="button" class="btn btn-primary" data-pad="send">Nachricht senden</button>
+      </div>
+    </div>
   </div>
 </div>
 <div class="pwr-screen" id="pwResetScreen" hidden role="dialog" aria-modal="true" aria-labelledby="pwrTitle">
@@ -5078,6 +5188,15 @@
         <button type="button" class="btn btn-secondary acc-btn-wide" id="authSignOutBtn">Abmelden</button>
       </section>
 
+      <section class="acc-card" id="accMsgCard" data-build="26" aria-labelledby="accMsgTitle">
+        <div class="acc-card-head">
+          <h2 class="acc-card-title" id="accMsgTitle">Nachrichten <span class="acc-msg-count" id="accMsgCount" hidden></span></h2>
+          <button type="button" class="pic-link" id="accMsgClear" hidden>Alle löschen</button>
+        </div>
+        <div class="acc-inbox" id="accInbox"></div>
+        <p class="acc-hint" id="accInboxEmpty">Noch keine Nachrichten. Hier erscheint alles, was sich an deinem Konto tut – Freigaben, Tarif-Änderungen und Hinweise von uns.</p>
+      </section>
+
       <section class="acc-card acc-danger" aria-labelledby="accDangerTitle">
         <div class="acc-card-head">
           <h2 class="acc-card-title" id="accDangerTitle">Gefahrenzone</h2>
@@ -5260,6 +5379,12 @@
                 <div class="abo-list" id="picReviewList"></div>
                 <p class="admin-empty-note" id="picReviewEmpty" hidden>Keine Fotos zu prüfen.</p>
               </div>
+              <div class="settings-card" data-build="26">
+                <p class="settings-title">🗂️ Alle Profilbilder</p>
+                <p class="settings-desc">Antippen zum Vergrößern, Löschen, Sperren oder Anschreiben.</p>
+                <div class="pic-gallery" id="picGallery"></div>
+                <p class="admin-empty-note" id="picGalleryEmpty" hidden>Noch niemand hat ein Profilbild.</p>
+              </div>
             </div>
 
             <!-- Anfragen & Abos (Build 23): offene Anfragen, laufende Tarife mit
@@ -5319,6 +5444,13 @@
             </div>
 
             <div class="admin-tab-panel" data-admin-panel="users" hidden>
+              <div class="settings-card" data-build="26">
+                <p class="settings-title">✉️ Nachricht an alle</p>
+                <p class="settings-desc">Erscheint bei jedem Konto unter „Mein Konto“ → Nachrichten (mit Hinweis beim nächsten Anmelden). Einzelne Konten schreibst du über das Profilbild in der Liste an.</p>
+                <input type="text" class="acc-input acc-input-plain" id="bcTitle" maxlength="80" placeholder="Betreff, z.B. „Neu: vier Spiele in der Spielhalle“">
+                <textarea class="abo-reason bc-body" id="bcBody" maxlength="1000" placeholder="Deine Nachricht …"></textarea>
+                <div class="pad-actions"><button type="button" class="btn btn-primary" id="bcSend">An alle senden</button></div>
+              </div>
               <div class="settings-card">
                 <p class="settings-title">👥 Nutzerverwaltung</p>
                 <p class="settings-desc">Sperren, entsperren, individuelles KI-Limit setzen.</p>
@@ -5464,7 +5596,7 @@
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="./lumiere-gl.js?v=25" defer></script>
+<script src="./lumiere-gl.js?v=26" defer></script>
 <script>
 /* ============================================================
    WICHTIG: Bei jedem inhaltlichen Deploy hochzaehlen (wie CACHE_NAME
@@ -5475,7 +5607,7 @@
       unten) - neue, noch nicht "veroeffentlichte" Features hinter
       isReleased(N) verstecken; Admins sehen sie trotzdem sofort.
    ============================================================ */
-const APP_VERSION = 25;
+const APP_VERSION = 26;
 
 // Site-weites Feature-Gate: neue, aber noch nicht freigegebene Funktionen
 // hinter isReleased(<APP_VERSION beim Einbau>) verstecken. Admins (echtes
@@ -6826,7 +6958,7 @@ function switchAdminTab(tabKey){
   if(crumb && label) crumb.textContent = label;
   persistLastView('admin', tabKey);
   if(tabKey === 'abos') loadAdminAbos();
-  if(tabKey === 'photos') loadPicReviews();
+  if(tabKey === 'photos'){ loadPicReviews(); loadPicGallery(); }
 }
 document.querySelectorAll('#adminSubnav .admin-nav-item').forEach(btn => {
   btn.addEventListener('click', () => { sndClick(); switchAdminTab(btn.dataset.adminTab); });
@@ -7105,7 +7237,7 @@ function renderFilteredAdminUsers(){
         ? `<span class="pill is-err"><span class="pill-indicator err"></span>Gesperrt</span>`
         : `<span class="pill is-ok"><span class="pill-indicator ok"></span>Aktiv</span>`;
     tr.innerHTML = `
-      <td><span class="admin-user-cell">${picOn() ? `<span class="admin-user-pic${picSource(p) ? ' has-pic' : ''}" aria-hidden="true">${picHTML(p) || escapeHtml(lbInitials(p.display_name || p.email || '?'))}</span>` : ''}<span class="admin-user-name"><span>${name}</span><span>${email}</span></span></span></td>
+      <td><span class="admin-user-cell">${picOn() ? `<button type="button" class="admin-user-pic${picSource(p) ? ' has-pic' : ''}" data-pad-open="${p.user_id}" aria-label="Profilbild von ${name} verwalten">${picHTML(p) || escapeHtml(lbInitials(p.display_name || p.email || '?'))}</button>` : ''}<span class="admin-user-name"><span>${name}</span><span>${email}</span></span></span></td>
       <td>${p.ai_requests_today === null || p.ai_requests_today === undefined ? 0 : p.ai_requests_today}</td>
       <td><input type="number" min="1" class="admin-limit-input" value="${p.ai_limit_override === null || p.ai_limit_override === undefined ? '' : p.ai_limit_override}" placeholder="Standard" aria-label="Eigenes KI-Limit"></td>
       <td>${statusPill}</td>
@@ -7119,12 +7251,15 @@ function renderFilteredAdminUsers(){
             <div class="dd-sep"></div>
             ${email ? `<button type="button" class="dd-item" data-action="copy-email">E-Mail kopieren</button>` : ''}
             <button type="button" class="dd-item" data-action="reset-limit">Limit zurücksetzen</button>
+            ${picOn() ? `<button type="button" class="dd-item" data-action="pic">Profilbild &amp; Nachricht</button>` : ''}
             ${p.is_admin ? '' : `<div class="dd-sep"></div><button type="button" class="dd-item${p.banned ? '' : ' danger'}" data-action="toggle-ban">${p.banned ? 'Entsperren' : 'Konto sperren'}</button>`}
           </div>
         </div>
       </td>`;
 
     tr.querySelector('.admin-limit-input').addEventListener('change', (ev) => saveUserLimit(p.user_id, ev.target.value));
+    const picBtn = tr.querySelector('[data-pad-open]');
+    if(picBtn) picBtn.addEventListener('click', () => openPadDlg(p.user_id));
     tr.querySelectorAll('.dd-item').forEach(item => {
       item.addEventListener('click', () => {
         item.closest('.dd').classList.remove('open');
@@ -7138,6 +7273,8 @@ function renderFilteredAdminUsers(){
           } else showToast('Kopieren nicht möglich.', 'error');
         } else if(action === 'reset-limit'){
           saveUserLimit(p.user_id, '');
+        } else if(action === 'pic'){
+          openPadDlg(p.user_id);
         } else if(action === 'toggle-ban'){
           requestToggleUserBan(p, !p.banned);
         }
@@ -7534,6 +7671,7 @@ function updateAccountUI(){
   updateWelcomeMessage();
   flushPwMemo();
   renderOwnPic();
+  renderInbox();
 }
 
 // Personalisierte Begruessung auf der Hub-Seite - nur fuer eingeloggte User
@@ -7606,6 +7744,7 @@ async function initAuth(){
     }
   }catch(e){ console.error('Auth-Session konnte nicht geladen werden:', e.message); }
   updateAccountUI();
+  if(currentUser) loadInbox(true).then(() => setTimeout(inboxLoginToast, 1200));
   authReady = true;
   if(authRecoveryPending || (AUTH_URL_STATE.recovery && currentUser)) openPasswordResetScreen();
   else if(AUTH_URL_STATE.recovery || AUTH_URL_STATE.error){ clearAuthUrl(); openPasswordResetScreen({ expired: true }); }
@@ -7616,13 +7755,17 @@ async function initAuth(){
       openPasswordResetScreen();
     } else if(event === 'SIGNED_IN' && session && (!currentUser || currentUser.id !== session.user.id)){
       currentUser = session.user;
-      Promise.all([pullCloudData(), loadOrCreateProfile()]).then(updateAccountUI);
+      Promise.all([pullCloudData(), loadOrCreateProfile()]).then(() => {
+        updateAccountUI();
+        loadInbox(true).then(() => setTimeout(inboxLoginToast, 900));
+      });
       updateAccountUI();
       sendSessionHeartbeat();
     } else if(event === 'SIGNED_OUT'){
       currentUser = null;
       currentProfile = null;
       forgetPassword();
+      inbox = [];
       updateAccountUI();
       // Ohne das behielt ein Admin, der sich abmeldet, die Seite offen,
       // obwohl die Wartung laeuft - die Tafel gilt ab jetzt auch fuer ihn.
@@ -7914,6 +8057,7 @@ function openAccountPage(){
   updateAccountUI();
   loadMyUpgradeRequest();
   renderPwView();
+  openInbox();
   window.scrollTo({ top: 0, behavior: 'instant' });
 }
 
@@ -8520,6 +8664,7 @@ async function onAboClick(e){
         const { error: e2 } = await sb.from('upgrade_requests').update({ status: 'erledigt', months, price_cents: PLAN_CENTS[r.plan] * months, decided_at: now }).eq('id', r.id);
         if(e2) throw e2;
         const mailErr = await aboSendMail(r.id);
+        sendUserMessage(r.user_id, 'plan', 'ok', `${plan.name} freigeschaltet`, `Dein Tarif ${plan.name} ist aktiv: ${plan.limit} KI-Anfragen pro Tag, gültig bis ${fmtDay(until)}.`);
         if(mailErr) showToast(`${plan.name} freigeschaltet bis ${fmtDay(until)} – aber die Mail ging nicht raus: ${mailErr}`, true);
         else showToast(`${plan.name} freigeschaltet bis ${fmtDay(until)} – Mail ist raus.`);
       } else {
@@ -8527,6 +8672,7 @@ async function onAboClick(e){
         const { error } = await sb.from('upgrade_requests').update({ status: 'abgelehnt', reason: reason || null, decided_at: now }).eq('id', r.id);
         if(error) throw error;
         const mailErr = await aboSendMail(r.id);
+        sendUserMessage(r.user_id, 'plan', 'no', `Anfrage für ${plan.name} abgelehnt`, reason || ACC_DEFAULT_REJECT);
         if(mailErr) showToast(`Abgelehnt – aber die Mail ging nicht raus: ${mailErr}`, true);
         else showToast(`Abgelehnt – Mail ${reason ? 'mit deinem Grund' : 'mit dem Standardtext'} ist raus.`);
       }
@@ -8544,6 +8690,7 @@ async function onAboClick(e){
         if(e1) throw e1;
         const { error: e2 } = await sb.from('upgrade_requests').update({ months, price_cents: PLAN_CENTS[r.plan] * months, decided_at: new Date().toISOString() }).eq('id', r.id);
         if(e2) throw e2;
+        sendUserMessage(r.user_id, 'plan', 'ok', `${plan.name} bis ${fmtDay(until)}`, `Dein Tarif ${plan.name} hat jetzt eine Laufzeit bis ${fmtDay(until)}.`);
         showToast(`${plan.name} läuft jetzt bis ${fmtDay(until)}.`);
       } else {
         const ok = await customConfirm('Alte Freischaltung beenden?', `${r.display_name || r.email} ist danach wieder im Gratis-Tarif.${prof && prof.is_admin ? ' (Bei Admin-Konten bleibt das Einzel-Limit unter „Nutzer“ unangetastet.)' : ''}`, 'Beenden');
@@ -8554,6 +8701,7 @@ async function onAboClick(e){
         }
         const { error: e2 } = await sb.from('upgrade_requests').update({ decided_at: r.created_at }).eq('id', r.id);
         if(e2) throw e2;
+        sendUserMessage(r.user_id, 'plan', 'info', 'Tarif beendet', 'Dein Konto ist wieder im Gratis-Tarif.');
         showToast('Alte Freischaltung beendet.');
       }
     } else if(act === 'resend'){
@@ -8573,6 +8721,7 @@ async function onAboClick(e){
           status: 'erledigt', kind: 'verlaengerung', months, price_cents: PLAN_CENTS[p.plan] * months, decided_at: new Date().toISOString(),
         });
         if(e2) throw e2;
+        sendUserMessage(p.user_id, 'plan', 'ok', `${plan.name} verlängert`, `Dein Tarif ${plan.name} gilt jetzt bis ${fmtDay(until)}.`);
         showToast(`${plan.name} verlängert bis ${fmtDay(until)}.`);
       } else if(act === 'switch'){
         const to = ACC_PLANS.find(x => x.key === btn.dataset.to);
@@ -8580,12 +8729,14 @@ async function onAboClick(e){
         if(!ok) return;
         const { error } = await sb.from('profiles').update({ plan: to.key }).eq('user_id', p.user_id);
         if(error) throw error;
+        sendUserMessage(p.user_id, 'plan', 'ok', `Tarif gewechselt: ${to.name}`, `Ab jetzt hast du ${to.name} mit ${to.limit} KI-Anfragen pro Tag${p.plan_until ? ', gültig bis ' + fmtDay(p.plan_until) : ''}.`);
         showToast(`Tarif auf ${to.name} gewechselt.`);
       } else if(act === 'end'){
         const ok = await customConfirm('Abo beenden?', `${p.display_name || p.email} ist ab sofort wieder im Gratis-Tarif (${accFreeLimit()} KI-Anfragen pro Tag). Es geht keine Mail raus.`, 'Beenden');
         if(!ok) return;
         const { error } = await sb.from('profiles').update({ plan: null, plan_until: null, plan_reminded_for: null }).eq('user_id', p.user_id);
         if(error) throw error;
+        sendUserMessage(p.user_id, 'plan', 'info', 'Tarif beendet', `Dein Konto ist wieder im Gratis-Tarif mit ${accFreeLimit()} KI-Anfragen pro Tag.`);
         showToast('Abo beendet.');
       }
     }
@@ -8792,8 +8943,8 @@ const PIC_DEFAULT_REJECT = 'Dieses Foto können wir leider nicht verwenden. Lade
 function picOn(){ return isReleased(25); }
 function picSource(p){
   if(!p) return null;
-  if(p.avatar_kind === 'photo' && p.photo_path) return { type: 'photo', url: PIC_PUBLIC + p.photo_path.split('/').map(encodeURIComponent).join('/') };
-  if(p.avatar_config) return { type: 'avatar', cfg: p.avatar_config };
+  if(p.avatar_kind === 'photo' && p.photo_path && !p.photo_locked) return { type: 'photo', url: PIC_PUBLIC + p.photo_path.split('/').map(encodeURIComponent).join('/') };
+  if(p.avatar_config && !p.avatar_locked) return { type: 'avatar', cfg: p.avatar_config };
   return null;
 }
 function picHTML(p, label){
@@ -8872,7 +9023,8 @@ function openPicEditor(){
   cropReset();
   picMsg('', false);
   document.getElementById('picRemove').hidden = !picSource(currentProfile) && !currentProfile.photo_pending_path;
-  picSetTab(currentProfile.avatar_kind === 'photo' ? 'photo' : 'avatar');
+  const lockA = !!currentProfile.avatar_locked, lockP = !!currentProfile.photo_locked;
+  picSetTab((currentProfile.avatar_kind === 'photo' && !lockP) || (lockA && !lockP) ? 'photo' : 'avatar');
   document.getElementById('picEditor').hidden = false;
   document.documentElement.classList.add('pic-open');
 }
@@ -8888,15 +9040,26 @@ function picSetTab(tab){
     b.classList.toggle('is-on', on);
     b.setAttribute('aria-selected', on ? 'true' : 'false');
   });
-  document.querySelectorAll('.pic-pane').forEach(p => { p.hidden = p.dataset.picPane !== tab; });
+  // Vom Admin gesperrt (Build 26): Reiter bleibt waehlbar, zeigt aber nur den Hinweis.
+  const locked = picTabLocked(tab);
+  const note = document.getElementById('picLockNote');
+  note.textContent = locked ? (tab === 'avatar'
+    ? 'Der Avatar-Baukasten ist für dein Konto gesperrt. Den Grund findest du unter „Nachrichten“ in Mein Konto.'
+    : 'Das Hochladen von Fotos ist für dein Konto gesperrt. Den Grund findest du unter „Nachrichten“ in Mein Konto.') : '';
+  note.hidden = !locked;
+  document.querySelectorAll('.pic-pane').forEach(p => { p.hidden = locked || p.dataset.picPane !== tab; });
+  if(locked){ picUpdateSave(); return; }
   if(tab === 'avatar'){ renderPicPreview(); renderPicCats(); renderPicGrid(); }
   else renderPicCurrent();
   picUpdateSave();
 }
+function picTabLocked(tab){
+  return !!currentProfile && isReleased(26) && (tab === 'avatar' ? !!currentProfile.avatar_locked : !!currentProfile.photo_locked);
+}
 function picUpdateSave(){
   const btn = document.getElementById('picSave');
   btn.textContent = pic.tab === 'avatar' ? 'Avatar speichern' : 'Foto speichern';
-  btn.disabled = pic.busy || (pic.tab === 'photo' && !crop.on);
+  btn.disabled = pic.busy || picTabLocked(pic.tab) || (pic.tab === 'photo' && !crop.on);
 }
 function renderPicPreview(){
   document.getElementById('picPreview').innerHTML = avatarSVG(pic.cfg, { label: 'Vorschau deines Avatars' });
@@ -9190,12 +9353,14 @@ async function picApprove(p){
   if(p.photo_path) sb.storage.from('avatars').remove([p.photo_path]).catch(() => {});
   sb.storage.from('avatars-pending').remove([p.photo_pending_path]).catch(() => {});
   picCache.delete(p.user_id);
+  if(!currentUser || p.user_id !== currentUser.id) sendUserMessage(p.user_id, 'photo', 'ok', 'Profilfoto freigegeben', 'Dein neues Foto ist jetzt für alle sichtbar.');
   return upd;
 }
 async function picReject(p, reason){
   const { error } = await sb.from('profiles').update({ photo_status: 'rejected', photo_reason: reason || null, photo_pending_path: null }).eq('user_id', p.user_id);
   if(error) throw error;
   sb.storage.from('avatars-pending').remove([p.photo_pending_path]).catch(() => {});
+  sendUserMessage(p.user_id, 'photo', 'no', 'Profilfoto nicht freigegeben', reason || PIC_DEFAULT_REJECT);
 }
 let picReviews = new Map();
 let picReviewBound = false;
@@ -9229,7 +9394,7 @@ async function loadPicReviewsNow(){
   }
   list.innerHTML = rows.map(r => `<div class="abo-row" data-user="${r.user_id}">
       <div class="abo-row-main">
-        <span class="pic-review-img pic-fill">${urls[r.photo_pending_path] ? `<img src="${urls[r.photo_pending_path]}" alt="">` : ''}</span>
+        <button type="button" class="pic-review-img pic-fill" data-pad-review="${r.user_id}" aria-label="Foto groß ansehen">${urls[r.photo_pending_path] ? `<img src="${urls[r.photo_pending_path]}" alt="">` : ''}</button>
         ${aboWho(r)}
         <span class="abo-until">${r.photo_updated_at ? 'hochgeladen ' + fmtDay(r.photo_updated_at) : ''}${r.photo_path ? ' · ersetzt ein freigegebenes Foto' : ''}</span>
         <div class="admin-upgrade-actions">
@@ -9250,6 +9415,8 @@ async function loadPicReviewsNow(){
   if(!picReviewBound){
     picReviewBound = true;
     document.getElementById('picReviewRoot').addEventListener('click', async (e) => {
+      const big = e.target.closest('[data-pad-review]');
+      if(big){ openPadDlg(big.dataset.padReview, { review: true }); return; }
       const btn = e.target.closest('[data-pic-act]');
       if(!btn) return;
       sndClick();
@@ -9271,6 +9438,329 @@ async function loadPicReviewsNow(){
     });
   }
 }
+
+
+// --- Nachrichten in "Mein Konto" (Build 26) -------------------------------------------
+// Alles, was ein Admin am Konto tut (Freigaben, Tarif, Sperren, eigene Texte),
+// landet als Zeile in user_messages. Erinnerungen vor/nach Ablauf schreibt ein
+// taeglicher pg_cron-Job direkt in der Datenbank.
+const INBOX_KIND = { photo: 'Profilfoto', avatar: 'Avatar', plan: 'Tarif', reminder: 'Tarif', admin: 'Nachricht' };
+let inbox = [];
+let inboxLoadedAt = 0;
+function inboxOn(){ return !!currentUser && isReleased(26); }
+function fmtAgo(iso){
+  const s = Math.max(0, (Date.now() - new Date(iso).getTime()) / 1000);
+  if(s < 60) return 'gerade eben';
+  if(s < 3600) return `vor ${Math.round(s / 60)} Min.`;
+  if(s < 86400) return `vor ${Math.round(s / 3600)} Std.`;
+  const d = Math.round(s / 86400);
+  if(d === 1) return 'gestern';
+  if(d < 7) return `vor ${d} Tagen`;
+  return fmtDay(iso);
+}
+async function loadInbox(force){
+  if(!sb || !currentUser){ inbox = []; renderInbox(); return; }
+  if(!force && Date.now() - inboxLoadedAt < 60000){ renderInbox(); return; }
+  try{
+    const { data, error } = await sb.from('user_messages')
+      .select('id, kind, tone, title, body, created_at, read_at')
+      .eq('user_id', currentUser.id).order('created_at', { ascending: false }).limit(60);
+    if(error) return;
+    inbox = data || [];
+    inboxLoadedAt = Date.now();
+  }catch(e){ return; }
+  renderInbox();
+}
+function renderInbox(keepNew){
+  const on = inboxOn();
+  const unread = on ? inbox.filter(m => !m.read_at).length : 0;
+  const badge = document.getElementById('accountBtnBadge');
+  if(badge){ badge.textContent = unread > 9 ? '9+' : String(unread); badge.hidden = !unread; }
+  const list = document.getElementById('accInbox');
+  if(!list) return;
+  const count = document.getElementById('accMsgCount');
+  count.textContent = unread ? `${unread} neu` : '';
+  count.hidden = !unread;
+  document.getElementById('accMsgClear').hidden = !inbox.length;
+  document.getElementById('accInboxEmpty').hidden = inbox.length > 0;
+  list.innerHTML = inbox.map(m => {
+    const isNew = !m.read_at || (keepNew && keepNew.has(m.id));
+    const tone = ['ok', 'no', 'info'].includes(m.tone) ? m.tone : 'info';
+    return `<article class="inbox-item tone-${tone}${isNew ? ' is-new' : ''}" data-msg="${m.id}">
+      <span class="inbox-dot" aria-hidden="true"></span>
+      <div class="inbox-body">
+        <p class="inbox-title">${escapeHtml(m.title)}${isNew ? ' <span class="inbox-new">Neu</span>' : ''}</p>
+        ${m.body ? `<p class="inbox-text">${escapeHtml(m.body)}</p>` : ''}
+        <p class="inbox-meta">${escapeHtml(INBOX_KIND[m.kind] || 'Hinweis')} · <time datetime="${m.created_at}">${fmtAgo(m.created_at)}</time></p>
+      </div>
+      <button type="button" class="inbox-del" data-msg-del aria-label="Nachricht löschen">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+      </button>
+    </article>`;
+  }).join('');
+}
+// Beim Oeffnen von Mein Konto: Liste zeigen (Neues markiert), dann als gelesen merken.
+async function openInbox(){
+  await loadInbox(true);
+  const fresh = new Set(inbox.filter(m => !m.read_at).map(m => m.id));
+  if(!fresh.size || !inboxOn()) return;
+  const now = new Date().toISOString();
+  inbox.forEach(m => { if(!m.read_at) m.read_at = now; });
+  renderInbox(fresh);
+  try{ await sb.from('user_messages').update({ read_at: now }).eq('user_id', currentUser.id).is('read_at', null); }catch(e){}
+}
+function inboxLoginToast(){
+  if(!inboxOn()) return;
+  const unread = inbox.filter(m => !m.read_at).length;
+  if(!unread) return;
+  const key = 'lumiere_inbox_toast_' + currentUser.id;
+  try{ if(sessionStorage.getItem(key)) return; sessionStorage.setItem(key, '1'); }catch(e){}
+  showToast(unread === 1 ? 'Du hast eine neue Nachricht – in „Mein Konto“.' : `Du hast ${unread} neue Nachrichten – in „Mein Konto“.`, 'info');
+}
+document.getElementById('accInbox').addEventListener('click', async (e) => {
+  const del = e.target.closest('[data-msg-del]');
+  if(!del) return;
+  sndClick();
+  const item = del.closest('[data-msg]');
+  const id = item.dataset.msg;
+  item.classList.add('is-leaving');
+  try{
+    const { error } = await sb.from('user_messages').delete().eq('id', id);
+    if(error) throw error;
+    inbox = inbox.filter(m => m.id !== id);
+    renderInbox();
+  }catch(err){ item.classList.remove('is-leaving'); showToast('Konnte nicht gelöscht werden.', true); }
+});
+document.getElementById('accMsgClear').addEventListener('click', async () => {
+  sndClick();
+  const ok = await customConfirm('Alle Nachrichten löschen?', 'Die Liste ist danach leer. Das lässt sich nicht rückgängig machen.', 'Alle löschen');
+  if(!ok) return;
+  try{
+    const { error } = await sb.from('user_messages').delete().eq('user_id', currentUser.id);
+    if(error) throw error;
+    inbox = [];
+    renderInbox();
+  }catch(err){ showToast('Konnte nicht gelöscht werden.', true); }
+});
+
+// Admin: Nachricht an ein Konto. Fehler (z.B. Tabelle fehlt) halten die
+// eigentliche Aktion nicht auf.
+async function sendUserMessage(userId, kind, tone, title, body){
+  if(!sb || !userId) return false;
+  try{
+    const { error } = await sb.from('user_messages').insert({ user_id: userId, kind, tone, title, body: body || null });
+    if(error){ console.warn('Nachricht nicht gespeichert:', error.message); return false; }
+    if(currentUser && userId === currentUser.id) inboxLoadedAt = 0;
+    return true;
+  }catch(e){ return false; }
+}
+
+// --- Admin: Profilbild eines Kontos gross ansehen, loeschen, sperren, anschreiben ---
+const PAD_DEFAULT = {
+  delAvatar: 'Dein Avatar entsprach nicht unseren Regeln und wurde entfernt. Du kannst dir jederzeit einen neuen bauen.',
+  delPhoto: 'Dein Profilfoto entsprach nicht unseren Regeln und wurde entfernt. Du kannst gern ein anderes hochladen.',
+  lockAvatar: 'Der Avatar-Baukasten ist für dein Konto vorerst gesperrt.',
+  lockPhoto: 'Das Hochladen von Profilfotos ist für dein Konto vorerst gesperrt.',
+};
+const pad = { uid: null, p: null, review: false, busy: false };
+function kindAfterRemoval(p, removed){
+  if(removed === 'avatar') return p.avatar_kind === 'avatar' ? (p.photo_path && !p.photo_locked ? 'photo' : null) : p.avatar_kind;
+  return p.avatar_kind === 'photo' ? (p.avatar_config && !p.avatar_locked ? 'avatar' : null) : p.avatar_kind;
+}
+async function openPadDlg(uid, opts = {}){
+  if(!sb || !currentProfile || !currentProfile.is_admin) return;
+  sndClick();
+  pad.uid = uid; pad.review = !!opts.review;
+  const dlg = document.getElementById('picAdminDlg');
+  document.getElementById('padImgs').innerHTML = '<p class="hint">Lädt …</p>';
+  document.getElementById('padReason').value = '';
+  document.getElementById('padMsgTitle').value = '';
+  document.getElementById('padMsgBody').value = '';
+  dlg.hidden = false;
+  document.documentElement.classList.add('pic-open');
+  await padRefresh();
+}
+function closePadDlg(){
+  document.getElementById('picAdminDlg').hidden = true;
+  if(document.getElementById('picEditor').hidden) document.documentElement.classList.remove('pic-open');
+}
+async function padRefresh(){
+  const { data: p, error } = await sb.from('profiles').select('*').eq('user_id', pad.uid).single();
+  if(error || !p){ document.getElementById('padImgs').innerHTML = `<p class="abo-setup-note">Konto konnte nicht geladen werden${error ? ': ' + escapeHtml(error.message) : ''}.</p>`; return; }
+  pad.p = p;
+  const name = p.display_name || p.email || 'Konto';
+  document.getElementById('padTitle').textContent = name;
+  document.getElementById('padMail').textContent = p.email || '';
+  document.getElementById('padMsgTo').textContent = name;
+  let pending = '';
+  if(p.photo_pending_path){
+    try{
+      const { data } = await sb.storage.from('avatars-pending').createSignedUrl(p.photo_pending_path, 900);
+      if(data && data.signedUrl) pending = data.signedUrl;
+    }catch(e){}
+  }
+  const tiles = [];
+  if(pending) tiles.push(`<figure class="pad-tile is-pending"><span class="pad-img pic-fill"><img src="${pending}" alt=""></span><figcaption>Wartet auf Freigabe</figcaption></figure>`);
+  if(p.photo_path) tiles.push(`<figure class="pad-tile"><span class="pad-img pic-fill"><img src="${picSource(Object.assign({}, p, { avatar_kind: 'photo', photo_locked: false })).url}" alt=""></span><figcaption>Foto${p.avatar_kind === 'photo' ? ' · aktiv' : ''}</figcaption></figure>`);
+  if(p.avatar_config) tiles.push(`<figure class="pad-tile"><span class="pad-img pic-fill">${avatarSVG(p.avatar_config, { label: 'Avatar von ' + name })}</span><figcaption>Avatar${p.avatar_kind !== 'photo' ? ' · aktiv' : ''}</figcaption></figure>`);
+  if(!tiles.length) tiles.push(`<figure class="pad-tile"><span class="pad-img pad-initials">${escapeHtml(lbInitials(name))}</span><figcaption>Kein Profilbild</figcaption></figure>`);
+  document.getElementById('padImgs').innerHTML = tiles.join('');
+  document.getElementById('padReview').hidden = !(pad.review && p.photo_pending_path);
+  document.querySelector('[data-pad="del-avatar"]').disabled = !p.avatar_config;
+  document.querySelector('[data-pad="del-photo"]').disabled = !p.photo_path && !p.photo_pending_path;
+  document.getElementById('padLockAvatar').checked = !!p.avatar_locked;
+  document.getElementById('padLockPhoto').checked = !!p.photo_locked;
+  document.getElementById('padLockHint').textContent = [p.avatar_locked ? 'Avatar-Baukasten gesperrt' : '', p.photo_locked ? 'Foto-Upload gesperrt' : ''].filter(Boolean).join(' · ') || 'Nichts gesperrt';
+}
+async function padRemovePhotoFiles(p){
+  if(p.photo_path) await sb.storage.from('avatars').remove([p.photo_path]).catch(() => {});
+  if(p.photo_pending_path) await sb.storage.from('avatars-pending').remove([p.photo_pending_path]).catch(() => {});
+}
+async function padUpdate(upd){
+  const { error } = await sb.from('profiles').update(upd).eq('user_id', pad.uid);
+  if(error) throw error;
+  picCache.delete(pad.uid);
+  if(currentUser && pad.uid === currentUser.id){ Object.assign(currentProfile, upd); renderOwnPic(); }
+  const cached = (typeof adminUsersCache !== 'undefined' && adminUsersCache) ? adminUsersCache.find(x => x.user_id === pad.uid) : null;
+  if(cached) Object.assign(cached, upd);
+}
+async function padAction(act){
+  if(pad.busy || !pad.p) return;
+  const p = pad.p;
+  const reason = document.getElementById('padReason').value.trim();
+  pad.busy = true;
+  const box = document.getElementById('picAdminDlg');
+  box.querySelectorAll('button, input, textarea').forEach(b => { b.disabled = true; });
+  try{
+    if(act === 'del-avatar'){
+      if(!await customConfirm('Avatar löschen?', `Der Avatar von ${p.display_name || p.email} wird entfernt. Das Konto bekommt eine Nachricht.`, 'Löschen')) return;
+      await padUpdate({ avatar_config: null, avatar_kind: kindAfterRemoval(p, 'avatar') });
+      await sendUserMessage(p.user_id, 'avatar', 'no', 'Avatar entfernt', reason || PAD_DEFAULT.delAvatar);
+      showToast('Avatar gelöscht.');
+    } else if(act === 'del-photo'){
+      if(!await customConfirm('Foto löschen?', `Das Profilfoto von ${p.display_name || p.email} wird gelöscht (auch ein wartendes). Das Konto bekommt eine Nachricht.`, 'Löschen')) return;
+      await padRemovePhotoFiles(p);
+      await padUpdate({ photo_path: null, photo_pending_path: null, photo_status: null, photo_reason: null, avatar_kind: kindAfterRemoval(p, 'photo') });
+      await sendUserMessage(p.user_id, 'photo', 'no', 'Profilfoto entfernt', reason || PAD_DEFAULT.delPhoto);
+      showToast('Foto gelöscht.');
+    } else if(act === 'lock-avatar' || act === 'unlock-avatar'){
+      const lock = act === 'lock-avatar';
+      if(lock){
+        await padUpdate({ avatar_locked: true, avatar_config: null, avatar_kind: kindAfterRemoval(p, 'avatar') });
+        await sendUserMessage(p.user_id, 'avatar', 'no', 'Avatar-Baukasten gesperrt', reason || PAD_DEFAULT.lockAvatar);
+      } else {
+        await padUpdate({ avatar_locked: false });
+        await sendUserMessage(p.user_id, 'avatar', 'ok', 'Avatar-Baukasten wieder frei', reason || 'Du kannst dir wieder einen eigenen Avatar bauen.');
+      }
+      showToast(lock ? 'Avatar gesperrt – ein vorhandener wurde entfernt.' : 'Avatar wieder erlaubt.');
+    } else if(act === 'lock-photo' || act === 'unlock-photo'){
+      const lock = act === 'lock-photo';
+      if(lock){
+        await padRemovePhotoFiles(p);
+        await padUpdate({ photo_locked: true, photo_path: null, photo_pending_path: null, photo_status: null, photo_reason: null, avatar_kind: kindAfterRemoval(p, 'photo') });
+        await sendUserMessage(p.user_id, 'photo', 'no', 'Foto-Upload gesperrt', reason || PAD_DEFAULT.lockPhoto);
+      } else {
+        await padUpdate({ photo_locked: false });
+        await sendUserMessage(p.user_id, 'photo', 'ok', 'Foto-Upload wieder frei', reason || 'Du kannst wieder ein eigenes Profilfoto hochladen.');
+      }
+      showToast(lock ? 'Fotos gesperrt – ein vorhandenes wurde entfernt.' : 'Fotos wieder erlaubt.');
+    } else if(act === 'approve'){
+      await picApprove(p);
+      showToast('Foto freigegeben.');
+    } else if(act === 'reject'){
+      await picReject(p, reason);
+      showToast('Foto abgelehnt.');
+    } else if(act === 'send'){
+      const title = document.getElementById('padMsgTitle').value.trim() || 'Nachricht von Lumière';
+      const body = document.getElementById('padMsgBody').value.trim();
+      if(!body){ showToast('Bitte eine Nachricht eingeben.', true); return; }
+      if(!await sendUserMessage(p.user_id, 'admin', 'info', title, body)) throw new Error('Nachricht konnte nicht gespeichert werden (SQL aus Build 26 ausgeführt?)');
+      document.getElementById('padMsgTitle').value = '';
+      document.getElementById('padMsgBody').value = '';
+      showToast('Nachricht gesendet.');
+    }
+    document.getElementById('padReason').value = '';
+    await padRefresh();
+    loadPicReviews();
+    loadPicGallery();
+    if(typeof renderFilteredAdminUsers === 'function') renderFilteredAdminUsers();
+  }catch(err){
+    showToast('Konnte nicht gespeichert werden: ' + (err.message || err), true);
+  }finally{
+    pad.busy = false;
+    box.querySelectorAll('button, input, textarea').forEach(b => { b.disabled = false; });
+    if(pad.p){
+      document.querySelector('[data-pad="del-avatar"]').disabled = !pad.p.avatar_config;
+      document.querySelector('[data-pad="del-photo"]').disabled = !pad.p.photo_path && !pad.p.photo_pending_path;
+      document.getElementById('padLockAvatar').checked = !!pad.p.avatar_locked;
+      document.getElementById('padLockPhoto').checked = !!pad.p.photo_locked;
+    }
+  }
+}
+document.getElementById('picAdminDlg').addEventListener('click', (e) => {
+  if(e.target.id === 'picAdminDlg' || e.target.closest('#padClose')){ sndClick(); closePadDlg(); return; }
+  const b = e.target.closest('[data-pad]');
+  if(b){ sndClick(); padAction(b.dataset.pad); }
+});
+document.getElementById('padLockAvatar').addEventListener('change', (e) => { e.target.checked = !e.target.checked; padAction(e.target.checked ? 'unlock-avatar' : 'lock-avatar'); });
+document.getElementById('padLockPhoto').addEventListener('change', (e) => { e.target.checked = !e.target.checked; padAction(e.target.checked ? 'unlock-photo' : 'lock-photo'); });
+document.addEventListener('keydown', (e) => {
+  if(e.key === 'Escape' && !document.getElementById('picAdminDlg').hidden && !document.getElementById('modalBackdrop').classList.contains('open')) closePadDlg();
+});
+
+// Uebersicht aller Profilbilder (Reiter "Profilfotos").
+let picGalleryBound = false;
+async function loadPicGalleryNow(){
+  if(!sb || !currentProfile || !currentProfile.is_admin) return;
+  const grid = document.getElementById('picGallery');
+  if(!grid) return;
+  const { data, error } = await sb.from('profiles')
+    .select('user_id, email, display_name, avatar_kind, avatar_config, photo_path, photo_pending_path, avatar_locked, photo_locked')
+    .or('avatar_config.not.is.null,photo_path.not.is.null,photo_pending_path.not.is.null,avatar_locked.eq.true,photo_locked.eq.true')
+    .order('display_name', { ascending: true }).limit(300);
+  const empty = document.getElementById('picGalleryEmpty');
+  if(error){ grid.innerHTML = ''; empty.textContent = 'Konnte nicht geladen werden (SQL aus Build 26 ausgeführt?).'; empty.hidden = false; return; }
+  const rows = data || [];
+  empty.textContent = 'Noch niemand hat ein Profilbild.';
+  empty.hidden = rows.length > 0;
+  grid.innerHTML = rows.map(p => {
+    const name = p.display_name || p.email || 'Konto';
+    const pic = picHTML(p);
+    const flags = [p.photo_pending_path ? 'wartet' : '', p.avatar_locked ? 'Avatar gesperrt' : '', p.photo_locked ? 'Foto gesperrt' : ''].filter(Boolean);
+    return `<button type="button" class="pic-gal-item" data-pad-open="${p.user_id}" aria-label="Profilbild von ${escapeHtml(name)} verwalten">
+      <span class="pic-gal-img${pic ? '' : ' pad-initials'}">${pic || escapeHtml(lbInitials(name))}</span>
+      <span class="pic-gal-name">${escapeHtml(name)}</span>
+      ${flags.length ? `<span class="pic-gal-flag">${escapeHtml(flags.join(' · '))}</span>` : ''}
+    </button>`;
+  }).join('');
+  if(!picGalleryBound){
+    picGalleryBound = true;
+    grid.addEventListener('click', (e) => { const b = e.target.closest('[data-pad-open]'); if(b) openPadDlg(b.dataset.padOpen); });
+  }
+}
+const loadPicGallery = dedupeAsync(loadPicGalleryNow);
+
+// Rundnachricht an alle Konten.
+document.getElementById('bcSend').addEventListener('click', async () => {
+  sndClick();
+  const title = document.getElementById('bcTitle').value.trim();
+  const body = document.getElementById('bcBody').value.trim();
+  if(!title || !body){ showToast('Bitte Betreff und Text eingeben.', true); return; }
+  const n = (typeof adminUsersCache !== 'undefined' && adminUsersCache) ? adminUsersCache.length : 0;
+  if(!await customConfirm('An alle senden?', `„${title}“ geht an ${n ? n + ' Konten' : 'alle Konten'} und erscheint dort unter „Mein Konto“ → Nachrichten.`, 'Senden')) return;
+  const btn = document.getElementById('bcSend');
+  btn.disabled = true;
+  try{
+    const { data, error } = await sb.rpc('send_message_to_all', { p_title: title, p_body: body });
+    if(error) throw error;
+    document.getElementById('bcTitle').value = '';
+    document.getElementById('bcBody').value = '';
+    inboxLoadedAt = 0;
+    showToast(`Nachricht an ${data} Konten gesendet.`);
+  }catch(err){
+    showToast('Konnte nicht gesendet werden: ' + (err.message || err), true);
+  }finally{ btn.disabled = false; }
+});
 
 // --- Einstellungen, Kalender & Tagesfortschritt: Standardwerte & Migration ---
 const DEFAULT_SETTINGS = {

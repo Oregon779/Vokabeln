@@ -543,6 +543,42 @@ Profil, Status und Sync sind die alten - `updateAccountUI`,
 - Falle: im zweispaltigen Editor braucht jede Spalte `min-width:0`, sonst
   macht die Chip-Reihe das Raster auf dem Handy breiter als den Bildschirm.
 
+## Nachrichten, Sperren und Profilbild-Verwaltung (ab Build 26)
+
+- **Nachrichten** (`user_messages`: kind photo/avatar/plan/reminder/admin,
+  tone ok/no/info = Farbe des Punkts, `read_at`, `dedupe`). Nutzer duerfen
+  nur lesen, loeschen und `read_at` setzen (Spalten-Grant), schreiben darf
+  nur der Admin. Karte `#accMsgCard` ganz unten in Mein Konto vor der
+  Gefahrenzone (`loadInbox`/`renderInbox`); `openInbox()` beim Oeffnen der
+  Seite setzt alles auf gelesen - die frisch gelesenen bleiben bis zum
+  naechsten Laden hervorgehoben. Ungelesene: Zahl am Personen-Symbol
+  (`#accountBtnBadge`) und einmal je Sitzung ein Hinweis nach dem Anmelden
+  (`inboxLoginToast`, sessionStorage). Bleiben, bis der Nutzer sie loescht.
+- **Wer schreibt:** `sendUserMessage()` aus dem Client bei Foto freigegeben/
+  abgelehnt, Tarif freigeschaltet/abgelehnt/verlaengert/gewechselt/beendet,
+  Loeschen/Sperren/Entsperren und "Nachricht senden". Schlaegt das Speichern
+  fehl, laeuft die eigentliche Aktion trotzdem durch. Rundnachricht an alle:
+  RPC `send_message_to_all`. Erinnerungen ("laeuft bald ab", "abgelaufen")
+  schreibt der pg_cron-Job `lumiere-nachrichten` rein in SQL, doppelt
+  geschuetzt ueber `dedupe` + Unique-Index. Die Brevo-Mails aus Build 23
+  laufen unveraendert daneben.
+- **Sperren je Konto, getrennt:** `profiles.avatar_locked` / `photo_locked`.
+  Sperren entfernt das Vorhandene sofort (Avatar-Bauplan bzw. Foto samt
+  wartendem Foto und Dateien); `kindAfterRemoval` stellt die Anzeige auf das
+  Uebrige um. Im Editor zeigt der gesperrte Reiter `#picLockNote` statt der
+  Bedienung (`picTabLocked`), `picSource` zeigt Gesperrtes nie an. Serverseitig
+  halten `protect_admin_fields`, `public_avatars` und die Storage-Policy
+  dasselbe fest.
+- **Admin-Fenster** `#picAdminDlg` (`openPadDlg(uid, {review})`): grosse
+  Bilder (wartend / Foto / Avatar), Freigeben/Ablehnen (nur aus der
+  Pruefliste), Loeschen, Sperr-Schalter, Einzelnachricht. Ein Grund-Feld fuer
+  alles; leer = `PAD_DEFAULT`. Erreichbar ueber das Bild in der Pruefliste,
+  das Bild in der Nutzerliste (bzw. "Profilbild & Nachricht" im Menue) und die
+  Uebersicht "Alle Profilbilder" (`loadPicGallery`) im Reiter Profilfotos.
+  Hochkant bleibt nur das erste Bild gross, die anderen stehen klein daneben.
+- SQL: `supabase/build26.sql`. Alles haengt an `isReleased(26)` bzw.
+  `data-build="26"`.
+
 ## Testen mit Freigabe-Gate
 
 Lokal gibt es kein Supabase, also ist niemand Admin und alle Build-14-Teile
