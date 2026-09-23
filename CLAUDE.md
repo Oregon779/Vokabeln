@@ -415,6 +415,41 @@ darf auf die Seite.)
 - Die Tastatur von Mot du jour ist echtes HTML (`.mdj-kb`) unter der Buehne -
   im skalierten Canvas waeren die Tasten zu klein. `stop()` entfernt sie.
 
+## Mein Konto, Tarife und der Passwort-Link (ab Build 22)
+
+Ohne Freigabe-Gate gebaut (Umgestaltung - der Nutzer pullt nach Abnahme der
+Screenshots). Das Anmelde-Fenster ist nur noch zum Anmelden/Registrieren da;
+angemeldet fuehrt `openAccountModal()` auf die Seite `view-account`
+(`openAccountPage()`, Menuepunkt 10, Personen-Symbol oben rechts). Die IDs von
+Profil, Status und Sync sind die alten - `updateAccountUI`,
+`refreshAccountStatus`, `updateSyncStatusUI` laufen unveraendert darauf.
+
+- **Passwort-Link aus der Mail:** supabase-js wertet `#access_token=...&type=
+  recovery` schon beim Erzeugen des Clients aus und meldet `PASSWORD_RECOVERY`
+  per setTimeout. `initAuth()` meldete seinen Listener erst nach mehreren
+  Netzabfragen an - das Ereignis war dann vorbei, der Link "tat nichts". Jetzt:
+  `AUTH_URL_STATE` liest den Anhang VOR `createClient`, ein Listener direkt
+  nach dem Client faengt das Ereignis, `initAuth` oeffnet danach
+  `openPasswordResetScreen()` (eigene Vollbildseite `#pwResetScreen`, z 9000,
+  auch ueber der Wartungstafel). Abgelaufener Link (`#error_code=otp_expired`)
+  oder ungueltige Sitzung: dieselbe Seite mit "Neuen Link schicken".
+- In Supabase muss unter Auth -> URL Configuration die Domain als Redirect-URL
+  stehen, sonst landet der Link auf der Site-URL.
+- **Auge:** jedes Passwortfeld traegt `<button class="pw-eye" data-pw-toggle>`
+  im selben `.acc-field`/`.auth-field` wie das Feld; ein einziger delegierter
+  Klick-Handler schaltet um.
+- **Passwort aendern:** prueft das aktuelle Passwort per `signInWithPassword`,
+  erst dann `updateUser({ password })`.
+- **Tarife** (`ACC_PLANS`): Gratis = `site_settings.ai_daily_limit`, Plus 200
+  (2,99 EUR), Pro 1000 (5,99 EUR). Kein Bezahlsystem: "anfragen" schreibt in
+  `upgrade_requests` (eine offene Anfrage je Konto, Unique-Index), der Admin
+  schaltet unter Nutzer -> "Tarif-Anfragen" frei - das setzt
+  `profiles.ai_limit_override`. Der aktuelle Tarif ergibt sich allein aus dem
+  wirksamen Limit (`accCurrentPlan`).
+- Website-Kapazitaet sieht nur noch der Admin (`#accCapacityRow`).
+- Alles deckend (#141922): das alte Fenster war halbtransparent, auf dem Handy
+  schien die Startseite quer durch den Text.
+
 ## Testen mit Freigabe-Gate
 
 Lokal gibt es kein Supabase, also ist niemand Admin und alle Build-14-Teile
@@ -439,6 +474,11 @@ Zwei Fallen, die schon einmal Zeit gekostet haben:
 - `overflow-x` auf `<body>` zwingt `overflow-y` auf `auto`. Damit wird
   `<body>` zum Scrollcontainer und jedes `position:sticky` klebt nicht mehr.
   Die Sperre gehoert auf `<html>`.
+- Das reicht Mobil-Browsern aber nicht: ragt etwas (die Turm-Karten per
+  3D-Transform) ueber den Rand, machen sie die Seite breiter und zoomen
+  heraus - Kopfleiste und Fenster waren rechts angeschnitten. Deshalb
+  `.view-cine{overflow-x:clip}` (clip, nicht hidden: kein Scrollcontainer,
+  sticky bleibt).
 - Der Kaertchen-Stapel steht in einem `perspective`-Container. Alle Kaertchen
   liegen hinter z=0, der Container selbst davor - ohne
   `pointer-events:none` auf dem Container faengt er jeden Klick ab.

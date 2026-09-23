@@ -1433,11 +1433,6 @@
      anderer Stelle im Auftritt bereits als "richtig premium, nicht grell"
      erprobt - eine zusaetzliche eigene Variante hier wirkte kraeftiger/
      kontrastreicher als der Rest der Seite. */
-  /* Schliessen/Abmelden mittig statt rechtsbuendig - in der Kontouebersicht
-     gibt es (anders als bei Anmelden/Registrieren) kein flex:1-Element, das
-     den Rest der Zeile fuellt, dadurch wirkten beide Buttons an den rechten
-     Rand gedrueckt. */
-  #authLoggedInView .modal-actions{ justify-content:center; }
   .auth-footnote{
     display:flex; align-items:center; justify-content:center; gap:.4rem; margin:1.2rem 0 0; padding-top:1rem;
     border-top:1px solid var(--border-solid); font-family:var(--font-mono); font-size:.62rem; letter-spacing:.06em; color:var(--stone); text-align:center;
@@ -1535,10 +1530,152 @@
     background:transparent; border-color:rgba(239,68,68,.4); color:#ff9ba0; box-shadow:none;
   }
   .auth-modal-box .btn-danger:hover{ background:rgba(239,68,68,.1); color:#ffb3b8; border-color:rgba(239,68,68,.7); }
-  .auth-admin-tag, #authNameSaveBtn{
+  .auth-admin-tag{
     background:linear-gradient(120deg, var(--gold-bright), var(--ember-bright) 45%, var(--pop) 100%) !important;
     border-color:rgba(246,195,92,.4) !important; color:#1c1207 !important; box-shadow:none !important;
   }
+
+
+  /* ---------------------------------------------------------------------
+     Mein Konto (Build 22) - ruhig, deckend, grosse Abstaende. Alle Flaechen
+     sind undurchsichtig: das alte Pop-up war halbtransparent, auf dem Handy
+     schien die Startseite quer durch den Text.
+     --------------------------------------------------------------------- */
+  .acc-view{padding-top:.4rem;}
+  .acc-wrap{max-width:760px; margin:0 auto; display:flex; flex-direction:column; gap:1rem;}
+  .acc-hero{
+    display:flex; align-items:center; gap:1.2rem; padding:1.6rem 1.5rem; border-radius:22px;
+    background:linear-gradient(160deg, #1b202c 0%, #12161f 100%); border:1px solid var(--border-solid);
+    box-shadow:0 10px 30px rgba(0,0,0,.25);
+  }
+  .acc-avatar{
+    flex:0 0 auto; width:68px; height:68px; border-radius:50%; display:grid; place-items:center;
+    font-family:var(--font-serif); font-size:1.55rem; font-weight:600; color:#1a1406;
+    background:linear-gradient(135deg, #ffe2a0, #d9a548); box-shadow:0 0 0 4px rgba(246,195,92,.12);
+  }
+  .acc-id{min-width:0;}
+  .acc-kicker{font-family:var(--font-mono); font-size:.66rem; letter-spacing:.18em; text-transform:uppercase; color:var(--ember-dim); margin:0 0 .35rem;}
+  .acc-name{font-family:var(--font-serif); font-style:italic; font-weight:600; font-size:clamp(1.6rem, 5.4vw, 2.3rem); line-height:1.08; margin:0; color:var(--text); overflow-wrap:anywhere;}
+  .acc-mail{margin:.3rem 0 0; color:var(--stone); font-size:.93rem; overflow-wrap:anywhere;}
+  .acc-badges{display:flex; flex-wrap:wrap; align-items:center; gap:.45rem; margin-top:.75rem;}
+  .acc-badge{font-family:var(--font-mono); font-size:.62rem; letter-spacing:.14em; text-transform:uppercase; padding:.32rem .65rem; border-radius:999px; border:1px solid rgba(246,195,92,.35); color:var(--ember-bright);}
+  .acc-badge-admin{background:rgba(246,195,92,.12);}
+  .acc-since{font-size:.82rem; color:var(--stone);}
+
+  .acc-card{padding:1.4rem 1.4rem 1.5rem; border-radius:20px; background:#141922; border:1px solid var(--border-solid);}
+  .acc-card-head{display:flex; align-items:baseline; justify-content:space-between; flex-wrap:wrap; gap:.3rem 1rem; margin-bottom:.6rem;}
+  .acc-card-title{font-family:var(--font-serif); font-weight:600; font-size:1.3rem; margin:0; color:var(--text); letter-spacing:-.01em;}
+  .acc-card-note{margin:0; font-size:.8rem; color:var(--stone);}
+  .acc-text{margin:0 0 1rem; color:rgba(246,242,233,.78); line-height:1.6; font-size:.95rem;}
+  .acc-hint{margin:.55rem 0 0; font-size:.84rem; color:var(--stone); line-height:1.5;}
+  .acc-label{display:block; font-family:var(--font-mono); font-size:.64rem; letter-spacing:.15em; text-transform:uppercase; color:var(--stone); margin:1.05rem 0 .45rem;}
+  .acc-form .acc-label:first-child{margin-top:.2rem;}
+  .acc-field{position:relative;}
+  .acc-row{display:flex; gap:.6rem; align-items:stretch;}
+  .acc-row .acc-field{flex:1; min-width:0;}
+  .acc-input{
+    width:100%; box-sizing:border-box; height:52px; padding:0 3.1rem 0 1rem; border-radius:13px;
+    border:1px solid rgba(255,255,255,.1); background:#0d1118; color:var(--text);
+    font-size:1rem; font-family:var(--font-sans); transition:border-color .2s var(--ease), box-shadow .2s var(--ease);
+  }
+  .acc-input-plain, #authDisplayNameEdit{padding-right:1rem;}
+  .acc-input::placeholder{color:rgba(167,156,136,.55);}
+  .acc-input:focus{outline:none; border-color:var(--ember-bright); box-shadow:0 0 0 3px rgba(246,195,92,.16);}
+  .acc-btn{flex:0 0 auto; min-height:52px; padding:0 1.2rem;}
+  .acc-btn-wide{width:100%; min-height:52px; margin-top:1.2rem;}
+  .acc-saved{position:absolute; right:.9rem; top:50%; transform:translateY(-50%); display:inline-flex; align-items:center; gap:.3rem; font-size:.78rem; color:var(--success); opacity:0; transition:opacity .25s var(--ease);}
+  .acc-saved.is-visible{opacity:1;}
+  .acc-msg{margin:.9rem 0 0; padding:.7rem .9rem; border-radius:11px; font-size:.9rem; line-height:1.45; background:rgba(74,222,128,.08); border:1px solid rgba(74,222,128,.3); color:#bff5d0;}
+  .acc-msg.is-error{background:rgba(239,75,87,.08); border-color:rgba(239,75,87,.35); color:#ffc7cc;}
+
+  /* Auge zum Anzeigen - eine grosse Tippflaeche, auf jedem Passwortfeld. */
+  .pw-eye{
+    position:absolute; right:.3rem; top:50%; transform:translateY(-50%); width:44px; height:44px; padding:0;
+    border:0; border-radius:10px; background:none; color:var(--stone); display:grid; place-items:center; cursor:pointer;
+  }
+  .pw-eye:hover, .pw-eye[aria-pressed="true"]{color:var(--ember-bright);}
+  .pw-eye:focus-visible{outline:2px solid var(--ember-bright); outline-offset:-2px;}
+  .pw-eye svg{width:19px; height:19px;}
+
+  .acc-strength{display:flex; align-items:center; gap:.7rem; margin-top:.55rem;}
+  .acc-strength-track{flex:1; display:grid; grid-template-columns:repeat(3,1fr); gap:.3rem;}
+  .acc-strength-track span{height:4px; border-radius:4px; background:rgba(255,255,255,.08); transition:background .25s var(--ease);}
+  .acc-strength[data-score="1"] .acc-strength-track span:nth-child(-n+1){background:#e58a5c;}
+  .acc-strength[data-score="2"] .acc-strength-track span:nth-child(-n+2){background:#e9c878;}
+  .acc-strength[data-score="3"] .acc-strength-track span{background:#6fd49a;}
+  .acc-strength-label{font-family:var(--font-mono); font-size:.64rem; letter-spacing:.1em; text-transform:uppercase; color:var(--stone); min-width:4.5em; text-align:right;}
+
+  .acc-usage{display:flex; align-items:baseline; flex-wrap:wrap; gap:.2rem .6rem;}
+  .acc-usage-num{font-family:var(--font-serif); font-size:2.4rem; font-weight:600; color:var(--text); line-height:1;}
+  .acc-usage-of{color:var(--stone); font-size:.9rem;}
+  .acc-usage-small .acc-usage-num{font-size:1.5rem;}
+  .acc-meter{height:8px; border-radius:99px; background:rgba(255,255,255,.07); overflow:hidden; margin:.8rem 0 0;}
+  .acc-meter > div{height:100%; width:0; border-radius:inherit; background:linear-gradient(90deg, #b8862f, #f6c35c); transition:width .6s var(--ease);}
+  .acc-meter-alt > div{background:linear-gradient(90deg, #4a6fa5, #8fb3e8);}
+  .acc-admin-only{margin-top:1.3rem; padding-top:1.1rem; border-top:1px dashed rgba(255,255,255,.08);}
+
+  .acc-plans{display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:.75rem; margin-top:.4rem;}
+  @media (max-width:680px){ .acc-plans{grid-template-columns:1fr;} }
+  .acc-plan{
+    position:relative; display:flex; flex-direction:column; padding:1.2rem 1.1rem 1.1rem; border-radius:16px;
+    background:#0f131b; border:1px solid rgba(255,255,255,.08);
+  }
+  .acc-plan.is-featured{background:linear-gradient(170deg, #211d13 0%, #10141c 70%); border-color:rgba(246,195,92,.3);}
+  .acc-plan.is-current{border-color:rgba(246,195,92,.65); box-shadow:inset 0 0 0 1px rgba(246,195,92,.3);}
+  .acc-plan-tag{position:absolute; top:-.6rem; right:1rem; font-family:var(--font-mono); font-size:.58rem; letter-spacing:.14em; text-transform:uppercase; padding:.22rem .55rem; border-radius:999px; background:#f6c35c; color:#1a1406;}
+  .acc-plan-name{font-family:var(--font-serif); font-style:italic; font-weight:600; font-size:1.35rem; color:var(--text); margin:0;}
+  .acc-plan-price{margin:.35rem 0 0; font-family:var(--font-serif); font-size:1.7rem; font-weight:600; color:var(--ember-bright); line-height:1.1;}
+  .acc-plan-price small{font-family:var(--font-sans); font-size:.8rem; font-weight:400; color:var(--stone);}
+  .acc-plan-limit{margin:.55rem 0 0; font-size:.95rem; color:var(--text);}
+  .acc-plan-limit strong{color:var(--ember-bright);}
+  .acc-plan ul{list-style:none; margin:.7rem 0 1rem; padding:0; display:flex; flex-direction:column; gap:.35rem; font-size:.86rem; color:rgba(246,242,233,.72);}
+  .acc-plan li{display:flex; gap:.45rem; line-height:1.4;}
+  .acc-plan li::before{content:'✓'; color:var(--ember-bright); flex:0 0 auto;}
+  .acc-plan .btn{margin-top:auto; width:100%; min-height:46px;}
+  .acc-plan-state{margin-top:auto; text-align:center; font-family:var(--font-mono); font-size:.68rem; letter-spacing:.12em; text-transform:uppercase; color:var(--stone); padding:.85rem 0 .2rem;}
+  .acc-plan-state.is-current{color:var(--ember-bright);}
+  .acc-plans-foot{margin-top:1rem;}
+
+  .acc-sync{display:flex; align-items:center; gap:.5rem; margin:-.3rem 0 .2rem; font-size:.86rem; color:var(--stone);}
+  .acc-sync-dot{width:8px; height:8px; border-radius:50%; background:var(--success); box-shadow:0 0 8px rgba(74,222,128,.6);}
+  .acc-danger{border-color:rgba(239,75,87,.3); background:#18131a;}
+  .acc-danger .acc-card-title{color:#ffb3ba;}
+  .acc-foot{margin:.4rem 0 1.5rem; text-align:center; font-family:var(--font-mono); font-size:.64rem; letter-spacing:.12em; text-transform:uppercase; color:rgba(167,156,136,.7);}
+  @media (max-width:520px){
+    .acc-hero{padding:1.3rem 1.1rem; gap:1rem;}
+    .acc-avatar{width:58px; height:58px; font-size:1.3rem;}
+    .acc-card{padding:1.2rem 1.05rem 1.3rem;}
+    .acc-row{flex-direction:column;}
+    .acc-btn{min-height:48px;}
+  }
+
+  /* Neues Passwort: ruhige Vollbildseite ueber allem. */
+  .pwr-screen{position:fixed; inset:0; z-index:9000; overflow-y:auto; background:radial-gradient(120% 80% at 50% 0%, #1a1f2b 0%, #0c0f16 70%);}
+  .pwr-screen[hidden]{display:none;}
+  .pwr-inner{max-width:440px; margin:0 auto; padding:max(2.5rem, env(safe-area-inset-top)) 1.3rem 2.5rem;}
+  .pwr-mark{font-family:var(--font-serif); font-style:italic; font-weight:600; font-size:1.3rem; color:var(--ember-bright); margin:0 0 2.2rem; text-align:center;}
+  .pwr-title{font-family:var(--font-serif); font-weight:600; font-size:clamp(1.8rem, 7vw, 2.3rem); line-height:1.1; margin:0 0 .6rem; color:var(--text);}
+  .pwr-sub{color:rgba(246,242,233,.72); line-height:1.55; margin:0 0 1.2rem; overflow-wrap:anywhere;}
+  .pwr-close{display:block; margin:1.6rem auto 0; background:none; border:0; color:var(--stone); font-size:.9rem; cursor:pointer; padding:.6rem;}
+  .pwr-close:hover{color:var(--ember-bright);}
+
+  /* Anmelde-Fenster (Build 22): deckend statt halbtransparent, ruhiger. */
+  .auth-modal-box{background:#141922; -webkit-backdrop-filter:none; backdrop-filter:none; max-height:calc(100dvh - 2rem); overflow-y:auto;}
+  #authModalBackdrop{background:rgba(6,8,13,.86);}
+  .auth-modal-box .modal-input{height:50px; font-size:1rem; background:#0d1118;}
+  .auth-modal-box #authPassword{padding-right:3.1rem;}
+  html.pwr-open{overflow:hidden;}
+  .auth-modal-box h3::before{display:none;}
+  .auth-modal-box .pw-eye{right:.15rem;}
+
+  /* Admin: Tarif-Anfragen */
+  .admin-upgrade-row{display:flex; align-items:center; flex-wrap:wrap; gap:.6rem 1rem; padding:.85rem 0; border-top:1px solid rgba(255,255,255,.06);}
+  .admin-upgrade-row:first-child{border-top:0;}
+  .admin-upgrade-who{flex:1 1 220px; min-width:0; display:flex; flex-direction:column; gap:.15rem;}
+  .admin-upgrade-who strong{color:var(--text); font-weight:600;}
+  .admin-upgrade-who span{font-size:.8rem; color:var(--stone); overflow-wrap:anywhere;}
+  .admin-upgrade-actions{display:flex; gap:.4rem;}
+  .admin-upgrade-actions .btn{min-height:38px; padding:.45rem .8rem; font-size:.78rem;}
 
   /* --- Wiederverwendbare Bausteine (Pill, Dropdown, Dialog, Tooltip,
      Pagination, Skeleton) - nach den uebergebenen shadcn-Komponenten, aber in
@@ -1911,6 +2048,11 @@
        App - es soll leuchten, nicht nur vorhanden sein. */
     --ember:#f0a92c; --ember-bright:#ffc94a; --gold-bright:#ffd76b;
     --ember-dim:#a97420;
+    /* Die Karten am Turm ragen per 3D-Transform rechts ueber den Rand. Das
+       overflow-x von <html> haelt Mobil-Browser nicht davon ab, die Seite dann
+       breiter zu machen und herauszuzoomen (Kopfleiste und Fenster rechts
+       angeschnitten). clip statt hidden: kein Scrollcontainer, sticky bleibt. */
+    overflow-x:clip;
   }
   @media (min-width:700px){ .view-cine{ margin-top:-6.6rem; } }
   .view-cine .exam-banner{ position:relative; z-index:5; max-width:60rem; margin:5.5rem auto 0; }
@@ -3137,6 +3279,7 @@
       <li><button class="nav-overlay-item" data-goto="settingsPage"><span class="idx">07</span><span class="label">Einstellungen</span><span class="hint">Webseite anpassen</span></button></li>
       <li><button class="nav-overlay-item" data-goto="appDownload"><span class="idx">08</span><span class="label">App</span><span class="hint">Als App installieren</span></button></li>
       <li><button class="nav-overlay-item" data-goto="about"><span class="idx">09</span><span class="label">Über uns</span><span class="hint">Zweck, Rechte &amp; Schutz</span></button></li>
+      <li><button class="nav-overlay-item" data-goto="account"><span class="idx">10</span><span class="label">Mein Konto</span><span class="hint">Profil, Tarif &amp; Passwort</span></button></li>
     </ul>
   </nav>
 </div>
@@ -3227,10 +3370,10 @@
     <button type="button" class="auth-modal-close" id="authModalCloseBtn" aria-label="Schließen">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
     </button>
-    <p class="auth-wordmark">Lumière <span style="font-style:normal; font-weight:400; font-size:.6em; letter-spacing:.2em;">· GENÈVE</span></p>
+    <p class="auth-wordmark">Lumière</p>
     <div id="authLoggedOutView">
-      <div class="auth-eyebrow"><span class="auth-eyebrow-dot" aria-hidden="true"></span>Lumière · Synchronisation</div>
-      <h3>Konto <span class="gold-shimmer">&amp; Profil</span></h3>
+      <div class="auth-eyebrow"><span class="auth-eyebrow-dot" aria-hidden="true"></span>Dein Konto</div>
+      <h3 id="authTitle">Willkommen <span class="gold-shimmer">zurück</span></h3>
       <div class="chip-row auth-tab-row" id="authTabChips">
         <span class="auth-tab-indicator" aria-hidden="true"></span>
         <button type="button" class="chip selected" data-tab="signin">
@@ -3266,9 +3409,7 @@
         <div class="auth-field has-toggle">
           <span class="auth-field-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg></span>
           <input type="password" id="authPassword" class="modal-input" required minlength="6" autocomplete="current-password" placeholder="••••••••">
-          <button type="button" class="auth-field-toggle-pw" id="authTogglePwVisibility" aria-label="Passwort anzeigen">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-          </button>
+          <button type="button" class="pw-eye" data-pw-toggle aria-label="Passwort anzeigen" aria-pressed="false"></button>
         </div>
         <div class="auth-pw-strength" id="authPwStrength" hidden>
           <div class="auth-pw-strength-row"><span>Passwortsicherheit</span><span id="authPwStrengthLabel">–</span></div>
@@ -3290,83 +3431,56 @@
         </div>
         <p class="auth-footnote">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
-          Ende-zu-Ende verschlüsselt · Keine Weitergabe an Dritte
+          Sicher übertragen · Keine Weitergabe an Dritte
         </p>
       </form>
     </div>
-    <div id="authResetView" hidden>
-      <h3>Neues Passwort</h3>
-      <p class="hint" style="margin:-.4rem 0 1rem;">Vergib ein neues Passwort für <strong id="authResetEmail"></strong>.</p>
-      <form id="authResetForm">
-        <label class="ev-label" for="authNewPassword">Neues Passwort</label>
-        <input type="password" id="authNewPassword" class="modal-input" required minlength="6" autocomplete="new-password">
-        <p id="authResetMessage" hidden></p>
-        <div class="modal-actions">
-          <button type="submit" class="btn btn-primary" id="authResetSubmit">Passwort speichern</button>
+  </div>
+</div>
+
+<!-- NEUES PASSWORT - eigene, ruhige Vollbildseite fuer den Link aus der
+     Passwort-Mail (Build 22). Fest ueber allem, auch ueber der Wartungstafel:
+     wer sein Passwort zuruecksetzt, muss das auch waehrend der Wartung koennen. -->
+<div class="pwr-screen" id="pwResetScreen" hidden role="dialog" aria-modal="true" aria-labelledby="pwrTitle">
+  <div class="pwr-inner">
+    <p class="pwr-mark">Lumière</p>
+    <div id="pwrFormWrap">
+      <p class="acc-kicker">Konto · Sicherheit</p>
+      <h1 class="pwr-title" id="pwrTitle">Neues Passwort festlegen</h1>
+      <p class="pwr-sub">Für <strong id="pwrEmail"></strong>. Danach bist du direkt angemeldet.</p>
+      <form id="pwrForm" novalidate>
+        <label class="acc-label" for="pwrNew">Neues Passwort</label>
+        <div class="acc-field">
+          <input type="password" id="pwrNew" class="acc-input" autocomplete="new-password" minlength="6" required placeholder="Mindestens 8 Zeichen empfohlen">
+          <button type="button" class="pw-eye" data-pw-toggle aria-label="Passwort anzeigen" aria-pressed="false"></button>
         </div>
+        <div class="acc-strength" data-strength-for="pwrNew" aria-live="polite">
+          <div class="acc-strength-track"><span></span><span></span><span></span></div>
+          <span class="acc-strength-label">–</span>
+        </div>
+        <label class="acc-label" for="pwrRepeat">Neues Passwort wiederholen</label>
+        <div class="acc-field">
+          <input type="password" id="pwrRepeat" class="acc-input" autocomplete="new-password" minlength="6" required>
+          <button type="button" class="pw-eye" data-pw-toggle aria-label="Passwort anzeigen" aria-pressed="false"></button>
+        </div>
+        <p class="acc-msg" id="pwrMsg" hidden></p>
+        <button type="submit" class="btn btn-primary acc-btn-wide" id="pwrSubmit">Passwort speichern</button>
       </form>
     </div>
-    <div id="authLoggedInView" hidden>
-      <div class="auth-eyebrow"><span class="auth-eyebrow-dot" aria-hidden="true"></span>Lumière · Kontostatus</div>
-
-      <div class="auth-user-row">
-        <div class="auth-user-row-id">
-          <div class="auth-avatar"><span id="authAvatarInitials">–</span><span class="auth-avatar-dot" aria-hidden="true"></span></div>
-          <div class="auth-user-row-text">
-            <span>Angemeldet als</span>
-            <strong id="authUserEmail"></strong>
-            <span class="auth-user-row-meta" id="authUserSince" hidden></span>
-          </div>
+    <div id="pwrExpiredWrap" hidden>
+      <p class="acc-kicker">Konto · Sicherheit</p>
+      <h1 class="pwr-title">Dieser Link gilt nicht mehr</h1>
+      <p class="pwr-sub">Links aus unseren E-Mails gelten nur kurze Zeit und nur einmal. Wolltest du dein Passwort zurücksetzen? Dann fordere hier einfach einen neuen Link an – er kommt in wenigen Sekunden.</p>
+      <form id="pwrResendForm" novalidate>
+        <label class="acc-label" for="pwrResendEmail">E-Mail-Adresse</label>
+        <div class="acc-field">
+          <input type="email" id="pwrResendEmail" class="acc-input acc-input-plain" autocomplete="email" required placeholder="name@beispiel.de">
         </div>
-        <div class="auth-admin-tag" id="statusAdminBadge" hidden><span aria-hidden="true">👑</span>Admin-Konto</div>
-      </div>
-      <hr class="auth-hairline">
-
-      <form id="authNameForm">
-        <label class="ev-label" for="authDisplayNameEdit">Anzeigename</label>
-        <div class="auth-field has-inline-btn">
-          <span class="auth-field-icon" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg></span>
-          <input type="text" id="authDisplayNameEdit" class="modal-input" maxlength="40" autocomplete="nickname" placeholder="Wie sollen wir dich nennen?">
-          <span class="auth-name-saved" id="authNameSaved" hidden aria-hidden="true">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4 10-10"/></svg>
-            Gespeichert
-          </span>
-          <button type="submit" class="btn btn-secondary btn-small" id="authNameSaveBtn">Speichern</button>
-        </div>
-        <p class="auth-field-caption">Wird für deine Sets, Statistiken und die Kontoübersicht verwendet.</p>
+        <p class="acc-msg" id="pwrResendMsg" hidden></p>
+        <button type="submit" class="btn btn-primary acc-btn-wide" id="pwrResendSubmit">Neuen Link schicken</button>
       </form>
-
-      <div class="account-status-card" id="accountStatusCard" hidden>
-        <div class="account-status-grid">
-          <div class="account-status-mini">
-            <span class="account-status-mini-label">KI-Anfragen heute</span>
-            <span class="account-status-mini-value" id="statusAiUsageText">–</span>
-            <div class="status-meter-track"><div class="status-meter-fill" id="statusAiUsageFill"></div></div>
-            <span class="account-status-mini-caption">Für Vokabel-Kontexte &amp; grammatikalische Nuancen</span>
-          </div>
-          <div class="account-status-mini">
-            <span class="account-status-mini-label">Website-Kapazität heute</span>
-            <span class="account-status-mini-value" id="statusCapacityText">–</span>
-            <div class="status-meter-track"><div class="status-meter-fill status-meter-fill-alt" id="statusCapacityFill"></div></div>
-            <span class="account-status-mini-caption">Synchronisations-Bandbreite &amp; Audiowiedergabe</span>
-          </div>
-        </div>
-      </div>
-      <hr class="auth-hairline">
-
-      <p class="auth-explainer-boxed">Vokabeln, Sammlungen &amp; Lernfortschritt werden automatisch geräteübergreifend gesichert.</p>
-      <p class="auth-explainer-sync" id="authSyncStatus" hidden><span class="auth-explainer-sync-dot"></span><span id="authSyncStatusText"></span></p>
-
-      <div class="modal-actions">
-        <button type="button" class="btn btn-secondary" id="authCloseBtn">Schließen</button>
-        <button type="button" class="btn btn-danger" id="authSignOutBtn">Abmelden</button>
-      </div>
-      <p class="auth-footnote">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
-        Ende-zu-Ende verschlüsselt · Keine Weitergabe an Dritte
-      </p>
-      <button type="button" class="auth-delete-account-link" id="authDeleteAccountBtn">Konto endgültig löschen</button>
     </div>
+    <button type="button" class="pwr-close" id="pwrClose">Abbrechen · zur Startseite</button>
   </div>
 </div>
 
@@ -4609,6 +4723,124 @@
     </div>
   </section>
 
+  <!-- MEIN KONTO - eigene Seite statt des alten Pop-ups (Build 22). Die IDs
+       der Profil-, Status- und Sync-Elemente sind die alten; die Logik dazu
+       (updateAccountUI, refreshAccountStatus, updateSyncStatusUI) laeuft so
+       unveraendert weiter. -->
+  <section id="view-account" class="view acc-view" hidden>
+    <div class="acc-wrap">
+      <header class="acc-hero">
+        <div class="acc-avatar" aria-hidden="true"><span id="authAvatarInitials">–</span></div>
+        <div class="acc-id">
+          <p class="acc-kicker">Mein Konto</p>
+          <h1 class="acc-name" id="accName">–</h1>
+          <p class="acc-mail" id="authUserEmail"></p>
+          <div class="acc-badges">
+            <span class="acc-badge" id="accPlanBadge">Gratis</span>
+            <span class="acc-badge acc-badge-admin" id="statusAdminBadge" hidden>Admin</span>
+            <span class="acc-since" id="authUserSince" hidden></span>
+          </div>
+        </div>
+      </header>
+
+      <section class="acc-card" aria-labelledby="accProfileTitle">
+        <div class="acc-card-head">
+          <h2 class="acc-card-title" id="accProfileTitle">Profil</h2>
+        </div>
+        <form id="authNameForm" class="acc-form">
+          <label class="acc-label" for="authDisplayNameEdit">Anzeigename</label>
+          <div class="acc-row">
+            <div class="acc-field">
+              <input type="text" id="authDisplayNameEdit" class="acc-input" maxlength="40" autocomplete="nickname" placeholder="Wie sollen wir dich nennen?">
+              <span class="acc-saved" id="authNameSaved" hidden aria-hidden="true">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4 10-10"/></svg>
+                Gespeichert
+              </span>
+            </div>
+            <button type="submit" class="btn btn-secondary acc-btn" id="authNameSaveBtn">Speichern</button>
+          </div>
+          <p class="acc-hint">So erscheinst du in der Begrüßung und in den Ranglisten.</p>
+        </form>
+      </section>
+
+      <section class="acc-card" id="accountStatusCard" aria-labelledby="accUsageTitle">
+        <div class="acc-card-head">
+          <h2 class="acc-card-title" id="accUsageTitle">KI-Kontingent</h2>
+          <p class="acc-card-note">setzt sich täglich zurück</p>
+        </div>
+        <div class="acc-usage">
+          <span class="acc-usage-num" id="statusAiUsageText">–</span>
+          <span class="acc-usage-of">Anfragen heute</span>
+        </div>
+        <div class="acc-meter"><div id="statusAiUsageFill"></div></div>
+        <p class="acc-hint">Für Beispielsätze, Erklärungen und die Grammatik-Hilfe.</p>
+        <div class="acc-admin-only" id="accCapacityRow" hidden>
+          <div class="acc-usage acc-usage-small">
+            <span class="acc-usage-num" id="statusCapacityText">–</span>
+            <span class="acc-usage-of">Website-Kapazität heute · nur für Admins sichtbar</span>
+          </div>
+          <div class="acc-meter acc-meter-alt"><div id="statusCapacityFill"></div></div>
+        </div>
+      </section>
+
+      <section class="acc-card" aria-labelledby="accPlansTitle">
+        <div class="acc-card-head">
+          <h2 class="acc-card-title" id="accPlansTitle">Mehr KI-Anfragen</h2>
+        </div>
+        <div class="acc-plans" id="accPlans"></div>
+        <p class="acc-hint acc-plans-foot">Nach deiner Anfrage melden wir uns per E-Mail. Bezahlt wird erst, wenn wir deinen Tarif freischalten. Kein Abo ohne deine Zustimmung.</p>
+      </section>
+
+      <section class="acc-card" aria-labelledby="accSecTitle">
+        <div class="acc-card-head">
+          <h2 class="acc-card-title" id="accSecTitle">Passwort ändern</h2>
+        </div>
+        <form id="accPwForm" class="acc-form" novalidate>
+          <label class="acc-label" for="accPwCurrent">Aktuelles Passwort</label>
+          <div class="acc-field">
+            <input type="password" id="accPwCurrent" class="acc-input" autocomplete="current-password" required>
+            <button type="button" class="pw-eye" data-pw-toggle aria-label="Passwort anzeigen" aria-pressed="false"></button>
+          </div>
+          <label class="acc-label" for="accPwNew">Neues Passwort</label>
+          <div class="acc-field">
+            <input type="password" id="accPwNew" class="acc-input" autocomplete="new-password" minlength="6" required placeholder="Mindestens 8 Zeichen empfohlen">
+            <button type="button" class="pw-eye" data-pw-toggle aria-label="Passwort anzeigen" aria-pressed="false"></button>
+          </div>
+          <div class="acc-strength" data-strength-for="accPwNew" aria-live="polite">
+            <div class="acc-strength-track"><span></span><span></span><span></span></div>
+            <span class="acc-strength-label">–</span>
+          </div>
+          <label class="acc-label" for="accPwRepeat">Neues Passwort wiederholen</label>
+          <div class="acc-field">
+            <input type="password" id="accPwRepeat" class="acc-input" autocomplete="new-password" minlength="6" required>
+            <button type="button" class="pw-eye" data-pw-toggle aria-label="Passwort anzeigen" aria-pressed="false"></button>
+          </div>
+          <p class="acc-msg" id="accPwMsg" hidden></p>
+          <button type="submit" class="btn btn-primary acc-btn-wide" id="accPwSubmit">Passwort ändern</button>
+        </form>
+      </section>
+
+      <section class="acc-card" aria-labelledby="accSyncTitle">
+        <div class="acc-card-head">
+          <h2 class="acc-card-title" id="accSyncTitle">Synchronisation</h2>
+        </div>
+        <p class="acc-text">Vokabeln, Sammlungen und Lernfortschritt werden automatisch auf allen deinen Geräten gesichert.</p>
+        <p class="acc-sync" id="authSyncStatus" hidden><span class="acc-sync-dot"></span><span id="authSyncStatusText"></span></p>
+        <button type="button" class="btn btn-secondary acc-btn-wide" id="authSignOutBtn">Abmelden</button>
+      </section>
+
+      <section class="acc-card acc-danger" aria-labelledby="accDangerTitle">
+        <div class="acc-card-head">
+          <h2 class="acc-card-title" id="accDangerTitle">Gefahrenzone</h2>
+        </div>
+        <p class="acc-text">Löscht dein Konto und alle Cloud-Daten – Sets, Fortschritt und Kalender. Das lässt sich nicht rückgängig machen.</p>
+        <button type="button" class="btn btn-danger acc-btn-wide" id="authDeleteAccountBtn">Konto endgültig löschen</button>
+      </section>
+
+      <p class="acc-foot">Sicher übertragen · Keine Weitergabe an Dritte</p>
+    </div>
+  </section>
+
   <section id="view-admin" class="view" hidden>
     <p class="page-eyebrow">Admin-Panel</p>
     <h2 class="page-title" style="margin-bottom:.6rem;">Betreiber-Ansicht</h2>
@@ -4761,6 +4993,13 @@
             </div>
 
             <div class="admin-tab-panel" data-admin-panel="users" hidden>
+              <div class="settings-card" id="adminUpgradeCard">
+                <p class="settings-title">💳 Tarif-Anfragen <span id="adminUpgradeCount"></span></p>
+                <p class="settings-desc">Anfragen für Plus (200 KI-Anfragen/Tag) und Pro (1000/Tag) aus „Mein Konto“. Freischalten setzt das KI-Limit des Kontos – die Zahlung klärst du vorher per E-Mail.</p>
+                <div id="adminUpgradeList"></div>
+                <p class="admin-empty-note" id="adminUpgradeEmpty" hidden>Keine offenen Anfragen.</p>
+                <p class="admin-empty-note" id="adminUpgradeNote" hidden></p>
+              </div>
               <div class="settings-card">
                 <p class="settings-title">👥 Nutzerverwaltung</p>
                 <p class="settings-desc">Sperren, entsperren, individuelles KI-Limit setzen.</p>
@@ -4906,7 +5145,7 @@
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="./lumiere-gl.js?v=21" defer></script>
+<script src="./lumiere-gl.js?v=22" defer></script>
 <script>
 /* ============================================================
    WICHTIG: Bei jedem inhaltlichen Deploy hochzaehlen (wie CACHE_NAME
@@ -4917,7 +5156,7 @@
       unten) - neue, noch nicht "veroeffentlichte" Features hinter
       isReleased(N) verstecken; Admins sehen sie trotzdem sofort.
    ============================================================ */
-const APP_VERSION = 21;
+const APP_VERSION = 22;
 
 // Site-weites Feature-Gate: neue, aber noch nicht freigegebene Funktionen
 // hinter isReleased(<APP_VERSION beim Einbau>) verstecken. Admins (echtes
@@ -5941,6 +6180,15 @@ let store = loadData();
 // sieht/aendert nur seine eigene Zeile in public.user_data).
 const SUPABASE_URL = 'https://imjlrfemiptuwobliydq.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_IKRB3DyOe0j99GsZUAlkOw_hH3rD8Ih';
+// Der Link aus der Passwort-Mail kommt als #access_token=...&type=recovery
+// (oder bei abgelaufenem Link als #error=...&error_code=otp_expired). supabase-js
+// liest und loescht das beim Erzeugen des Clients - deshalb VORHER festhalten.
+const AUTH_URL_STATE = (() => {
+  const h = new URLSearchParams((location.hash || '').replace(/^#/, ''));
+  const q = new URLSearchParams(location.search || '');
+  const get = (k) => h.get(k) || q.get(k);
+  return { recovery: get('type') === 'recovery', error: get('error_code') || get('error') || null };
+})();
 const sb = (typeof window.supabase !== 'undefined' && window.supabase.createClient)
   ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
   : null;
@@ -5955,6 +6203,30 @@ let authTab = 'signin';
 // dafuer keine zuverlaessige Datenquelle im Client haben.
 let lastCloudSyncAt = null;
 let authNameSavedTimer = null;
+// Passwort-Link (Build 22): supabase-js meldet PASSWORD_RECOVERY per setTimeout
+// gleich nach dem Start - initAuth() hoerte erst nach mehreren Netzabfragen zu,
+// das Ereignis war dann laengst vorbei und der Link tat scheinbar nichts.
+// Deshalb hier sofort mithoeren; AUTH_URL_STATE deckt den Rest ab.
+let authRecoveryPending = false;
+let authReady = false;
+if(sb){
+  sb.auth.onAuthStateChange((event) => {
+    if(event !== 'PASSWORD_RECOVERY') return;
+    authRecoveryPending = true;
+    if(authReady) openPasswordResetScreen();
+  });
+}
+// Fehler- oder ungueltigen Token-Anhang aus der Adresse nehmen, sonst taucht er
+// bei jedem Neuladen wieder auf (einen gueltigen raeumt supabase-js selbst weg).
+function clearAuthUrl(){
+  try{
+    const q = new URLSearchParams(location.search);
+    ['error', 'error_code', 'error_description'].forEach(k => q.delete(k));
+    const qs = q.toString();
+    history.replaceState(null, '', location.pathname + (qs ? '?' + qs : ''));
+  }catch(e){}
+}
+if(AUTH_URL_STATE.error) clearAuthUrl();
 
 function scheduleCloudSync(){
   if(!sb || !currentUser) return;
@@ -6071,8 +6343,11 @@ async function refreshAccountStatus(){
   document.getElementById('statusAiUsageText').textContent = `${used} / ${limit}`;
   document.getElementById('statusAiUsageFill').style.width = aiPct + '%';
   document.getElementById('statusAdminBadge').hidden = !currentProfile.is_admin;
+  // Die Website-Kapazitaet betrifft nur den Betrieb - normale Nutzer sehen sie nicht mehr.
+  document.getElementById('accCapacityRow').hidden = !currentProfile.is_admin;
   updateSyncStatusUI();
-  if(!sb) return;
+  renderPlans();
+  if(!sb || !currentProfile.is_admin) return;
   try{
     const { data } = await sb.rpc('get_capacity');
     if(data){
@@ -6230,6 +6505,7 @@ function switchAdminTab(tabKey){
   const crumb = document.getElementById('adminCrumbTitle');
   if(crumb && label) crumb.textContent = label;
   persistLastView('admin', tabKey);
+  if(tabKey === 'users') loadAdminUpgradeRequests();
 }
 document.querySelectorAll('#adminSubnav .admin-nav-item').forEach(btn => {
   btn.addEventListener('click', () => { sndClick(); switchAdminTab(btn.dataset.adminTab); });
@@ -6906,15 +7182,10 @@ document.getElementById('btnSendTestVerifyEmail').addEventListener('click', asyn
   }
 });
 
-let authInPasswordRecovery = false;
-
 function updateAccountUI(){
   const btn = document.getElementById('btnAccount');
   const label = document.getElementById('accountBtnLabel');
   const statusText = document.getElementById('accountStatusText');
-  const loggedOutView = document.getElementById('authLoggedOutView');
-  const loggedInView = document.getElementById('authLoggedInView');
-  const resetView = document.getElementById('authResetView');
   if(currentUser){
     const displayName = (currentUser.user_metadata && currentUser.user_metadata.display_name) || '';
     btn.classList.add('is-logged-in');
@@ -6923,6 +7194,7 @@ function updateAccountUI(){
     document.getElementById('authUserEmail').textContent = currentUser.email;
     document.getElementById('authDisplayNameEdit').value = displayName;
     document.getElementById('authAvatarInitials').textContent = getInitials(displayName || currentUser.email);
+    document.getElementById('accName').textContent = (currentProfile && currentProfile.display_name) || displayName || currentUser.email.split('@')[0];
     const sinceEl = document.getElementById('authUserSince');
     if(currentUser.created_at){
       sinceEl.textContent = 'Mitglied seit ' + new Date(currentUser.created_at).toLocaleDateString('de-DE', { month: 'long', year: 'numeric' });
@@ -6933,13 +7205,9 @@ function updateAccountUI(){
     label.textContent = 'Konto';
     statusText.textContent = 'Nicht angemeldet — deine Daten bleiben nur auf diesem Gerät.';
   }
-  if(authInPasswordRecovery){
-    loggedOutView.hidden = true; loggedInView.hidden = true; resetView.hidden = false;
-  } else if(currentUser){
-    loggedOutView.hidden = true; loggedInView.hidden = false; resetView.hidden = true;
-  } else {
-    loggedOutView.hidden = false; loggedInView.hidden = true; resetView.hidden = true;
-  }
+  // Abgemeldet (auch aus einem anderen Tab) - dann hat "Mein Konto" nichts mehr zu zeigen.
+  const accView = document.getElementById('view-account');
+  if(!currentUser && accView && !accView.hidden) renderHub();
   updateGatedNavUI();
   refreshAccountStatus();
   updateWelcomeMessage();
@@ -7003,6 +7271,8 @@ async function initAuth(){
   if(!sb){
     console.warn('Supabase nicht erreichbar (Skript blockiert oder offline) — Cloud-Sync deaktiviert, App läuft normal lokal weiter.');
     updateAccountUI();
+    // Auch ohne Verbindung soll ein Link aus der Mail nicht einfach nichts tun.
+    if(AUTH_URL_STATE.recovery || AUTH_URL_STATE.error) openPasswordResetScreen({ expired: true });
     return;
   }
   try{
@@ -7013,13 +7283,14 @@ async function initAuth(){
     }
   }catch(e){ console.error('Auth-Session konnte nicht geladen werden:', e.message); }
   updateAccountUI();
+  authReady = true;
+  if(authRecoveryPending || (AUTH_URL_STATE.recovery && currentUser)) openPasswordResetScreen();
+  else if(AUTH_URL_STATE.recovery || AUTH_URL_STATE.error){ clearAuthUrl(); openPasswordResetScreen({ expired: true }); }
   sb.auth.onAuthStateChange((event, session) => {
     if(event === 'PASSWORD_RECOVERY'){
-      authInPasswordRecovery = true;
       if(session) currentUser = session.user;
-      document.getElementById('authResetEmail').textContent = currentUser ? currentUser.email : '';
       updateAccountUI();
-      openAccountModal();
+      openPasswordResetScreen();
     } else if(event === 'SIGNED_IN' && session && (!currentUser || currentUser.id !== session.user.id)){
       currentUser = session.user;
       Promise.all([pullCloudData(), loadOrCreateProfile()]).then(updateAccountUI);
@@ -7028,7 +7299,6 @@ async function initAuth(){
     } else if(event === 'SIGNED_OUT'){
       currentUser = null;
       currentProfile = null;
-      authInPasswordRecovery = false;
       updateAccountUI();
       // Ohne das behielt ein Admin, der sich abmeldet, die Seite offen,
       // obwohl die Wartung laeuft - die Tafel gilt ab jetzt auch fuer ihn.
@@ -7039,23 +7309,30 @@ async function initAuth(){
   });
 }
 
+// Angemeldet fuehrt jeder Konto-Knopf auf die Seite "Mein Konto"; das Fenster
+// ist seit Build 22 nur noch zum Anmelden und Registrieren da.
 function openAccountModal(){
+  if(currentUser){ openAccountPage(); return; }
   document.getElementById('authModalBackdrop').classList.add('open');
-  refreshAccountStatus();
 }
 function closeAccountModal(){
   document.getElementById('authModalBackdrop').classList.remove('open');
   const msg = document.getElementById('authMessage');
   msg.hidden = true; msg.classList.remove('is-error');
-  const resetMsg = document.getElementById('authResetMessage');
-  resetMsg.hidden = true; resetMsg.classList.remove('is-error');
-  if(authInPasswordRecovery){ authInPasswordRecovery = false; updateAccountUI(); }
 }
 document.getElementById('btnAccount').addEventListener('click', () => { sndClick(); openAccountModal(); });
 document.getElementById('btnAccountSettings').addEventListener('click', () => { sndClick(); openAccountModal(); });
-document.getElementById('btnMaintenanceAdminLogin').addEventListener('click', () => { sndClick(); openAccountModal(); });
+document.getElementById('btnMaintenanceAdminLogin').addEventListener('click', async () => {
+  sndClick();
+  if(currentUser && sb){
+    // Angemeldet, aber kein Admin (sonst stuende die Tafel nicht da): erst abmelden.
+    const ok = await customConfirm('Als Admin anmelden?', `Du bist gerade als ${currentUser.email} angemeldet. Abmelden und mit dem Admin-Konto anmelden?`, 'Abmelden');
+    if(!ok) return;
+    await sb.auth.signOut();
+  }
+  document.getElementById('authModalBackdrop').classList.add('open');
+});
 document.getElementById('authCancel').addEventListener('click', () => { sndClick(); closeAccountModal(); });
-document.getElementById('authCloseBtn').addEventListener('click', () => { sndClick(); closeAccountModal(); });
 document.getElementById('authModalCloseBtn').addEventListener('click', () => { sndClick(); closeAccountModal(); });
 document.getElementById('authModalBackdrop').addEventListener('click', (e) => {
   if(e.target.id === 'authModalBackdrop') closeAccountModal();
@@ -7067,6 +7344,8 @@ document.querySelectorAll('#authTabChips .chip').forEach(chip => {
     document.querySelectorAll('#authTabChips .chip').forEach(c => c.classList.toggle('selected', c === chip));
     document.getElementById('authTabChips').classList.toggle('tab-signup', authTab === 'signup');
     document.getElementById('authSubmitLabel').textContent = authTab === 'signup' ? 'Registrieren' : 'Anmelden';
+    document.getElementById('authTitle').innerHTML = authTab === 'signup' ? 'Konto <span class="gold-shimmer">erstellen</span>' : 'Willkommen <span class="gold-shimmer">zurück</span>';
+    document.getElementById('authPassword').setAttribute('autocomplete', authTab === 'signup' ? 'new-password' : 'current-password');
     document.getElementById('authForgotLink').hidden = authTab === 'signup';
     document.getElementById('authDisplayNameGroup').classList.toggle('is-open', authTab === 'signup');
     document.getElementById('authPwStrength').hidden = authTab !== 'signup';
@@ -7092,13 +7371,6 @@ function updateAuthPwStrength(){
 }
 document.getElementById('authPassword').addEventListener('input', () => {
   if(authTab === 'signup') updateAuthPwStrength();
-});
-document.getElementById('authTogglePwVisibility').addEventListener('click', () => {
-  const pw = document.getElementById('authPassword');
-  const btn = document.getElementById('authTogglePwVisibility');
-  const showing = pw.type === 'text';
-  pw.type = showing ? 'password' : 'text';
-  btn.setAttribute('aria-label', showing ? 'Passwort anzeigen' : 'Passwort verbergen');
 });
 document.getElementById('authForgotLink').addEventListener('click', async () => {
   sndClick();
@@ -7175,6 +7447,7 @@ document.getElementById('authSignOutBtn').addEventListener('click', async () => 
   sndClick();
   if(sb) await sb.auth.signOut();
   closeAccountModal();
+  renderHub();
   showToast('Abgemeldet — deine Daten bleiben lokal auf diesem Gerät erhalten.');
 });
 document.getElementById('authDeleteAccountBtn').addEventListener('click', async () => {
@@ -7200,6 +7473,7 @@ document.getElementById('authDeleteAccountBtn').addEventListener('click', async 
     currentUser = null; currentProfile = null;
     closeAccountModal();
     updateAccountUI();
+    renderHub();
     applyMaintenanceMode();
     applyReleaseGate();
     showToast('Konto und alle Cloud-Daten wurden gelöscht.');
@@ -7234,29 +7508,6 @@ document.getElementById('authNameForm').addEventListener('submit', async (e) => 
     showToast(translateAuthError(err.message), true);
   }
 });
-document.getElementById('authResetForm').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const newPassword = document.getElementById('authNewPassword').value;
-  const msg = document.getElementById('authResetMessage');
-  const submitBtn = document.getElementById('authResetSubmit');
-  if(!sb) return;
-  submitBtn.disabled = true;
-  msg.hidden = true; msg.classList.remove('is-error');
-  try{
-    const { error } = await sb.auth.updateUser({ password: newPassword });
-    if(error) throw error;
-    authInPasswordRecovery = false;
-    document.getElementById('authNewPassword').value = '';
-    updateAccountUI();
-    closeAccountModal();
-    showToast('Neues Passwort gespeichert — du bist angemeldet.');
-  }catch(err){
-    msg.textContent = translateAuthError(err.message);
-    msg.hidden = false; msg.classList.add('is-error');
-  }finally{
-    submitBtn.disabled = false;
-  }
-});
 function translateAuthError(message){
   const m = (message || '').toLowerCase();
   if(m.includes('invalid login credentials')) return 'E-Mail oder Passwort ist falsch.';
@@ -7265,8 +7516,323 @@ function translateAuthError(message){
   if(m.includes('email') && m.includes('invalid')) return 'Das sieht nicht nach einer gültigen E-Mail-Adresse aus.';
   if(m.includes('email not confirmed')) return 'Bitte bestätige zuerst deine E-Mail-Adresse über den Link, den wir dir geschickt haben.';
   if(m.includes('security purposes') || m.includes('rate limit')) return 'Zu viele Anfragen kurz hintereinander (z. B. durch mehrfaches Anmelden oder Test-E-Mails) — Supabase drosselt das kurz. Meist geht es nach 15–60 Minuten von selbst wieder.';
+  if(m.includes('different from the old password') || m.includes('should be different')) return 'Das neue Passwort muss sich vom alten unterscheiden.';
+  if(m.includes('reauthentication') || m.includes('session') && m.includes('missing')) return 'Deine Anmeldung ist abgelaufen – bitte melde dich neu an und versuch es noch einmal.';
+  if(m.includes('expired') || m.includes('invalid') && m.includes('link')) return 'Dieser Link ist abgelaufen – fordere einfach einen neuen an.';
+  if(m.includes('weak') && m.includes('password')) return 'Dieses Passwort ist zu leicht zu erraten – nimm ein längeres oder eines mit Zahlen.';
   if(m.includes('already confirmed')) return 'Diese E-Mail ist bereits bestätigt — Supabase verschickt die Verifizierungs-Mail nur an unbestätigte Konten. Zum Testen ein neues, noch unbestätigtes Test-Konto registrieren.';
   return message || 'Etwas ist schiefgelaufen. Bitte versuch es erneut.';
+}
+
+// =============================================================================
+// Mein Konto, Tarife, Passwort aendern, Neues-Passwort-Seite (Build 22)
+// =============================================================================
+
+// --- Auge an jedem Passwortfeld ----------------------------------------------
+const PW_EYE_OPEN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 12S6 5 12 5s9.5 7 9.5 7-3.5 7-9.5 7-9.5-7-9.5-7Z"/><circle cx="12" cy="12" r="3"/></svg>';
+const PW_EYE_SHUT = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3l18 18"/><path d="M10.6 5.1A10 10 0 0 1 12 5c6 0 9.5 7 9.5 7a17 17 0 0 1-3.2 4.2M6.6 6.6C3.9 8.4 2.5 12 2.5 12s3.5 7 9.5 7a9.6 9.6 0 0 0 4.4-1"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>';
+document.querySelectorAll('[data-pw-toggle]').forEach(btn => { btn.innerHTML = PW_EYE_OPEN; });
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-pw-toggle]');
+  if(!btn) return;
+  const input = btn.parentElement.querySelector('input');
+  if(!input) return;
+  const show = input.type === 'password';
+  input.type = show ? 'text' : 'password';
+  btn.setAttribute('aria-pressed', show ? 'true' : 'false');
+  btn.setAttribute('aria-label', show ? 'Passwort verbergen' : 'Passwort anzeigen');
+  btn.innerHTML = show ? PW_EYE_SHUT : PW_EYE_OPEN;
+});
+function resetPwFields(root){
+  root.querySelectorAll('input[type="text"][autocomplete$="password"], input[type="password"]').forEach(inp => {
+    inp.value = ''; inp.type = 'password';
+  });
+  root.querySelectorAll('[data-pw-toggle]').forEach(b => {
+    b.setAttribute('aria-pressed', 'false'); b.setAttribute('aria-label', 'Passwort anzeigen'); b.innerHTML = PW_EYE_OPEN;
+  });
+  root.querySelectorAll('.acc-strength').forEach(s => { s.dataset.score = '0'; s.querySelector('.acc-strength-label').textContent = '–'; });
+}
+// Staerke-Anzeige fuer neue Passwoerter (dieselbe Wertung wie beim Registrieren).
+document.querySelectorAll('.acc-strength[data-strength-for]').forEach(meter => {
+  const input = document.getElementById(meter.dataset.strengthFor);
+  const labels = ['–', 'Schwach', 'Mittel', 'Stark'];
+  input.addEventListener('input', () => {
+    const score = input.value ? Math.max(1, authPwStrengthScore(input.value)) : 0;
+    meter.dataset.score = String(score);
+    meter.querySelector('.acc-strength-label').textContent = labels[score];
+  });
+});
+function accMsg(el, text, isError){
+  el.textContent = text;
+  el.classList.toggle('is-error', !!isError);
+  el.hidden = !text;
+}
+function checkNewPassword(nw, rep){
+  if(nw.length < 6) return 'Das neue Passwort braucht mindestens 6 Zeichen (8 oder mehr sind sicherer).';
+  if(nw !== rep) return 'Die beiden neuen Passwörter stimmen nicht überein.';
+  return '';
+}
+
+// --- Seite "Mein Konto" --------------------------------------------------------
+function openAccountPage(){
+  if(!currentUser){ openAccountModal(); return; }
+  document.getElementById('authModalBackdrop').classList.remove('open');
+  showView('account');
+  currentNavId = 'account';
+  updateNavActiveStates();
+  updateAccountUI();
+  loadMyUpgradeRequest();
+  window.scrollTo({ top: 0, behavior: 'instant' });
+}
+
+// --- Tarife -----------------------------------------------------------------------
+// Es gibt (noch) kein Bezahlsystem: eine Anfrage landet in upgrade_requests,
+// der Admin schaltet im Admin-Panel frei - das setzt ai_limit_override. Der
+// aktuelle Tarif ergibt sich deshalb einfach aus dem wirksamen Tageslimit.
+const ACC_PLANS = [
+  { key: 'free', name: 'Gratis', limit: null, price: '0 €', per: '',
+    points: ['Alle Lernfunktionen', 'Synchronisation auf allen Geräten', 'Spielhalle & Ranglisten'] },
+  { key: 'plus', name: 'Plus', limit: 200, price: '2,99 €', per: '/ Monat', featured: true,
+    points: ['Für intensive Lernphasen', 'Mehr Beispielsätze & Erklärungen', 'Alles aus Gratis'] },
+  { key: 'pro', name: 'Pro', limit: 1000, price: '5,99 €', per: '/ Monat',
+    points: ['Für Vielnutzer & Kurse', 'Im Alltag praktisch ohne Grenze', 'Alles aus Plus'] },
+];
+function accFreeLimit(){ return (siteSettings && siteSettings.ai_daily_limit) || 50; }
+function accEffectiveLimit(){
+  if(!currentProfile) return accFreeLimit();
+  const o = currentProfile.ai_limit_override;
+  return (o === null || o === undefined) ? accFreeLimit() : o;
+}
+function accCurrentPlan(){
+  const l = accEffectiveLimit();
+  return l >= 1000 ? 'pro' : l >= 200 ? 'plus' : 'free';
+}
+let accOpenRequest = null;          // { plan, status } - offene Anfrage des Kontos
+function renderPlans(){
+  const wrap = document.getElementById('accPlans');
+  if(!wrap) return;
+  const cur = accCurrentPlan();
+  const order = { free: 0, plus: 1, pro: 2 };
+  const badge = document.getElementById('accPlanBadge');
+  if(badge) badge.textContent = ACC_PLANS.find(p => p.key === cur).name;
+  wrap.innerHTML = ACC_PLANS.map(p => {
+    const limit = p.key === 'free' ? accFreeLimit() : p.limit;
+    const isCur = p.key === cur;
+    const lower = order[p.key] < order[cur];
+    const pending = accOpenRequest && accOpenRequest.plan === p.key;
+    let action;
+    if(isCur) action = '<p class="acc-plan-state is-current">Dein Tarif</p>';
+    else if(lower || p.key === 'free') action = '<p class="acc-plan-state">Enthalten</p>';
+    else if(pending) action = '<p class="acc-plan-state">Angefragt · wir melden uns</p>';
+    else action = `<button type="button" class="btn ${p.featured ? 'btn-primary' : 'btn-secondary'}" data-plan-request="${p.key}">${escapeHtml(p.name)} anfragen</button>`;
+    return `<article class="acc-plan${p.featured ? ' is-featured' : ''}${isCur ? ' is-current' : ''}">
+      ${p.featured && !isCur ? '<span class="acc-plan-tag">Beliebt</span>' : ''}
+      <h3 class="acc-plan-name">${escapeHtml(p.name)}</h3>
+      <p class="acc-plan-price">${escapeHtml(p.price)} <small>${escapeHtml(p.per)}</small></p>
+      <p class="acc-plan-limit"><strong>${limit}</strong> KI-Anfragen pro Tag</p>
+      <ul>${p.points.map(t => `<li>${escapeHtml(t)}</li>`).join('')}</ul>
+      ${action}
+    </article>`;
+  }).join('');
+  wrap.querySelectorAll('[data-plan-request]').forEach(btn => {
+    btn.addEventListener('click', () => requestUpgrade(btn.dataset.planRequest, btn));
+  });
+}
+async function loadMyUpgradeRequest(){
+  renderPlans();
+  if(!sb || !currentUser) return;
+  try{
+    const { data, error } = await sb.from('upgrade_requests')
+      .select('plan, status, created_at').eq('user_id', currentUser.id).eq('status', 'offen')
+      .order('created_at', { ascending: false }).limit(1);
+    if(!error){ accOpenRequest = (data && data[0]) || null; renderPlans(); }
+  }catch(e){ /* Tabelle fehlt noch - dann eben ohne Anfrage-Status */ }
+}
+async function requestUpgrade(planKey, btn){
+  sndClick();
+  const plan = ACC_PLANS.find(p => p.key === planKey);
+  if(!plan || !currentUser || !sb) return;
+  const ok = await customConfirm(
+    `${plan.name} anfragen?`,
+    `${plan.limit} KI-Anfragen pro Tag für ${plan.price} ${plan.per}. Wir melden uns per E-Mail an ${currentUser.email} – bezahlt wird erst, wenn wir freischalten.`,
+    'Anfragen'
+  );
+  if(!ok) return;
+  btn.disabled = true;
+  try{
+    const { error } = await sb.from('upgrade_requests').insert({
+      user_id: currentUser.id, email: currentUser.email, plan: planKey,
+      display_name: (currentProfile && currentProfile.display_name) || null,
+    });
+    if(error){
+      if(error.code === '23505') throw new Error('Du hast schon eine offene Anfrage – wir melden uns.');
+      if(/relation|does not exist|schema cache/i.test(error.message)) throw new Error('Anfragen sind gerade noch nicht eingerichtet. Bitte später erneut versuchen.');
+      throw error;
+    }
+    accOpenRequest = { plan: planKey, status: 'offen' };
+    renderPlans();
+    showToast(`Anfrage für ${plan.name} gesendet – wir melden uns per E-Mail.`);
+  }catch(err){
+    showToast(err.message || 'Anfrage konnte nicht gesendet werden.', true);
+    btn.disabled = false;
+  }
+}
+
+// --- Passwort aendern (angemeldet) --------------------------------------------------
+// Das aktuelle Passwort wird zur Bestaetigung geprueft (erneutes Anmelden mit
+// derselben Adresse) - erst dann wird das neue gesetzt.
+document.getElementById('accPwForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  sndClick();
+  const form = e.currentTarget;
+  const cur = document.getElementById('accPwCurrent').value;
+  const nw = document.getElementById('accPwNew').value;
+  const rep = document.getElementById('accPwRepeat').value;
+  const msg = document.getElementById('accPwMsg');
+  const btn = document.getElementById('accPwSubmit');
+  if(!cur){ accMsg(msg, 'Bitte gib zuerst dein aktuelles Passwort ein.', true); return; }
+  const problem = checkNewPassword(nw, rep);
+  if(problem){ accMsg(msg, problem, true); return; }
+  if(nw === cur){ accMsg(msg, 'Das neue Passwort muss sich vom aktuellen unterscheiden.', true); return; }
+  if(!sb || !currentUser){ accMsg(msg, 'Nicht angemeldet.', true); return; }
+  btn.disabled = true;
+  accMsg(msg, '', false);
+  try{
+    const { error: e1 } = await sb.auth.signInWithPassword({ email: currentUser.email, password: cur });
+    if(e1) throw new Error(/invalid login/i.test(e1.message) ? 'Das aktuelle Passwort stimmt nicht.' : translateAuthError(e1.message));
+    const { error: e2 } = await sb.auth.updateUser({ password: nw });
+    if(e2) throw new Error(translateAuthError(e2.message));
+    resetPwFields(form);
+    accMsg(msg, 'Passwort geändert. Beim nächsten Anmelden gilt das neue.', false);
+    sndCorrect();
+  }catch(err){
+    accMsg(msg, err.message, true);
+  }finally{
+    btn.disabled = false;
+  }
+});
+
+// --- Neues Passwort nach dem Link aus der Mail ------------------------------------
+function openPasswordResetScreen(opts = {}){
+  const scr = document.getElementById('pwResetScreen');
+  const expired = !!opts.expired || !currentUser;
+  document.getElementById('pwrFormWrap').hidden = expired;
+  document.getElementById('pwrExpiredWrap').hidden = !expired;
+  document.getElementById('pwrEmail').textContent = currentUser ? currentUser.email : '';
+  const resend = document.getElementById('pwrResendEmail');
+  if(expired && !resend.value && currentUser) resend.value = currentUser.email;
+  document.getElementById('authModalBackdrop').classList.remove('open');
+  scr.hidden = false;
+  document.documentElement.classList.add('pwr-open');
+  setTimeout(() => { const f = document.getElementById(expired ? 'pwrResendEmail' : 'pwrNew'); if(f) f.focus(); }, 120);
+}
+function closePasswordResetScreen(){
+  const scr = document.getElementById('pwResetScreen');
+  scr.hidden = true;
+  document.documentElement.classList.remove('pwr-open');
+  resetPwFields(scr);
+  accMsg(document.getElementById('pwrMsg'), '', false);
+  accMsg(document.getElementById('pwrResendMsg'), '', false);
+}
+document.getElementById('pwrForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const nw = document.getElementById('pwrNew').value;
+  const rep = document.getElementById('pwrRepeat').value;
+  const msg = document.getElementById('pwrMsg');
+  const btn = document.getElementById('pwrSubmit');
+  const problem = checkNewPassword(nw, rep);
+  if(problem){ accMsg(msg, problem, true); return; }
+  if(!sb || !currentUser){ openPasswordResetScreen({ expired: true }); return; }
+  btn.disabled = true;
+  try{
+    const { error } = await sb.auth.updateUser({ password: nw });
+    if(error) throw new Error(translateAuthError(error.message));
+    closePasswordResetScreen();
+    sndCorrect();
+    showToast('Neues Passwort gespeichert – du bist angemeldet.');
+    openAccountPage();
+  }catch(err){
+    accMsg(msg, err.message, true);
+  }finally{
+    btn.disabled = false;
+  }
+});
+document.getElementById('pwrResendForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const email = document.getElementById('pwrResendEmail').value.trim();
+  const msg = document.getElementById('pwrResendMsg');
+  const btn = document.getElementById('pwrResendSubmit');
+  if(!email){ accMsg(msg, 'Bitte gib deine E-Mail-Adresse ein.', true); return; }
+  if(!sb){ accMsg(msg, 'Gerade keine Verbindung – bitte später erneut versuchen.', true); return; }
+  btn.disabled = true;
+  try{
+    const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin + window.location.pathname });
+    if(error) throw new Error(translateAuthError(error.message));
+    accMsg(msg, 'Neuer Link ist unterwegs. Öffne ihn am besten auf diesem Gerät.', false);
+  }catch(err){
+    accMsg(msg, err.message, true);
+  }finally{
+    btn.disabled = false;
+  }
+});
+document.getElementById('pwrClose').addEventListener('click', () => {
+  sndClick();
+  closePasswordResetScreen();
+  renderHub();
+});
+
+// --- Admin: Tarif-Anfragen -------------------------------------------------------
+async function loadAdminUpgradeRequests(){
+  const list = document.getElementById('adminUpgradeList');
+  const empty = document.getElementById('adminUpgradeEmpty');
+  const note = document.getElementById('adminUpgradeNote');
+  if(!list || !sb) return;
+  list.innerHTML = '<p class="hint">Lädt …</p>';
+  empty.hidden = true; note.hidden = true;
+  const { data, error } = await sb.from('upgrade_requests')
+    .select('id, user_id, email, display_name, plan, status, created_at')
+    .eq('status', 'offen').order('created_at', { ascending: true }).limit(50);
+  if(error){
+    list.innerHTML = '';
+    note.textContent = 'Die Tabelle "upgrade_requests" fehlt noch – SQL aus der Anleitung in Supabase ausführen.';
+    note.hidden = false;
+    return;
+  }
+  const count = document.getElementById('adminUpgradeCount');
+  if(count) count.textContent = data.length ? `· ${data.length} offen` : '';
+  if(!data.length){ list.innerHTML = ''; empty.hidden = false; return; }
+  list.innerHTML = data.map(r => {
+    const plan = ACC_PLANS.find(p => p.key === r.plan) || { name: r.plan, limit: '?' };
+    const when = new Date(r.created_at).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    return `<div class="admin-upgrade-row" data-id="${r.id}" data-user="${r.user_id}" data-plan="${r.plan}">
+      <div class="admin-upgrade-who"><strong>${escapeHtml(r.display_name || r.email || 'Konto')}</strong><span>${escapeHtml(r.email || '')} · ${when}</span></div>
+      <span class="acc-badge">${escapeHtml(plan.name)} · ${plan.limit}/Tag</span>
+      <div class="admin-upgrade-actions">
+        <button type="button" class="btn btn-primary btn-small" data-upgrade-act="grant">Freischalten</button>
+        <button type="button" class="btn btn-secondary btn-small" data-upgrade-act="deny">Ablehnen</button>
+      </div>
+    </div>`;
+  }).join('');
+  list.querySelectorAll('[data-upgrade-act]').forEach(btn => btn.addEventListener('click', async () => {
+    sndClick();
+    const row = btn.closest('.admin-upgrade-row');
+    const grant = btn.dataset.upgradeAct === 'grant';
+    const plan = ACC_PLANS.find(p => p.key === row.dataset.plan);
+    row.querySelectorAll('button').forEach(b => { b.disabled = true; });
+    try{
+      if(grant){
+        const { error: e1 } = await sb.from('profiles').update({ ai_limit_override: plan.limit }).eq('user_id', row.dataset.user);
+        if(e1) throw e1;
+      }
+      const { error: e2 } = await sb.from('upgrade_requests').update({ status: grant ? 'erledigt' : 'abgelehnt' }).eq('id', row.dataset.id);
+      if(e2) throw e2;
+      showToast(grant ? `${plan.name} freigeschaltet (${plan.limit} KI-Anfragen pro Tag).` : 'Anfrage abgelehnt.');
+      loadAdminUpgradeRequests();
+    }catch(err){
+      showToast('Konnte nicht gespeichert werden: ' + err.message, true);
+      row.querySelectorAll('button').forEach(b => { b.disabled = false; });
+    }
+  }));
 }
 
 // --- Einstellungen, Kalender & Tagesfortschritt: Standardwerte & Migration ---
@@ -7908,15 +8474,16 @@ const views = {
   calendar: document.getElementById('view-calendar'), appDownload: document.getElementById('view-app-download'),
   about: document.getElementById('view-about'), admin: document.getElementById('view-admin'),
   arcadeGame: document.getElementById('view-arcade-game'),
+  account: document.getElementById('view-account'),
 };
 let currentSetId = null;
 let currentNavId = 'hub';
-const NAV_SUB_LABELS = { hub: 'Startseite', home: 'Lernsets', rewards: 'Belohnungen', grammar: 'Grammatik', listen: 'Sprechen', settingsPage: 'Einstellungen', calendar: 'Kalender', appDownload: 'App installieren', about: 'Über uns', admin: 'Admin-Panel' };
+const NAV_SUB_LABELS = { hub: 'Startseite', home: 'Lernsets', rewards: 'Belohnungen', grammar: 'Grammatik', listen: 'Sprechen', settingsPage: 'Einstellungen', calendar: 'Kalender', appDownload: 'App installieren', about: 'Über uns', admin: 'Admin-Panel', account: 'Mein Konto' };
 const QUICKNAV_HIDDEN_VIEWS = new Set(['hub', 'practice', 'match', 'results', 'game', 'appDownload', 'about', 'admin', 'arcadeGame']);
 // --- Reload-Persistenz: merkt sich die zuletzt besuchte (sinnvoll wiederherstellbare) Ansicht ---
 const LAST_VIEW_KEY = 'lumiere_last_view';
 const ADMIN_UNLOCKED_KEY = 'lumiere_admin_unlocked';
-const RESTORABLE_VIEWS = new Set(['hub', 'home', 'set', 'rewards', 'grammar', 'listen', 'calendar', 'settingsPage', 'appDownload', 'about', 'admin']);
+const RESTORABLE_VIEWS = new Set(['hub', 'home', 'set', 'rewards', 'grammar', 'listen', 'calendar', 'settingsPage', 'appDownload', 'about', 'admin', 'account']);
 let SAVED_VIEW_ON_LOAD = null;
 try{ SAVED_VIEW_ON_LOAD = JSON.parse(sessionStorage.getItem(LAST_VIEW_KEY) || 'null'); }catch(e){}
 function persistLastView(name, adminTab){
@@ -7961,7 +8528,7 @@ function restoreLastView(){
     if(unlocked){ openAdminPanel(); switchAdminTab(saved.adminTab || 'overview'); }
     return;
   }
-  const destinations = { home: renderHome, rewards: renderRewards, grammar: openGrammar, listen: openGlobalListen, calendar: renderCalendar, settingsPage: openSettingsPage, appDownload: openAppDownload, about: openAbout };
+  const destinations = { home: renderHome, rewards: renderRewards, grammar: openGrammar, listen: openGlobalListen, calendar: renderCalendar, settingsPage: openSettingsPage, appDownload: openAppDownload, about: openAbout, account: () => { if(currentUser) openAccountPage(); } };
   const fn = destinations[saved.view];
   if(fn) fn();
 }
@@ -8033,6 +8600,7 @@ function goToDestination(target){
   else if(target === 'settingsPage') openSettingsPage();
   else if(target === 'appDownload') openAppDownload();
   else if(target === 'about') openAbout();
+  else if(target === 'account') openAccountPage();
 }
 navOverlay.querySelectorAll('.nav-overlay-item').forEach(item => {
   item.addEventListener('click', () => {
