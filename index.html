@@ -2079,6 +2079,18 @@
   }
   .cine-notes p:last-child{ margin-bottom:0; }
 
+  /* Build 17: Das Zeichen steht jetzt immer mittig. Auf breiten Schirmen
+     weicht der Text zur Seite aus - das Wort bleibt links vom Ring, die
+     Notizen der Methode ruecken an den rechten Rand. Hochkant liegt der
+     Text ohnehin unter dem Zeichen. */
+  @media (min-width:900px){
+    html.build-17-live .cine-mot-word{ font-size:clamp(2.2rem, 4.6vw, 6.4rem); }
+    html.build-17-live .cine-mot .cine-stack-left{ max-width:min(64rem, 40vw); }
+    html.build-17-live .cine-methode .cine-split{ max-width:none; justify-content:space-between; }
+    html.build-17-live .cine-methode .cine-notes{ max-width:min(30rem, 28vw); }
+    html.build-17-live .cine-methode .cine-headline{ font-size:clamp(3rem, 6.4vw, 8rem); }
+  }
+
   /* --- Szene: Atelier --- */
   .cine-figures{ display:flex; flex-wrap:wrap; gap:clamp(2.4rem, 8vw, 6rem); margin:0; }
   @media (min-width:900px){ .cine-stack-right .cine-figures{ justify-content:flex-end; } }
@@ -4882,7 +4894,7 @@
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="./lumiere-gl.js?v=16" defer></script>
+<script src="./lumiere-gl.js?v=17" defer></script>
 <script>
 /* ============================================================
    WICHTIG: Bei jedem inhaltlichen Deploy hochzaehlen (wie CACHE_NAME
@@ -4893,7 +4905,7 @@
       unten) - neue, noch nicht "veroeffentlichte" Features hinter
       isReleased(N) verstecken; Admins sehen sie trotzdem sofort.
    ============================================================ */
-const APP_VERSION = 16;
+const APP_VERSION = 17;
 
 // Site-weites Feature-Gate: neue, aber noch nicht freigegebene Funktionen
 // hinter isReleased(<APP_VERSION beim Einbau>) verstecken. Admins (echtes

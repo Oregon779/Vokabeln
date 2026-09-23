@@ -14,7 +14,7 @@ import {
   MeshPhysicalMaterial, MeshStandardMaterial, PointsMaterial,
   Color, Vector2, Vector3, CanvasTexture, EquirectangularReflectionMapping,
   PMREMGenerator, PointLight, AmbientLight, MeshBasicMaterial, DoubleSide,
-  ConeGeometry, ShaderMaterial, Sprite, SpriteMaterial,
+  ConeGeometry, ShaderMaterial, Sprite, SpriteMaterial, WebGLRenderTarget,
   ACESFilmicToneMapping, SRGBColorSpace, AdditiveBlending,
 } from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
@@ -139,6 +139,7 @@ const HELIX_LEN = 10.6;       // Kreuzung bei halber Laenge, ~2,8 Radien unter d
 const HELIX_TWIST = Math.PI;  // halbe Drehung: kreuzt genau einmal
 function makeHelix(mat, lite){
   const g = new Group();
+  g.userData.curves = [];
   const steps = lite ? 48 : 120;
   const tubular = lite ? 72 : 200, radial = lite ? 5 : 8, thick = 0.046;
   for(const phase of [0, Math.PI]){
@@ -151,6 +152,7 @@ function makeHelix(mat, lite){
       pts.push(new Vector3(Math.cos(a) * HELIX_R, -u * HELIX_LEN, Math.sin(a) * HELIX_R));
     }
     const curve = new CatmullRomCurve3(pts);
+    g.userData.curves.push(curve);
     const geo = new TubeGeometry(curve, tubular, thick, radial, false);
     // Am Ende nicht abgeschnitten aufhoeren, sondern duenn auslaufen: jeder
     // Querschnittsring wird zur Kurvenmitte hin zusammengezogen.
@@ -580,6 +582,7 @@ function loadTower(url){
     scene.add(g);
     tower = g;
     towerMats = [mat, sparks.material];
+    addParisTower(model);
     tower.userData.sparks = sparks;
     tower.userData.beacon = beacon;
     towerLoading = false;
@@ -589,103 +592,387 @@ function loadTower(url){
   });
 }
 
-/* ------------------------------------------------------------ Bokeh  */
+/* ------------------------------------------------------------- Staub  */
 
-// Die kleinen Lichtpunkte aus der Referenz: Staub im Licht, von einer Kamera
-// mit offener Blende gesehen. Jeder Punkt liegt fest im Raum - fliegt die
-// Kamera zum Turm, zieht das Feld an ihr vorbei, und genau das macht den
-// Weg dorthin spuerbar. Unscharf wird ein Punkt, je weiter er von der
-// Schaerfeebene (uFocus) weg liegt: nah heisst gross und weich, fern heisst
-// kleine Scheibe mit hellerem Rand, wie ein echtes Objektiv sie zeichnet.
-const BOKEH_BOX = { x: 17, y0: -9, y1: 12, z0: 7, z1: -58 };
-function makeBokeh(){
-  const n = lite ? 700 : 1700;
-  const pos = new Float32Array(n * 3), col = new Float32Array(n * 3);
-  const size = new Float32Array(n), seed = new Float32Array(n);
-  const B = BOKEH_BOX;
+// Staub an den Straengen, wie in der Referenz: nicht ueber den ganzen
+// Hintergrund verteilt, sondern als Wolke um die Kreuzung und nach unten
+// hin, oben am Ring nur vereinzelt. Er haengt am Zeichen (dreht und schwebt
+// mit) und wird vom Glanzlicht beleuchtet: wo es gerade im Strang
+// vorbeilaeuft, leuchtet der Staub daneben warm auf.
+function gauss(){
+  let u = 0, v = 0;
+  while(u === 0) u = Math.random();
+  while(v === 0) v = Math.random();
+  return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+}
+function makeDust(curves){
+  const n = lite ? 700 : 2400;
+  const pos = new Float32Array(n * 3);
+  const aU = new Float32Array(n), aPhase = new Float32Array(n);
+  const aSeed = new Float32Array(n), aSize = new Float32Array(n);
+  const P = new Vector3(), D = new Vector3();
   for(let i = 0; i < n; i++){
-    pos[i * 3]     = (Math.random() * 2 - 1) * B.x;
-    pos[i * 3 + 1] = B.y0 + Math.random() * (B.y1 - B.y0);
-    pos[i * 3 + 2] = B.z1 + Math.random() * (B.z0 - B.z1);
-    // Warmes Gold bis helles Champagner, alles gedaempft.
-    const w = Math.random(), v = 0.55 + Math.random() * 0.45;
-    col[i * 3]     = v;
-    col[i * 3 + 1] = v * (0.68 + w * 0.24);
-    col[i * 3 + 2] = v * (0.26 + w * 0.42);
-    // Meist Staub, selten ein groesseres Korn.
-    size[i] = 0.012 + Math.pow(Math.random(), 3) * 0.05;
-    seed[i] = Math.random();
+    const s = i & 1;
+    const r = Math.random();
+    let u;
+    if(r < 0.55)      u = 0.5 + gauss() * 0.16;          // dicht um die Kreuzung
+    else if(r < 0.88) u = 0.3 + Math.random() * 0.7;     // nach unten hin
+    else              u = 0.04 + Math.random() * 0.3;    // vereinzelt am Ring
+    u = Math.max(0.03, Math.min(1, u));
+    curves[s].getPointAt(u, P);
+    // Weiter unten streut der Staub breiter - er sinkt und verweht.
+    const rad = (0.1 + 0.8 * u * u) * Math.abs(gauss());
+    D.set(gauss(), gauss() * 0.6, gauss()).normalize().multiplyScalar(rad);
+    pos[i * 3]     = P.x + D.x;
+    pos[i * 3 + 1] = P.y + D.y;
+    pos[i * 3 + 2] = P.z + D.z;
+    aU[i] = u;
+    aPhase[i] = s ? 0.5 : 0;
+    aSeed[i] = Math.random();
+    // Meist feiner Staub, selten ein groesseres, weiches Korn.
+    aSize[i] = Math.random() < 0.06 ? 3.5 + Math.random() * 3 : 1.1 + Math.random() * 1.5;
   }
   const geo = new BufferGeometry();
   geo.setAttribute('position', new Float32BufferAttribute(pos, 3));
-  geo.setAttribute('color',    new Float32BufferAttribute(col, 3));
-  geo.setAttribute('aSize',    new Float32BufferAttribute(size, 1));
-  geo.setAttribute('aSeed',    new Float32BufferAttribute(seed, 1));
+  geo.setAttribute('aU',       new Float32BufferAttribute(aU, 1));
+  geo.setAttribute('aPhase',   new Float32BufferAttribute(aPhase, 1));
+  geo.setAttribute('aSeed',    new Float32BufferAttribute(aSeed, 1));
+  geo.setAttribute('aSize',    new Float32BufferAttribute(aSize, 1));
   const mat = new ShaderMaterial({
     uniforms: {
-      uTime:    { value: 0 },
-      uFocus:   { value: 8.5 },
-      uAperture:{ value: 16 },
-      uViewH:   { value: 900 },
-      uMaxPx:   { value: 56 },
-      uLift:    { value: 0 },
-      uOpacity: { value: 1 },
+      uTime: { value: 0 }, uGlint: glint, uOpacity: { value: 1 }, uPx: { value: 1 },
     },
     vertexShader: `
-      attribute float aSize;
-      attribute float aSeed;
-      attribute vec3 color;
-      uniform float uTime, uFocus, uAperture, uViewH, uMaxPx, uLift;
+      attribute float aU, aPhase, aSeed, aSize;
+      uniform float uTime, uGlint, uPx;
       varying vec3 vCol;
-      varying float vBlur, vAlpha;
+      varying float vA, vBig;
       void main(){
         vec3 p = position;
         float s = aSeed * 6.2831;
-        // Langsames Schweben, jeder Punkt in eigenem Takt.
-        p.x += sin(uTime * 0.07 + s) * 0.35;
-        p.z += cos(uTime * 0.05 + s * 1.3) * 0.35;
-        // Beim Scrollen steigt das Feld - so sinkt man durch den Raum. Oben
-        // hinaus, unten wieder herein.
-        p.y = ${BOKEH_BOX.y0.toFixed(1)} + mod(p.y - ${BOKEH_BOX.y0.toFixed(1)} + uLift
-              + uTime * (0.03 + aSeed * 0.05), ${(BOKEH_BOX.y1 - BOKEH_BOX.y0).toFixed(1)});
+        // Schweben um den eigenen Platz, unten weiter ausholend.
+        p += vec3(sin(uTime * 0.31 + s), sin(uTime * 0.23 + s * 1.7),
+                  cos(uTime * 0.27 + s * 2.3)) * (0.06 + aU * 0.14);
+        // Langsames Absinken mit Ein- und Ausblenden - wie Staub im Licht.
+        float cyc = fract(uTime * 0.03 * (0.5 + aSeed) + aSeed);
+        p.y -= cyc * 0.9;
+        float life = smoothstep(0.0, 0.15, cyc) * (1.0 - smoothstep(0.7, 1.0, cyc));
         vec4 mv = modelViewMatrix * vec4(p, 1.0);
-        float d = max(0.05, -mv.z);
-        float core = aSize * projectionMatrix[1][1] * uViewH * 0.5 / d;
-        float coc  = uAperture * abs(d - uFocus) / d;
-        float px   = clamp(max(core, coc), 2.6, uMaxPx);
-        gl_PointSize = px;
         gl_Position = projectionMatrix * mv;
-        vBlur = clamp((px - core) / px * 1.6, 0.0, 1.0);
-        // Die Lichtmenge bleibt ungefaehr gleich - je groesser die Scheibe,
-        // desto blasser. Direkt vor der Kamera und ganz hinten blendet aus.
-        float twinkle = 0.75 + 0.25 * sin(uTime * (0.6 + aSeed) + s * 3.0);
-        vAlpha = clamp(1.5 / px, 0.03, 0.42) * twinkle
-               * smoothstep(0.4, 1.6, d) * (1.0 - smoothstep(38.0, 56.0, d));
-        vCol = color;
+        // Dasselbe Glanzlicht wie im Strang (strandGlint): Kopf und Takt.
+        float head = fract(uGlint + aPhase) * 1.3 - 0.1;
+        float dd = aU - head;
+        float lit = exp(-dd * dd / 0.005) * smoothstep(0.02, 0.16, aU);
+        float d = max(0.5, -mv.z);
+        gl_PointSize = aSize * uPx * (1.0 + lit * 0.7) * 8.0 / d;
+        vBig = step(3.0, aSize);
+        vCol = mix(vec3(0.86, 0.56, 0.2) * 0.6, vec3(1.0, 0.86, 0.58), lit);
+        float tw = 0.7 + 0.3 * sin(uTime * (0.8 + aSeed) + s * 3.0);
+        vA = (0.32 + 1.5 * lit) * life * tw * (vBig > 0.5 ? 0.35 : 1.0);
       }`,
     fragmentShader: `
       uniform float uOpacity;
       varying vec3 vCol;
-      varying float vBlur, vAlpha;
+      varying float vA, vBig;
       void main(){
         vec2 c = gl_PointCoord * 2.0 - 1.0;
         float r = length(c);
         if(r > 1.0) discard;
-        float sharp = exp(-r * r * 7.0);
-        float disc  = smoothstep(1.0, 0.8, r);
-        float rim   = smoothstep(0.5, 0.9, r) * disc;
-        float bok   = disc * 0.5 + rim * 0.65;
-        float a = mix(sharp, bok, vBlur) * vAlpha * uOpacity;
-        gl_FragColor = vec4(vCol, a);
+        // Feiner Staub als weicher Punkt, grosse Koerner als Scheibe mit
+        // etwas hellerem Rand - unscharf, wie vor der Linse.
+        float a = mix(exp(-r * r * 4.0),
+                      smoothstep(1.0, 0.8, r) * (0.45 + 0.55 * smoothstep(0.5, 0.9, r)), vBig);
+        gl_FragColor = vec4(vCol, a * vA * uOpacity);
       }`,
     transparent: true, depthWrite: false, blending: AdditiveBlending,
   });
   const pts = new Points(geo, mat);
   pts.frustumCulled = false;
-  // Zuerst zeichnen: was danach kommt (Zeichen, Turm), deckt die Punkte ab,
-  // die vor ihm liegen. So laeuft auch hier nichts ueber das Zeichen.
-  pts.renderOrder = -2;
   return pts;
+}
+
+/* ------------------------------------------------- Paris bei Nacht  */
+
+// Das "Video" auf dem Weg zum Turm, wie der Wald aus Punkten in der
+// Referenz. Es gibt keine Videodatei: eine zweite, kleine Szene - Paris bei
+// Nacht mit Turm, Scheinwerfer, Strassenlichtern, Verkehr und der Seine -
+// wird Bild fuer Bild in eine winzige Textur gerendert (256 x 144). Ein
+// grosses Feld aus Punkten liest daraus seine Farben. Helle Stellen treten
+// nach vorn und werden groesser, dunkle verschwinden: man erkennt die Stadt
+// schemenhaft, aber sie bleibt Hintergrund.
+const PARIS = {
+  rt: () => (lite ? [128, 72] : [256, 144]),
+  grid: () => (lite ? [100, 56] : [200, 112]),
+  // Das Punktfeld: ein Stueck Zylindermantel hinter dem Turm, zur Flugbahn hin
+  // gewoelbt. Mittelpunkt, Radius, Oeffnungswinkel, Hoehe.
+  C: new Vector3(0, 3, -10), R: 50, ARC: 1.6, H: 44,
+};
+
+function makeParisLights(){
+  // Stadtlichter als Punkte in der Ebene y=0. Jedes Licht hat eine Farbe,
+  // einen Zufallswert fuers Flackern und - beim Verkehr - eine Fahrtrichtung.
+  const base = [], dir = [], col = [], seed = [];
+  const push = (x, z, c, dx = 0, dz = 0, y = 0) => {
+    base.push(x, y, z); dir.push(dx, 0, dz); col.push(c[0], c[1], c[2]); seed.push(Math.random());
+  };
+  const amber = [1.0, 0.66, 0.3], warm = [1.0, 0.86, 0.66], cool = [0.72, 0.82, 1.0];
+  const pick = () => { const r = Math.random(); return r < 0.55 ? amber : r < 0.93 ? warm : cool; };
+  const inPark = (x, z) => Math.abs(x) < 4.5 && z > 4 && z < 42;     // Marsfeld: dunkel
+  const river  = (x) => -9 + Math.sin(x * 0.045) * 7;                 // die Seine
+  const S = lite ? 1.9 : 1.25;
+  // Strassenraster, leicht verdreht wie ein echter Stadtplan.
+  for(let k = -14; k <= 14; k++){
+    for(let t = -90; t <= 90; t += S){
+      const a = 0.35;
+      for(const [gx, gz] of [[t, k * 6.5], [k * 6.5, t]]){
+        const x = gx * Math.cos(a) - gz * Math.sin(a) + (Math.random() - 0.5) * 0.6;
+        const z = gx * Math.sin(a) + gz * Math.cos(a) + (Math.random() - 0.5) * 0.6;
+        if(x * x + z * z > 95 * 95 || inPark(x, z) || Math.abs(z - river(x)) < 3) continue;
+        if(Math.random() < 0.55) push(x, z, pick());
+      }
+    }
+  }
+  // Sternfoermige Avenuen um einen Platz - Paris hat viele davon.
+  for(const [cx, cz] of [[-38, -30], [30, 26], [-26, 40]]){
+    for(let a = 0; a < 12; a++){
+      const ang = a * Math.PI / 6 + Math.random() * 0.2;
+      for(let r = 2; r < 40; r += S * 0.8){
+        const x = cx + Math.cos(ang) * r, z = cz + Math.sin(ang) * r;
+        if(inPark(x, z) || Math.abs(z - river(x)) < 3) continue;
+        push(x, z, warm);
+      }
+    }
+  }
+  // Uferlichter und ihre Spiegelung im Wasser.
+  for(let x = -95; x <= 95; x += S * 0.7){
+    const z = river(x);
+    push(x, z - 3.1, warm); push(x, z + 3.1, warm);
+    if(Math.random() < 0.7) push(x + Math.random(), z + (Math.random() - 0.5) * 4, [0.9, 0.78, 0.55], 0, 0, -0.01);
+  }
+  // Verkehr: Lichter, die auf den Strassen entlangziehen.
+  const cars = lite ? 180 : 520;
+  for(let i = 0; i < cars; i++){
+    const k = Math.round((Math.random() - 0.5) * 28) * 6.5, a = 0.35;
+    const along = Math.random() < 0.5;
+    const t = (Math.random() - 0.5) * 170;
+    const gx = along ? t : k, gz = along ? k : t;
+    const x = gx * Math.cos(a) - gz * Math.sin(a), z = gx * Math.sin(a) + gz * Math.cos(a);
+    const L = 24 * (Math.random() < 0.5 ? 1 : -1);
+    const dx = (along ? Math.cos(a) : -Math.sin(a)) * L, dz = (along ? Math.sin(a) : Math.cos(a)) * L;
+    push(x, z, Math.random() < 0.5 ? [1, 0.95, 0.85] : [1, 0.35, 0.2], dx, dz);
+  }
+  const geo = new BufferGeometry();
+  geo.setAttribute('position', new Float32BufferAttribute(base, 3));
+  geo.setAttribute('aDir',     new Float32BufferAttribute(dir, 3));
+  geo.setAttribute('color',    new Float32BufferAttribute(col, 3));
+  geo.setAttribute('aSeed',    new Float32BufferAttribute(seed, 1));
+  const mat = new ShaderMaterial({
+    uniforms: { uTime: { value: 0 } },
+    vertexShader: `
+      attribute vec3 aDir;
+      attribute vec3 color;
+      attribute float aSeed;
+      uniform float uTime;
+      varying vec3 vCol;
+      void main(){
+        float moving = step(0.001, length(aDir));
+        vec3 p = position + aDir * (fract(uTime * 0.045 * (0.6 + aSeed) + aSeed) - 0.5) * moving;
+        vec4 mv = modelViewMatrix * vec4(p, 1.0);
+        gl_Position = projectionMatrix * mv;
+        gl_PointSize = clamp(40.0 / -mv.z, 1.0, 2.6);
+        // Wasser flackert schnell, die Stadt kaum.
+        float water = step(p.y, -0.005);
+        float tw = mix(0.8 + 0.2 * sin(uTime * 1.3 + aSeed * 40.0),
+                       0.35 + 0.65 * abs(sin(uTime * 3.0 + aSeed * 60.0)), water);
+        vCol = color * tw;
+      }`,
+    fragmentShader: `
+      varying vec3 vCol;
+      void main(){ gl_FragColor = vec4(vCol, 1.0); }`,
+    depthWrite: false,
+  });
+  const pts = new Points(geo, mat);
+  pts.frustumCulled = false;
+  return pts;
+}
+
+function makeParis(){
+  const [vw, vh] = PARIS.rt();
+  const rt = new WebGLRenderTarget(vw, vh);
+  const sc = new Scene();
+  sc.background = new Color(0x03050b);
+  const cam = new PerspectiveCamera(46, vw / vh, 0.5, 400);
+
+  const lights = makeParisLights();
+  sc.add(lights);
+
+  // Der Lichtschein ueber der Stadt am Horizont.
+  const c = document.createElement('canvas');
+  c.width = c.height = 128;
+  const x = c.getContext('2d');
+  const g = x.createRadialGradient(64, 64, 0, 64, 64, 64);
+  g.addColorStop(0, 'rgba(255,170,90,0.4)');
+  g.addColorStop(0.5, 'rgba(160,80,40,0.1)');
+  g.addColorStop(1, 'rgba(0,0,0,0)');
+  x.fillStyle = g; x.fillRect(0, 0, 128, 128);
+  const glowTex = new CanvasTexture(c);
+  const sky = new Sprite(new SpriteMaterial({ map: glowTex, blending: AdditiveBlending, depthWrite: false }));
+  sky.scale.set(320, 44, 1);
+  sc.add(sky);
+
+  // Der Scheinwerfer gehoert auch hierher - er ist das, was sich im Bild
+  // am deutlichsten bewegt.
+  const beacon = makeBeacon(true);
+  beacon.position.y = TOWER_HEIGHT * 0.985;
+  beacon.userData.mat.uniforms.uOpacity.value = 0.55;
+  sc.add(beacon);
+
+  // Der Punktvorhang in der Hauptszene.
+  const [gw, gh] = PARIS.grid();
+  const n = gw * gh;
+  const pos = new Float32Array(n * 3), nrm = new Float32Array(n * 3);
+  const uv = new Float32Array(n * 2), seed = new Float32Array(n);
+  let q = 0;
+  for(let j = 0; j < gh; j++){
+    for(let i = 0; i < gw; i++, q++){
+      const u = (i + 0.5 + (Math.random() - 0.5) * 0.8) / gw;
+      const v = (j + 0.5 + (Math.random() - 0.5) * 0.8) / gh;
+      const ang = (u - 0.5) * PARIS.ARC;
+      const px = PARIS.C.x + Math.sin(ang) * PARIS.R;
+      const pz = PARIS.C.z - Math.cos(ang) * PARIS.R;
+      const py = PARIS.C.y + (v - 0.5) * PARIS.H;
+      pos[q * 3] = px; pos[q * 3 + 1] = py; pos[q * 3 + 2] = pz;
+      // Nach innen, zur Flugbahn hin - dorthin treten helle Stellen vor.
+      nrm[q * 3] = -Math.sin(ang); nrm[q * 3 + 1] = 0; nrm[q * 3 + 2] = Math.cos(ang);
+      uv[q * 2] = u; uv[q * 2 + 1] = v;
+      seed[q] = Math.random();
+    }
+  }
+  const geo = new BufferGeometry();
+  geo.setAttribute('position', new Float32BufferAttribute(pos, 3));
+  geo.setAttribute('aN',       new Float32BufferAttribute(nrm, 3));
+  geo.setAttribute('aUV',      new Float32BufferAttribute(uv, 2));
+  geo.setAttribute('aSeed',    new Float32BufferAttribute(seed, 1));
+  const mat = new ShaderMaterial({
+    uniforms: {
+      uTex: { value: rt.texture }, uTime: { value: 0 }, uVis: { value: 0 },
+      uViewH: { value: 900 },
+    },
+    vertexShader: `
+      attribute vec3 aN;
+      attribute vec2 aUV;
+      attribute float aSeed;
+      uniform sampler2D uTex;
+      uniform float uTime, uViewH;
+      varying vec3 vCol;
+      varying float vA, vBig;
+      void main(){
+        vec3 col = texture2D(uTex, aUV).rgb;
+        float lum = dot(col, vec3(0.3, 0.59, 0.11));
+        float s = aSeed * 6.2831;
+        vec3 p = position + aN * (lum * 5.0 + sin(uTime * 0.4 + s) * 0.5);
+        p += vec3(sin(uTime * 0.13 + s), cos(uTime * 0.11 + s * 1.3), 0.0) * 0.25;
+        vec4 mv = modelViewMatrix * vec4(p, 1.0);
+        gl_Position = projectionMatrix * mv;
+        float d = max(1.0, -mv.z);
+        float world = 0.07 + lum * 0.3;
+        gl_PointSize = clamp(world * projectionMatrix[1][1] * uViewH * 0.5 / d, 1.0, 14.0);
+        vBig = smoothstep(0.35, 0.8, lum);
+        // Goldstich, damit die Stadt zur Seite passt.
+        vCol = mix(col, col * vec3(1.08, 0.94, 0.74), 0.4) * 1.1;
+        // Nur wirklich Helles wird zum Punkt; der dunkle Grund bleibt leer.
+        vA = smoothstep(0.1, 0.5, lum) * 0.85 * (0.75 + 0.25 * sin(uTime * (0.7 + aSeed) + s * 5.0));
+      }`,
+    fragmentShader: `
+      uniform float uVis;
+      varying vec3 vCol;
+      varying float vA, vBig;
+      void main(){
+        vec2 c = gl_PointCoord * 2.0 - 1.0;
+        float r = length(c);
+        if(r > 1.0) discard;
+        float a = mix(exp(-r * r * 3.5),
+                      smoothstep(1.0, 0.78, r) * (0.5 + 0.5 * smoothstep(0.45, 0.9, r)), vBig);
+        gl_FragColor = vec4(vCol, a * vA * uVis);
+      }`,
+    transparent: true, depthWrite: false, blending: AdditiveBlending,
+  });
+  const sheet = new Points(geo, mat);
+  sheet.frustumCulled = false;
+  sheet.renderOrder = -2;
+  sheet.visible = false;
+
+  // Der weiche, helle Schein hinter dem Turm - in der Referenz das, was die
+  // Punktwelt zusammenhaelt.
+  const c2 = document.createElement('canvas');
+  c2.width = c2.height = 128;
+  const x2 = c2.getContext('2d');
+  const g2 = x2.createRadialGradient(64, 64, 0, 64, 64, 64);
+  g2.addColorStop(0, 'rgba(255,238,205,0.6)');
+  g2.addColorStop(0.4, 'rgba(255,196,120,0.16)');
+  g2.addColorStop(1, 'rgba(0,0,0,0)');
+  x2.fillStyle = g2; x2.fillRect(0, 0, 128, 128);
+  const shine = new Sprite(new SpriteMaterial({
+    map: new CanvasTexture(c2), blending: AdditiveBlending, transparent: true,
+    depthWrite: false, opacity: 0,
+  }));
+  shine.position.set(TOWER_AT.x, TOWER_AT.y + 3, TOWER_AT.z - 8);
+  shine.scale.set(30, 24, 1);
+  shine.renderOrder = -1;
+  shine.visible = false;
+
+  return { rt, scene: sc, cam, lights, beacon, sky, sheet, shine, tower: null, frame: 0 };
+}
+
+// Der Turm im "Video": dasselbe Modell, aber flach leuchtend - unten von
+// Scheinwerfern angestrahlt, dazu das Funkeln, das der echte Turm zur vollen
+// Stunde zeigt.
+function addParisTower(model){
+  if(!paris || paris.tower) return;
+  const mat = new ShaderMaterial({
+    uniforms: { uTime: { value: 0 } },
+    vertexShader: `
+      varying vec3 vW;
+      void main(){
+        vec4 w = modelMatrix * vec4(position, 1.0);
+        vW = w.xyz;
+        gl_Position = projectionMatrix * viewMatrix * w;
+      }`,
+    fragmentShader: `
+      uniform float uTime;
+      varying vec3 vW;
+      float hash(vec3 p){ return fract(sin(dot(p, vec3(12.9898, 78.233, 37.719))) * 43758.5453); }
+      void main(){
+        float h = clamp(vW.y / ${TOWER_HEIGHT.toFixed(1)}, 0.0, 1.0);
+        vec3 c = vec3(1.0, 0.6, 0.2) * (0.45 + 0.7 * (1.0 - h) * (1.0 - h) + 0.35 * h);
+        float sp = step(0.985, hash(floor(vW * 9.0) + floor(uTime * 4.0)));
+        gl_FragColor = vec4(c + sp * vec3(1.0, 0.95, 0.85) * 1.6, 1.0);
+      }`,
+  });
+  const t = model.clone();
+  t.traverse(o => { if(o.isMesh) o.material = mat; });
+  paris.scene.add(t);
+  paris.tower = t;
+  paris.towerMat = mat;
+}
+
+function renderParis(t){
+  const p = paris;
+  // Die Kamera zieht langsam um die Stadt, hoch ueber den Daechern - der Turm
+  // steht links im Bild, die Lichter der Stadt fuellen den Rest.
+  const a = 2.2 + t * (Math.PI * 2 / 110);
+  p.cam.position.set(Math.sin(a) * 30, 8.5 + Math.sin(t * 0.09) * 1.5, Math.cos(a) * 30);
+  // Etwas rechts am Turm vorbei schauen: er steht dann im linken Drittel.
+  p.cam.lookAt(Math.cos(a) * 7, 4, -Math.sin(a) * 7);
+  // Der Schein liegt am Horizont hinter der Stadt, nicht mitten in ihr -
+  // sonst hellt er den Boden auf und jeder Punkt des Feldes leuchtet.
+  p.sky.position.set(-Math.sin(a) * 170, 4, -Math.cos(a) * 170);
+  p.lights.material.uniforms.uTime.value = t;
+  p.beacon.rotation.y = t * (Math.PI * 2 / 16);
+  if(p.towerMat) p.towerMat.uniforms.uTime.value = t;
+  renderer.setRenderTarget(p.rt);
+  renderer.render(p.scene, p.cam);
+  renderer.setRenderTarget(null);
 }
 
 /* --------------------------------------------------------------- Ablauf  */
@@ -721,16 +1008,18 @@ function makeHalo(){
 // der Scroll-Fortschritt und wo der Ring dann steht. Dazwischen wird weich
 // interpoliert. So lässt sich jede Szene einzeln nachjustieren, ohne dass
 // eine Sinuskurve alle anderen mitverbiegt.
-//        p     scale     x      y      z     rotX   rotY   rotZ
+// top: hochkant (Handy) in den freien Streifen oben ausweichen, weil der
+// Text dort oben beginnt. 0 = bleibt, 1 = weicht aus.
+//        p     scale     x      y      z     rotX   rotY   rotZ   top
 const KEYS = [
-  [0.00, 0.40,  0.00,  1.30,  0.00,  0.12,  0.00,  0.00],  // Eintritt - gross und mittig, unter der Kopfleiste
-  [0.11, 0.54,  0.70,  0.95, -2.60,  0.12,  0.00,  0.10],  // Das Wort - so gross wie im Startbild
-  [0.25, 0.54, -0.55,  0.60, -2.80,  0.12,  0.00, -0.12],  // Methode  - dito, andere Seite
-  [0.32, 0.30,  1.90, -1.10, -3.60,  0.12,  0.00,  0.12],  // zieht sich vor dem Turm zurueck
-  [0.55, 0.05,  0.00, -2.60, -6.50,  0.12,  0.00,  0.08],  // Turm     - geparkt, ohnehin unsichtbar
-  [0.80, 0.14,  0.00, -3.10, -3.80,  0.12,  0.00, -0.14],  // taucht unter dem Turm wieder auf
-  [0.90, 0.50, -1.60, -0.15, -2.90,  0.12,  0.00,  0.12],  // Atelier  - links hinter den Zahlen
-  [1.00, 0.37,  0.00,  0.95, -0.15,  0.12,  0.00,  0.00],  // Abschluss- wie im Startbild (naeher an der Kamera)
+  [0.00, 0.40,  0.00,  1.30,  0.00,  0.12,  0.00,  0.00,  0],  // Eintritt - gross und mittig, unter der Kopfleiste
+  [0.11, 0.54,  0.00,  1.05, -2.60,  0.12,  0.00,  0.00,  0],  // Das Wort - mittig, sinkt ein Stueck
+  [0.25, 0.54,  0.00,  0.75, -2.80,  0.12,  0.00,  0.00,  0],  // Methode  - weiter hinab
+  [0.32, 0.30,  0.00,  0.10, -3.60,  0.12,  0.00,  0.00,  0],  // sinkt, waehrend der Flug beginnt
+  [0.55, 0.05,  0.00, -2.60, -6.50,  0.12,  0.00,  0.00,  0],  // Turm     - geparkt, ohnehin unsichtbar
+  [0.80, 0.14,  0.00, -3.10, -3.80,  0.12,  0.00,  0.00,  0],  // taucht unter dem Turm wieder auf
+  [0.90, 0.50,  0.00,  0.45, -2.90,  0.12,  0.00,  0.00,  1],  // Atelier  - mittig
+  [1.00, 0.37,  0.00,  0.95, -0.15,  0.12,  0.00,  0.00,  0],  // Abschluss- wie im Startbild (naeher an der Kamera)
 ];
 function smoothstep(t){ return t * t * (3 - 2 * t); }
 function sampleKeys(p, out){
@@ -738,7 +1027,7 @@ function sampleKeys(p, out){
   while(i < KEYS.length - 2 && p > KEYS[i + 1][0]) i++;
   const a = KEYS[i], b = KEYS[i + 1];
   const t = smoothstep(Math.max(0, Math.min(1, (p - a[0]) / (b[0] - a[0]))));
-  for(let k = 1; k < 8; k++) out[k - 1] = a[k] + (b[k] - a[k]) * t;
+  for(let k = 1; k < a.length; k++) out[k - 1] = a[k] + (b[k] - a[k]) * t;
   return out;
 }
 
@@ -749,8 +1038,8 @@ let raf = 0, running = false, lite = false, ready = false;
 let progress = 0, shown = 0;
 let spin = 0, spinT = 0;
 let towerAmt = 0, towerShown = 0, tourP = 0, tourShown = 0;
-let streakAmt = 0;
-let halo, bokeh;
+let streakAmt = 0, parisVis = 0;
+let halo, dust, paris = null;
 let pointerX = 0, pointerY = 0, px = 0, py = 0;
 
 function init(canvas, opts){
@@ -831,7 +1120,11 @@ function init(canvas, opts){
         color: GOLD_BRIGHT, emissive: new Color(GOLD), emissiveIntensity: 0.12,
         metalness: 1, roughness: 0.045, envMapIntensity: 3.6,
         clearcoat: 1, clearcoatRoughness: 0.02, transparent: true }));
-  emblem.add(makeHelix(ribbonMat, lite));
+  const helix = makeHelix(ribbonMat, lite);
+  emblem.add(helix);
+  // Der Staub an den Straengen haengt am Zeichen und dreht mit.
+  dust = makeDust(helix.userData.curves);
+  emblem.add(dust);
 
   // Ein zweiter, schmaler Reif dicht innen. Er sitzt eine Spur vor dem
   // grossen und gibt dem Zeichen eine zweite Ebene - ohne ihn sieht ein
@@ -886,8 +1179,10 @@ function init(canvas, opts){
   halo = makeHalo();
   scene.add(halo);
 
-  bokeh = makeBokeh();
-  scene.add(bokeh);
+  // Die Punktwelt auf dem Weg zum Turm (Paris bei Nacht, als Punkte).
+  paris = makeParis();
+  scene.add(paris.sheet);
+  scene.add(paris.shine);
 
   // Der Bloom ist das, was die Referenz teuer macht: helle Stellen bluehen in
   // weiche Hoefe aus. Auf schwachen Geraeten faellt der Pass weg - dort wird
@@ -957,7 +1252,7 @@ let turnTarget = 0, turnShown = 0;
 function setTurn(t){ if(typeof t === 'number' && isFinite(t)) turnTarget = t; }
 
 
-const _k = new Array(7);
+const _k = new Array(8);
 function applyTransform(p, t){
   const k = sampleKeys(p, _k);
   // Die Kamera misst senkrecht. Auf einem hochkantigen Schirm würde der Ring
@@ -979,10 +1274,12 @@ function applyTransform(p, t){
   // Hochkant gibt es neben dem Text keinen Platz. Stuetzstellen, die das
   // Emblem an die Seite stellen wollten (grosses |x|), ruecken dort in den
   // freien Streifen ueber dem Text; mittig gedachte bleiben, wo sie sind.
+  // Seit Build 17 steht das Zeichen mittig (x = 0); welche Szene hochkant
+  // nach oben ausweicht, sagt die letzte Spalte der Tabelle (top).
   const port = Math.max(0, Math.min(1, (1 - camera.aspect) / 0.45))
-             * Math.min(1, Math.abs(k[1]) / 2.2);
+             * Math.max(Math.min(1, Math.abs(k[1]) / 2.2), k[7] || 0);
   const kx = k[1] * (1 - port);
-  const ky = k[2] + (halfH * 0.72 - k[2]) * port;
+  const ky = k[2] + (halfH * 0.62 - k[2]) * port;
   emblem.position.set(Math.max(-maxX, Math.min(maxX, kx)),
                       Math.max(-maxY, Math.min(maxY, ky)), k[3]);
   // Der Zeiger kippt das Emblem nur leicht mit - genug, dass es auf die Maus
@@ -994,7 +1291,12 @@ function applyTransform(p, t){
   emblem.position.y += Math.sin(t * 0.85) * 0.14 * k[0] * efit;
   // Das L dreht dem Reif ein Stueck entgegen, damit es nicht wie aufgeklebt
   // mitfaehrt, sondern wie ein eigener Koerper im Ring schwebt.
-  if(emblem.userData.letter) emblem.userData.letter.rotation.y = Math.sin(t * 0.35) * 0.06;
+  // Das L dreht nicht ganz mit: Reif und Straenge sind nach einer halben
+  // Drehung wieder dieselbe Form, das L waere gespiegelt. Es neigt sich nur
+  // bis etwa 20 Grad mit und schaut sonst immer nach vorn.
+  if(emblem.userData.letter){
+    emblem.userData.letter.rotation.y = -spin + Math.sin(spin) * 0.35 + Math.sin(t * 0.35) * 0.06;
+  }
   // Drei Ebenen mit eigenem Takt: der grosse Reif dreht langsam im
   // Uhrzeigersinn, der Segmentreif schneller dagegen, der duenne Reif atmet.
   if(ringMain) ringMain.rotation.z = -t * (Math.PI * 2 / 20);
@@ -1022,6 +1324,7 @@ function applyTransform(p, t){
   streakAmt = eo * (0.5 + 0.3 * Math.max(0, Math.min(1, ends)));
   emblem.visible = eo > 0.01;
   for(const m of emblemMats) m.opacity = eo;
+  if(dust) dust.material.uniforms.uOpacity.value = eo;
   // Die Schlieren kreisen um das Zeichen und liegen dahinter.
   streaks.position.set(emblem.position.x, emblem.position.y, emblem.position.z - 1.6);
   streakFront = emblem.position.z;
@@ -1095,11 +1398,17 @@ function applyTransform(p, t){
   _dirA.lerp(_dirB, b).normalize();
   _look.copy(camera.position).addScaledVector(_dirA, 10);
   camera.lookAt(_look);
-  if(bokeh){
-    // Die Schaerfe liegt immer auf dem, was gerade die Buehne hat.
-    bokeh.material.uniforms.uFocus.value = 8.5 + (_camTour.length() - 8.5) * b;
-    // Beim Scrollen durch die Szenen steigt das Feld langsam.
-    bokeh.material.uniforms.uLift.value = p * 7;
+  // Die Punktwelt zeigt sich nur auf dem Weg: sie kommt mit dem Flug und
+  // geht, sobald die Umrundung beginnt (dort saehe man sie von der Seite).
+  // Nach der ganzen Runde steht die Kamera wieder davor - beim Zurueck-
+  // weichen ist sie also wieder da.
+  if(paris){
+    const mid = Math.min(tourShown, 1 - tourShown);
+    parisVis = smoothstep(Math.max(0, Math.min(1, (b - 0.06) / 0.4)))
+             * (1 - smoothstep(Math.max(0, Math.min(1, mid / 0.07))));
+    paris.sheet.visible = paris.shine.visible = parisVis > 0.005;
+    paris.sheet.material.uniforms.uVis.value = parisVis;
+    paris.shine.material.opacity = 0.32 * parisVis;
   }
 }
 
@@ -1126,13 +1435,17 @@ function frame(){
   py += (pointerY - py) * smooth(2.4);
   // Weich nachziehen, damit ein Mausrad-Sprung nicht als Ruck dreht.
   turnShown += (turnTarget - turnShown) * smooth(5);
-  spin = turnShown * Math.PI * 2;
+  spin = turnShown * Math.PI;
   if(grade) grade.uniforms.uTime.value = t;
-  if(bokeh) bokeh.material.uniforms.uTime.value = t;
+  if(dust) dust.material.uniforms.uTime.value = t;
+  if(paris) paris.sheet.material.uniforms.uTime.value = t;
   applyTransform(shown, t);
   // Die Schlieren gehen mit dem Emblem: waehrend der Turm die Buehne hat,
   // sollen sie nicht durch sein Gitterwerk ziehen.
   updateStreaks(streaks, t, dt, streakAmt);
+  // Das "Video" nur rendern, solange man es sieht - auf schwachen Geraeten
+  // jedes zweite Bild, das faellt bei der Punktgroesse nicht auf.
+  if(paris && parisVis > 0.005 && (!lite || (paris.frame++ & 1) === 0)) renderParis(t);
 
   draw();
   raf = requestAnimationFrame(frame);
@@ -1151,15 +1464,11 @@ function resize(){
   if(bloom) bloom.setSize(w, h);
   camera.aspect = w / h;
   camera.updateProjectionMatrix();
-  if(bokeh){
-    // Punktgroessen in Geraetepixeln, auf die Bildhoehe bezogen - sonst
-    // waeren die Scheiben auf einem grossen Schirm winzig.
-    const pr = renderer.getPixelRatio(), k = (h / 900) * pr;
-    const u = bokeh.material.uniforms;
-    u.uViewH.value = h * pr;
-    u.uAperture.value = 16 * k;
-    u.uMaxPx.value = 56 * k;
-  }
+  // Punktgroessen in Geraetepixeln, auf die Bildhoehe bezogen - sonst
+  // waeren die Punkte auf einem grossen Schirm winzig.
+  const pr = renderer.getPixelRatio();
+  if(dust) dust.material.uniforms.uPx.value = (h / 900) * pr;
+  if(paris) paris.sheet.material.uniforms.uViewH.value = h * pr;
 }
 
 function start(){
@@ -1176,9 +1485,10 @@ function stop(){
 function renderOnce(){
   if(!ready) return;
   shown = progress; towerShown = towerAmt; tourShown = tourP; px = pointerX; py = pointerY;
-  turnShown = turnTarget; spin = turnShown * Math.PI * 2;   // Standbild folgt dem Scroll direkt
+  turnShown = turnTarget; spin = turnShown * Math.PI;   // Standbild folgt dem Scroll direkt
   applyTransform(shown, 0);
   updateStreaks(streaks, 0, 0, streakAmt * 0.5);
+  if(paris && parisVis > 0.005) renderParis(0);
   draw();
 }
 

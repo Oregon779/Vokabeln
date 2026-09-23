@@ -119,16 +119,45 @@ kleiner und verschwindet am Horizont.
 - Hochkant (`fit` < 1) schrumpfen auch die Hoehen der Turmfahrt mit, sonst
   schaut die Kamera ueber die Spitze ins Leere.
 
-## Die Lichtpunkte (Bokeh, ab Build 16)
+## Staub an den Straengen (ab Build 17)
 
-`makeBokeh`: 1700 Punkte (lite 700) in einem Kasten, der Buehne, Flugweg
-und Turm abdeckt (`BOKEH_BOX`). Ein Shader zeichnet sie wie unscharfe
-Lichter: Groesse = max(echte Groesse, Zerstreuungskreis `uAperture *
-|d - uFocus| / d`), je groesser desto blasser, unscharfe als Scheibe mit
-hellerem Rand, scharfe als weicher Punkt. `uFocus` liegt auf dem, was
-gerade die Buehne hat (Zeichen oder Turm). `uLift` hebt das Feld mit dem
-Scroll, so sinkt man durch den Raum. `renderOrder = -2`: Zeichen und Turm
-decken die Punkte ab, nichts laeuft ueber das Zeichen.
+Das Punktfeld ueber den ganzen Hintergrund (Build 16) ist wieder raus - in
+der Referenz sitzen die Punkte NUR am Zeichen. `makeDust` legt 2400 Punkte
+(lite 700) als Wolke um die Straenge: dicht um die Kreuzung, nach unten
+breiter streuend, am Ring nur vereinzelt. Gebaut entlang derselben Kurven
+wie die Straenge (`helix.userData.curves`), deshalb haengt der Staub am
+Zeichen und dreht mit. Er sinkt langsam, blendet dabei ein und aus, und
+teilt sich mit `strandGlint` das Glanzlicht (`glint`, `aU`, `aPhase`): wo
+es im Strang vorbeilaeuft, leuchtet der Staub daneben warm auf.
+
+## Paris aus Punkten - das "Video" auf dem Weg zum Turm (ab Build 17)
+
+Wie der Wald aus Punkten in der Referenz, nur ohne Videodatei: `makeParis`
+baut eine zweite, kleine Szene (Stadtlichter im Strassenraster, sternfoermige
+Avenuen, Seine mit flackernder Spiegelung, fahrender Verkehr, Scheinwerfer,
+Turm mit Funkeln - `addParisTower` klont dafuer das geladene Modell) und
+`renderParis` rendert sie jedes Bild in eine 256 x 144 grosse Textur (lite
+128 x 72, jedes zweite Bild). Ein Vorhang aus 200 x 112 Punkten (lite
+100 x 56) auf einem Zylinderstueck hinter dem Turm liest daraus Farbe und
+Helligkeit; helle Stellen treten nach vorn und werden groesser, Dunkles
+bleibt leer. So erkennt man die Stadt schemenhaft. Dazu ein weicher, heller
+Schein hinter dem Turm (`shine`).
+
+- Sichtbar nur auf dem Weg (`parisVis`): kommt mit dem Flug, geht, sobald die
+  Umrundung beginnt, und ist beim Zurueckweichen wieder da. Gerendert wird
+  nur, solange man es sieht.
+- Falle: der Horizontschein der kleinen Szene muss HINTER der Stadt liegen
+  (er wird mit der Kamera mitgefuehrt). Lag er mitten in ihr, hellte er den
+  Boden auf, und der ganze Vorhang wurde zu einer Glitzerwand.
+
+## Das Zeichen bleibt mittig (ab Build 17)
+
+Wie in der Referenz: kein Springen mehr nach links und rechts. In `KEYS`
+steht x ueberall auf 0, y sinkt vom Startbild ueber "Das Wort" bis zur
+Methode sanft ab. Der Text weicht auf breiten Schirmen zur Seite
+(`html.build-17-live` in index.html: kleineres Wort, Methoden-Notizen an den
+rechten Rand). Hochkant sagt die letzte Spalte `top`, welche Szene in den
+freien Streifen oben ausweicht (nur das Atelier - dort beginnt der Text oben).
 
 Die Bahn des Emblems steckt in der Tabelle `KEYS` (Scroll-Fortschritt,
 Groesse, Position, Drehung je Stuetzstelle) - dort wird nachjustiert, nicht
@@ -203,9 +232,13 @@ sofort fuer alle (solange die Wartung laeuft, sieht sie ohnehin nur der Admin).
 ## Die Drehung kommt vom Scrollen
 
 `scrub()` in index.html zaehlt, zwischen welchen zwei Szenenmitten die
-Bildmitte steht, und meldet das ueber `LumiereGL.setTurn(turn)` - eine
-Szene = eine volle Umdrehung. In jeder Szenenmitte ist `turn` ganzzahlig,
-das Zeichen steht dort also genau von vorn. Im Stand dreht nichts, es
+Bildmitte steht, und meldet das ueber `LumiereGL.setTurn(turn)`. Seit Build
+17 ist eine Szene eine HALBE Umdrehung: zwischen zwei Szenen dreht sich das
+Zeichen auf die Kante (die Straenge werden zur Linse, wie in der Referenz),
+in jeder Szenenmitte steht es wieder von vorn. Reif und Straenge sehen nach
+einer halben Drehung genauso aus; nur das L waere gespiegelt - es dreht
+deshalb nicht voll mit, sondern neigt sich nur bis etwa 20 Grad
+(`letter.rotation.y = -spin + sin(spin) * 0.35`). Im Stand dreht nichts, es
 schwebt nur (`emblem.position.y += sin(...)`). **Die `KEYS`-Spalte rotY muss
 ueberall 0 bleiben** - aufsteigende Winkel dort haben das Zeichen frueher
 auf die Kante gestellt. rotX steht bei 0.12, eine kleine Neigung.
