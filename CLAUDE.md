@@ -156,7 +156,8 @@ Zwei kurze Schleifen von Pexels (freie Lizenz, keine Namensnennung noetig),
 auf 320 x 180 verkleinert, ohne Ton, je als MP4 (H.264 - Safari/iPhone) und
 WebM (VP9 - der Playwright-Chromium kann kein H.264!):
 
-- `seine.*` (Pexels 15312299, Pont Neuf bei Nacht): der Punktvorhang auf dem
+- `seine.*` (seit Build 21 Pexels 14997474, Louvre/Pavillon de Flore an der
+  Seine bei Nacht, Ausschnitt ab 4 s; vorher 15312299 Pont Neuf): der Punktvorhang auf dem
   Weg zum Turm liest daraus statt aus dem Render. Hin und zurueck gespielt
   (Ping-Pong), dadurch ohne Sprung beim Neustart. Faellt das Video aus
   (iPhone im Stromsparmodus spielt nichts automatisch ab), bleibt es beim
@@ -164,6 +165,10 @@ WebM (VP9 - der Playwright-Chromium kann kein H.264!):
 - `tram.*` (Pexels 14757004, Strassenbahn schwarz-weiss): ganz schwach hinter
   dem Zeichen zwischen "Das Wort" und Methode (`tramSheet`, `tramVis`), in
   Gold umgefaerbt (`gold: 1`). Ende blendet in den Anfang ueber (xfade).
+
+**Falle (iPhone/iPad):** das `<video>` haengt unsichtbar (2 px, fast
+durchsichtig) im Dokument. Ein Video ausserhalb des Dokuments oder mit
+`display:none` dekodiert Safari teils nicht - die Punkte blieben leer.
 
 Beide nutzen `makeVideoSheet` (Punktvorhang auf einem Zylinderstueck;
 `uLo`/`uHi` = ab welcher Helligkeit ein Punkt entsteht, `uPush` = wie weit

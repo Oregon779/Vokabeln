@@ -880,6 +880,12 @@ function makeVideo(base){
   el.muted = true; el.defaultMuted = true; el.loop = true; el.playsInline = true;
   el.setAttribute('muted', ''); el.setAttribute('playsinline', ''); el.setAttribute('webkit-playsinline', '');
   el.preload = 'auto';
+  // Safari (iPhone/iPad) dekodiert ein Video, das nirgends im Dokument haengt,
+  // teils gar nicht - dann bliebe die Textur leer. Deshalb haengt es winzig und
+  // unsichtbar mit im Dokument (nicht display:none, das haelt Safari ebenfalls an).
+  el.setAttribute('aria-hidden', 'true');
+  el.style.cssText = 'position:fixed;left:0;bottom:0;width:2px;height:2px;opacity:0.01;pointer-events:none;z-index:-1;';
+  document.body.appendChild(el);
   const v = { el, tex: null, ready: false, failed: false, blocked: false, playing: false };
   el.addEventListener('loadeddata', () => { v.ready = true; });
   el.addEventListener('error', () => { v.failed = true; });
