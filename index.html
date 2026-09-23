@@ -1668,6 +1668,47 @@
   .auth-modal-box h3::before{display:none;}
   .auth-modal-box .pw-eye{right:.15rem;}
 
+  /* Mein Konto: Hinweis zur letzten Entscheidung, Passwort ansehen (Build 23) */
+  .acc-decision{margin:.2rem 0 1rem; padding:.85rem 1rem; border-radius:13px; font-size:.9rem; line-height:1.5; color:rgba(246,242,233,.85); background:rgba(246,195,92,.07); border:1px solid rgba(246,195,92,.25);}
+  .acc-decision strong{display:block; color:var(--text); margin-bottom:.15rem;}
+  .acc-decision.is-no{background:rgba(239,75,87,.06); border-color:rgba(239,75,87,.28);}
+  #accPwView{font-family:var(--font-mono); letter-spacing:.04em; cursor:default;}
+
+  /* Admin: Anfragen & Abos (Build 23) */
+  .abo-setup-note{margin:0 0 1rem; padding:.8rem 1rem; border-radius:12px; font-size:.88rem; line-height:1.5; background:rgba(239,75,87,.08); border:1px solid rgba(239,75,87,.3); color:#ffc7cc;}
+  #aboRoot .admin-stat-row{margin-bottom:1.2rem;}
+  .abo-list{margin-top:.6rem;}
+  .abo-row{padding:.95rem 0; border-top:1px solid rgba(255,255,255,.06);}
+  .abo-row:first-child{border-top:0;}
+  .abo-row-main{display:flex; align-items:center; flex-wrap:wrap; gap:.6rem 1rem;}
+  .abo-until{font-family:var(--font-mono); font-size:.72rem; letter-spacing:.04em; color:var(--stone);}
+  .abo-until.is-soon{color:#e9c878;}
+  .abo-until.is-over{color:#ff9ba0;}
+  .abo-panel{margin-top:.8rem; padding:1rem; border-radius:13px; background:#0d1118; border:1px solid rgba(255,255,255,.08);}
+  .abo-panel-label{margin:0 0 .5rem; font-family:var(--font-mono); font-size:.64rem; letter-spacing:.14em; text-transform:uppercase; color:var(--stone);}
+  .abo-months{display:flex; flex-wrap:wrap; gap:.4rem;}
+  .abo-month{min-height:40px; padding:.4rem .9rem; border-radius:999px; border:1px solid rgba(255,255,255,.12); background:none; color:var(--text); font-size:.85rem; cursor:pointer;}
+  .abo-month.is-on{border-color:var(--ember-bright); background:rgba(246,195,92,.12); color:var(--ember-bright);}
+  .abo-sum{margin:.7rem 0 0; font-size:.88rem; color:rgba(246,242,233,.8);}
+  .abo-reason{width:100%; box-sizing:border-box; min-height:90px; padding:.75rem .9rem; border-radius:11px; border:1px solid rgba(255,255,255,.1); background:#0a0d13; color:var(--text); font:inherit; font-size:.92rem; line-height:1.5; resize:vertical;}
+  .abo-reason:focus{outline:none; border-color:var(--ember-bright);}
+  .abo-panel-actions{display:flex; flex-wrap:wrap; gap:.5rem; margin-top:.9rem;}
+  .abo-panel-actions .btn{min-height:42px;}
+  .abo-hist{display:grid; grid-template-columns:auto 1fr auto; gap:.3rem 1rem; align-items:baseline;}
+  .abo-hist-date{font-family:var(--font-mono); font-size:.72rem; color:var(--stone);}
+  .abo-hist-what{font-size:.88rem; color:var(--text); overflow-wrap:anywhere;}
+  .abo-hist-what small{display:block; color:var(--stone); font-size:.8rem; margin-top:.15rem;}
+  .abo-mail{font-family:var(--font-mono); font-size:.66rem; letter-spacing:.06em; text-transform:uppercase; color:var(--stone); text-align:right;}
+  .abo-mail.is-ok{color:#6fd49a;}
+  .abo-mail.is-err{color:#ff9ba0;}
+  .abo-mail .btn{margin-top:.35rem;}
+  .abo-rev-table td:nth-child(n+2), .abo-rev-table th:nth-child(n+2){text-align:right;}
+  .abo-rev-table tfoot td{font-weight:700; color:var(--ember-bright);}
+  @media (max-width:560px){
+    .abo-hist{grid-template-columns:1fr auto;}
+    .abo-hist-date{grid-column:1 / -1;}
+  }
+
   /* Admin: Tarif-Anfragen */
   .admin-upgrade-row{display:flex; align-items:center; flex-wrap:wrap; gap:.6rem 1rem; padding:.85rem 0; border-top:1px solid rgba(255,255,255,.06);}
   .admin-upgrade-row:first-child{border-top:0;}
@@ -4787,8 +4828,27 @@
         <div class="acc-card-head">
           <h2 class="acc-card-title" id="accPlansTitle">Mehr KI-Anfragen</h2>
         </div>
+        <div data-build="23"><p class="acc-decision" id="accDecision" hidden></p></div>
         <div class="acc-plans" id="accPlans"></div>
         <p class="acc-hint acc-plans-foot">Nach deiner Anfrage melden wir uns per E-Mail. Bezahlt wird erst, wenn wir deinen Tarif freischalten. Kein Abo ohne deine Zustimmung.</p>
+      </section>
+
+      <section class="acc-card" data-build="23" aria-labelledby="accPwViewTitle">
+        <div class="acc-card-head">
+          <h2 class="acc-card-title" id="accPwViewTitle">Dein Passwort</h2>
+          <p class="acc-card-note">nur auf diesem Gerät</p>
+        </div>
+        <div id="accPwViewHas" hidden>
+          <div class="acc-field">
+            <input type="password" id="accPwView" class="acc-input" readonly autocomplete="off" spellcheck="false" aria-label="Dein Passwort">
+            <button type="button" class="pw-eye" data-pw-toggle aria-label="Passwort anzeigen" aria-pressed="false"></button>
+          </div>
+          <p class="acc-hint">Gemerkt, als du dich auf diesem Gerät angemeldet oder dein Passwort geändert hast. Beim Abmelden wird es hier gelöscht.</p>
+        </div>
+        <div id="accPwViewNone">
+          <p class="acc-text">Auf diesem Gerät ist dein Passwort nicht gespeichert – es wird gemerkt, sobald du dich hier das nächste Mal anmeldest. Lumière selbst kennt dein Passwort nicht (es liegt nur verschlüsselt vor).</p>
+          <button type="button" class="btn btn-secondary acc-btn-wide" id="accPwResetMail">Link zum Zurücksetzen schicken</button>
+        </div>
       </section>
 
       <section class="acc-card" aria-labelledby="accSecTitle">
@@ -4869,6 +4929,11 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M3 19a6 6 0 0 1 12 0"/><path d="M16 5.5a3 3 0 0 1 0 5.5"/><path d="M17.5 14.5A5.5 5.5 0 0 1 21 19"/></svg>
                 Nutzer
                 <span class="admin-nav-badge" id="adminNavBadgeUsers" hidden>0</span>
+              </button>
+              <button type="button" class="admin-nav-item" data-admin-tab="abos">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M2.5 10h19"/><path d="M6.5 15h4"/></svg>
+                Anfragen &amp; Abos
+                <span class="admin-nav-badge" id="adminNavBadgeAbos" hidden>0</span>
               </button>
             </div>
             <div class="admin-nav-group">
@@ -4992,14 +5057,63 @@
               </div>
             </div>
 
-            <div class="admin-tab-panel" data-admin-panel="users" hidden>
-              <div class="settings-card" id="adminUpgradeCard">
-                <p class="settings-title">💳 Tarif-Anfragen <span id="adminUpgradeCount"></span></p>
-                <p class="settings-desc">Anfragen für Plus (200 KI-Anfragen/Tag) und Pro (1000/Tag) aus „Mein Konto“. Freischalten setzt das KI-Limit des Kontos – die Zahlung klärst du vorher per E-Mail.</p>
-                <div id="adminUpgradeList"></div>
-                <p class="admin-empty-note" id="adminUpgradeEmpty" hidden>Keine offenen Anfragen.</p>
-                <p class="admin-empty-note" id="adminUpgradeNote" hidden></p>
+            <!-- Anfragen & Abos (Build 23): offene Anfragen, laufende Tarife mit
+                 Laufzeit, Einnahmen, Verlauf. Mails gehen ueber die Edge
+                 Function lumiere-mail (Brevo). -->
+            <div class="admin-tab-panel" data-admin-panel="abos" id="aboRoot" hidden>
+              <p class="abo-setup-note" id="aboNote" hidden></p>
+              <div class="admin-stat-row">
+                <div class="admin-stat">
+                  <div class="admin-stat-head"><span class="admin-stat-label">Offene Anfragen</span></div>
+                  <span class="admin-stat-value" id="aboStatOpen">–</span>
+                  <p class="admin-stat-note">Warten auf dich.</p>
+                </div>
+                <div class="admin-stat">
+                  <div class="admin-stat-head"><span class="admin-stat-label">Aktive Abos</span></div>
+                  <span class="admin-stat-value" id="aboStatActive">–</span>
+                  <p class="admin-stat-note" id="aboStatActiveNote">–</p>
+                </div>
+                <div class="admin-stat">
+                  <div class="admin-stat-head"><span class="admin-stat-label">Pro Monat</span></div>
+                  <span class="admin-stat-value" id="aboStatMrr">–</span>
+                  <p class="admin-stat-note">Rechnerisch aus den laufenden Abos.</p>
+                </div>
+                <div class="admin-stat">
+                  <div class="admin-stat-head"><span class="admin-stat-label">Diesen Monat</span></div>
+                  <span class="admin-stat-value" id="aboStatMonth">–</span>
+                  <p class="admin-stat-note">Freigeschaltet und verlängert.</p>
+                </div>
               </div>
+
+              <div class="settings-card">
+                <p class="settings-title">📨 Offene Anfragen</p>
+                <p class="settings-desc">Freischalten mit Laufzeit oder ablehnen – der Nutzer bekommt jeweils sofort eine E-Mail.</p>
+                <div class="abo-list" id="aboOpenList"></div>
+                <p class="admin-empty-note" id="aboOpenEmpty" hidden>Keine offenen Anfragen.</p>
+              </div>
+
+              <div class="settings-card">
+                <p class="settings-title">💳 Laufende Abos</p>
+                <p class="settings-desc">Nach „bezahlt bis“ gilt automatisch wieder Gratis. Drei Tage vorher bekommt der Nutzer eine Erinnerung.</p>
+                <div class="abo-list" id="aboActiveList"></div>
+                <p class="admin-empty-note" id="aboActiveEmpty" hidden>Noch keine Abos.</p>
+              </div>
+
+              <div class="settings-card">
+                <p class="settings-title">📈 Einnahmen</p>
+                <p class="settings-desc">Summe der Freischaltungen und Verlängerungen je Monat (aus den Preisen berechnet, keine echte Buchhaltung).</p>
+                <div class="admin-table-wrap"><table class="admin-table abo-rev-table"><thead><tr><th>Monat</th><th>Buchungen</th><th>Betrag</th></tr></thead><tbody id="aboRevenueBody"></tbody></table></div>
+              </div>
+
+              <div class="settings-card">
+                <p class="settings-title">🗂️ Verlauf</p>
+                <p class="settings-desc">Alle entschiedenen Anfragen und Verlängerungen, neueste zuerst.</p>
+                <div class="abo-list" id="aboHistoryList"></div>
+                <p class="admin-empty-note" id="aboHistoryEmpty" hidden>Noch nichts entschieden.</p>
+              </div>
+            </div>
+
+            <div class="admin-tab-panel" data-admin-panel="users" hidden>
               <div class="settings-card">
                 <p class="settings-title">👥 Nutzerverwaltung</p>
                 <p class="settings-desc">Sperren, entsperren, individuelles KI-Limit setzen.</p>
@@ -5145,7 +5259,7 @@
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="./lumiere-gl.js?v=22" defer></script>
+<script src="./lumiere-gl.js?v=23" defer></script>
 <script>
 /* ============================================================
    WICHTIG: Bei jedem inhaltlichen Deploy hochzaehlen (wie CACHE_NAME
@@ -5156,7 +5270,7 @@
       unten) - neue, noch nicht "veroeffentlichte" Features hinter
       isReleased(N) verstecken; Admins sehen sie trotzdem sofort.
    ============================================================ */
-const APP_VERSION = 22;
+const APP_VERSION = 23;
 
 // Site-weites Feature-Gate: neue, aber noch nicht freigegebene Funktionen
 // hinter isReleased(<APP_VERSION beim Einbau>) verstecken. Admins (echtes
@@ -6336,8 +6450,7 @@ async function refreshAccountStatus(){
   if(!card) return;
   if(!currentUser || !currentProfile){ card.hidden = true; return; }
   card.hidden = false;
-  const defaultLimit = (siteSettings && siteSettings.ai_daily_limit) || 50;
-  const limit = currentProfile.ai_limit_override === null || currentProfile.ai_limit_override === undefined ? defaultLimit : currentProfile.ai_limit_override;
+  const limit = accEffectiveLimit();
   const used = currentProfile.ai_requests_today || 0;
   const aiPct = limit ? Math.min(100, Math.round((used / limit) * 100)) : 0;
   document.getElementById('statusAiUsageText').textContent = `${used} / ${limit}`;
@@ -6483,6 +6596,7 @@ function openAdminPanel(){
   const currentTabBtn = document.querySelector('#adminSubnav .admin-nav-item.is-active');
   switchAdminTab(currentTabBtn ? currentTabBtn.dataset.adminTab : 'overview');
   loadAdminData();
+  loadAdminAbos();
 }
 
 function switchAdminTab(tabKey){
@@ -6505,7 +6619,7 @@ function switchAdminTab(tabKey){
   const crumb = document.getElementById('adminCrumbTitle');
   if(crumb && label) crumb.textContent = label;
   persistLastView('admin', tabKey);
-  if(tabKey === 'users') loadAdminUpgradeRequests();
+  if(tabKey === 'abos') loadAdminAbos();
 }
 document.querySelectorAll('#adminSubnav .admin-nav-item').forEach(btn => {
   btn.addEventListener('click', () => { sndClick(); switchAdminTab(btn.dataset.adminTab); });
@@ -7299,6 +7413,7 @@ async function initAuth(){
     } else if(event === 'SIGNED_OUT'){
       currentUser = null;
       currentProfile = null;
+      forgetPassword();
       updateAccountUI();
       // Ohne das behielt ein Admin, der sich abmeldet, die Seite offen,
       // obwohl die Wartung laeuft - die Tafel gilt ab jetzt auch fuer ihn.
@@ -7426,12 +7541,14 @@ document.getElementById('authForm').addEventListener('submit', async (e) => {
         msg.textContent = 'Fast geschafft — bestätige deine E-Mail-Adresse über den Link, den wir dir geschickt haben.';
         msg.hidden = false;
       } else {
+        rememberPassword(email, password);
         closeAccountModal();
         showToast('Willkommen! Dein Konto ist eingerichtet.');
       }
     } else {
       const { error } = await sb.auth.signInWithPassword({ email, password });
       if(error) throw error;
+      rememberPassword(email, password);
       closeAccountModal();
       showToast('Angemeldet — deine Daten werden jetzt gesichert.');
     }
@@ -7446,6 +7563,7 @@ document.getElementById('authForm').addEventListener('submit', async (e) => {
 document.getElementById('authSignOutBtn').addEventListener('click', async () => {
   sndClick();
   if(sb) await sb.auth.signOut();
+  forgetPassword();
   closeAccountModal();
   renderHub();
   showToast('Abgemeldet — deine Daten bleiben lokal auf diesem Gerät erhalten.');
@@ -7471,6 +7589,7 @@ document.getElementById('authDeleteAccountBtn').addEventListener('click', async 
     const { error } = await sb.rpc('delete_own_account');
     if(error) throw error;
     currentUser = null; currentProfile = null;
+    forgetPassword();
     closeAccountModal();
     updateAccountUI();
     renderHub();
@@ -7582,13 +7701,16 @@ function openAccountPage(){
   updateNavActiveStates();
   updateAccountUI();
   loadMyUpgradeRequest();
+  renderPwView();
   window.scrollTo({ top: 0, behavior: 'instant' });
 }
 
 // --- Tarife -----------------------------------------------------------------------
 // Es gibt (noch) kein Bezahlsystem: eine Anfrage landet in upgrade_requests,
-// der Admin schaltet im Admin-Panel frei - das setzt ai_limit_override. Der
-// aktuelle Tarif ergibt sich deshalb einfach aus dem wirksamen Tageslimit.
+// der Admin schaltet unter "Anfragen & Abos" mit Laufzeit frei. Seit Build 23
+// steht der Tarif in profiles.plan / plan_until; ist das Datum vorbei, rechnet
+// der Server (increment_ai_usage) wieder mit dem Gratis-Limit. Ein einzeln
+// gesetztes ai_limit_override geht weiterhin vor.
 const ACC_PLANS = [
   { key: 'free', name: 'Gratis', limit: null, price: '0 €', per: '',
     points: ['Alle Lernfunktionen', 'Synchronisation auf allen Geräten', 'Spielhalle & Ranglisten'] },
@@ -7598,15 +7720,30 @@ const ACC_PLANS = [
     points: ['Für Vielnutzer & Kurse', 'Im Alltag praktisch ohne Grenze', 'Alles aus Plus'] },
 ];
 function accFreeLimit(){ return (siteSettings && siteSettings.ai_daily_limit) || 50; }
+const PLAN_CENTS = { plus: 299, pro: 599 };
+const ACC_DEFAULT_REJECT = 'Leider können wir deine Anfrage gerade nicht freischalten. Dein Konto bleibt unverändert im Gratis-Tarif – du kannst jederzeit erneut anfragen.';
+function planActive(p){ return !!(p && p.plan && p.plan_until && new Date(p.plan_until) > new Date()); }
+function hasOverride(p){ return !!p && p.ai_limit_override !== null && p.ai_limit_override !== undefined; }
 function accEffectiveLimit(){
   if(!currentProfile) return accFreeLimit();
-  const o = currentProfile.ai_limit_override;
-  return (o === null || o === undefined) ? accFreeLimit() : o;
+  if(hasOverride(currentProfile)) return currentProfile.ai_limit_override;
+  if(planActive(currentProfile)){
+    const pl = ACC_PLANS.find(p => p.key === currentProfile.plan);
+    if(pl) return pl.limit;
+  }
+  return accFreeLimit();
 }
 function accCurrentPlan(){
+  if(!hasOverride(currentProfile) && planActive(currentProfile)) return currentProfile.plan;
   const l = accEffectiveLimit();
   return l >= 1000 ? 'pro' : l >= 200 ? 'plus' : 'free';
 }
+function accPlanUntil(){
+  return (!hasOverride(currentProfile) && planActive(currentProfile)) ? currentProfile.plan_until : null;
+}
+function fmtDay(iso){ return new Date(iso).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' }); }
+function fmtEuro(cents){ return (cents / 100).toFixed(2).replace('.', ',') + ' €'; }
+function addMonths(date, months){ const d = new Date(date); d.setMonth(d.getMonth() + months); return d; }
 let accOpenRequest = null;          // { plan, status } - offene Anfrage des Kontos
 function renderPlans(){
   const wrap = document.getElementById('accPlans');
@@ -7614,14 +7751,15 @@ function renderPlans(){
   const cur = accCurrentPlan();
   const order = { free: 0, plus: 1, pro: 2 };
   const badge = document.getElementById('accPlanBadge');
-  if(badge) badge.textContent = ACC_PLANS.find(p => p.key === cur).name;
+  const until = accPlanUntil();
+  if(badge) badge.textContent = ACC_PLANS.find(p => p.key === cur).name + (until ? ' · bis ' + fmtDay(until) : '');
   wrap.innerHTML = ACC_PLANS.map(p => {
     const limit = p.key === 'free' ? accFreeLimit() : p.limit;
     const isCur = p.key === cur;
     const lower = order[p.key] < order[cur];
     const pending = accOpenRequest && accOpenRequest.plan === p.key;
     let action;
-    if(isCur) action = '<p class="acc-plan-state is-current">Dein Tarif</p>';
+    if(isCur) action = `<p class="acc-plan-state is-current">Dein Tarif${until && p.key !== 'free' ? ' · bis ' + fmtDay(until) : ''}</p>`;
     else if(lower || p.key === 'free') action = '<p class="acc-plan-state">Enthalten</p>';
     else if(pending) action = '<p class="acc-plan-state">Angefragt · wir melden uns</p>';
     else action = `<button type="button" class="btn ${p.featured ? 'btn-primary' : 'btn-secondary'}" data-plan-request="${p.key}">${escapeHtml(p.name)} anfragen</button>`;
@@ -7638,16 +7776,84 @@ function renderPlans(){
     btn.addEventListener('click', () => requestUpgrade(btn.dataset.planRequest, btn));
   });
 }
+let accLastDecision = null;         // letzte entschiedene Anfrage (Hinweis in Mein Konto)
+function renderDecisionNote(){
+  const el = document.getElementById('accDecision');
+  if(!el) return;
+  const d = accLastDecision;
+  if(!d || !d.decided_at || Date.now() - new Date(d.decided_at).getTime() > 14 * 86400000){ el.hidden = true; return; }
+  const plan = ACC_PLANS.find(p => p.key === d.plan) || { name: d.plan };
+  if(d.status === 'abgelehnt'){
+    el.className = 'acc-decision is-no';
+    el.innerHTML = `<strong>Deine Anfrage für ${escapeHtml(plan.name)} wurde am ${fmtDay(d.decided_at)} abgelehnt.</strong>${escapeHtml((d.reason || '').trim() || ACC_DEFAULT_REJECT)}`;
+  } else {
+    el.className = 'acc-decision';
+    el.innerHTML = `<strong>${escapeHtml(plan.name)} wurde am ${fmtDay(d.decided_at)} freigeschaltet.</strong>Viel Spaß mit den zusätzlichen KI-Anfragen.`;
+  }
+  el.hidden = false;
+}
 async function loadMyUpgradeRequest(){
   renderPlans();
+  renderDecisionNote();
   if(!sb || !currentUser) return;
   try{
-    const { data, error } = await sb.from('upgrade_requests')
-      .select('plan, status, created_at').eq('user_id', currentUser.id).eq('status', 'offen')
-      .order('created_at', { ascending: false }).limit(1);
-    if(!error){ accOpenRequest = (data && data[0]) || null; renderPlans(); }
+    let res = await sb.from('upgrade_requests')
+      .select('plan, status, reason, kind, created_at, decided_at').eq('user_id', currentUser.id)
+      .order('created_at', { ascending: false }).limit(5);
+    // Vor dem SQL aus Build 23 fehlen reason/kind/decided_at - dann nur der offene Stand.
+    if(res.error) res = await sb.from('upgrade_requests').select('plan, status, created_at').eq('user_id', currentUser.id)
+      .order('created_at', { ascending: false }).limit(5);
+    if(res.error) return;
+    const rows = res.data || [];
+    accOpenRequest = rows.find(r => r.status === 'offen') || null;
+    accLastDecision = rows.find(r => r.status !== 'offen' && (r.kind || 'anfrage') === 'anfrage') || null;
+    renderPlans();
+    renderDecisionNote();
   }catch(e){ /* Tabelle fehlt noch - dann eben ohne Anfrage-Status */ }
 }
+
+// --- Passwort ansehen (Build 23) -------------------------------------------------
+// Supabase kennt nur einen Hash des Passworts - zurueckholen laesst es sich
+// nicht. Auf ausdruecklichen Wunsch merkt sich die Seite es deshalb selbst,
+// auf DIESEM Geraet, beim Anmelden und Aendern; beim Abmelden wird es geloescht.
+// Liegt damit unverschluesselt im Browser (so mit dem Nutzer besprochen).
+const PW_MEMO_KEY = 'lumiere_pw_memo';
+function rememberPassword(email, pw){
+  if(!email || !pw || !isReleased(23)) return;
+  try{ localStorage.setItem(PW_MEMO_KEY, JSON.stringify({ email: email.toLowerCase(), pw })); }catch(e){}
+}
+function forgetPassword(){ try{ localStorage.removeItem(PW_MEMO_KEY); }catch(e){} }
+function recalledPassword(){
+  if(!currentUser || !currentUser.email) return null;
+  try{
+    const m = JSON.parse(localStorage.getItem(PW_MEMO_KEY) || 'null');
+    return m && m.email === currentUser.email.toLowerCase() ? m.pw : null;
+  }catch(e){ return null; }
+}
+function renderPwView(){
+  const has = document.getElementById('accPwViewHas');
+  if(!has) return;
+  const pw = recalledPassword();
+  const input = document.getElementById('accPwView');
+  input.value = pw || '';
+  input.type = 'password';
+  const eye = has.querySelector('[data-pw-toggle]');
+  eye.setAttribute('aria-pressed', 'false'); eye.setAttribute('aria-label', 'Passwort anzeigen'); eye.innerHTML = PW_EYE_OPEN;
+  has.hidden = !pw;
+  document.getElementById('accPwViewNone').hidden = !!pw;
+}
+document.getElementById('accPwResetMail').addEventListener('click', async (e) => {
+  sndClick();
+  if(!sb || !currentUser) return;
+  const btn = e.currentTarget;
+  btn.disabled = true;
+  try{
+    const { error } = await sb.auth.resetPasswordForEmail(currentUser.email, { redirectTo: window.location.origin + window.location.pathname });
+    if(error) throw new Error(translateAuthError(error.message));
+    showToast(`Link ist unterwegs an ${currentUser.email}.`);
+  }catch(err){ showToast(err.message, true); }
+  finally{ btn.disabled = false; }
+});
 async function requestUpgrade(planKey, btn){
   sndClick();
   const plan = ACC_PLANS.find(p => p.key === planKey);
@@ -7703,6 +7909,8 @@ document.getElementById('accPwForm').addEventListener('submit', async (e) => {
     const { error: e2 } = await sb.auth.updateUser({ password: nw });
     if(e2) throw new Error(translateAuthError(e2.message));
     resetPwFields(form);
+    rememberPassword(currentUser.email, nw);
+    renderPwView();
     accMsg(msg, 'Passwort geändert. Beim nächsten Anmelden gilt das neue.', false);
     sndCorrect();
   }catch(err){
@@ -7747,6 +7955,7 @@ document.getElementById('pwrForm').addEventListener('submit', async (e) => {
   try{
     const { error } = await sb.auth.updateUser({ password: nw });
     if(error) throw new Error(translateAuthError(error.message));
+    rememberPassword(currentUser.email, nw);
     closePasswordResetScreen();
     sndCorrect();
     showToast('Neues Passwort gespeichert – du bist angemeldet.');
@@ -7781,58 +7990,290 @@ document.getElementById('pwrClose').addEventListener('click', () => {
   renderHub();
 });
 
-// --- Admin: Tarif-Anfragen -------------------------------------------------------
-async function loadAdminUpgradeRequests(){
-  const list = document.getElementById('adminUpgradeList');
-  const empty = document.getElementById('adminUpgradeEmpty');
-  const note = document.getElementById('adminUpgradeNote');
-  if(!list || !sb) return;
-  list.innerHTML = '<p class="hint">Lädt …</p>';
-  empty.hidden = true; note.hidden = true;
-  const { data, error } = await sb.from('upgrade_requests')
-    .select('id, user_id, email, display_name, plan, status, created_at')
-    .eq('status', 'offen').order('created_at', { ascending: true }).limit(50);
-  if(error){
-    list.innerHTML = '';
-    note.textContent = 'Die Tabelle "upgrade_requests" fehlt noch – SQL aus der Anleitung in Supabase ausführen.';
-    note.hidden = false;
-    return;
-  }
-  const count = document.getElementById('adminUpgradeCount');
-  if(count) count.textContent = data.length ? `· ${data.length} offen` : '';
-  if(!data.length){ list.innerHTML = ''; empty.hidden = false; return; }
-  list.innerHTML = data.map(r => {
+// --- Admin: Anfragen & Abos (Build 23) ---------------------------------------------
+// Offene Anfragen freischalten (mit Laufzeit) oder ablehnen (mit Grund oder
+// Standardtext), laufende Abos verlaengern/wechseln/beenden, Einnahmen und
+// Verlauf. Die Mail an den Nutzer verschickt die Edge Function lumiere-mail.
+const ABO_MONTHS = [1, 3, 12];
+let aboReqs = new Map();            // id -> Anfrage
+let aboSubs = new Map();            // user_id -> Profil mit Tarif
+let aboBound = false;
+
+async function aboSendMail(requestId){
+  try{
+    const { error } = await sb.functions.invoke('lumiere-mail', { body: { kind: 'decision', request_id: requestId } });
+    if(!error) return null;
+    let msg = error.message;
+    try{ const j = await error.context.json(); if(j && j.error) msg = j.error; }catch(e){}
+    return msg;
+  }catch(e){ return e.message; }
+}
+function aboWho(r){
+  return `<div class="admin-upgrade-who"><strong>${escapeHtml(r.display_name || r.email || 'Konto')}</strong><span>${escapeHtml(r.email || '')}</span></div>`;
+}
+function aboMonthsHtml(){
+  return `<div class="abo-months" role="radiogroup" aria-label="Laufzeit">${ABO_MONTHS.map((m, i) =>
+    `<button type="button" class="abo-month${i ? '' : ' is-on'}" role="radio" aria-checked="${i ? 'false' : 'true'}" data-m="${m}">${m} Monat${m === 1 ? '' : 'e'}</button>`).join('')}</div>`;
+}
+// Ab wann eine Laufzeit zaehlt: laeuft derselbe Tarif noch, wird angehaengt.
+function aboBase(sub, plan){
+  return sub && sub.plan === plan && planActive(sub) ? new Date(sub.plan_until) : new Date();
+}
+function aboUpdateSum(panel){
+  const m = +(panel.querySelector('.abo-month.is-on') || {}).dataset.m || 1;
+  const plan = panel.dataset.plan;
+  const until = addMonths(aboBase(aboSubs.get(panel.dataset.user), plan), m);
+  panel.querySelector('.abo-sum').textContent = `${fmtEuro(PLAN_CENTS[plan] * m)} · gültig bis ${fmtDay(until)}`;
+}
+
+function renderAboStats(reqs, subs, open){
+  const active = subs.filter(planActive);
+  const plus = active.filter(p => p.plan === 'plus').length;
+  const pro = active.filter(p => p.plan === 'pro').length;
+  const now = new Date();
+  const month = reqs.filter(r => r.status === 'erledigt' && r.price_cents && r.decided_at &&
+    new Date(r.decided_at).getMonth() === now.getMonth() && new Date(r.decided_at).getFullYear() === now.getFullYear());
+  document.getElementById('aboStatOpen').textContent = open.length;
+  document.getElementById('aboStatActive').textContent = active.length;
+  document.getElementById('aboStatActiveNote').textContent = `${plus} Plus · ${pro} Pro`;
+  document.getElementById('aboStatMrr').textContent = fmtEuro(plus * PLAN_CENTS.plus + pro * PLAN_CENTS.pro);
+  document.getElementById('aboStatMonth').textContent = fmtEuro(month.reduce((a, r) => a + r.price_cents, 0));
+}
+
+function renderAboOpen(open){
+  const list = document.getElementById('aboOpenList');
+  document.getElementById('aboOpenEmpty').hidden = open.length > 0;
+  list.innerHTML = open.map(r => {
     const plan = ACC_PLANS.find(p => p.key === r.plan) || { name: r.plan, limit: '?' };
-    const when = new Date(r.created_at).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
-    return `<div class="admin-upgrade-row" data-id="${r.id}" data-user="${r.user_id}" data-plan="${r.plan}">
-      <div class="admin-upgrade-who"><strong>${escapeHtml(r.display_name || r.email || 'Konto')}</strong><span>${escapeHtml(r.email || '')} · ${when}</span></div>
-      <span class="acc-badge">${escapeHtml(plan.name)} · ${plan.limit}/Tag</span>
-      <div class="admin-upgrade-actions">
-        <button type="button" class="btn btn-primary btn-small" data-upgrade-act="grant">Freischalten</button>
-        <button type="button" class="btn btn-secondary btn-small" data-upgrade-act="deny">Ablehnen</button>
+    return `<div class="abo-row" data-id="${r.id}">
+      <div class="abo-row-main">
+        ${aboWho(r)}
+        <span class="acc-badge">${escapeHtml(plan.name)} · ${plan.limit}/Tag</span>
+        <span class="abo-until">angefragt ${fmtDay(r.created_at)}</span>
+        <div class="admin-upgrade-actions">
+          <button type="button" class="btn btn-primary btn-small" data-abo="open-grant">Freischalten</button>
+          <button type="button" class="btn btn-secondary btn-small" data-abo="open-deny">Ablehnen</button>
+        </div>
+      </div>
+      <div class="abo-panel" data-panel="grant" data-plan="${r.plan}" data-user="${r.user_id}" hidden>
+        <p class="abo-panel-label">Laufzeit</p>
+        ${aboMonthsHtml()}
+        <p class="abo-sum"></p>
+        <div class="abo-panel-actions">
+          <button type="button" class="btn btn-primary" data-abo="grant">Freischalten &amp; Mail senden</button>
+          <button type="button" class="btn btn-secondary" data-abo="close">Abbrechen</button>
+        </div>
+      </div>
+      <div class="abo-panel" data-panel="deny" hidden>
+        <p class="abo-panel-label">Grund (optional)</p>
+        <textarea class="abo-reason" maxlength="600" placeholder="${escapeHtml(ACC_DEFAULT_REJECT)}"></textarea>
+        <p class="acc-hint">Leer lassen – dann geht der Standardtext raus (steht grau im Feld).</p>
+        <div class="abo-panel-actions">
+          <button type="button" class="btn btn-danger" data-abo="deny">Absage senden</button>
+          <button type="button" class="btn btn-secondary" data-abo="close">Abbrechen</button>
+        </div>
       </div>
     </div>`;
   }).join('');
-  list.querySelectorAll('[data-upgrade-act]').forEach(btn => btn.addEventListener('click', async () => {
-    sndClick();
-    const row = btn.closest('.admin-upgrade-row');
-    const grant = btn.dataset.upgradeAct === 'grant';
-    const plan = ACC_PLANS.find(p => p.key === row.dataset.plan);
-    row.querySelectorAll('button').forEach(b => { b.disabled = true; });
-    try{
-      if(grant){
-        const { error: e1 } = await sb.from('profiles').update({ ai_limit_override: plan.limit }).eq('user_id', row.dataset.user);
-        if(e1) throw e1;
-      }
-      const { error: e2 } = await sb.from('upgrade_requests').update({ status: grant ? 'erledigt' : 'abgelehnt' }).eq('id', row.dataset.id);
-      if(e2) throw e2;
-      showToast(grant ? `${plan.name} freigeschaltet (${plan.limit} KI-Anfragen pro Tag).` : 'Anfrage abgelehnt.');
-      loadAdminUpgradeRequests();
-    }catch(err){
-      showToast('Konnte nicht gespeichert werden: ' + err.message, true);
-      row.querySelectorAll('button').forEach(b => { b.disabled = false; });
+  list.querySelectorAll('.abo-panel[data-panel="grant"]').forEach(aboUpdateSum);
+}
+
+function renderAboActive(subs){
+  const list = document.getElementById('aboActiveList');
+  document.getElementById('aboActiveEmpty').hidden = subs.length > 0;
+  const now = Date.now();
+  list.innerHTML = subs.map(p => {
+    const plan = ACC_PLANS.find(x => x.key === p.plan) || { name: p.plan };
+    const other = p.plan === 'plus' ? 'pro' : 'plus';
+    const ms = p.plan_until ? new Date(p.plan_until).getTime() - now : -1;
+    const days = Math.ceil(ms / 86400000);
+    let state, cls = '';
+    if(!p.plan_until) state = 'ohne Enddatum';
+    else if(ms <= 0){ state = `abgelaufen am ${fmtDay(p.plan_until)} · jetzt Gratis`; cls = ' is-over'; }
+    else { state = `bis ${fmtDay(p.plan_until)} · noch ${days} Tag${days === 1 ? '' : 'e'}`; if(days <= 7) cls = ' is-soon'; }
+    return `<div class="abo-row" data-user="${p.user_id}">
+      <div class="abo-row-main">
+        ${aboWho(p)}
+        <span class="acc-badge">${escapeHtml(plan.name)}</span>
+        <span class="abo-until${cls}">${state}</span>
+        <div class="admin-upgrade-actions">
+          <button type="button" class="btn btn-primary btn-small" data-abo="open-extend">Verlängern</button>
+          <button type="button" class="btn btn-secondary btn-small" data-abo="switch" data-to="${other}">Zu ${other === 'pro' ? 'Pro' : 'Plus'}</button>
+          <button type="button" class="btn btn-secondary btn-small" data-abo="end">Beenden</button>
+        </div>
+      </div>
+      <div class="abo-panel" data-panel="extend" data-plan="${p.plan}" data-user="${p.user_id}" hidden>
+        <p class="abo-panel-label">Verlängern um</p>
+        ${aboMonthsHtml()}
+        <p class="abo-sum"></p>
+        <div class="abo-panel-actions">
+          <button type="button" class="btn btn-primary" data-abo="extend">Verlängern</button>
+          <button type="button" class="btn btn-secondary" data-abo="close">Abbrechen</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+  list.querySelectorAll('.abo-panel[data-panel="extend"]').forEach(aboUpdateSum);
+}
+
+function renderAboRevenue(reqs){
+  const body = document.getElementById('aboRevenueBody');
+  const now = new Date();
+  const months = [];
+  for(let i = 5; i >= 0; i--){ const d = new Date(now.getFullYear(), now.getMonth() - i, 1); months.push({ y: d.getFullYear(), m: d.getMonth(), n: 0, c: 0 }); }
+  reqs.forEach(r => {
+    if(r.status !== 'erledigt' || !r.price_cents || !r.decided_at) return;
+    const d = new Date(r.decided_at);
+    const row = months.find(x => x.y === d.getFullYear() && x.m === d.getMonth());
+    if(row){ row.n++; row.c += r.price_cents; }
+  });
+  const total = months.reduce((a, x) => a + x.c, 0);
+  body.innerHTML = months.reverse().map(x => `<tr><td>${new Date(x.y, x.m, 1).toLocaleDateString('de-DE', { month: 'long', year: 'numeric' })}</td><td>${x.n}</td><td>${fmtEuro(x.c)}</td></tr>`).join('')
+    + `<tr class="abo-rev-total"><td><strong>6 Monate</strong></td><td>${months.reduce((a, x) => a + x.n, 0)}</td><td><strong>${fmtEuro(total)}</strong></td></tr>`;
+}
+
+function renderAboHistory(done){
+  const list = document.getElementById('aboHistoryList');
+  document.getElementById('aboHistoryEmpty').hidden = done.length > 0;
+  list.innerHTML = done.slice(0, 40).map(r => {
+    const plan = ACC_PLANS.find(p => p.key === r.plan) || { name: r.plan };
+    const who = escapeHtml(r.display_name || r.email || 'Konto');
+    let what;
+    if(r.status === 'erledigt'){
+      const bits = [plan.name, r.months ? `${r.months} Mon.` : null, r.price_cents ? fmtEuro(r.price_cents) : null].filter(Boolean).join(' · ');
+      what = `${r.kind === 'verlaengerung' ? 'Verlängert' : 'Freigeschaltet'}: ${escapeHtml(bits)}<small>${who}</small>`;
+    } else {
+      what = `Abgelehnt: ${escapeHtml(plan.name)}<small>${who} · ${r.reason ? '„' + escapeHtml(r.reason) + '“' : 'Standardtext'}</small>`;
     }
-  }));
+    let mail;
+    if(r.kind === 'verlaengerung') mail = '<span class="abo-mail">–</span>';
+    else if(r.mail_sent_at) mail = '<span class="abo-mail is-ok">✓ Mail gesendet</span>';
+    else mail = `<span class="abo-mail${r.mail_error ? ' is-err' : ''}" ${r.mail_error ? `title="${escapeHtml(r.mail_error)}"` : ''}>${r.mail_error ? 'Mail fehlgeschlagen' : 'Keine Mail'}<br><button type="button" class="btn btn-secondary btn-small" data-abo="resend">Mail senden</button></span>`;
+    return `<div class="abo-row abo-hist" data-id="${r.id}">
+      <span class="abo-hist-date">${fmtDay(r.decided_at || r.created_at)}</span>
+      <span class="abo-hist-what">${what}</span>
+      ${mail}
+    </div>`;
+  }).join('');
+}
+
+async function loadAdminAbos(){
+  if(!sb || !currentProfile || !currentProfile.is_admin) return;
+  const note = document.getElementById('aboNote');
+  const [reqRes, subRes] = await Promise.all([
+    sb.from('upgrade_requests').select('*').order('created_at', { ascending: false }).limit(300),
+    sb.from('profiles').select('user_id, email, display_name, plan, plan_until, ai_limit_override, is_admin')
+      .not('plan', 'is', null).order('plan_until', { ascending: true }),
+  ]);
+  if(reqRes.error || subRes.error){
+    note.textContent = 'Es fehlen noch Spalten in Supabase – bitte supabase/build23.sql im SQL-Editor ausführen. (' + (reqRes.error || subRes.error).message + ')';
+    note.hidden = false;
+    return;
+  }
+  note.hidden = true;
+  const reqs = reqRes.data || [], subs = subRes.data || [];
+  aboReqs = new Map(reqs.map(r => [r.id, r]));
+  aboSubs = new Map(subs.map(p => [p.user_id, p]));
+  const open = reqs.filter(r => r.status === 'offen').reverse();
+  const done = reqs.filter(r => r.status !== 'offen')
+    .sort((a, b) => new Date(b.decided_at || b.created_at) - new Date(a.decided_at || a.created_at));
+  setAdminNavBadge('adminNavBadgeAbos', open.length);
+  renderAboStats(reqs, subs, open);
+  renderAboOpen(open);
+  renderAboActive(subs);
+  renderAboRevenue(reqs);
+  renderAboHistory(done);
+  if(!aboBound){ aboBound = true; document.getElementById('aboRoot').addEventListener('click', onAboClick); }
+}
+
+async function onAboClick(e){
+  const month = e.target.closest('.abo-month');
+  if(month){
+    const panel = month.closest('.abo-panel');
+    panel.querySelectorAll('.abo-month').forEach(b => { const on = b === month; b.classList.toggle('is-on', on); b.setAttribute('aria-checked', on ? 'true' : 'false'); });
+    aboUpdateSum(panel);
+    return;
+  }
+  const btn = e.target.closest('[data-abo]');
+  if(!btn) return;
+  sndClick();
+  const row = btn.closest('.abo-row');
+  const act = btn.dataset.abo;
+  const showPanel = (name) => row.querySelectorAll('.abo-panel').forEach(p => { p.hidden = p.dataset.panel !== name; });
+  if(act === 'open-grant') return showPanel('grant');
+  if(act === 'open-deny'){ showPanel('deny'); row.querySelector('.abo-reason').focus(); return; }
+  if(act === 'open-extend') return showPanel('extend');
+  if(act === 'close') return showPanel('');
+
+  const lock = (on) => row.querySelectorAll('button, textarea').forEach(b => { b.disabled = on; });
+  lock(true);
+  try{
+    if(act === 'grant' || act === 'deny'){
+      const r = aboReqs.get(row.dataset.id);
+      const plan = ACC_PLANS.find(p => p.key === r.plan);
+      const now = new Date().toISOString();
+      if(act === 'grant'){
+        const months = +row.querySelector('.abo-panel[data-panel="grant"] .abo-month.is-on').dataset.m;
+        const { data: prof } = await sb.from('profiles').select('plan, plan_until, ai_limit_override, is_admin').eq('user_id', r.user_id).single();
+        const until = addMonths(aboBase(prof, r.plan), months);
+        const upd = { plan: r.plan, plan_until: until.toISOString(), plan_reminded_for: null };
+        // Das alte Freischalten (Build 22) setzte das Einzel-Limit - das wuerde
+        // den Ablauf aushebeln. Ein bewusst anders gesetztes Limit bleibt.
+        if(prof && !prof.is_admin && (prof.ai_limit_override === 200 || prof.ai_limit_override === 1000)) upd.ai_limit_override = null;
+        const { error: e1 } = await sb.from('profiles').update(upd).eq('user_id', r.user_id);
+        if(e1) throw e1;
+        const { error: e2 } = await sb.from('upgrade_requests').update({ status: 'erledigt', months, price_cents: PLAN_CENTS[r.plan] * months, decided_at: now }).eq('id', r.id);
+        if(e2) throw e2;
+        const mailErr = await aboSendMail(r.id);
+        if(mailErr) showToast(`${plan.name} freigeschaltet bis ${fmtDay(until)} – aber die Mail ging nicht raus: ${mailErr}`, true);
+        else showToast(`${plan.name} freigeschaltet bis ${fmtDay(until)} – Mail ist raus.`);
+      } else {
+        const reason = row.querySelector('.abo-reason').value.trim();
+        const { error } = await sb.from('upgrade_requests').update({ status: 'abgelehnt', reason: reason || null, decided_at: now }).eq('id', r.id);
+        if(error) throw error;
+        const mailErr = await aboSendMail(r.id);
+        if(mailErr) showToast(`Abgelehnt – aber die Mail ging nicht raus: ${mailErr}`, true);
+        else showToast(`Abgelehnt – Mail ${reason ? 'mit deinem Grund' : 'mit dem Standardtext'} ist raus.`);
+      }
+    } else if(act === 'resend'){
+      const mailErr = await aboSendMail(row.dataset.id);
+      if(mailErr) showToast('Mail ging nicht raus: ' + mailErr, true);
+      else showToast('Mail ist raus.');
+    } else {
+      const p = aboSubs.get(row.dataset.user);
+      const plan = ACC_PLANS.find(x => x.key === p.plan);
+      if(act === 'extend'){
+        const months = +row.querySelector('.abo-panel[data-panel="extend"] .abo-month.is-on').dataset.m;
+        const until = addMonths(aboBase(p, p.plan), months);
+        const { error: e1 } = await sb.from('profiles').update({ plan_until: until.toISOString(), plan_reminded_for: null }).eq('user_id', p.user_id);
+        if(e1) throw e1;
+        const { error: e2 } = await sb.from('upgrade_requests').insert({
+          user_id: p.user_id, email: p.email, display_name: p.display_name, plan: p.plan,
+          status: 'erledigt', kind: 'verlaengerung', months, price_cents: PLAN_CENTS[p.plan] * months, decided_at: new Date().toISOString(),
+        });
+        if(e2) throw e2;
+        showToast(`${plan.name} verlängert bis ${fmtDay(until)}.`);
+      } else if(act === 'switch'){
+        const to = ACC_PLANS.find(x => x.key === btn.dataset.to);
+        const ok = await customConfirm(`Zu ${to.name} wechseln?`, `${p.display_name || p.email} bekommt ab sofort ${to.limit} KI-Anfragen pro Tag. Das Enddatum bleibt.`, 'Wechseln');
+        if(!ok) return;
+        const { error } = await sb.from('profiles').update({ plan: to.key }).eq('user_id', p.user_id);
+        if(error) throw error;
+        showToast(`Tarif auf ${to.name} gewechselt.`);
+      } else if(act === 'end'){
+        const ok = await customConfirm('Abo beenden?', `${p.display_name || p.email} ist ab sofort wieder im Gratis-Tarif (${accFreeLimit()} KI-Anfragen pro Tag). Es geht keine Mail raus.`, 'Beenden');
+        if(!ok) return;
+        const { error } = await sb.from('profiles').update({ plan: null, plan_until: null, plan_reminded_for: null }).eq('user_id', p.user_id);
+        if(error) throw error;
+        showToast('Abo beendet.');
+      }
+    }
+    loadAdminAbos();
+  }catch(err){
+    showToast('Konnte nicht gespeichert werden: ' + (err.message || err), true);
+  }finally{
+    if(row.isConnected) lock(false);
+  }
 }
 
 // --- Einstellungen, Kalender & Tagesfortschritt: Standardwerte & Migration ---

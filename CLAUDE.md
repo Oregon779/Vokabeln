@@ -450,6 +450,35 @@ Profil, Status und Sync sind die alten - `updateAccountUI`,
 - Alles deckend (#141922): das alte Fenster war halbtransparent, auf dem Handy
   schien die Startseite quer durch den Text.
 
+## Anfragen & Abos, Mails, Passwort ansehen (ab Build 23)
+
+- **Tarif mit Laufzeit:** `profiles.plan` ('plus'/'pro') + `plan_until`.
+  Rangfolge beim Tageslimit, im Server (`increment_ai_usage`) und im Client
+  (`accEffectiveLimit`) gleich: `ai_limit_override` > laufender Tarif >
+  `site_settings.ai_daily_limit`. Nach `plan_until` also automatisch Gratis,
+  ohne Cron. `protect_admin_fields` schuetzt die neuen Spalten.
+- **Admin-Tab "Anfragen & Abos"** (`loadAdminAbos`, ein delegierter
+  Klick-Handler `onAboClick` auf `#aboRoot`): Freischalten mit 1/3/12
+  Monaten (haengt an ein noch laufendes Datum an), Ablehnen mit Grund oder
+  Standardtext (`ACC_DEFAULT_REJECT` - derselbe Text steht in der Edge
+  Function), Verlaengern (schreibt eine Zeile `kind='verlaengerung'` fuer
+  Verlauf und Einnahmen), Wechseln, Beenden. Einnahmen = Summe
+  `price_cents` der erledigten Zeilen je Monat (`decided_at`).
+- **Mails:** Edge Function `supabase/functions/lumiere-mail` ueber die
+  Brevo-API (Secrets `BREVO_API_KEY`, `CRON_SECRET`, optional `MAIL_FROM`,
+  `MAIL_REPLY_TO`; "Verify JWT" aus, sie prueft Admin bzw. Cron-Secret
+  selbst). Der Client ruft sie nach Freischalten/Ablehnen per
+  `sb.functions.invoke`; Erfolg/Fehler landen in `mail_sent_at`/`mail_error`,
+  im Verlauf gibt es "Mail senden" zum Nachholen. Erinnerung 3 Tage vor
+  Ablauf: pg_cron taeglich 8 Uhr UTC -> `{kind:'reminders'}`, einmal je
+  Enddatum (`plan_reminded_for`). SQL: `supabase/build23.sql`.
+- **Passwort ansehen:** Supabase kennt nur den Hash. Auf ausdruecklichen
+  Wunsch des Nutzers merkt sich die Seite das Passwort beim Anmelden,
+  Registrieren, Aendern und Zuruecksetzen in `localStorage`
+  (`lumiere_pw_memo`, nur wenn Build 23 freigegeben ist) und loescht es beim
+  Abmelden/Loeschen. Unverschluesselt - das Risiko ist mit dem Nutzer
+  besprochen, nicht stillschweigend ausweiten (z.B. nie in die Cloud-Sync).
+
 ## Testen mit Freigabe-Gate
 
 Lokal gibt es kein Supabase, also ist niemand Admin und alle Build-14-Teile
