@@ -179,6 +179,28 @@ ffmpeg -ss 30 -t 18 -i quelle.mp4 -filter_complex "[0:v]fps=20,scale=320:180,spl
 ffmpeg -i seine.mp4 -an -c:v libvpx-vp9 -b:v 0 -crf 40 seine.webm
 ```
 
+### Video hinter den Punkten (ab Build 19)
+
+Jeder Punktvorhang traegt als Kind ein Bild des Videos selbst
+(`makeVideoPlane`, teilt sich uTex/uVis mit dem Vorhang): leicht
+weichgezeichnet, additiv, Raender ausgeblendet, die Punkte liegen um
+`uFront` davor - wie in der Referenz. **Falle:** ohne steile Tonwertkurve
+(`c = max(c - 0.05, 0); c = c*c*2.4`) legte sich das Video wie ein milchiger
+Schleier ueber die ganze Nacht. Staerke je Vorhang: `plane` (Seine 0.62,
+Strassenbahn 0.42).
+
+## Qualitaetsregelung: 60 Bilder/s auf Handy und iPad (ab Build 19)
+
+`governor()` misst jedes Bild die echte Bildzeit (Mittel ueber 40 Bilder).
+Zu langsam (> 1/52 s): erst Aufloesung runter bis 1.0, dann Bloom aus
+(`bloomOn`, `draw()` rendert dann direkt), dann Aufloesung weiter bis 0.6.
+Drei gute Messungen (< 1/58 s) in Folge: eine Stufe hinauf, aber nie ueber
+die Stufe, an der es zuletzt zu langsam wurde (`prCeil`). Deshalb gibt es
+den Bloom jetzt auch auf `lite` - die Regelung nimmt ihn weg, wenn das
+Geraet ihn nicht schafft. **In Playwright ist die Regelung aus**
+(`navigator.webdriver`), weil die Testmaschine ohne Grafikkarte rendert und
+alles herunterregeln wuerde; mit `?gov=1` laesst sie sich trotzdem pruefen.
+
 ## Das Zeichen bleibt mittig (ab Build 17)
 
 Wie in der Referenz: kein Springen mehr nach links und rechts. In `KEYS`

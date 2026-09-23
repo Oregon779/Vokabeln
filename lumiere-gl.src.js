@@ -748,20 +748,21 @@ function makeVideoSheet(o){
       // Auf schwachen Geraeten gibt es weniger Punkte und kein Nachgluehen -
       // dort werden sie groesser und kraeftiger, sonst sieht man nichts.
       uSize: { value: lite ? 1.6 : 1 }, uBoost: { value: lite ? 1.7 : 1 },
+      uFront: { value: o.front != null ? o.front : 1.2 },
     },
     vertexShader: `
       attribute vec3 aN;
       attribute vec2 aUV;
       attribute float aSeed;
       uniform sampler2D uTex;
-      uniform float uTime, uViewH, uGold, uPush, uLo, uHi, uGain, uSize, uBoost;
+      uniform float uTime, uViewH, uGold, uPush, uLo, uHi, uGain, uSize, uBoost, uFront;
       varying vec3 vCol;
       varying float vA, vBig;
       void main(){
         vec3 col = texture2D(uTex, aUV).rgb;
         float lum = dot(col, vec3(0.3, 0.59, 0.11));
         float s = aSeed * 6.2831;
-        vec3 p = position + aN * (lum * uPush + sin(uTime * 0.4 + s) * 0.5);
+        vec3 p = position + aN * (uFront + lum * uPush + sin(uTime * 0.4 + s) * 0.5);
         p += vec3(sin(uTime * 0.13 + s), cos(uTime * 0.11 + s * 1.3), 0.0) * 0.25;
         vec4 mv = modelViewMatrix * vec4(p, 1.0);
         gl_Position = projectionMatrix * mv;
@@ -794,7 +795,74 @@ function makeVideoSheet(o){
   sheet.frustumCulled = false;
   sheet.renderOrder = -2;
   sheet.visible = false;
+  // Hinter den Punkten das Video selbst - weich, leicht golden, mit
+  // ausgeblendeten Raendern. So erkennt man es gut, und die Punkte schweben
+  // davor wie in der Referenz. Das Bild haengt als Kind am Punktvorhang:
+  // sichtbar genau dann, wenn er es ist, und mit denselben Uniforms.
+  sheet.add(makeVideoPlane(o, mat.uniforms));
   return sheet;
+}
+
+function makeVideoPlane(o, U){
+  const cols = 48;
+  const pos = [], uv = [], idx = [];
+  for(let i = 0; i <= cols; i++){
+    const u = i / cols, ang = (u - 0.5) * o.ARC;
+    for(let j = 0; j <= 1; j++){
+      pos.push(o.C.x + Math.sin(ang) * o.R, o.C.y + (j - 0.5) * o.H, o.C.z - Math.cos(ang) * o.R);
+      uv.push(u, j);
+    }
+    if(i < cols){
+      const a = i * 2;
+      idx.push(a, a + 2, a + 1, a + 1, a + 2, a + 3);
+    }
+  }
+  const geo = new BufferGeometry();
+  geo.setAttribute('position', new Float32BufferAttribute(pos, 3));
+  geo.setAttribute('uv', new Float32BufferAttribute(uv, 2));
+  geo.setIndex(idx);
+  const mat = new ShaderMaterial({
+    uniforms: {
+      uTex: U.uTex, uVis: U.uVis, uGold: U.uGold, uGain: U.uGain,
+      uPlane: { value: o.plane != null ? o.plane : 0.5 },
+    },
+    vertexShader: `
+      varying vec2 vUv;
+      void main(){
+        vUv = uv;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+      }`,
+    fragmentShader: `
+      uniform sampler2D uTex;
+      uniform float uVis, uGold, uGain, uPlane;
+      varying vec2 vUv;
+      void main(){
+        // Fuenf Abtastungen: ein Hauch Weichzeichnung, damit das Video
+        // hinter den Punkten liegt statt mit ihnen zu konkurrieren.
+        vec2 d = vec2(1.6 / 320.0, 1.6 / 180.0);
+        vec3 c = texture2D(uTex, vUv).rgb * 0.4
+               + (texture2D(uTex, vUv + vec2(d.x, 0.0)).rgb + texture2D(uTex, vUv - vec2(d.x, 0.0)).rgb
+                + texture2D(uTex, vUv + vec2(0.0, d.y)).rgb + texture2D(uTex, vUv - vec2(0.0, d.y)).rgb) * 0.15;
+        // Steile Tonwertkurve: Dunkles wird schwarz, nur Lichter und
+        // Konturen bleiben. Ohne sie legte sich das Video wie ein milchiger
+        // Schleier ueber die ganze Nacht.
+        c = max(c - 0.05, 0.0);
+        c = c * c * 2.4;
+        float lum = dot(c, vec3(0.3, 0.59, 0.11));
+        vec3 tint = mix(c, c * vec3(1.08, 0.94, 0.74), 0.4) * uGain;
+        vec3 gold = mix(vec3(0.62, 0.32, 0.08), vec3(1.0, 0.76, 0.42), min(1.0, lum * 1.5)) * lum * 1.8;
+        vec3 col = mix(tint, gold, uGold);
+        // Raender weich ausblenden - kein Rechteck im Raum.
+        float e = smoothstep(0.0, 0.2, vUv.x) * smoothstep(1.0, 0.8, vUv.x)
+                * smoothstep(0.0, 0.24, vUv.y) * smoothstep(1.0, 0.76, vUv.y);
+        gl_FragColor = vec4(col, e * uVis * uPlane);
+      }`,
+    transparent: true, depthWrite: false, blending: AdditiveBlending, side: DoubleSide,
+  });
+  const m = new Mesh(geo, mat);
+  m.frustumCulled = false;
+  m.renderOrder = -3;
+  return m;
 }
 
 /* ------------------------------------------------------------ Videos  */
@@ -962,7 +1030,7 @@ function makeParis(){
   // sobald das Seine-Video laeuft, aus dem Video (siehe frame()).
   const sheet = makeVideoSheet({
     grid: PARIS.grid(), C: PARIS.C, R: PARIS.R, ARC: PARIS.ARC, H: PARIS.H,
-    tex: rt.texture, gold: 0,
+    tex: rt.texture, gold: 0, plane: 0.62,
   });
 
   // Der weiche, helle Schein hinter dem Turm - in der Referenz das, was die
@@ -1114,7 +1182,9 @@ function init(canvas, opts){
   }catch(e){ return false; }
   if(!renderer.getContext()) return false;
 
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, lite ? 1.5 : 2));
+  // Startwert; die Qualitaetsregelung passt ihn danach an das Geraet an.
+  prNow = Math.min(window.devicePixelRatio || 1, lite ? 1.5 : 2);
+  renderer.setPixelRatio(prNow);
   renderer.toneMapping = ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.12;
   renderer.outputColorSpace = SRGBColorSpace;
@@ -1250,14 +1320,15 @@ function init(canvas, opts){
   // man von "Das Wort" zur Methode hinabsinkt - wie der Wald in der Referenz.
   tramSheet = makeVideoSheet({
     grid: lite ? [96, 54] : [192, 108],
-    C: new Vector3(0, 0.5, 20), R: 40, ARC: 1.1, H: 24, gold: 1, push: 2.5, lo: 0.06, hi: 0.4,
+    C: new Vector3(0, 0.5, 20), R: 40, ARC: 1.1, H: 24, gold: 1, push: 2.5, lo: 0.06, hi: 0.4, plane: 0.42,
   });
   scene.add(tramSheet);
 
   // Der Bloom ist das, was die Referenz teuer macht: helle Stellen bluehen in
-  // weiche Hoefe aus. Auf schwachen Geraeten faellt der Pass weg - dort wird
-  // direkt gerendert.
-  if(!lite){
+  // weiche Hoefe aus. Seit Build 19 auch auf Handy und iPad - die
+  // Qualitaetsregelung (governor) schaltet ihn ab, falls das Geraet es nicht
+  // fluessig schafft.
+  {
     composer = new EffectComposer(renderer);
     composer.addPass(new RenderPass(scene, camera));
     bloom = new UnrealBloomPass(new Vector2(window.innerWidth, window.innerHeight),
@@ -1488,13 +1559,14 @@ function applyTransform(p, t){
             * (1 - b);
     const ok = videoUsable(videos.tram);
     tramSheet.visible = ok && tramVis > 0.005;
-    tramSheet.material.uniforms.uVis.value = tramVis * 0.36;
+    tramSheet.material.uniforms.uVis.value = tramVis * 0.5;
   }
 }
 
 function frame(){
   if(!running){ raf = 0; return; }
   const dtRaw = clock.getDelta();
+  governor(dtRaw);
   const dt = Math.min(dtRaw, 0.05);          // fuer Bewegung: begrenzt den Sprung
   const t = clock.elapsedTime;
 
@@ -1557,8 +1629,55 @@ function frame(){
 }
 
 function draw(){
-  if(composer) composer.render();
+  if(composer && bloomOn) composer.render();
   else renderer.render(scene, camera);
+}
+
+/* ---------------------------------------------- Qualitaetsregelung  */
+
+// Ziel: 60 Bilder/s auf jedem Geraet, und dabei so schoen wie moeglich. Die
+// Regelung misst laufend die echte Bildzeit. Wird es zu langsam, sinkt
+// zuerst die Aufloesung (bis 1.0), dann faellt das Nachgluehen weg, dann
+// sinkt die Aufloesung weiter. Ist Luft, geht es langsam wieder hinauf - aber
+// nie ueber die Stufe, an der es zuletzt zu langsam wurde.
+// In automatisierten Tests (navigator.webdriver) ist sie aus - die
+// Testmaschine rendert ohne Grafikkarte und wuerde alles herunterregeln;
+// mit ?gov=1 laesst sie sich dort trotzdem pruefen.
+const PR_MAX = Math.min(window.devicePixelRatio || 1, 2);
+const PR_MIN = 0.6;
+let bloomOn = true;
+let prNow = 1, prCeil = PR_MAX;
+const gov = { on: !navigator.webdriver || /[?&]gov=1/.test(location.search),
+              acc: 0, n: 0, good: 0, cool: 0 };
+function setQuality(pr, bloomState){
+  prNow = Math.max(PR_MIN, Math.min(prCeil, pr));
+  renderer.setPixelRatio(prNow);
+  if(composer) composer.setPixelRatio(prNow);
+  bloomOn = !!composer && bloomState;
+  resize();
+}
+function governor(dtRaw){
+  if(!gov.on || dtRaw > 0.25) return;      // Tabwechsel, Ruckler beim Laden
+  if(gov.cool > 0){ gov.cool--; return; }  // nach jeder Aenderung kurz warten
+  gov.acc += dtRaw; gov.n++;
+  if(gov.n < 40) return;
+  const avg = gov.acc / gov.n;
+  gov.acc = 0; gov.n = 0;
+  if(avg > 1 / 52){
+    gov.good = 0;
+    // Zu langsam: diese Stufe merkt sich die Regelung als Obergrenze.
+    prCeil = Math.max(PR_MIN, prNow * 0.98);
+    if(prNow > 1.01)            setQuality(Math.max(1, prNow * 0.8), bloomOn);
+    else if(bloomOn)            setQuality(prNow, false);
+    else if(prNow > PR_MIN)     setQuality(prNow * 0.85, false);
+    gov.cool = 20;
+  }else if(avg < 1 / 58){
+    // Drei gute Messungen in Folge: eine Stufe hinauf.
+    if(++gov.good >= 3 && prNow < prCeil - 0.01){
+      setQuality(prNow * 1.12, bloomOn);
+      gov.good = 0; gov.cool = 20;
+    }
+  }else gov.good = 0;
 }
 
 function resize(){
