@@ -2,7 +2,7 @@
 // WICHTIG: CACHE_NAME bei jedem Deploy mit inhaltlichen Aenderungen hochzaehlen -
 // sonst bleiben Nutzer (v.a. als "Zum Home-Bildschirm hinzugefuegt" auf iOS)
 // unter Umstaenden dauerhaft auf einem alten, kaputten Stand haengen.
-const CACHE_NAME = 'lumiere-v19';
+const CACHE_NAME = 'lumiere-v20';
 const APP_SHELL = ['./', './index.html', './manifest.json', './lumiere-gl.js'];
 
 self.addEventListener('install', (event) => {

@@ -1002,6 +1002,18 @@
     font-family:var(--font-mono); font-size:.66rem; letter-spacing:.12em; text-transform:uppercase; font-weight:700;
     color:#1c1207; background:linear-gradient(120deg, var(--gold-bright), var(--ember-bright)); padding:.3rem .7rem; border-radius:20px;
   }
+  /* Build 20: Bildschirmtastatur fuer Mot du jour - echtes HTML unter der
+     Buehne, damit die Tasten auch auf dem Handy gross genug zum Treffen sind. */
+  .mdj-kb{display:flex; flex-direction:column; gap:.4rem; margin:.8rem auto 0; max-width:620px; user-select:none; -webkit-user-select:none; touch-action:manipulation;}
+  .mdj-row{display:flex; gap:.3rem; justify-content:center;}
+  .mdj-key{flex:1 1 0; min-width:0; max-width:52px; height:48px; border-radius:9px; border:1px solid var(--border-solid);
+    background:rgba(255,255,255,.05); color:var(--text); font-family:var(--font-serif); font-size:1.05rem; font-weight:600; cursor:pointer; padding:0;}
+  .mdj-key.mdj-wide{flex:1.6 1 0; max-width:78px; font-family:var(--font-mono); font-size:.78rem; letter-spacing:.06em;}
+  .mdj-key:active{transform:translateY(1px);}
+  .mdj-key.is-hit{background:#f6c35c; color:#1a1406; border-color:#ffd98a;}
+  .mdj-key.is-near{background:#b8663a; color:#fff1e2; border-color:#d98a5a;}
+  .mdj-key.is-miss{background:#1c2332; color:#6f7888; border-color:#2a3345;}
+  @media (max-width:420px){ .mdj-key{height:44px; font-size:.95rem;} .mdj-row{gap:.22rem;} }
   .arcade-hint{
     display:flex; align-items:center; gap:.5rem; justify-content:center; margin-top:.9rem;
     font-family:var(--font-mono); font-size:.68rem; letter-spacing:.08em; text-transform:uppercase; color:var(--stone);
@@ -4894,7 +4906,7 @@
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="./lumiere-gl.js?v=19" defer></script>
+<script src="./lumiere-gl.js?v=20" defer></script>
 <script>
 /* ============================================================
    WICHTIG: Bei jedem inhaltlichen Deploy hochzaehlen (wie CACHE_NAME
@@ -4905,7 +4917,7 @@
       unten) - neue, noch nicht "veroeffentlichte" Features hinter
       isReleased(N) verstecken; Admins sehen sie trotzdem sofort.
    ============================================================ */
-const APP_VERSION = 19;
+const APP_VERSION = 20;
 
 // Site-weites Feature-Gate: neue, aber noch nicht freigegebene Funktionen
 // hinter isReleased(<APP_VERSION beim Einbau>) verstecken. Admins (echtes
@@ -9903,7 +9915,26 @@ const GAME_DEFS = {
   dart:     { name: 'Federwurf', icon: '🪶', unit: 'Punkte', short: '',
     desc: 'Die Feder kreist um die Zielscheibe — im richtigen Moment werfen. Fünf Würfe, der Wind zieht mit.',
     hint: 'Tippen oder Leertaste: werfen · 5 Würfe' },
+  // Build 20 - erst fuer Admins, nach der Freigabe fuer alle (build).
+  motdujour:{ name: 'Mot du jour', icon: '🔤', unit: 'Punkte', short: '', build: 20,
+    desc: 'Ein französisches Wort aus deinen Lernsets in sechs Versuchen erraten. Gold sitzt, Kupfer kommt vor, Schiefer nicht.',
+    hint: 'Tippen oder Tastatur · Gold = richtige Stelle · Kupfer = kommt vor · Hinweis ab dem 3. Versuch' },
+  tourjump: { name: 'Turmsprung', icon: '🗼', unit: 'Meter', short: 'm', build: 20,
+    desc: 'Von Träger zu Träger den Eiffelturm hinauf. Morsche Träger brechen, goldene Federn schleudern dich nach oben.',
+    hint: 'Linke oder rechte Hälfte gedrückt halten · Pfeiltasten' },
+  g2048:    { name: '2048', icon: '🔢', unit: 'Punkte', short: '', build: 20,
+    desc: 'Gleiche Kacheln verschmelzen — und jede verrät dir ihr französisches Zahlwort. Wie weit kommst du?',
+    hint: 'Wischen oder Pfeiltasten' },
+  wordrun:  { name: 'Wort-Läufer', icon: '🏃', unit: 'Punkte', short: '', build: 20,
+    desc: 'Ein Lauf durch Paris bei Nacht. Spring über Hindernisse und lauf durch die richtige Übersetzung.',
+    hint: 'Tippen: springen · Halten: höher · richtige Antwort unten bleiben oder oben einsammeln' },
 };
+// Neue Spiele tragen ein build-Feld und bleiben bis zur Freigabe verborgen.
+function arcadeGameVisible(key){
+  const d = GAME_DEFS[key];
+  return !!d && (!d.build || isReleased(d.build));
+}
+function visibleGameKeys(){ return Object.keys(GAME_DEFS).filter(arcadeGameVisible); }
 const DEFAULT_GAME_SETTINGS = {
   coinsPerRound: 1,
   dailyRewardCoins: 3,
@@ -9919,6 +9950,11 @@ const DEFAULT_GAME_SETTINGS = {
     flappy:   { enabled: true, cost: 2, difficulty: 1, recordBonus: 5 },
     stacker:  { enabled: true, cost: 2, difficulty: 1, recordBonus: 5 },
     dart:     { enabled: true, cost: 2, difficulty: 1, recordBonus: 5 },
+    // Mot du jour ist Lernen und Spielen zugleich - deshalb guenstiger.
+    motdujour:{ enabled: true, cost: 1, difficulty: 1, recordBonus: 5 },
+    tourjump: { enabled: true, cost: 2, difficulty: 1, recordBonus: 5 },
+    g2048:    { enabled: true, cost: 2, difficulty: 1, recordBonus: 5 },
+    wordrun:  { enabled: true, cost: 2, difficulty: 1, recordBonus: 5 },
   },
 };
 // site_settings.game_settings kann fehlen (Spalte noch nicht angelegt) oder nur
@@ -10056,7 +10092,7 @@ function renderArcadeSections(){
 
   const grid = document.getElementById('arcadeGrid');
   const cfg = arcadeSettings();
-  grid.innerHTML = Object.keys(GAME_DEFS).map(key => {
+  grid.innerHTML = visibleGameKeys().map(key => {
     const def = GAME_DEFS[key];
     const g = cfg.games[key];
     const rec = getLocalRecord(key);
@@ -10081,7 +10117,8 @@ function renderArcadeSections(){
   });
 
   const tabs = document.getElementById('arcadeLbTabs');
-  tabs.innerHTML = Object.keys(GAME_DEFS).map(key =>
+  if(!arcadeGameVisible(arcadeLbGame)) arcadeLbGame = 'longjump';
+  tabs.innerHTML = visibleGameKeys().map(key =>
     `<button type="button" class="chip${key === arcadeLbGame ? ' selected' : ''}" data-lb="${key}">${escapeHtml(GAME_DEFS[key].name)}</button>`
   ).join('');
   tabs.querySelectorAll('.chip[data-lb]').forEach(chip => {
@@ -10219,7 +10256,7 @@ function launchArcadeGame(key){
   sndClick();
   const def = GAME_DEFS[key];
   const cfg = gameCfg(key);
-  if(!def || !cfg.enabled){ showToast('Dieses Spiel ist gerade deaktiviert.', true); return; }
+  if(!def || !cfg.enabled || !arcadeGameVisible(key)){ showToast('Dieses Spiel ist gerade deaktiviert.', true); return; }
   if(getCoins() < cfg.cost){
     showToast(`Dafür brauchst du ${cfg.cost} Coins — übe eine Runde, um welche zu verdienen.`, true);
     return;
@@ -10243,6 +10280,10 @@ function launchArcadeGame(key){
   else if(key === 'flappy') activeArcadeGame = runFlappy(canvas, ctx);
   else if(key === 'stacker') activeArcadeGame = runStacker(canvas, ctx);
   else if(key === 'dart') activeArcadeGame = runDart(canvas, ctx);
+  else if(key === 'motdujour') activeArcadeGame = runMotDuJour(canvas, ctx);
+  else if(key === 'tourjump') activeArcadeGame = runTowerJump(canvas, ctx);
+  else if(key === 'g2048') activeArcadeGame = run2048(canvas, ctx);
+  else if(key === 'wordrun') activeArcadeGame = runWordRunner(canvas, ctx);
 }
 
 async function finishArcadeGame(key, score){
@@ -10973,6 +11014,1160 @@ function runDart(canvas, ctx){
   draw();
   raf = requestAnimationFrame(step);
   return { stop(){ running = false; cancelAnimationFrame(raf); unbind(); } };
+}
+
+// =============================================================================
+// Build 20: vier neue Spiele - Mot du jour, Turmsprung, 2048, Wort-Laeufer.
+// Alle vier sind eigene Umsetzungen (Spielideen sind frei, Code und Grafik
+// sind neu). Sie nutzen dieselbe Buehne wie die uebrigen Spiele, zeichnen aber
+// in voller Geraeteaufloesung - Text und Kacheln bleiben auf Handy und iPad
+// scharf. Die logischen Masse bleiben 720 x 460.
+// =============================================================================
+const ARCADE_SERIF = "'Fraunces', Georgia, serif";
+const ARCADE_SANS = "'Inter', system-ui, sans-serif";
+const ARCADE_MONO = "'JetBrains Mono', monospace";
+
+function arcadeHiDpi(canvas, ctx, W = ARCADE_W, H = ARCADE_H){
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  canvas.width = Math.round(W * dpr);
+  canvas.height = Math.round(H * dpr);
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  return dpr;
+}
+// Auf schmalen Schirmen (Handy hochkant) bekommen Wortraten, 2048 und
+// Turmsprung eine eigene Hochkant-Buehne - im flachen 720 x 460 waeren
+// Kacheln und Buchstaben dort nur noch Fingerkuppen gross.
+function arcadeNarrow(){ return window.innerWidth < 640; }
+// Zeigerposition in logischen Buehnen-Koordinaten (die Buehne wird per CSS
+// auf die Seitenbreite skaliert).
+function arcadePoint(canvas, e, W = ARCADE_W, H = ARCADE_H){
+  const r = canvas.getBoundingClientRect();
+  return { x: (e.clientX - r.left) * W / r.width, y: (e.clientY - r.top) * H / r.height };
+}
+function arcadeBackdrop(ctx, W, H){
+  const g = ctx.createLinearGradient(0, 0, 0, H);
+  g.addColorStop(0, '#111828');
+  g.addColorStop(1, '#0b0f17');
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, W, H);
+}
+function arcadeRoundRect(ctx, x, y, w, h, r){
+  r = Math.min(r, w / 2, h / 2);
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
+}
+// Rendert ein Spiel ueber requestAnimationFrame mit echtem dt (gedeckelt, damit
+// ein Tabwechsel keinen Riesensprung ausloest).
+function arcadeLoop(step){
+  let raf = 0, last = performance.now(), alive = true;
+  const tick = (now) => {
+    if(!alive) return;
+    const dt = Math.min(0.034, Math.max(0, (now - last) / 1000));
+    last = now;
+    step(dt, now);
+    if(alive) raf = requestAnimationFrame(tick);
+  };
+  raf = requestAnimationFrame(tick);
+  return () => { alive = false; cancelAnimationFrame(raf); };
+}
+
+// --- Vokabeln fuer die Spiele ---------------------------------------------
+// Zuerst die eigenen Lernsets. Wer (noch) zu wenig eigene Woerter hat,
+// bekommt eine kleine Grundliste dazu - sonst waeren die Spiele leer.
+const ARCADE_WORDS = [
+  ['la lune', 'der Mond'], ['le soleil', 'die Sonne'], ['la fleur', 'die Blume'], ['le livre', 'das Buch'],
+  ['le monde', 'die Welt'], ["l'amour", 'die Liebe'], ['la nuit', 'die Nacht'], ['le rêve', 'der Traum'],
+  ["l'étoile", 'der Stern'], ['la maison', 'das Haus'], ['le chat', 'die Katze'], ['le chien', 'der Hund'],
+  ['le pain', 'das Brot'], ['le fromage', 'der Käse'], ['la pomme', 'der Apfel'], ['la ville', 'die Stadt'],
+  ['la plage', 'der Strand'], ["l'arbre", 'der Baum'], ['la neige', 'der Schnee'], ['la pluie', 'der Regen'],
+  ["l'heure", 'die Stunde'], ['la porte', 'die Tür'], ['la table', 'der Tisch'], ['la chaise', 'der Stuhl'],
+  ['la fenêtre', 'das Fenster'], ["l'école", 'die Schule'], ['la route', 'die Straße'], ['la voiture', 'das Auto'],
+  ['le train', 'der Zug'], ['la musique', 'die Musik'], ['la lumière', 'das Licht'], ['le cœur', 'das Herz'],
+  ['le bateau', 'das Schiff'], ['le jardin', 'der Garten'], ["l'oiseau", 'der Vogel'], ['le nuage', 'die Wolke'],
+  ['le vent', 'der Wind'], ['la forêt', 'der Wald'], ['la rivière', 'der Fluss'], ['le sourire', 'das Lächeln'],
+  ['le voyage', 'die Reise'], ['le matin', 'der Morgen'], ['le soir', 'der Abend'], ['la semaine', 'die Woche'],
+  ["l'argent", 'das Geld'], ['le travail', 'die Arbeit'], ['la famille', 'die Familie'], ["l'enfant", 'das Kind'],
+  ['la femme', 'die Frau'], ["l'homme", 'der Mann'], ['le verre', 'das Glas'], ["l'église", 'die Kirche'],
+  ['le pont', 'die Brücke'], ['la tour', 'der Turm'], ['la gare', 'der Bahnhof'], ['le musée', 'das Museum'],
+  ['la mer', 'das Meer'], ['la montagne', 'der Berg'], ['la clé', 'der Schlüssel'], ['le ciel', 'der Himmel'],
+].map(([fr, de]) => ({ fr, de }));
+
+function arcadeVocab(){
+  const own = [];
+  (store.sets || []).forEach(s => (s.pairs || []).forEach(p => {
+    if(p && typeof p.fr === 'string' && typeof p.de === 'string' && p.fr.trim() && p.de.trim()){
+      own.push({ fr: p.fr.trim(), de: p.de.trim(), own: true });
+    }
+  }));
+  return own;
+}
+function arcadeShuffle(a){
+  for(let i = a.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+}
+// "la lumière" -> "lumière" (Artikel weg), "lumière" -> "LUMIERE" (fuer das
+// Raten zaehlen nur die Buchstaben; die Akzente zeigt die Aufloesung).
+function arcadeStripArticle(fr){
+  return fr.replace(/^(le|la|les|un|une|des|du)\s+/i, '').replace(/^l['’]\s*/i, '').trim();
+}
+function arcadeFold(s){
+  return s.normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .replace(/œ/gi, 'oe').replace(/æ/gi, 'ae').toUpperCase();
+}
+
+// --- Spiel 6: Mot du jour (Wortraten) ----------------------------------------
+// Ein franzoesisches Wort aus den eigenen Lernsets in sechs Versuchen erraten.
+// Gold = Buchstabe sitzt, Kupfer = kommt vor, aber woanders, Schiefer = kommt
+// nicht vor. Ab dem dritten Versuch steht die deutsche Bedeutung als Hinweis
+// da. Es geht Wort fuer Wort weiter, bis eines nicht geloest wird; jedes
+// geloeste Wort bringt 7 minus Versuche Punkte.
+function motDuJourPool(){
+  const seen = new Set();
+  const make = (p) => {
+    const disp = arcadeStripArticle(p.fr);
+    const word = arcadeFold(disp);
+    if(!/^[A-Z]{4,7}$/.test(word) || seen.has(word)) return null;
+    seen.add(word);
+    return { word, disp, de: p.de, own: !!p.own };
+  };
+  const own = arcadeVocab().map(make).filter(Boolean);
+  const pool = own.length >= 8 ? own : own.concat(ARCADE_WORDS.map(make).filter(Boolean));
+  return arcadeShuffle(pool);
+}
+
+function runMotDuJour(canvas, ctx){
+  const narrow = arcadeNarrow();
+  const W = narrow ? 420 : ARCADE_W, H = narrow ? 486 : ARCADE_H;
+  arcadeHiDpi(canvas, ctx, W, H);
+  const pool = motDuJourPool();
+  let pi = 0;
+  let target = null, rows = [], cur = '', solved = 0, score = 0;
+  let state = 'play';                 // play -> reveal -> (next | lost)
+  let reveal = null;                  // { row, start }
+  let shake = 0, bounce = 0, t = 0;
+  const keyState = {};                // Buchstabe -> 'hit' | 'near' | 'miss'
+  const MAX_ROWS = 6;
+  const FLIP = 0.26;                  // Sekunden je Kachel
+
+  function nextWord(){
+    if(pi >= pool.length){ arcadeShuffle(pool); pi = 0; }
+    target = pool[pi++];
+    rows = []; cur = ''; state = 'play'; reveal = null; bounce = 0;
+    Object.keys(keyState).forEach(k => delete keyState[k]);
+    paintKeys();
+    setArcadeScore(`${score} Pkt. · Wort ${solved + 1}`);
+  }
+
+  // Standard-Auswertung mit doppelten Buchstaben: erst die Treffer an der
+  // richtigen Stelle, dann die uebrigen Vorkommen von links nach rechts.
+  function evaluate(guess, word){
+    const res = Array(word.length).fill('miss');
+    const left = {};
+    for(let i = 0; i < word.length; i++){
+      if(guess[i] === word[i]) res[i] = 'hit';
+      else left[word[i]] = (left[word[i]] || 0) + 1;
+    }
+    for(let i = 0; i < word.length; i++){
+      if(res[i] === 'hit') continue;
+      if(left[guess[i]] > 0){ res[i] = 'near'; left[guess[i]]--; }
+    }
+    return res;
+  }
+
+  function submit(){
+    if(state !== 'play') return;
+    if(cur.length !== target.word.length){ shake = 0.4; sndWrong(); return; }
+    const res = evaluate(cur, target.word);
+    rows.push({ guess: cur, res });
+    cur = '';
+    state = 'reveal';
+    reveal = { row: rows.length - 1, start: t };
+    sndClick();
+  }
+  function afterReveal(){
+    const last = rows[rows.length - 1];
+    last.res.forEach((r, i) => {
+      const ch = last.guess[i];
+      const prev = keyState[ch];
+      if(r === 'hit' || (r === 'near' && prev !== 'hit') || (r === 'miss' && !prev)) keyState[ch] = r;
+    });
+    paintKeys();
+    if(last.guess === target.word){
+      const pts = MAX_ROWS + 1 - rows.length;
+      score += pts; solved++;
+      state = 'won'; bounce = t;
+      setArcadeScore(`${score} Pkt. · ${solved} gelöst`);
+      sndCorrect();
+      setTimeout(() => { if(running) nextWord(); }, 1900);
+    }else if(rows.length >= MAX_ROWS){
+      state = 'lost';
+      sndWrong();
+      setTimeout(() => { if(running) finishArcadeGame('motdujour', score); }, 2600);
+    }else{
+      state = 'play';
+    }
+  }
+
+  function press(k){
+    if(state !== 'play') return;
+    if(k === 'ENTER') submit();
+    else if(k === 'BACK') cur = cur.slice(0, -1);
+    else if(/^[A-Z]$/.test(k) && cur.length < target.word.length) cur += k;
+  }
+
+  // Bildschirmtastatur als echtes HTML unter der Buehne: auf dem Handy waeren
+  // gezeichnete Tasten im skalierten Canvas zu klein zum Treffen.
+  const kb = document.createElement('div');
+  kb.className = 'mdj-kb';
+  const ROWS = ['QWERTZUIOP', 'ASDFGHJKL', '⏎YXCVBNM⌫'];
+  kb.innerHTML = ROWS.map(r => `<div class="mdj-row">${[...r].map(ch => {
+    const k = ch === '⏎' ? 'ENTER' : ch === '⌫' ? 'BACK' : ch;
+    const wide = k.length > 1 ? ' mdj-wide' : '';
+    const label = k === 'ENTER' ? 'OK' : ch;
+    return `<button type="button" class="mdj-key${wide}" data-k="${k}" aria-label="${k === 'ENTER' ? 'Bestätigen' : k === 'BACK' ? 'Löschen' : k}">${label}</button>`;
+  }).join('')}</div>`).join('');
+  const stage = document.getElementById('arcadeStage');
+  stage.insertAdjacentElement('afterend', kb);
+  const onKbDown = (e) => {
+    const b = e.target.closest('.mdj-key');
+    if(!b) return;
+    e.preventDefault();
+    press(b.dataset.k);
+  };
+  kb.addEventListener('pointerdown', onKbDown);
+  function paintKeys(){
+    kb.querySelectorAll('.mdj-key').forEach(b => {
+      b.classList.remove('is-hit', 'is-near', 'is-miss');
+      const s = keyState[b.dataset.k];
+      if(s) b.classList.add('is-' + s);
+    });
+  }
+  const onKey = (e) => {
+    if(e.ctrlKey || e.metaKey || e.altKey) return;
+    if(e.key === 'Enter'){ e.preventDefault(); press('ENTER'); }
+    else if(e.key === 'Backspace'){ e.preventDefault(); press('BACK'); }
+    else{
+      const k = arcadeFold(e.key || '');
+      if(/^[A-Z]$/.test(k)){ e.preventDefault(); press(k); }
+    }
+  };
+  window.addEventListener('keydown', onKey);
+
+  const COL = {
+    hit:  { bg: '#f6c35c', fg: '#1a1406', edge: '#ffd98a' },
+    near: { bg: '#b8663a', fg: '#fff1e2', edge: '#d98a5a' },
+    miss: { bg: '#1c2332', fg: '#8e97a8', edge: '#2a3345' },
+  };
+
+  function draw(){
+    arcadeBackdrop(ctx, W, H);
+    const len = target.word.length;
+    const G = 7, T = Math.min(54, Math.floor((W - 32 - (len - 1) * G) / len));
+    const gw = len * T + (len - 1) * G, gh = MAX_ROWS * T + (MAX_ROWS - 1) * G;
+    const gx = (W - gw) / 2, gy = narrow ? 80 : 62;
+
+    // Kopfzeile: Wortlaenge links, Hinweis rechts.
+    ctx.textBaseline = 'middle';
+    ctx.font = `600 11px ${ARCADE_MONO}`;
+    ctx.fillStyle = ARCADE_STONE;
+    ctx.textAlign = 'left';
+    ctx.fillText(`MOT ${solved + 1} · ${len} BUCHSTABEN${target.own && !narrow ? ' · AUS DEINEN SETS' : ''}`, 18, 28);
+    const showHint = rows.length >= 2 || state === 'lost' || state === 'won';
+    // Hochkant steht der Hinweis in einer eigenen Zeile, quer rechts oben.
+    const hx = narrow ? W / 2 : W - 24, hy = narrow ? 54 : 28;
+    ctx.textAlign = narrow ? 'center' : 'right';
+    if(showHint){
+      ctx.font = `italic 500 ${narrow ? 19 : 17}px ${ARCADE_SERIF}`;
+      ctx.fillStyle = ARCADE_GOLD;
+      ctx.fillText(`„${target.de}“`, hx, hy);
+    }else{
+      ctx.font = `500 11px ${ARCADE_MONO}`;
+      ctx.fillStyle = 'rgba(167,156,136,.6)';
+      ctx.fillText('HINWEIS AB DEM 3. VERSUCH', hx, hy);
+    }
+
+    for(let r = 0; r < MAX_ROWS; r++){
+      const row = rows[r];
+      const isCur = r === rows.length && state === 'play';
+      const sx = (isCur && shake > 0) ? Math.sin(t * 60) * shake * 14 : 0;
+      for(let c = 0; c < len; c++){
+        const x = gx + c * (T + G) + sx, y = gy + r * (T + G);
+        let ch = '', st = null, sy = 1, lift = 0;
+        if(row){
+          ch = row.guess[c];
+          st = row.res[c];
+          if(reveal && reveal.row === r && state === 'reveal'){
+            const p = (t - reveal.start - c * FLIP) / FLIP;
+            if(p < 0) st = 'typed';
+            else if(p < 1){
+              sy = Math.abs(Math.cos(p * Math.PI));
+              if(p < 0.5) st = 'typed';
+            }
+          }
+          if(state === 'won' && r === rows.length - 1){
+            const q = t - bounce - c * 0.08;
+            if(q > 0 && q < 0.4) lift = Math.sin(q / 0.4 * Math.PI) * 12;
+          }
+        }else if(isCur){
+          ch = cur[c] || '';
+          st = ch ? 'typed' : null;
+        }
+        ctx.save();
+        ctx.translate(x + T / 2, y + T / 2 - lift);
+        ctx.scale(1, sy);
+        arcadeRoundRect(ctx, -T / 2, -T / 2, T, T, 9);
+        if(st && COL[st]){
+          ctx.fillStyle = COL[st].bg; ctx.fill();
+          ctx.strokeStyle = COL[st].edge; ctx.lineWidth = 1; ctx.stroke();
+        }else{
+          ctx.fillStyle = 'rgba(255,255,255,.025)'; ctx.fill();
+          ctx.strokeStyle = st === 'typed' ? 'rgba(246,195,92,.75)' : 'rgba(167,156,136,.28)';
+          ctx.lineWidth = st === 'typed' ? 2 : 1.2; ctx.stroke();
+        }
+        if(ch){
+          ctx.fillStyle = (st && COL[st]) ? COL[st].fg : '#f3ead8';
+          ctx.font = `600 ${Math.round(T * 0.5)}px ${ARCADE_SERIF}`;
+          ctx.textAlign = 'center';
+          ctx.fillText(ch, 0, 2);
+        }
+        ctx.restore();
+      }
+    }
+
+    // Aufloesung: das Wort mit Akzenten und seine Bedeutung.
+    if(state === 'won' || state === 'lost'){
+      const y = gy + gh + 22;
+      ctx.textAlign = 'center';
+      ctx.font = `italic 600 ${narrow ? 19 : 22}px ${ARCADE_SERIF}`;
+      ctx.fillStyle = state === 'won' ? ARCADE_GOLD : '#e9a37f';
+      const pts = MAX_ROWS + 1 - rows.length;
+      ctx.fillText(state === 'won' ? `${target.disp} — +${pts} Pkt.` : `Das Wort war: ${target.disp}`, W / 2, y);
+    }
+  }
+
+  let running = true;
+  const stopLoop = arcadeLoop((dt) => {
+    t += dt;
+    if(shake > 0) shake = Math.max(0, shake - dt);
+    if(state === 'reveal' && t - reveal.start > target.word.length * FLIP + 0.12) afterReveal();
+    draw();
+  });
+  nextWord();
+
+  return {
+    stop(){
+      running = false;
+      stopLoop();
+      window.removeEventListener('keydown', onKey);
+      kb.removeEventListener('pointerdown', onKbDown);
+      kb.remove();
+    },
+  };
+}
+
+// --- Spiel 7: Turmsprung ------------------------------------------------------
+// Die Figur springt von allein; man lenkt nur nach links und rechts (linke oder
+// rechte Bildhaelfte gedrueckt halten, Pfeiltasten oder A/D). Die Plattformen
+// sind Traeger des Eiffelturms; wer seitlich hinauslaeuft, kommt auf der
+// anderen Seite wieder herein. Punkte = erreichte Hoehe in Metern, mit den
+// echten Etagen als Marken (57 m, 115 m, 276 m, Spitze 330 m).
+function runTowerJump(canvas, ctx){
+  // Ein Hochkant-Spiel: auf dem Handy auch eine Hochkant-Buehne.
+  const narrow = arcadeNarrow();
+  const W = narrow ? 400 : ARCADE_W, H = narrow ? 600 : ARCADE_H;
+  arcadeHiDpi(canvas, ctx, W, H);
+  const diff = gameCfg('tourjump').difficulty || 1;
+  const PX_PER_M = 10;
+  // Schwerkraft und Absprung wachsen gemeinsam: das Spiel wird schneller,
+  // die Sprunghoehe bleibt gleich - sonst waeren Stufen unerreichbar.
+  const GRAV = 1650 * diff, JUMP = -740 * Math.sqrt(diff), SPRING = -1180 * Math.sqrt(diff);
+  const LEVELS = [
+    { m: 57, name: '1er étage' }, { m: 115, name: '2e étage' },
+    { m: 276, name: '3e étage' }, { m: 330, name: 'Le sommet' },
+  ];
+  const START_Y = H - 60;               // Welt-y des Bodens
+  const p = { x: W / 2, y: START_Y, vx: 0, vy: JUMP, face: 1 };
+  let camY = 0;                        // Welt-y der oberen Bildkante
+  let best = 0, t = 0, dead = false, deadAt = 0, finished = false;
+  let steer = 0;                       // -1 links, 0, +1 rechts
+  const held = { left: false, right: false, ptr: 0 };
+  const plats = [];
+  const bits = [];                     // Bruchstuecke zerbrochener Traeger
+  const stars = Array.from({ length: 70 }, () => ({ x: Math.random() * W, y: Math.random() * 2000, s: Math.random() }));
+
+  function heightM(){ return Math.max(0, Math.round((START_Y - p.y) / PX_PER_M)); }
+  function addPlat(y){
+    const h = (START_Y - y) / PX_PER_M;
+    const r = Math.random();
+    let type = 'n';
+    if(h > 25 && r < Math.min(0.3, 0.08 + h / 900)) type = 'm';
+    else if(h > 60 && r < 0.42) type = 'b';
+    else if(r > 0.955) type = 's';
+    const w = type === 'b' ? 74 : Math.max(58, 86 - h / 12);
+    plats.push({
+      x: 20 + Math.random() * (W - 40 - w), y, w, type,
+      vx: type === 'm' ? (60 + Math.random() * 90) * (Math.random() < 0.5 ? -1 : 1) * diff : 0,
+      broken: false,
+    });
+  }
+  // Boden plus die ersten Traeger; Luecken wachsen mit der Hoehe, bleiben aber
+  // immer unter der Sprunghoehe (ca. 165 px) - jede Stufe ist erreichbar.
+  plats.push({ x: 0, y: START_Y + 6, w: W, type: 'g', vx: 0, broken: false });
+  let topY = START_Y + 6;
+  function fill(){
+    while(topY > camY - 120){
+      const h = (START_Y - topY) / PX_PER_M;
+      const gap = 52 + Math.min(1, h / 260) * 70 + Math.random() * 26;
+      topY -= Math.min(gap, 150);
+      addPlat(topY);
+    }
+  }
+  fill();
+
+  const onDown = (e) => {
+    e.preventDefault();
+    const pt = arcadePoint(canvas, e, W, H);
+    held.ptr = pt.x < W / 2 ? -1 : 1;
+    canvas.setPointerCapture && canvas.setPointerCapture(e.pointerId);
+  };
+  const onUp = (e) => { e.preventDefault(); held.ptr = 0; };
+  const onMove = (e) => {
+    if(!held.ptr) return;
+    const pt = arcadePoint(canvas, e, W, H);
+    held.ptr = pt.x < W / 2 ? -1 : 1;
+  };
+  const onKey = (e) => {
+    const down = e.type === 'keydown';
+    if(e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A'){ held.left = down; e.preventDefault(); }
+    if(e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D'){ held.right = down; e.preventDefault(); }
+  };
+  canvas.addEventListener('pointerdown', onDown);
+  canvas.addEventListener('pointerup', onUp);
+  canvas.addEventListener('pointercancel', onUp);
+  canvas.addEventListener('pointermove', onMove);
+  window.addEventListener('keydown', onKey);
+  window.addEventListener('keyup', onKey);
+
+  function drawLattice(side){
+    // Die Beine des Turms als Gitterwerk am Rand, langsamer als die Welt -
+    // das gibt Tiefe, und man spuert das Steigen.
+    const off = (camY * 0.45) % 60;
+    const x0 = side < 0 ? 0 : W;
+    ctx.save();
+    ctx.strokeStyle = 'rgba(184,134,47,.16)';
+    ctx.lineWidth = 1.4;
+    for(let y = -60 - off; y < H + 60; y += 60){
+      const a = x0 + side * 34, b = x0 + side * 74;
+      ctx.beginPath();
+      ctx.moveTo(a, y); ctx.lineTo(b, y + 60);
+      ctx.moveTo(b, y); ctx.lineTo(a, y + 60);
+      ctx.moveTo(a, y); ctx.lineTo(b, y);
+      ctx.stroke();
+    }
+    ctx.beginPath();
+    ctx.moveTo(x0 + side * 34, 0); ctx.lineTo(x0 + side * 34, H);
+    ctx.moveTo(x0 + side * 74, 0); ctx.lineTo(x0 + side * 74, H);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function drawPlat(pl){
+    const y = pl.y - camY;
+    if(y < -20 || y > H + 20) return;
+    if(pl.type === 'g'){
+      ctx.fillStyle = 'rgba(246,195,92,.12)';
+      ctx.fillRect(0, y, W, H);
+      ctx.fillStyle = ARCADE_GOLD_DIM;
+      ctx.fillRect(0, y, W, 2);
+      return;
+    }
+    const x = pl.x, w = pl.w, h = 11;
+    ctx.save();
+    if(pl.type === 'b'){
+      // Morscher Traeger: sichtbarer Riss, bricht beim ersten Tritt.
+      ctx.fillStyle = '#6d4a24';
+      arcadeRoundRect(ctx, x, y, w / 2 - 2, h, 3); ctx.fill();
+      arcadeRoundRect(ctx, x + w / 2 + 2, y, w / 2 - 2, h, 3); ctx.fill();
+    }else{
+      const g = ctx.createLinearGradient(0, y, 0, y + h);
+      g.addColorStop(0, pl.type === 'm' ? '#ffe3a0' : '#f6c35c');
+      g.addColorStop(1, pl.type === 'm' ? '#c9953f' : '#b8862f');
+      ctx.fillStyle = g;
+      arcadeRoundRect(ctx, x, y, w, h, 3); ctx.fill();
+      // Nieten und Kreuzstreben - ein Traeger, kein Brett.
+      ctx.strokeStyle = 'rgba(60,40,10,.45)'; ctx.lineWidth = 1;
+      ctx.beginPath();
+      for(let k = x + 8; k < x + w - 8; k += 14){ ctx.moveTo(k, y + 2); ctx.lineTo(k + 7, y + h - 2); ctx.moveTo(k + 7, y + 2); ctx.lineTo(k, y + h - 2); }
+      ctx.stroke();
+      if(pl.type === 's'){
+        ctx.strokeStyle = '#ffe9b8'; ctx.lineWidth = 2;
+        ctx.beginPath();
+        const cx = x + w / 2;
+        for(let i = 0; i < 4; i++){ ctx.moveTo(cx - 8, y - 2 - i * 4); ctx.lineTo(cx + 8, y - 4 - i * 4); }
+        ctx.stroke();
+      }
+    }
+    ctx.restore();
+  }
+
+  function draw(){
+    // Himmel wird mit der Hoehe tiefer und sternreicher.
+    const hk = Math.min(1, best / 330);
+    const g = ctx.createLinearGradient(0, 0, 0, H);
+    g.addColorStop(0, hk > 0.5 ? '#070a14' : '#0d1322');
+    g.addColorStop(1, '#141b2c');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = '#fff4dc';
+    for(const s of stars){
+      const y = ((s.y - camY * (0.08 + s.s * 0.1)) % 2000 + 2000) % 2000;
+      if(y > H) continue;
+      ctx.globalAlpha = (0.15 + s.s * 0.5) * (0.4 + hk * 0.6);
+      ctx.fillRect(s.x, y, 1.4, 1.4);
+    }
+    ctx.globalAlpha = 1;
+    drawLattice(-1); drawLattice(1);
+
+    // Etagen als goldene Linie mit Namen.
+    for(const lv of LEVELS){
+      const y = START_Y - lv.m * PX_PER_M - camY;
+      if(y < -20 || y > H + 20) continue;
+      ctx.strokeStyle = 'rgba(246,195,92,.35)';
+      ctx.setLineDash([6, 8]); ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.font = `italic 600 15px ${ARCADE_SERIF}`;
+      ctx.fillStyle = ARCADE_GOLD; ctx.textAlign = 'right'; ctx.textBaseline = 'bottom';
+      ctx.fillText(`${lv.name} · ${lv.m} m`, W - 88, y - 4);
+    }
+
+    plats.forEach(drawPlat);
+    ctx.fillStyle = '#6d4a24';
+    for(const b of bits) ctx.fillRect(b.x, b.y - camY, b.w, 8);
+
+    // Die Figur, gespiegelt je nach Blickrichtung.
+    ctx.save();
+    ctx.translate(p.x, p.y - camY);
+    ctx.scale(p.face * 1.3, 1.3);
+    drawAthlete(ctx, 0, -5, 0, p.vy < 0 ? 'flight' : 'land', t);
+    ctx.restore();
+    // Am Rand halb sichtbar: auch auf der anderen Seite zeichnen.
+    if(p.x < 20 || p.x > W - 20){
+      ctx.save();
+      ctx.translate(p.x < 20 ? p.x + W : p.x - W, p.y - camY);
+      ctx.scale(p.face * 1.3, 1.3);
+      drawAthlete(ctx, 0, -5, 0, p.vy < 0 ? 'flight' : 'land', t);
+      ctx.restore();
+    }
+
+    // Steuerhinweis zum Start.
+    if(best < 6){
+      ctx.globalAlpha = 0.55;
+      ctx.font = `600 11px ${ARCADE_MONO}`; ctx.fillStyle = ARCADE_STONE;
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText('← HALTEN', W * 0.2, H - 40);
+      ctx.fillText('HALTEN →', W * 0.8, H - 40);
+      ctx.globalAlpha = 1;
+    }
+  }
+
+  function step(dt){
+    t += dt;
+    if(dead){
+      draw();
+      if(!finished && t - deadAt > 0.6){ finished = true; finishArcadeGame('tourjump', best); }
+      return;
+    }
+    steer = held.ptr || ((held.right ? 1 : 0) - (held.left ? 1 : 0));
+    const targetVx = steer * 430 * Math.sqrt(W / 720);
+    p.vx += (targetVx - p.vx) * Math.min(1, dt * 9);
+    if(steer) p.face = steer;
+    const prevY = p.y;
+    p.vy += GRAV * dt;
+    p.x += p.vx * dt;
+    p.y += p.vy * dt;
+    if(p.x < 0) p.x += W;
+    if(p.x > W) p.x -= W;
+
+    for(const pl of plats){
+      if(pl.type === 'm' && !pl.broken){
+        pl.x += pl.vx * dt;
+        if(pl.x < 12 || pl.x + pl.w > W - 12){ pl.vx *= -1; pl.x = Math.max(12, Math.min(W - 12 - pl.w, pl.x)); }
+      }
+    }
+    // Landen nur von oben: die Fuesse kreuzen die Oberkante in diesem Bild.
+    if(p.vy > 0){
+      for(const pl of plats){
+        if(pl.broken) continue;
+        if(prevY <= pl.y && p.y >= pl.y && p.x > pl.x - 8 && p.x < pl.x + pl.w + 8){
+          if(pl.type === 'b'){
+            pl.broken = true;
+            bits.push({ x: pl.x, y: pl.y, w: pl.w / 2 - 2, vy: 0 }, { x: pl.x + pl.w / 2 + 2, y: pl.y, w: pl.w / 2 - 2, vy: 0 });
+            sndWrong();
+            continue;
+          }
+          p.y = pl.y;
+          p.vy = pl.type === 's' ? SPRING : JUMP;
+          if(pl.type === 's') sndCorrect(); else playTone(520 + Math.min(300, best), 0.06, 'sine', 0.05);
+          break;
+        }
+      }
+    }
+    for(const b of bits){ b.vy += GRAV * dt; b.y += b.vy * dt; }
+
+    // Kamera folgt nur nach oben; faellt man unter den Rand, ist die Runde aus.
+    const targetCam = p.y - H * 0.42;
+    if(targetCam < camY) camY = targetCam;
+    fill();
+    for(let i = plats.length - 1; i >= 0; i--){ if(plats[i].y - camY > H + 60) plats.splice(i, 1); }
+
+    const h = heightM();
+    if(h > best){
+      const before = best;
+      best = h;
+      setArcadeScore(`${best} m`);
+      for(const lv of LEVELS){ if(before < lv.m && best >= lv.m){ sndComplete(); showToast(`🗼 ${lv.name} erreicht`); } }
+    }
+    if(p.y - camY > H + 40){ dead = true; deadAt = t; sndWrong(); }
+    draw();
+  }
+
+  setArcadeScore('0 m');
+  const stopLoop = arcadeLoop(step);
+  return {
+    stop(){
+      stopLoop();
+      canvas.removeEventListener('pointerdown', onDown);
+      canvas.removeEventListener('pointerup', onUp);
+      canvas.removeEventListener('pointercancel', onUp);
+      canvas.removeEventListener('pointermove', onMove);
+      window.removeEventListener('keydown', onKey);
+      window.removeEventListener('keyup', onKey);
+    },
+  };
+}
+
+// --- Spiel 8: 2048 ---------------------------------------------------------------
+// Wischen (oder Pfeiltasten/WASD) schiebt alle Kacheln; gleiche verschmelzen.
+// Jede Kachel traegt ihr franzoesisches Zahlwort - wer spielt, liest nebenbei
+// "soixante-quatre" und "cinq cent douze". Punkte wie im Original: die Summe
+// aller entstandenen Kacheln.
+const FR_NUMBERS = {
+  2: 'deux', 4: 'quatre', 8: 'huit', 16: 'seize', 32: 'trente-deux', 64: 'soixante-quatre',
+  128: 'cent vingt-huit', 256: 'deux cent cinquante-six', 512: 'cinq cent douze',
+  1024: 'mille vingt-quatre', 2048: 'deux mille quarante-huit', 4096: 'quatre mille quatre-vingt-seize',
+  8192: 'huit mille cent quatre-vingt-douze', 16384: 'seize mille trois cent quatre-vingt-quatre',
+};
+function run2048(canvas, ctx){
+  const narrow = arcadeNarrow();
+  const W = narrow ? 440 : ARCADE_W, H = narrow ? 540 : ARCADE_H;
+  arcadeHiDpi(canvas, ctx, W, H);
+  const N = 4, BOARD = 420, GAP = 10;
+  // Quer: Brett mittig, Infos links und rechts. Hochkant: Infos oben.
+  const BX = (W - BOARD) / 2, BY = narrow ? H - BOARD - 10 : (H - BOARD) / 2;
+  const CELL = (BOARD - GAP * (N + 1)) / N;
+  const SLIDE = 0.11;
+  let tiles = [];                       // { id, v, r, c, fr, fc, born, merged }
+  let idc = 1, score = 0, best = 2, t = 0, moveAt = -1, over = false, overAt = 0, finished = false;
+  let lastBig = null;                   // fuer die Anzeige rechts
+
+  function cellXY(r, c){ return { x: BX + GAP + c * (CELL + GAP), y: BY + GAP + r * (CELL + GAP) }; }
+  function at(r, c){ return tiles.find(k => k.r === r && k.c === c && !k.gone); }
+  function spawn(){
+    const free = [];
+    for(let r = 0; r < N; r++) for(let c = 0; c < N; c++) if(!at(r, c)) free.push([r, c]);
+    if(!free.length) return;
+    const [r, c] = free[Math.floor(Math.random() * free.length)];
+    tiles.push({ id: idc++, v: Math.random() < 0.9 ? 2 : 4, r, c, fr: r, fc: c, born: t, merged: -1 });
+  }
+  function canMove(){
+    for(let r = 0; r < N; r++) for(let c = 0; c < N; c++){
+      const a = at(r, c);
+      if(!a) return true;
+      const b = c < N - 1 && at(r, c + 1), d = r < N - 1 && at(r + 1, c);
+      if((b && b.v === a.v) || (d && d.v === a.v)) return true;
+    }
+    return false;
+  }
+  function move(dr, dc){
+    if(over) return;
+    // Zu Ende gerutschte Kacheln aus dem letzten Zug entfernen.
+    tiles = tiles.filter(k => !k.gone);
+    tiles.forEach(k => { k.fr = k.r; k.fc = k.c; });
+    let moved = false, gained = 0;
+    const order = [...Array(N).keys()];
+    const rows = dr > 0 ? order.slice().reverse() : order;
+    const cols = dc > 0 ? order.slice().reverse() : order;
+    const mergedInto = new Set();
+    for(const r of rows) for(const c of cols){
+      const k = at(r, c);
+      if(!k) continue;
+      let nr = r, nc = c;
+      while(true){
+        const tr = nr + dr, tc = nc + dc;
+        if(tr < 0 || tr >= N || tc < 0 || tc >= N) break;
+        const o = at(tr, tc);
+        if(!o){ nr = tr; nc = tc; continue; }
+        if(o.v === k.v && !mergedInto.has(o.id)){
+          // Verschmelzen: k rutscht auf o und verschwindet, o verdoppelt sich.
+          k.r = tr; k.c = tc; k.gone = true;
+          o.v *= 2; o.merged = t + SLIDE; mergedInto.add(o.id);
+          gained += o.v; moved = true;
+          if(o.v > best){ best = o.v; lastBig = o.v; }
+          nr = null;
+        }
+        break;
+      }
+      if(nr !== null && (nr !== r || nc !== c)){ k.r = nr; k.c = nc; moved = true; }
+    }
+    if(!moved) return;
+    score += gained;
+    moveAt = t;
+    setArcadeScore(`${score} Pkt.`);
+    if(gained >= 64) sndCorrect(); else if(gained > 0) playTone(440 + Math.min(600, gained * 2), 0.07, 'sine', 0.06); else sndClick();
+    setTimeout(() => {
+      spawn();
+      if(!canMove()){ over = true; overAt = t; }
+    }, SLIDE * 1000);
+  }
+
+  // Wischen: Richtung aus dem groesseren Anteil der Bewegung.
+  let sx = 0, sy = 0, down = false;
+  const onDown = (e) => { e.preventDefault(); const p = arcadePoint(canvas, e, W, H); sx = p.x; sy = p.y; down = true; };
+  const onUp = (e) => {
+    e.preventDefault();
+    if(!down) return;
+    down = false;
+    const p = arcadePoint(canvas, e, W, H);
+    const dx = p.x - sx, dy = p.y - sy;
+    if(Math.max(Math.abs(dx), Math.abs(dy)) < 22) return;
+    if(Math.abs(dx) > Math.abs(dy)) move(0, dx > 0 ? 1 : -1);
+    else move(dy > 0 ? 1 : -1, 0);
+  };
+  const onKey = (e) => {
+    const m = { ArrowLeft: [0, -1], ArrowRight: [0, 1], ArrowUp: [-1, 0], ArrowDown: [1, 0],
+                a: [0, -1], d: [0, 1], w: [-1, 0], s: [1, 0], A: [0, -1], D: [0, 1], W: [-1, 0], S: [1, 0] }[e.key];
+    if(!m) return;
+    e.preventDefault();
+    move(m[0], m[1]);
+  };
+  canvas.addEventListener('pointerdown', onDown);
+  canvas.addEventListener('pointerup', onUp);
+  window.addEventListener('keydown', onKey);
+
+  function tileColors(v){
+    // Von dunklem Bronze zu hellem Gold, ab 2048 Champagner mit Leuchten.
+    const lv = Math.log2(v);
+    const k = Math.min(1, (lv - 1) / 10);
+    const mix = (a, b) => Math.round(a + (b - a) * k);
+    const bg = `rgb(${mix(44, 255)},${mix(38, 214)},${mix(32, 120)})`;
+    const fg = k > 0.45 ? '#1a1206' : '#f3ead8';
+    return { bg, fg, glow: k > 0.7 };
+  }
+  function wrapWords(text, maxW){
+    const words = text.split(' ');
+    const lines = [];
+    let line = '';
+    for(const w of words){
+      const test = line ? line + ' ' + w : w;
+      if(ctx.measureText(test).width > maxW && line){ lines.push(line); line = w; }
+      else line = test;
+    }
+    if(line) lines.push(line);
+    return lines;
+  }
+
+  function draw(){
+    arcadeBackdrop(ctx, W, H);
+    arcadeRoundRect(ctx, BX, BY, BOARD, BOARD, 16);
+    ctx.fillStyle = 'rgba(255,255,255,.035)'; ctx.fill();
+    ctx.strokeStyle = 'rgba(167,156,136,.25)'; ctx.lineWidth = 1; ctx.stroke();
+    for(let r = 0; r < N; r++) for(let c = 0; c < N; c++){
+      const p = cellXY(r, c);
+      arcadeRoundRect(ctx, p.x, p.y, CELL, CELL, 10);
+      ctx.fillStyle = 'rgba(255,255,255,.04)'; ctx.fill();
+    }
+    const k = Math.min(1, moveAt < 0 ? 1 : (t - moveAt) / SLIDE);
+    const e = 1 - Math.pow(1 - k, 3);
+    // Verschwindende zuerst, damit die verschmolzene Kachel oben liegt.
+    const sorted = tiles.slice().sort((a, b) => (b.gone ? 1 : 0) - (a.gone ? 1 : 0));
+    for(const tile of sorted){
+      if(tile.gone && k >= 1) continue;
+      const a = cellXY(tile.fr, tile.fc), b = cellXY(tile.r, tile.c);
+      const x = a.x + (b.x - a.x) * e, y = a.y + (b.y - a.y) * e;
+      let s = 1;
+      const age = t - tile.born;
+      if(age < 0.14) s = Math.max(0.1, age / 0.14);
+      if(tile.merged > 0){ const q = (t - tile.merged) / 0.16; if(q > 0 && q < 1) s = 1 + Math.sin(q * Math.PI) * 0.12; }
+      const col = tileColors(tile.v);
+      ctx.save();
+      ctx.translate(x + CELL / 2, y + CELL / 2);
+      ctx.scale(s, s);
+      if(col.glow){ ctx.shadowColor = 'rgba(255,214,120,.55)'; ctx.shadowBlur = 18; }
+      arcadeRoundRect(ctx, -CELL / 2, -CELL / 2, CELL, CELL, 10);
+      ctx.fillStyle = col.bg; ctx.fill();
+      ctx.shadowBlur = 0;
+      ctx.fillStyle = col.fg;
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      const digits = String(tile.v).length;
+      ctx.font = `600 ${digits >= 4 ? 26 : digits === 3 ? 31 : 36}px ${ARCADE_SERIF}`;
+      ctx.fillText(tile.v, 0, -9);
+      ctx.font = `italic 500 ${digits >= 4 ? 10 : 11.5}px ${ARCADE_SERIF}`;
+      ctx.globalAlpha = 0.82;
+      const lines = wrapWords(FR_NUMBERS[tile.v] || '', CELL - 10).slice(0, 2);
+      lines.forEach((ln, i) => ctx.fillText(ln, 0, 20 + i * 12 - (lines.length - 1) * 5));
+      ctx.globalAlpha = 1;
+      ctx.restore();
+    }
+
+    // Seitlich: die groesste Kachel mit ihrem Wort - der kleine Lerneffekt.
+    ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+    if(narrow){
+      ctx.font = `600 10px ${ARCADE_MONO}`; ctx.fillStyle = ARCADE_STONE;
+      ctx.fillText('GRÖSSTE KACHEL', BX + 4, 28);
+      ctx.font = `600 34px ${ARCADE_SERIF}`; ctx.fillStyle = ARCADE_GOLD;
+      ctx.fillText(best, BX + 4, 68);
+      const bw = ctx.measureText(String(best)).width;
+      ctx.font = `italic 500 17px ${ARCADE_SERIF}`; ctx.fillStyle = '#f3ead8';
+      wrapWords(FR_NUMBERS[best] || '', BOARD - bw - 24).forEach((ln, i) => ctx.fillText(ln, BX + bw + 18, 58 + i * 20));
+    }else{
+      const side = BX + BOARD + 22, sideW = W - side - 16;
+      ctx.font = `600 10px ${ARCADE_MONO}`; ctx.fillStyle = ARCADE_STONE;
+      ctx.fillText('GRÖSSTE KACHEL', side, BY + 22);
+      ctx.font = `600 30px ${ARCADE_SERIF}`; ctx.fillStyle = ARCADE_GOLD;
+      ctx.fillText(best, side, BY + 58);
+      ctx.font = `italic 500 14px ${ARCADE_SERIF}`; ctx.fillStyle = '#f3ead8';
+      wrapWords(FR_NUMBERS[best] || '', sideW).forEach((ln, i) => ctx.fillText(ln, side, BY + 82 + i * 18));
+      ctx.font = `600 10px ${ARCADE_MONO}`; ctx.fillStyle = ARCADE_STONE;
+      ctx.fillText('WISCHEN', 16, BY + 22);
+      ctx.font = `500 12px ${ARCADE_SANS}`; ctx.fillStyle = 'rgba(243,234,216,.7)';
+      ['oder Pfeiltasten.', 'Gleiche Zahlen', 'verschmelzen.'].forEach((ln, i) => ctx.fillText(ln, 16, BY + 44 + i * 17));
+    }
+
+    if(over){
+      ctx.fillStyle = 'rgba(10,13,20,.55)';
+      arcadeRoundRect(ctx, BX, BY, BOARD, BOARD, 16); ctx.fill();
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.font = `italic 600 30px ${ARCADE_SERIF}`; ctx.fillStyle = ARCADE_GOLD;
+      ctx.fillText('Plus de coups', BX + BOARD / 2, BY + BOARD / 2 - 8);
+      ctx.font = `500 13px ${ARCADE_SANS}`; ctx.fillStyle = '#f3ead8';
+      ctx.fillText('Keine Züge mehr', BX + BOARD / 2, BY + BOARD / 2 + 22);
+    }
+  }
+
+  spawn(); spawn();
+  setArcadeScore('0 Pkt.');
+  const stopLoop = arcadeLoop((dt) => {
+    t += dt;
+    draw();
+    if(over && !finished && t - overAt > 1.4){ finished = true; finishArcadeGame('g2048', score); }
+  });
+  return {
+    stop(){
+      stopLoop();
+      canvas.removeEventListener('pointerdown', onDown);
+      canvas.removeEventListener('pointerup', onUp);
+      window.removeEventListener('keydown', onKey);
+    },
+  };
+}
+
+// --- Spiel 9: Wort-Laeufer ---------------------------------------------------------
+// Ein Lauf durch Paris bei Nacht. Tippen springt (laenger halten = hoeher),
+// Hindernisse kosten ein Herz. Immer wieder kommt ein Wort-Tor: oben steht ein
+// deutsches Wort, heran schweben zwei franzoesische Antworten - eine am Boden,
+// eine in Sprunghoehe. Durch die richtige laufen (bleiben oder springen) gibt
+// Bonuspunkte, die falsche kostet ein Herz. Drei Herzen, dann ist die Runde aus.
+function runWordRunner(canvas, ctx){
+  arcadeHiDpi(canvas, ctx);
+  const diff = gameCfg('wordrun').difficulty || 1;
+  const W = ARCADE_W, H = ARCADE_H, GROUND = 392, RX = 130;
+  const G = 2500, G_HOLD = 1250, JUMP = -660;
+  const own = arcadeVocab().filter(p => p.fr.length <= 20 && p.de.length <= 26);
+  const vocab = arcadeShuffle(own.length >= 4 ? own : own.concat(ARCADE_WORDS));
+  let vi = 0;
+  const r = { y: GROUND, vy: 0, ground: true, holdT: 0 };
+  let holding = false, jumpBuffer = 0;
+  let speed = 290 * diff, dist = 0, bonus = 0, hearts = 3, inv = 0, t = 0;
+  let nextObs = 520, nextGate = 1100;
+  let over = false, overAt = 0, finished = false;
+  const obs = [], gates = [], popups = [];
+  let banner = null;                      // { de, until }
+
+  // Parallax-Staedte: fest erzeugt, damit sie beim Laufen stabil bleiben.
+  const rnd = (seed) => { let s = seed; return () => (s = (s * 16807) % 2147483647) / 2147483647; };
+  const rb = rnd(7);
+  const buildings = Array.from({ length: 26 }, (_, i) => ({
+    x: i * 92 + rb() * 30, w: 60 + rb() * 50, h: 70 + rb() * 120,
+    win: Array.from({ length: 18 }, () => rb() < 0.35),
+  }));
+  const LAYER_W = 26 * 92;
+
+  const pressDown = () => {
+    holding = true;
+    if(r.ground){ doJump(); } else jumpBuffer = 0.12;
+  };
+  const pressUp = () => { holding = false; };
+  function doJump(){ r.vy = JUMP; r.ground = false; r.holdT = 0; playTone(620, 0.06, 'sine', 0.05); }
+  const unbind = bindArcadeInput(canvas, pressDown, pressUp);
+  const onKey = (e) => {
+    if(e.key !== 'ArrowUp' && e.key !== 'w' && e.key !== 'W') return;
+    e.preventDefault();
+    if(e.type === 'keydown' && !e.repeat) pressDown(); else if(e.type === 'keyup') pressUp();
+  };
+  window.addEventListener('keydown', onKey);
+  window.addEventListener('keyup', onKey);
+
+  const OBS_TYPES = [
+    { w: 16, h: 36, kind: 'bollard' }, { w: 50, h: 26, kind: 'bench' },
+    { w: 30, h: 40, kind: 'table' }, { w: 22, h: 30, kind: 'crate' },
+  ];
+  function spawnGate(){
+    const pair = vocab[vi++ % vocab.length];
+    let wrong = vocab[Math.floor(Math.random() * vocab.length)];
+    for(let i = 0; i < 6 && wrong.fr === pair.fr; i++) wrong = vocab[Math.floor(Math.random() * vocab.length)];
+    const highIsRight = Math.random() < 0.5;
+    gates.push({ x: W + 60, pair, hi: highIsRight ? pair.fr : wrong.fr, lo: highIsRight ? wrong.fr : pair.fr,
+                 highIsRight, done: false });
+    banner = { de: pair.de, until: Infinity };
+  }
+  function bubbleRect(g, high){
+    ctx.font = `italic 600 17px ${ARCADE_SERIF}`;
+    const w = Math.max(84, ctx.measureText(high ? g.hi : g.lo).width + 30);
+    const y = high ? GROUND - 168 : GROUND - 50;
+    return { x: g.x - w / 2, y, w, h: 38 };
+  }
+  function hit(box, rc){ return box.x < rc.x + rc.w && box.x + box.w > rc.x && box.y < rc.y + rc.h && box.y + box.h > rc.y; }
+  function loseHeart(){
+    hearts--; inv = 1.3; sndWrong();
+    if(hearts <= 0){ over = true; overAt = t; }
+  }
+
+  function drawObstacle(o){
+    const x = o.x, y = GROUND - o.h;
+    ctx.save();
+    ctx.strokeStyle = ARCADE_GOLD; ctx.fillStyle = 'rgba(246,195,92,.14)'; ctx.lineWidth = 2;
+    ctx.beginPath();
+    if(o.kind === 'bollard'){
+      arcadeRoundRect(ctx, x, y, o.w, o.h, 6); ctx.fill(); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(x, y + 9); ctx.lineTo(x + o.w, y + 9); ctx.stroke();
+    }else if(o.kind === 'bench'){
+      ctx.rect(x, y + 6, o.w, 7); ctx.fill(); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(x + 5, y + 13); ctx.lineTo(x + 5, GROUND); ctx.moveTo(x + o.w - 5, y + 13); ctx.lineTo(x + o.w - 5, GROUND);
+      ctx.moveTo(x, y); ctx.lineTo(x + o.w, y); ctx.stroke();
+    }else if(o.kind === 'table'){
+      ctx.ellipse(x + o.w / 2, y + 3, o.w / 2, 4, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(x + o.w / 2, y + 6); ctx.lineTo(x + o.w / 2, GROUND);
+      ctx.moveTo(x + o.w / 2 - 9, GROUND); ctx.lineTo(x + o.w / 2 + 9, GROUND); ctx.stroke();
+    }else{
+      ctx.rect(x, y, o.w, o.h); ctx.fill(); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + o.w, y + o.h); ctx.moveTo(x + o.w, y); ctx.lineTo(x, y + o.h); ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  function drawScene(){
+    const g = ctx.createLinearGradient(0, 0, 0, H);
+    g.addColorStop(0, '#0a0f1c'); g.addColorStop(1, '#171d2d');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+    // Mond und ferne Silhouette mit Eiffelturm (sehr langsam).
+    ctx.fillStyle = 'rgba(255,240,210,.85)';
+    ctx.beginPath(); ctx.arc(600, 70, 18, 0, Math.PI * 2); ctx.fill();
+    const far = (dist * 0.08) % 900;
+    for(let k = -1; k < 2; k++){
+      const bx = 480 - far + k * 900;
+      ctx.strokeStyle = 'rgba(184,134,47,.35)'; ctx.lineWidth = 1.4;
+      ctx.beginPath();
+      ctx.moveTo(bx - 34, GROUND - 40); ctx.quadraticCurveTo(bx - 8, GROUND - 120, bx, GROUND - 230);
+      ctx.quadraticCurveTo(bx + 8, GROUND - 120, bx + 34, GROUND - 40);
+      ctx.moveTo(bx - 20, GROUND - 96); ctx.lineTo(bx + 20, GROUND - 96);
+      ctx.moveTo(bx - 11, GROUND - 150); ctx.lineTo(bx + 11, GROUND - 150);
+      ctx.stroke();
+      ctx.fillStyle = 'rgba(255,217,138,.8)';
+      ctx.beginPath(); ctx.arc(bx, GROUND - 232, 2.2, 0, Math.PI * 2); ctx.fill();
+    }
+    // Haeuser mit erleuchteten Fenstern.
+    const mid = (dist * 0.35) % LAYER_W;
+    for(const b of buildings){
+      for(let k = 0; k < 2; k++){
+        const x = b.x - mid + k * LAYER_W;
+        if(x > W || x + b.w < 0) continue;
+        ctx.fillStyle = '#10151f';
+        ctx.fillRect(x, GROUND - 40 - b.h, b.w, b.h + 40);
+        ctx.fillStyle = 'rgba(255,205,120,.5)';
+        let i = 0;
+        for(let wy = GROUND - 30 - b.h; wy < GROUND - 50; wy += 18){
+          for(let wx = x + 8; wx < x + b.w - 10; wx += 16){
+            if(b.win[i++ % b.win.length]) ctx.fillRect(wx, wy, 6, 9);
+          }
+        }
+      }
+    }
+    // Laternen im Vordergrund.
+    const lamp = (dist * 0.9) % 260;
+    for(let x = -lamp; x < W + 40; x += 260){
+      ctx.strokeStyle = 'rgba(184,134,47,.6)'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(x, GROUND); ctx.lineTo(x, GROUND - 92); ctx.lineTo(x + 12, GROUND - 98); ctx.stroke();
+      const lg = ctx.createRadialGradient(x + 14, GROUND - 94, 0, x + 14, GROUND - 94, 40);
+      lg.addColorStop(0, 'rgba(255,214,140,.45)'); lg.addColorStop(1, 'rgba(255,214,140,0)');
+      ctx.fillStyle = lg; ctx.fillRect(x - 30, GROUND - 140, 90, 90);
+    }
+    ctx.fillStyle = '#0c1019'; ctx.fillRect(0, GROUND, W, H - GROUND);
+    ctx.fillStyle = ARCADE_GOLD_DIM; ctx.fillRect(0, GROUND, W, 2);
+    ctx.fillStyle = 'rgba(246,195,92,.25)';
+    const dash = (dist * 1) % 40;
+    for(let x = -dash; x < W; x += 40) ctx.fillRect(x, GROUND + 22, 18, 2);
+  }
+
+  function draw(){
+    drawScene();
+    obs.forEach(drawObstacle);
+    for(const g of gates){
+      for(const high of [false, true]){
+        const rc = bubbleRect(g, high);
+        const txt = high ? g.hi : g.lo;
+        const res = g.done && g.chosen === high ? (g.correct ? 'ok' : 'bad') : null;
+        arcadeRoundRect(ctx, rc.x, rc.y, rc.w, rc.h, 19);
+        ctx.fillStyle = res === 'ok' ? 'rgba(246,195,92,.9)' : res === 'bad' ? 'rgba(200,90,70,.85)' : 'rgba(20,26,40,.88)';
+        ctx.fill();
+        ctx.strokeStyle = res ? 'transparent' : ARCADE_GOLD; ctx.lineWidth = 1.6; ctx.stroke();
+        ctx.fillStyle = res === 'ok' ? '#1a1206' : '#f6e7c8';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.font = `italic 600 17px ${ARCADE_SERIF}`;
+        ctx.fillText(txt, g.x, rc.y + rc.h / 2 + 1);
+      }
+    }
+    // Die Figur blinkt, solange sie nach einem Treffer unverwundbar ist.
+    if(!(inv > 0 && Math.floor(t * 12) % 2 === 0)){
+      ctx.save();
+      ctx.translate(RX, r.y);
+      ctx.scale(1.25, 1.25);
+      drawAthlete(ctx, 0, -5, 0, r.ground ? 'run' : 'flight', t * (speed / 290));
+      ctx.restore();
+    }
+    // Herzen und Wort-Banner.
+    ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+    ctx.font = `18px ${ARCADE_SANS}`;
+    for(let i = 0; i < 3; i++){
+      ctx.fillStyle = i < hearts ? '#f6c35c' : 'rgba(167,156,136,.3)';
+      ctx.fillText('♥', 20 + i * 24, 26);
+    }
+    if(banner){
+      ctx.textAlign = 'center';
+      ctx.font = `600 10px ${ARCADE_MONO}`; ctx.fillStyle = ARCADE_STONE;
+      ctx.fillText('WIE HEISST …', W / 2, 20);
+      ctx.font = `italic 600 24px ${ARCADE_SERIF}`; ctx.fillStyle = ARCADE_GOLD;
+      ctx.fillText(banner.de, W / 2, 46);
+    }else if(t < 5){
+      ctx.textAlign = 'center';
+      ctx.font = `600 11px ${ARCADE_MONO}`; ctx.fillStyle = ARCADE_STONE;
+      ctx.fillText('TIPPEN = SPRINGEN · HALTEN = HÖHER', W / 2, 30);
+    }
+    for(const pp of popups){
+      const a = Math.max(0, 1 - (t - pp.born) / 1.1);
+      ctx.globalAlpha = a;
+      ctx.textAlign = 'center'; ctx.font = `italic 600 18px ${ARCADE_SERIF}`;
+      ctx.fillStyle = pp.good ? ARCADE_GOLD : '#e9a37f';
+      ctx.fillText(pp.text, pp.x, pp.y - (t - pp.born) * 30);
+      ctx.globalAlpha = 1;
+    }
+    if(over){
+      ctx.fillStyle = 'rgba(10,13,20,.45)'; ctx.fillRect(0, 0, W, H);
+    }
+  }
+
+  function step(dt){
+    t += dt;
+    if(over){
+      draw();
+      if(!finished && t - overAt > 0.9){ finished = true; finishArcadeGame('wordrun', Math.floor(dist / 50) + bonus); }
+      return;
+    }
+    speed = Math.min(640 * diff, speed + 7 * dt * diff);
+    const dx = speed * dt;
+    dist += dx;
+    if(inv > 0) inv -= dt;
+    if(jumpBuffer > 0){ jumpBuffer -= dt; }
+
+    // Springen: solange gehalten wird (bis 0,28 s), wirkt weniger Schwerkraft.
+    if(!r.ground){
+      r.holdT += dt;
+      const g = (holding && r.vy < 0 && r.holdT < 0.28) ? G_HOLD : G;
+      r.vy += g * dt;
+      r.y += r.vy * dt;
+      if(r.y >= GROUND){
+        r.y = GROUND; r.vy = 0; r.ground = true;
+        if(jumpBuffer > 0){ jumpBuffer = 0; doJump(); }
+      }
+    }
+
+    nextObs -= dx; nextGate -= dx;
+    if(nextGate <= 0){
+      spawnGate();
+      nextGate = 1300 + Math.random() * 500;
+      nextObs = Math.max(nextObs, 420);     // Abstand zwischen Tor und Hindernis
+    }
+    if(nextObs <= 0){
+      const tp = OBS_TYPES[Math.floor(Math.random() * OBS_TYPES.length)];
+      obs.push({ x: W + 20, w: tp.w, h: tp.h, kind: tp.kind });
+      nextObs = 300 + Math.random() * 420 + speed * 0.5;
+      if(nextGate < 260) nextObs = Math.max(nextObs, nextGate + 360);
+    }
+    obs.forEach(o => { o.x -= dx; });
+    gates.forEach(g => { g.x -= dx; });
+    for(let i = obs.length - 1; i >= 0; i--) if(obs[i].x + obs[i].w < -20) obs.splice(i, 1);
+    for(let i = gates.length - 1; i >= 0; i--) if(gates[i].x < -140) gates.splice(i, 1);
+    for(let i = popups.length - 1; i >= 0; i--) if(t - popups[i].born > 1.1) popups.splice(i, 1);
+
+    const body = { x: RX - 9, y: r.y - 48, w: 18, h: 50 };
+    if(inv <= 0){
+      for(const o of obs){
+        if(hit(body, { x: o.x + 3, y: GROUND - o.h + 3, w: o.w - 6, h: o.h - 3 })){ loseHeart(); break; }
+      }
+    }
+    for(const g of gates){
+      if(g.done) continue;
+      for(const high of [true, false]){
+        if(hit(body, bubbleRect(g, high))){
+          g.done = true; g.chosen = high;
+          g.correct = high === g.highIsRight;
+          if(g.correct){
+            bonus += 25; sndCorrect();
+            popups.push({ x: g.x, y: GROUND - 200, text: `✓ ${g.pair.fr}  +25`, good: true, born: t });
+          }else{
+            popups.push({ x: g.x, y: GROUND - 200, text: `richtig: ${g.pair.fr}`, good: false, born: t });
+            if(inv <= 0) loseHeart();
+          }
+          banner = null;
+          break;
+        }
+      }
+      // Zwischen beiden hindurch (zu niedrig gesprungen): verpasst, ohne Strafe.
+      if(!g.done && g.x < RX - 60){
+        g.done = true; g.chosen = null;
+        popups.push({ x: RX + 60, y: GROUND - 200, text: `verpasst: ${g.pair.fr}`, good: false, born: t });
+        banner = null;
+      }
+    }
+    setArcadeScore(`${Math.floor(dist / 50) + bonus} Pkt. · ${'♥'.repeat(Math.max(0, hearts))}`);
+    draw();
+  }
+
+  setArcadeScore('0 Pkt.');
+  const stopLoop = arcadeLoop(step);
+  return {
+    stop(){
+      stopLoop();
+      unbind();
+      window.removeEventListener('keydown', onKey);
+      window.removeEventListener('keyup', onKey);
+    },
+  };
 }
 
 wireSounds(document.body);

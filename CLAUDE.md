@@ -387,6 +387,29 @@ Rand weich** (`pow(|N·V|, 1.6)`); umgekehrt leuchteten die Raender und der
 Kegel sah aus wie zwei Klingen. Schaut man in die Oeffnung des Kegels,
 blendet er sich aus (`endOn`) - sonst entsteht eine milchige Scheibe.
 
+## Spielhalle: vier Spiele aus Build 20
+
+Mot du jour (`motdujour`), Turmsprung (`tourjump`), 2048 (`g2048`) und
+Wort-Laeufer (`wordrun`) sind eigene Umsetzungen bekannter Spielideen - kein
+fremder Code, keine fremde Grafik. (Das "Offline HTML Games Pack" von GitHub
+ist ohne Lizenz und besteht aus kopierten kommerziellen Spielen - nichts davon
+darf auf die Seite.)
+
+- Eintrag in `GAME_DEFS` mit `build: 20`: `arcadeGameVisible()` /
+  `visibleGameKeys()` blenden sie bis zur Freigabe aus (Karten, Ranglisten-Tabs,
+  Start). Admin-Panel und Rangliste (`game_records`, ohne Namensliste in der
+  Datenbank) laufen automatisch mit.
+- Vokabeln: `arcadeVocab()` liest die eigenen Lernsets; wer zu wenige hat,
+  bekommt `ARCADE_WORDS` dazu. Mot du jour nimmt Woerter mit 4-7 Buchstaben
+  (Artikel weg, Akzente fuer das Raten neutralisiert, `arcadeFold`), der
+  Wort-Laeufer beliebige kurze Paare.
+- Scharf auf Handy/iPad: `arcadeHiDpi()` zeichnet in Geraeteaufloesung. Auf
+  schmalen Schirmen (`arcadeNarrow()`, < 640 px) bekommen Mot du jour, 2048 und
+  Turmsprung eine eigene Hochkant-Buehne; Zeigerpositionen immer ueber
+  `arcadePoint(canvas, e, W, H)` umrechnen.
+- Die Tastatur von Mot du jour ist echtes HTML (`.mdj-kb`) unter der Buehne -
+  im skalierten Canvas waeren die Tasten zu klein. `stop()` entfernt sie.
+
 ## Testen mit Freigabe-Gate
 
 Lokal gibt es kein Supabase, also ist niemand Admin und alle Build-14-Teile
