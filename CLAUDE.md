@@ -3,6 +3,27 @@
 Einzeldatei-App: alles steckt in `index.html` (Markup, CSS, JS). Kein Build-Schritt.
 Entwicklungszweig: `claude/nifty-dijkstra-0e24o4`.
 
+## Immer so arbeiten (Vorgabe des Nutzers)
+
+Gilt für jede Aufgabe, ohne dass der Nutzer es neu sagen muss:
+
+1. **VPS-Befehl nach jedem Push.** Jede Antwort, die mit einem Push endet,
+   enthält den Aktualisierungsbefehl (siehe "Deployment") plus den Hinweis
+   auf Strg+Shift+R.
+2. **Vorher so viele Fragen wie möglich stellen.** Bevor gebaut wird, alle
+   offenen Punkte klären (Aussehen, Verhalten, Texte, Sonderfälle, wer es
+   sieht, Handy vs. Desktop) - lieber eine Runde Fragen mehr als ein
+   Ergebnis, das nicht passt. Mehrere Fragerunden sind ausdrücklich erwünscht.
+3. **Visuell testen auf Desktop, Tablet und Handy.** Mit Playwright gegen den
+   lokalen Server, mindestens 1440 x 900 (Desktop), 820 x 1180 (iPad) und
+   390 x 844 (iPhone), Konsole sauber. Screenshots aller drei an den Nutzer
+   schicken - Ergebnisse zeigen, nicht nur behaupten.
+4. **Maximal performant.** Ziel sind 60 Bilder/s auch auf Handy und iPad:
+   nichts laden, was die Seite nicht gerade braucht (erst bei Bedarf holen),
+   keine Dauer-Animationen auf unsichtbaren Seiten, Bilder/Videos klein
+   halten, teure Effekte an die Qualitaetsregelung (`governor()`) haengen.
+   Bei neuen Effekten die Bildzeit messen und im Ergebnis nennen.
+
 ## Deployment
 
 Die Seite läuft auf einem eigenen VPS unter `/var/www/vokabeln`
