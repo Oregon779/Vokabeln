@@ -19,6 +19,7 @@ import {
   TextureLoader, InstancedMesh, Object3D, PlaneGeometry, LinearFilter,
   HalfFloatType, InstancedBufferAttribute,
   ShapeGeometry, CylinderGeometry, BoxGeometry, CircleGeometry, LineSegments,
+  BackSide, SphereGeometry,
 } from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
@@ -485,6 +486,31 @@ function makeWaves(lite){
 
 /* ------------------------------------------------------ Bildabschluss ---- */
 
+// Build 30: der schwarze Schirm am Turm. Die Szene rendert in einen
+// Halbfloat-Puffer (hoechstens 65504). Glanzlichter auf spiegelglattem
+// Klarlack koennen darueber liegen und werden "unendlich", an anderen
+// Stellen entsteht NaN. Ein einzelnes solches Pixel verschmiert der Bloom
+// ueber seine kleinen Stufen zu riesigen schwarzen Rechtecken - im Video
+// die halbe Bildflaeche mit gerader Kante, der Turm mittendrin abgeschnitten.
+// Dieser Durchgang sitzt direkt hinter dem Rendern und macht aus NaN/Inf
+// schwarz bzw. deckelt die Helligkeit, bevor irgendetwas verschmiert wird.
+// Vergleiche mit NaN sind immer falsch - das faengt auch Treiber, die
+// isnan() wegoptimieren.
+const SanitizeShader = {
+  uniforms: { tDiffuse: { value: null } },
+  vertexShader: `
+    varying vec2 vUv;
+    void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
+  fragmentShader: `
+    uniform sampler2D tDiffuse;
+    varying vec2 vUv;
+    float ok(float v){ return (v >= 0.0 && v <= 60000.0) ? min(v, 48.0) : 0.0; }
+    void main(){
+      vec4 c = texture2D(tDiffuse, vUv);
+      gl_FragColor = vec4(ok(c.r), ok(c.g), ok(c.b), (c.a >= 0.0 && c.a <= 1.0) ? c.a : 1.0);
+    }`,
+};
+
 // Vignette, Farbsaum und Korn in einem einzigen Durchgang. Drei getrennte
 // Paesse waeren drei Mal die ganze Flaeche lesen und schreiben - das hier
 // kostet einen Durchgang und laesst sich gemeinsam abstimmen.
@@ -493,6 +519,13 @@ const GradeShader = {
     tDiffuse: { value: null },
     uTime:    { value: 0 },
     uAmount:  { value: 1 },     // faehrt mit der Startseite hoch und runter
+    // Build 30: Lichtblitz mit Linsenschweif und Fokus-Zieher. Alles 0,
+    // solange Build 30 nicht freigegeben ist - dann kostet es nichts.
+    uFlash:   { value: 0 },
+    uFlare:   { value: new Vector2(0.5, 0.5) },
+    uBlur:    { value: 0 },
+    uTexel:   { value: new Vector2(1 / 1440, 1 / 900) },
+    uAspect:  { value: 1.6 },
   },
   vertexShader: `
     varying vec2 vUv;
@@ -501,11 +534,15 @@ const GradeShader = {
   fragmentShader: `
     uniform sampler2D tDiffuse;
     uniform float uTime;
-    uniform float uAmount;
+    uniform float uAmount, uFlash, uBlur, uAspect;
+    uniform vec2 uFlare, uTexel;
     varying vec2 vUv;
 
     // Billiges, stabiles Rauschen - fuer Korn reicht es voellig.
     float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123); }
+    // NaN/Inf aus dem Bild nicht weiterreichen (siehe Nachgluehen in init).
+    float okc(float v){ return (v >= 0.0 && v <= 60000.0) ? v : 0.0; }
+    vec3 ok3(vec3 c){ return vec3(okc(c.r), okc(c.g), okc(c.b)); }
 
     void main(){
       vec2 c = vUv - 0.5;
@@ -513,13 +550,32 @@ const GradeShader = {
 
       // Farbsaum: die Kanaele werden zum Rand hin auseinandergezogen. In der
       // Bildmitte bleibt alles deckungsgleich, sonst wuerde Schrift flimmern.
-      float disp = 0.0007 * uAmount * r2 * 4.0;
+      float disp = 0.0007 * uAmount * r2 * 4.0 * (1.0 + uBlur * 3.0);
       vec2 dir = normalize(c + 1e-6);
       vec4 col;
-      col.r = texture2D(tDiffuse, vUv + dir * disp).r;
-      col.g = texture2D(tDiffuse, vUv).g;
-      col.b = texture2D(tDiffuse, vUv - dir * disp).b;
+      col.r = okc(texture2D(tDiffuse, vUv + dir * disp).r);
+      col.g = okc(texture2D(tDiffuse, vUv).g);
+      col.b = okc(texture2D(tDiffuse, vUv - dir * disp).b);
       col.a = 1.0;
+
+      // Fokus-Zieher (Build 30): die Mitte bleibt scharf, nach aussen
+      // verschwimmt das Bild und zieht leicht zur Mitte (Tempo). Acht
+      // Abtastungen auf zwei Ringen - nur, solange uBlur > 0.
+      if(uBlur > 0.004){
+        float m = uBlur * smoothstep(0.015, 0.2, r2);
+        if(m > 0.01){
+          vec2 rad = uTexel * 11.0 * m;
+          vec2 zoom = -c * 0.035 * m;
+          vec3 acc = col.rgb;
+          for(int i = 0; i < 8; i++){
+            float a = float(i) * 0.785398 + 0.39;
+            float rr = (i < 4) ? 0.55 : 1.0;
+            vec2 o = vec2(cos(a), sin(a)) * rad * rr + zoom * (0.4 + 0.6 * rr);
+            acc += ok3(texture2D(tDiffuse, vUv + o).rgb);
+          }
+          col.rgb = acc / 9.0;
+        }
+      }
 
       // Vignette: zum Rand hin abdunkeln, damit der Blick in der Mitte bleibt.
       float vig = smoothstep(0.95, 0.28, r2 * 1.9);
@@ -530,6 +586,22 @@ const GradeShader = {
       float g = hash(vUv * vec2(1920.0, 1080.0) + fract(uTime) * 91.7) - 0.5;
       float luma = dot(col.rgb, vec3(0.299, 0.587, 0.114));
       col.rgb += g * 0.038 * uAmount * (1.0 - smoothstep(0.0, 0.7, luma));
+
+      // Lichtblitz (Build 30): warmer Schein um die Lichtquelle, ein
+      // waagrechter Linsenschweif wie bei einer Kino-Optik und zwei
+      // Geisterbilder auf der Linie durch die Bildmitte.
+      if(uFlash > 0.002){
+        vec2 q = vec2((vUv.x - uFlare.x) * uAspect, vUv.y - uFlare.y);
+        float glow = exp(-dot(q, q) * 9.0);
+        float streak = exp(-abs(q.y) * 170.0) * exp(-abs(q.x) * 1.5);
+        vec2 gp = vec2(1.0) - uFlare;
+        vec2 g1 = vec2((vUv.x - mix(uFlare.x, gp.x, 0.7)) * uAspect, vUv.y - mix(uFlare.y, gp.y, 0.7));
+        vec2 g2 = vec2((vUv.x - mix(uFlare.x, gp.x, 1.25)) * uAspect, vUv.y - mix(uFlare.y, gp.y, 1.25));
+        float ghost = smoothstep(0.07, 0.05, length(g1)) * 0.10 + smoothstep(0.035, 0.0, abs(length(g2) - 0.1)) * 0.07;
+        col.rgb += (vec3(1.0, 0.84, 0.56) * (glow * 0.85 + 0.1)
+                  + vec3(1.0, 0.9, 0.75) * streak * 1.3
+                  + vec3(0.95, 0.7, 0.4) * ghost) * uFlash;
+      }
 
       gl_FragColor = col;
     }
@@ -702,6 +774,8 @@ let towerLoading = false;
 const themeA = { value: new Color(0xf0b545) };   // Hauptton
 const themeB = { value: new Color(0x6a3fb0) };   // Gegenton
 const themeAmt = { value: 0 };                    // 0 = neutral, 1 = Turm-Szene
+// Nachtbeleuchtung des Turms (Build 30): Staerke und Hoehenbereich in der Welt.
+const towerNight = { value: 0 }, towerBase = { value: -5 }, towerH = { value: 10 };
 
 function applyTowerLook(root, lite){
   // Gold-Glas (Build 28): poliertes, schillerndes Gold mit Klarlack, dazu
@@ -715,15 +789,28 @@ function applyTowerLook(root, lite){
         color: 0xf4c76c, emissive: new Color(AMBER_DEEP), emissiveIntensity: 0.22,
         metalness: 1, roughness: 0.14, envMapIntensity: 2.4,
         iridescence: 0.9, iridescenceIOR: 1.75, iridescenceThicknessRange: [220, 820],
-        clearcoat: 1, clearcoatRoughness: 0.04, transparent: true });
+        clearcoat: 1, clearcoatRoughness: 0.09, transparent: true });
   mat.onBeforeCompile = (sh) => {
     sh.uniforms.uRimA = themeA; sh.uniforms.uRimB = themeB; sh.uniforms.uThemeAmt = themeAmt;
-    sh.fragmentShader = 'uniform vec3 uRimA;\nuniform vec3 uRimB;\nuniform float uThemeAmt;\n'
+    sh.uniforms.uNight = towerNight; sh.uniforms.uTBase = towerBase; sh.uniforms.uTH = towerH;
+    // Nachtbeleuchtung (Build 30): Hoehe im Turm als eigene Groesse.
+    sh.vertexShader = 'varying float vTowerY;\n' + sh.vertexShader.replace('#include <project_vertex>',
+      '#include <project_vertex>\n  vTowerY = (modelMatrix * vec4(transformed, 1.0)).y;');
+    sh.fragmentShader = 'uniform vec3 uRimA;\nuniform vec3 uRimB;\nuniform float uThemeAmt, uNight, uTBase, uTH;\nvarying float vTowerY;\n'
       + sh.fragmentShader.replace('#include <emissivemap_fragment>', `#include <emissivemap_fragment>
   {
     float f = 1.0 - abs(dot(normalize(normal), normalize(vViewPosition)));
     vec3 rim = mix(vec3(1.0, 0.78, 0.45), mix(uRimA, uRimB, 0.35), uThemeAmt);
     totalEmissiveRadiance += rim * (pow(f, 3.0) * 0.9 + pow(f, 8.0) * 1.4);
+    if(uNight > 0.001){
+      // Wie die echte Beleuchtung: warmes Natriumlicht von unten, die
+      // Plattformen als helle Baender, die Spitze heller.
+      float h = clamp((vTowerY - uTBase) / uTH, 0.0, 1.0);
+      float up = 0.28 + 0.72 * pow(1.0 - h, 1.6);
+      float band = exp(-pow((h - 0.175) / 0.014, 2.0)) + exp(-pow((h - 0.35) / 0.012, 2.0)) * 0.8
+                 + exp(-pow((h - 0.84) / 0.012, 2.0)) * 0.7 + smoothstep(0.9, 0.99, h) * 0.9;
+      totalEmissiveRadiance += vec3(1.0, 0.6, 0.2) * uNight * (up * 0.42 + band * 0.9);
+    }
   }`);
   };
   root.traverse(o => {
@@ -922,6 +1009,7 @@ function makeChain(height, lite){
 // Das Funkeln: Punkte im Volumen des Turms, die einzeln und kurz aufblitzen -
 // wie das Glitzern zur vollen Stunde in Paris (seit Build 27 je Punkt eigener
 // Takt statt eines gemeinsamen Pulsierens, mit kleinem Lichtkreuz).
+const sparkBurst = { value: 0 };
 function towerHalf(h, height){ return (0.34 * Math.pow(1 - h, 1.85) + 0.02) * height; }
 function makeSparks(height, lite){
   const count = lite ? 260 : 700;
@@ -941,19 +1029,20 @@ function makeSparks(height, lite){
   geo.setAttribute('position', new Float32BufferAttribute(pos, 3));
   geo.setAttribute('aSeed', new Float32BufferAttribute(seed, 1));
   const mat = new ShaderMaterial({
-    uniforms: { uTime: { value: 0 }, uOpacity: { value: 0 }, uPx: { value: 1 } },
+    uniforms: { uTime: { value: 0 }, uOpacity: { value: 0 }, uPx: { value: 1 }, uBurst: sparkBurst },
     vertexShader: `
       attribute float aSeed;
-      uniform float uTime, uPx;
+      uniform float uTime, uPx, uBurst;
       varying float vA, vF;
       void main(){
         vec4 mv = modelViewMatrix * vec4(position, 1.0);
         gl_Position = projectionMatrix * mv;
-        // Kurzer, heller Blitz, danach lange Ruhe.
-        float f = pow(max(0.0, sin(uTime * (1.1 + aSeed * 2.4) + aSeed * 60.0)), 22.0);
+        // Kurzer, heller Blitz, danach lange Ruhe. Zur vollen Stunde
+        // (uBurst, Build 30) glitzert der ganze Turm wie in echt.
+        float f = pow(max(0.0, sin(uTime * (1.1 + aSeed * 2.4) * (1.0 + uBurst * 3.5) + aSeed * 60.0)), 22.0 - uBurst * 12.0);
         vF = f;
-        vA = 0.18 + f * 1.6;
-        gl_PointSize = (1.6 + 7.0 * f) * uPx * 9.0 / max(0.5, -mv.z);
+        vA = (0.18 + f * 1.6) * (1.0 + uBurst * 0.8);
+        gl_PointSize = (1.6 + 7.0 * f) * (1.0 + uBurst * 0.35) * uPx * 9.0 / max(0.5, -mv.z);
       }`,
     fragmentShader: `
       uniform float uOpacity;
@@ -1153,6 +1242,7 @@ function loadTower(url){
     tower.userData.beacon = beacon;
     towerMats.forEach(m => { m.userData.q = { ir: m.iridescence || 0, cc: m.clearcoat || 0 }; });
     applyMatQuality();
+    ensureFx30();      // Lichtschweife, Saeulen und Gewoelbe (Build 30) mit vorab uebersetzen
     prewarm();
     towerLoading = false;
   }, undefined, err => {
@@ -1170,7 +1260,23 @@ function loadTower(url){
 // gerechnet). Beide werden gebaut.
 function prewarm(){
   const par = renderer.extensions.has('KHR_parallel_shader_compile') && renderer.compileAsync;
-  const warm = () => par ? renderer.compileAsync(scene, camera) : Promise.resolve(renderer.compile(scene, camera));
+  // compile() uebergeht unsichtbare Objekte (traverseVisible) - Turm, Halle
+  // und die Build-30-Wirkungen sind beim Vorwaermen aber noch versteckt.
+  // Deshalb werden sie fuer den (synchronen) Durchlauf kurz eingeblendet;
+  // das naechste Bild setzt die Sichtbarkeit ohnehin neu.
+  const warm = () => {
+    const shown = [];
+    for(const o of [tower, hall, rain, fx.hero, fx.bokeh, fx.storm, fx.sky, fx.trails, fx.columns, fx.nave]){
+      if(o && !o.visible){ o.visible = true; shown.push(o); }
+    }
+    // Mit Nachgluehen rendert die Szene in das Ziel des Composers - dort gilt
+    // eine andere Farbraum-/Tonwert-Einstellung und damit eine andere
+    // Shader-Fassung. Ohne das Ziel wurden die falschen Fassungen vorgewaermt.
+    const prev = renderer.getRenderTarget();
+    if(composer && bloomOn) renderer.setRenderTarget(composer.readBuffer);
+    try{ return par ? renderer.compileAsync(scene, camera) : Promise.resolve(renderer.compile(scene, camera)); }
+    finally{ renderer.setRenderTarget(prev); for(const o of shown) o.visible = false; }
+  };
   setTimeout(() => {
     try{
       warm().then(() => {
@@ -1275,19 +1381,32 @@ function makeGlitterL(lite){
   geo.setAttribute('aCol', new Float32BufferAttribute(col, 3));
   shufflePoints(geo);
   const mat = new ShaderMaterial({
-    uniforms: { uTime: { value: 0 }, uPx: { value: 1 }, uOpacity: { value: 0 }, uAssemble: { value: 1 } },
+    uniforms: { uTime: { value: 0 }, uPx: { value: 1 }, uOpacity: { value: 0 }, uAssemble: { value: 1 }, uSwirl: { value: 0 } },
     vertexShader: `
       attribute float aSeed, aKind;
       attribute vec3 aCol;
-      uniform float uTime, uPx, uAssemble;
+      uniform float uTime, uPx, uAssemble, uSwirl;
       varying float vA;
       varying vec3 vCol;
       void main(){
         vec3 p = position;
         float s = aSeed * 6.2831;
-        // Setzt sich beim Ankommen aus einer Wolke zusammen (uAssemble 0 -> 1).
-        vec3 scatter = vec3(sin(s * 3.1), cos(s * 2.3), sin(s * 5.7)) * 2.4 * (1.0 - uAssemble);
-        p += scatter + vec3(sin(uTime * 0.8 + s), cos(uTime * 0.7 + s * 1.3), 0.0) * 0.012;
+        float travel = 0.0;
+        if(uSwirl > 0.5){
+          // Build 30: das L baut sich aus einem Wirbel auf - jedes Korn
+          // kreist erst um den Kaefig und findet dann nacheinander seinen Platz.
+          float e = clamp(uAssemble * 1.6 - fract(aSeed * 7.13) * 0.6, 0.0, 1.0);
+          e = e * e * (3.0 - 2.0 * e);
+          travel = 1.0 - e;
+          float ang = s * 3.0 + travel * 8.0 + uTime * (0.35 + 0.9 * travel);
+          float rad = 0.35 + 2.2 * travel + 0.5 * sin(s * 5.0);
+          vec3 orbit = vec3(cos(ang) * rad, (fract(aSeed * 3.7) - 0.5) * 4.6 * travel - 1.2 * travel, sin(ang) * rad);
+          p = mix(p, orbit, travel);
+        }else{
+          // Setzt sich beim Ankommen aus einer Wolke zusammen (uAssemble 0 -> 1).
+          p += vec3(sin(s * 3.1), cos(s * 2.3), sin(s * 5.7)) * 2.4 * (1.0 - uAssemble);
+        }
+        p += vec3(sin(uTime * 0.8 + s), cos(uTime * 0.7 + s * 1.3), 0.0) * 0.012;
         float life = 1.0;
         if(aKind > 1.5){
           float c = fract(uTime * 0.09 * (0.6 + aSeed) + aSeed);
@@ -1298,7 +1417,7 @@ function makeGlitterL(lite){
         vec4 mv = modelViewMatrix * vec4(p, 1.0);
         gl_Position = projectionMatrix * mv;
         float tw = pow(0.5 + 0.5 * sin(uTime * (2.0 + aSeed * 3.0) + s * 7.0), 4.0);
-        vA = life * (aKind > 0.5 && aKind < 1.5 ? 0.95 : 0.65) * (0.55 + 0.9 * tw);
+        vA = life * (aKind > 0.5 && aKind < 1.5 ? 0.95 : 0.65) * (0.55 + 0.9 * tw) * (1.0 + travel * 0.7);
         vCol = aCol * (1.0 + tw * 0.8);
         gl_PointSize = (aKind > 0.5 && aKind < 1.5 ? 2.2 : 1.8) * (1.0 + tw * 0.9) * uPx * 9.0 / max(0.5, -mv.z);
       }`,
@@ -1400,18 +1519,39 @@ function makeHall(lite){
   // Wasserflaeche darueber: dunkel, halb durchsichtig, mit wandernden
   // Lichtwellen - so wirkt die Spiegelung wie auf nassem Stein.
   const floor = new Mesh(new CircleGeometry(40, 64), new ShaderMaterial({
-    uniforms: { uTime: { value: 0 }, uOpacity: { value: 0 }, uLight: hallLight },
+    uniforms: { uTime: { value: 0 }, uOpacity: { value: 0 }, uLight: hallLight, uDrops: { value: 0 }, uN: { value: lite ? 5 : 9 } },
     vertexShader: 'varying vec3 vW; void main(){ vec4 w = modelMatrix * vec4(position, 1.0); vW = w.xyz; gl_Position = projectionMatrix * viewMatrix * w; }',
     fragmentShader: `
-      uniform float uTime, uOpacity, uLight;
+      uniform float uTime, uOpacity, uLight, uDrops, uN;
       varying vec3 vW;
+      float h1(float n){ return fract(sin(n * 91.345) * 47453.5453); }
       void main(){
         vec2 p = vW.xz;
-        float r = length(p - vec2(0.0, -38.0));
+        vec2 pc = p - vec2(0.0, -38.0);
+        float r = length(pc);
         float rip = sin(r * 5.0 - uTime * 1.4) * sin(p.x * 1.3 + uTime * 0.5) * 0.5 + 0.5;
         float near = exp(-r * r / 60.0);
         vec3 col = vec3(0.012, 0.012, 0.018) + vec3(1.0, 0.75, 0.4) * rip * near * 0.05 * uLight;
-        gl_FragColor = vec4(col, (0.78 + 0.12 * (1.0 - near)) * uOpacity);
+        float alpha = 0.78 + 0.12 * (1.0 - near);
+        if(uDrops > 0.001 && r < 9.5){
+          // Build 30: Regentropfen schlagen Ringe ins Wasser, jeder an
+          // einer neuen Stelle, und die Spiegelung wird klarer.
+          float rings = 0.0;
+          for(int i = 0; i < 12; i++){
+            if(float(i) >= uN) break;
+            float fi = float(i);
+            float ph = uTime * 0.55 + fi * 0.618;
+            float cyc = floor(ph), age = fract(ph);
+            vec2 at = (vec2(h1(fi * 13.1 + cyc), h1(fi * 7.7 + cyc * 3.1)) - 0.5) * vec2(11.0, 9.0) + vec2(0.0, 1.5);
+            float d = length(pc - at);
+            float rad = age * 2.4;
+            float w = (d - rad) * 11.0;
+            rings += exp(-w * w) * (1.0 - age) * (1.0 - age) * (0.6 + 0.4 * cos(w * 2.2));
+          }
+          col += vec3(1.0, 0.8, 0.5) * rings * (0.05 + 0.3 * near) * uLight * uDrops;
+          alpha -= 0.14 * uDrops * near;
+        }
+        gl_FragColor = vec4(col, alpha * uOpacity);
       }`,
     transparent: true, depthWrite: false,
   }));
@@ -2031,6 +2171,564 @@ function makeHalo(){
   return s;
 }
 
+/* ------------------------------------------------ Build 30: krasser  */
+
+// Alles hier entsteht erst, wenn index.html Build 30 freischaltet
+// (setFeatures) - normale Nutzer bezahlen vorher nichts dafuer. Jede
+// Wirkung ist unsichtbar (visible = false), solange ihre Staerke 0 ist.
+let fx30 = false;
+const fx = {
+  hero: null, bokeh: null, storm: null, sky: null, trails: null, columns: null, nave: null,
+  flashAge: 9, flashPeak: 0, flashAt: new Vector2(0.5, 0.5), flashLast: -9, flash: 0,
+  lastTurn: null, towerWas: 0, hallWas: 0, lWas: 0, stormPhase: 0, fov: 42,
+};
+const _fp = new Vector3();
+
+// Strahlen und Energie-Puls hinter dem Zeichen im Startbild. Ein Rechteck,
+// das immer zur Kamera steht; Strahlen, Ring und Kern rechnet der Shader.
+function makeHeroFx(){
+  const mat = new ShaderMaterial({
+    uniforms: { uTime: { value: 0 }, uVis: { value: 0 }, uPulse: { value: 1 } },
+    vertexShader: 'varying vec2 vUv; void main(){ vUv = position.xy + 0.5; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
+    fragmentShader: `
+      uniform float uTime, uVis, uPulse;
+      varying vec2 vUv;
+      void main(){
+        vec2 p = (vUv - 0.5) * 2.0;
+        float r = length(p);
+        float a = atan(p.y, p.x);
+        // Lichtstrahlen: zwei gegenlaeufige Faecher, am Rand weich.
+        float n1 = pow(0.5 + 0.5 * sin(a * 9.0 + uTime * 0.13 + sin(a * 3.0 - uTime * 0.09) * 1.6), 7.0);
+        float n2 = pow(0.5 + 0.5 * sin(a * 16.0 - uTime * 0.19 + 1.3), 12.0);
+        float n3 = pow(0.5 + 0.5 * sin(a * 5.0 + uTime * 0.07 + 2.1), 4.0);
+        float rays = (n1 * 0.6 + n2 * 0.45 + n3 * 0.3) * smoothstep(0.1, 0.32, r) * exp(-r * 2.3);
+        // Energie-Puls: ein Ring laeuft vom Reif nach aussen.
+        float pr = 0.16 + uPulse * 0.95;
+        float ring = exp(-pow((r - pr) * 22.0, 2.0)) * pow(1.0 - uPulse, 1.5) * smoothstep(0.0, 0.06, uPulse);
+        float ring2 = exp(-pow((r - pr * 0.8) * 40.0, 2.0)) * pow(1.0 - uPulse, 2.0) * 0.5;
+        float edge = smoothstep(1.0, 0.8, r);
+        vec3 col = vec3(1.0, 0.76, 0.4) * rays * 0.36 + vec3(1.0, 0.86, 0.6) * (ring + ring2) * 0.7;
+        gl_FragColor = vec4(col * edge * uVis, 1.0);
+      }`,
+    transparent: true, depthWrite: false, blending: AdditiveBlending,
+  });
+  // Kreis statt Rechteck: die Ecken waeren ohnehin schwarz, kosten aber.
+  const m = new Mesh(new CircleGeometry(0.5, 40), mat);
+  m.renderOrder = -2;
+  m.visible = false;
+  return m;
+}
+
+// Bokeh: unscharfe Lichtscheiben in verschiedenen Tiefen vor und hinter dem
+// Zeichen - das gibt dem Startbild Raum, wie bei offener Blende.
+function makeBokeh(){
+  const n = lite ? 22 : 46;
+  const pos = new Float32Array(n * 3), seed = new Float32Array(n);
+  for(let i = 0; i < n; i++){
+    const front = Math.random() < 0.35;
+    pos[i * 3] = (Math.random() - 0.5) * (front ? 9 : 20);
+    pos[i * 3 + 1] = (Math.random() - 0.5) * (front ? 6 : 11);
+    pos[i * 3 + 2] = front ? 1.5 + Math.random() * 3 : -2 - Math.random() * 9;
+    seed[i] = Math.random();
+  }
+  const geo = new BufferGeometry();
+  geo.setAttribute('position', new Float32BufferAttribute(pos, 3));
+  geo.setAttribute('aSeed', new Float32BufferAttribute(seed, 1));
+  const mat = new ShaderMaterial({
+    uniforms: { uTime: { value: 0 }, uVis: { value: 0 }, uPx: { value: 1 } },
+    vertexShader: `
+      attribute float aSeed;
+      uniform float uTime, uPx;
+      varying float vA; varying vec3 vC;
+      void main(){
+        vec3 p = position;
+        p.x += sin(uTime * 0.07 + aSeed * 40.0) * 0.6;
+        p.y += sin(uTime * 0.05 + aSeed * 23.0) * 0.4 + cos(uTime * 0.03 + aSeed * 9.0) * 0.3;
+        vec4 mv = modelViewMatrix * vec4(p, 1.0);
+        gl_Position = projectionMatrix * mv;
+        float dz = max(0.6, -mv.z);
+        // Je naeher, desto groesser und blasser - wie ein echtes Objektiv.
+        float blur = abs(dz - 7.0);
+        gl_PointSize = min(150.0 * uPx, (18.0 + blur * 9.0) * (0.6 + aSeed * 0.8) * uPx * 9.0 / dz);
+        vA = (0.5 + 0.5 * sin(uTime * 0.4 + aSeed * 30.0)) * 0.5 + 0.5;
+        vA *= 0.16 / (1.0 + blur * 0.12);
+        vC = mix(vec3(1.0, 0.72, 0.36), vec3(1.0, 0.9, 0.7), fract(aSeed * 5.3));
+      }`,
+    fragmentShader: `
+      uniform float uVis;
+      varying float vA; varying vec3 vC;
+      void main(){
+        vec2 c = gl_PointCoord - 0.5;
+        float d = length(c) * 2.0;
+        if(d > 1.0) discard;
+        float disc = smoothstep(1.0, 0.9, d) * (0.55 + 0.45 * smoothstep(0.55, 0.95, d));
+        float a = disc * vA * uVis;
+        gl_FragColor = vec4(vC * a, a);
+      }`,
+    transparent: true, depthWrite: false, blending: AdditiveBlending,
+  });
+  const pts = new Points(geo, mat);
+  pts.frustumCulled = false;
+  pts.visible = false;
+  return pts;
+}
+
+// Goldsturm: Streifen aus Goldstaub fliegen an der Kamera vorbei, waehrend
+// sie zum Turm fliegt oder in die Halle sinkt. Die Punkte liegen direkt im
+// Kamera-Raum (nur projectionMatrix); die ganze Bewegung rechnet der
+// Shader, pro Bild nur Phase und Staerke.
+function makeStorm(){
+  const n = lite ? 170 : 440;
+  const pos = new Float32Array(n * 2 * 3), seed = new Float32Array(n * 2), end = new Float32Array(n * 2);
+  for(let i = 0; i < n; i++){
+    const s = Math.random();
+    for(let e = 0; e < 2; e++){ seed[i * 2 + e] = s; end[i * 2 + e] = e; }
+  }
+  const geo = new BufferGeometry();
+  geo.setAttribute('position', new Float32BufferAttribute(pos, 3));
+  geo.setAttribute('aSeed', new Float32BufferAttribute(seed, 1));
+  geo.setAttribute('aEnd', new Float32BufferAttribute(end, 1));
+  const mat = new ShaderMaterial({
+    uniforms: { uPhase: { value: 0 }, uVis: { value: 0 }, uLen: { value: 2 } },
+    vertexShader: `
+      attribute float aSeed, aEnd;
+      uniform float uPhase, uLen;
+      varying float vA;
+      float h(float n){ return fract(sin(n * 78.233) * 43758.5453); }
+      void main(){
+        float c = fract(h(aSeed * 11.0) + uPhase * (0.55 + h(aSeed * 3.0) * 0.9));
+        float z = -mix(34.0, 0.4, c);
+        float ang = aSeed * 6.2831 * 7.0 + uPhase * 1.4 + z * 0.04;
+        float rad = 1.9 + h(aSeed * 5.0) * 5.5;
+        vec3 p = vec3(cos(ang) * rad, sin(ang) * rad * 0.7, z - aEnd * uLen * (0.5 + c));
+        vA = (1.0 - aEnd) * smoothstep(0.0, 0.25, c) * (1.0 - smoothstep(0.85, 1.0, c));
+        gl_Position = projectionMatrix * vec4(p, 1.0);
+      }`,
+    fragmentShader: `
+      uniform float uVis;
+      varying float vA;
+      void main(){ gl_FragColor = vec4(vec3(1.0, 0.8, 0.45) * vA * uVis, 1.0); }`,
+    transparent: true, depthWrite: false, blending: AdditiveBlending,
+  });
+  const lines = new LineSegments(geo, mat);
+  lines.frustumCulled = false;
+  lines.visible = false;
+  lines.renderOrder = 50;
+  return lines;
+}
+
+// Nachthimmel am Turm: Verlauf mit Stadtschein am Horizont, Sterne, ein
+// grosser Mond und ziehende Wolken, die von ihm und der Stadt beleuchtet
+// werden. Eine Kugel um den Turm, gerechnet nach der Blickrichtung - der
+// Himmel ist also unendlich weit weg und dreht beim Umrunden richtig mit.
+// Etwas rechts vom Blick zu Beginn der Umrundung - nicht hinter der Schrift.
+const MOON_DIR = new Vector3(0.8, 0.27, -0.55).normalize();
+function makeSky(){
+  const mat = new ShaderMaterial({
+    uniforms: { uTime: { value: 0 }, uVis: { value: 0 }, uOct: { value: lite ? 2 : 3 },
+                uMoon: { value: MOON_DIR.clone() }, uThA: themeA, uThemeAmt: themeAmt },
+    vertexShader: 'varying vec3 vW; void main(){ vec4 w = modelMatrix * vec4(position, 1.0); vW = w.xyz; gl_Position = projectionMatrix * viewMatrix * w; }',
+    fragmentShader: `
+      uniform float uTime, uVis, uOct, uThemeAmt;
+      uniform vec3 uMoon, uThA;
+      varying vec3 vW;
+      float hash3(vec3 p){ p = fract(p * 0.3183099 + 0.1); p *= 17.0; return fract(p.x * p.y * p.z * (p.x + p.y + p.z)); }
+      float hash2(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+      float vnoise(vec2 p){
+        vec2 i = floor(p), f = fract(p);
+        f = f * f * (3.0 - 2.0 * f);
+        return mix(mix(hash2(i), hash2(i + vec2(1.0, 0.0)), f.x), mix(hash2(i + vec2(0.0, 1.0)), hash2(i + vec2(1.0)), f.x), f.y);
+      }
+      float fbm(vec2 p){
+        float s = 0.0, a = 0.5;
+        for(int i = 0; i < 4; i++){
+          if(float(i) >= uOct) break;
+          s += vnoise(p) * a; p = p * 2.03 + vec2(1.7, 9.2); a *= 0.5;
+        }
+        return s / (1.0 - pow(0.5, uOct));
+      }
+      void main(){
+        vec3 d = normalize(vW - cameraPosition);
+        float up = d.y;
+        // Verlauf: oben tiefes Nachtblau, am Horizont der warme Schein der Stadt.
+        vec3 zen = vec3(0.004, 0.007, 0.02), hor = vec3(0.034, 0.02, 0.016);
+        vec3 col = mix(hor, zen, smoothstep(-0.02, 0.55, up));
+        col += mix(vec3(0.0), uThA * 0.05, uThemeAmt) * exp(-max(up, 0.0) * 6.0);
+        col = mix(col, vec3(0.02, 0.015, 0.012), smoothstep(0.0, -0.25, up));
+        // Sterne: nur oberhalb des Horizonts, jeder funkelt fuer sich.
+        vec3 q = d * 170.0;
+        vec3 id = floor(q);
+        float hs = hash3(id);
+        float star = 0.0;
+        if(hs > 0.972){
+          vec3 f = fract(q) - 0.5;
+          float r = length(f);
+          float tw = 0.55 + 0.45 * sin(uTime * (1.5 + hs * 6.0) + hs * 50.0);
+          star = smoothstep(0.22, 0.0, r) * tw * (hs > 0.995 ? 2.2 : 1.0);
+        }
+        star *= smoothstep(0.03, 0.3, up);
+        // Mond: grosse Scheibe mit Meeren, weicher Hof.
+        float md = length(d - uMoon);
+        float disc = smoothstep(0.052, 0.047, md);
+        vec3 mt = cross(uMoon, vec3(0.0, 1.0, 0.0));
+        vec2 mp = vec2(dot(d - uMoon, normalize(mt)), (d - uMoon).y) * 28.0;
+        float maria = vnoise(mp * 1.3 + 4.0) * 0.6 + vnoise(mp * 3.1) * 0.4;
+        vec3 moon = vec3(1.0, 0.95, 0.84) * (0.95 - 0.4 * smoothstep(0.45, 0.75, maria)) * disc * 1.25;
+        float haloM = exp(-md * 16.0) * 0.07 + exp(-md * 50.0) * 0.14;
+        // Wolken: Baender ueber dem Horizont, ziehen langsam.
+        vec2 cp = d.xz / (max(up, 0.0) + 0.18) * 0.9 + vec2(uTime * 0.012, uTime * 0.004);
+        float cl = fbm(cp);
+        float cloud = smoothstep(0.5, 0.82, cl) * smoothstep(-0.02, 0.12, up) * (1.0 - smoothstep(0.55, 0.9, up));
+        float lit = exp(-md * 3.2);
+        vec3 cloudCol = mix(vec3(0.012, 0.012, 0.018), vec3(0.11, 0.105, 0.12), lit) + vec3(0.05, 0.024, 0.01) * exp(-max(up, 0.0) * 7.0);
+        col += vec3(1.0) * star * (1.0 - cloud);
+        col += moon * (1.0 - cloud * 0.85) + vec3(0.9, 0.85, 0.75) * haloM * (1.0 - cloud * 0.5);
+        col = mix(col, cloudCol + vec3(0.9, 0.85, 0.8) * haloM * 0.5, cloud * 0.8);
+        gl_FragColor = vec4(col, uVis);
+        #include <tonemapping_fragment>
+        #include <colorspace_fragment>
+      }`,
+    side: BackSide, transparent: true, depthWrite: false,
+  });
+  const m = new Mesh(new SphereGeometry(85, 32, 16), mat);
+  m.position.copy(TOWER_AT);
+  m.renderOrder = -90;
+  m.frustumCulled = false;
+  m.visible = false;
+  return m;
+}
+
+// Lichtschweife: Baender aus Licht ziehen in Spiralen um den Turm, wie bei
+// einer Langzeitbelichtung. Ein Kopf laeuft das Band entlang, dahinter
+// verglueht der Schweif.
+function makeTrails(){
+  const g = new Group();
+  const count = lite ? 3 : 5;
+  const mats = [];
+  for(let k = 0; k < count; k++){
+    const pts = [];
+    const turns = 2.2 + k * 0.35, ph = (k / count) * Math.PI * 2, dir = k % 2 ? -1 : 1;
+    for(let i = 0; i <= 90; i++){
+      const u = i / 90;
+      const h = 0.02 + u * 0.9;
+      const r = towerHalf(h, TOWER_HEIGHT) * 1.35 + 0.55 + 0.25 * Math.sin(u * 9 + k);
+      const a = ph + dir * u * turns * Math.PI * 2;
+      pts.push(new Vector3(Math.cos(a) * r, h * TOWER_HEIGHT, Math.sin(a) * r));
+    }
+    const mat = new ShaderMaterial({
+      uniforms: { uTime: { value: 0 }, uVis: { value: 0 }, uOff: { value: k * 0.37 }, uSpeed: { value: 0.09 + k * 0.012 } },
+      vertexShader: 'varying float vU; void main(){ vU = uv.x; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
+      fragmentShader: `
+        uniform float uTime, uVis, uOff, uSpeed;
+        varying float vU;
+        void main(){
+          float head = fract(uTime * uSpeed + uOff) * 1.5 - 0.25;
+          float behind = head - vU;
+          float tail = behind >= 0.0 ? exp(-behind * 7.0) : exp(behind * 120.0);
+          float spark = exp(-abs(behind) * 60.0);
+          float edge = smoothstep(0.0, 0.05, vU) * smoothstep(1.0, 0.92, vU);
+          vec3 col = vec3(1.0, 0.7, 0.32) * tail * 0.9 + vec3(1.0, 0.95, 0.85) * spark * 1.6;
+          gl_FragColor = vec4(col * edge * uVis, 1.0);
+        }`,
+      transparent: true, depthWrite: false, blending: AdditiveBlending,
+    });
+    mats.push(mat);
+    g.add(new Mesh(new TubeGeometry(new CatmullRomCurve3(pts), lite ? 220 : 420, 0.028, 5, false), mat));
+  }
+  g.userData.mats = mats;
+  g.visible = false;
+  return g;
+}
+
+// Lichtsaeulen in der Halle: Schaechte von der Decke auf das Wasser, in der
+// Mitte hell, am Rand weich, mit langsam ziehendem Staub darin.
+function makeColumns(){
+  const g = new Group();
+  const n = lite ? 4 : 6;
+  const mat = new ShaderMaterial({
+    uniforms: { uTime: { value: 0 }, uVis: { value: 0 } },
+    vertexShader: 'varying float vY; varying vec3 vN; varying vec3 vV; varying vec3 vP; void main(){ vY = uv.y; vP = position; vec4 mv = modelViewMatrix * vec4(position, 1.0); vV = -mv.xyz; vN = normalize(normalMatrix * normal); gl_Position = projectionMatrix * mv; }',
+    fragmentShader: `
+      uniform float uTime, uVis;
+      varying float vY; varying vec3 vN; varying vec3 vV; varying vec3 vP;
+      void main(){
+        float f = pow(abs(dot(normalize(vN), normalize(vV))), 3.0);
+        float fall = smoothstep(0.0, 0.35, vY) * vY * vY;
+        float motes = 0.88 + 0.12 * sin(vP.y * 0.9 - uTime * 0.6);
+        gl_FragColor = vec4(vec3(1.0, 0.84, 0.58) * f * fall * motes * uVis * 0.075, 1.0);
+      }`,
+    transparent: true, depthWrite: false, blending: AdditiveBlending, side: DoubleSide,
+  });
+  const geo = new CylinderGeometry(0.42, 0.85, 15, lite ? 16 : 28, 1, true);
+  for(let i = 0; i < n; i++){
+    // Nur hinter und neben dem Kaefig - vor ihm stuenden sie dem L im Licht.
+    const a = Math.PI + 0.2 + (i / (n - 1)) * (Math.PI - 0.4);
+    const m = new Mesh(geo, mat);
+    m.position.set(Math.cos(a) * 6.4, 7.5, Math.sin(a) * 5.2 - 1.0);
+    g.add(m);
+  }
+  g.userData.mat = mat;
+  return g;
+}
+
+// Tiefe: ein Kirchenschiff aus Saeulen und Boegen, das nach hinten im Dunst
+// verschwindet - die Halle wird zum Gewoelbe. Silhouette mit goldener
+// Lichtkante, je weiter weg, desto mehr Dunst; dazu Nebelschichten.
+function makeNave(){
+  const g = new Group();
+  const mat = new ShaderMaterial({
+    uniforms: { uVis: { value: 0 } },
+    vertexShader: `
+      varying vec3 vN; varying vec3 vV; varying float vY; varying float vD;
+      void main(){
+        vec4 w = modelMatrix * instanceMatrix * vec4(position, 1.0);
+        vec4 mv = viewMatrix * w;
+        vV = -mv.xyz; vD = -mv.z; vY = w.y;
+        vN = normalize(mat3(viewMatrix) * mat3(modelMatrix) * mat3(instanceMatrix) * normal);
+        gl_Position = projectionMatrix * mv;
+      }`,
+    fragmentShader: `
+      uniform float uVis;
+      varying vec3 vN; varying vec3 vV; varying float vY; varying float vD;
+      void main(){
+        float f = 1.0 - abs(dot(normalize(vN), normalize(vV)));
+        float fog = 1.0 - exp(-max(0.0, vD - 14.0) * 0.06);
+        vec3 haze = vec3(0.014, 0.01, 0.008) + vec3(0.022, 0.013, 0.007) * exp(-max(0.0, vY + 30.0) * 0.22);
+        vec3 col = vec3(0.006, 0.006, 0.008) + vec3(1.0, 0.7, 0.34) * pow(f, 4.0) * 0.32;
+        col = mix(col, haze, fog);
+        gl_FragColor = vec4(col, uVis);
+      }`,
+    transparent: true,
+  });
+  const rows = lite ? 4 : 6;
+  const pillarGeo = new CylinderGeometry(0.42, 0.52, 9, lite ? 10 : 16);
+  const archGeo = new TorusGeometry(6.4, 0.26, lite ? 6 : 8, lite ? 24 : 40, Math.PI);
+  const pillars = new InstancedMesh(pillarGeo, mat, rows * 2);
+  const arches = new InstancedMesh(archGeo, mat, rows);
+  const o = new Object3D();
+  for(let i = 0; i < rows; i++){
+    const z = -7 - i * 5.5;
+    for(let s = 0; s < 2; s++){
+      o.position.set(s ? 6.4 : -6.4, 4.5, z); o.rotation.set(0, 0, 0); o.scale.setScalar(1); o.updateMatrix();
+      pillars.setMatrixAt(i * 2 + s, o.matrix);
+    }
+    o.position.set(0, 9, z); o.rotation.set(0, 0, 0); o.updateMatrix();
+    arches.setMatrixAt(i, o.matrix);
+  }
+  g.add(pillars, arches);
+  // Gespiegelt im Wasser.
+  const mp = new InstancedMesh(pillarGeo, mat, rows * 2), ma = new InstancedMesh(archGeo, mat, rows);
+  for(let i = 0; i < rows * 2; i++){ pillars.getMatrixAt(i, o.matrix); mp.setMatrixAt(i, o.matrix); }
+  for(let i = 0; i < rows; i++){ arches.getMatrixAt(i, o.matrix); ma.setMatrixAt(i, o.matrix); }
+  const mirror = new Group(); mirror.add(mp, ma); mirror.scale.y = -1;
+  g.add(mirror);
+  // Nebelschichten zwischen den Saeulen (auf dem Handy nur eine).
+  const hazeMat = new ShaderMaterial({
+    uniforms: { uTime: { value: 0 }, uVis: { value: 0 } },
+    vertexShader: 'varying vec2 vUv; varying vec3 vW; void main(){ vUv = uv; vec4 w = modelMatrix * vec4(position, 1.0); vW = w.xyz; gl_Position = projectionMatrix * viewMatrix * w; }',
+    fragmentShader: `
+      uniform float uTime, uVis;
+      varying vec2 vUv; varying vec3 vW;
+      float h2(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+      float vn(vec2 p){ vec2 i = floor(p), f = fract(p); f = f * f * (3.0 - 2.0 * f);
+        return mix(mix(h2(i), h2(i + vec2(1.0, 0.0)), f.x), mix(h2(i + vec2(0.0, 1.0)), h2(i + vec2(1.0)), f.x), f.y); }
+      void main(){
+        vec2 p = vec2(vW.x * 0.22 + uTime * 0.03, vW.y * 0.5 + vW.z * 0.1);
+        float n = vn(p) * 0.65 + vn(p * 2.3 - uTime * 0.02) * 0.35;
+        float v = smoothstep(0.0, 0.3, vUv.y) * smoothstep(1.0, 0.25, vUv.y) * smoothstep(0.0, 0.18, vUv.x) * smoothstep(1.0, 0.82, vUv.x);
+        gl_FragColor = vec4(vec3(1.0, 0.72, 0.42) * n * v * uVis * 0.035, 1.0);
+      }`,
+    transparent: true, depthWrite: false, blending: AdditiveBlending,
+  });
+  const layers = lite ? 1 : 2;
+  for(let i = 0; i < layers; i++){
+    const m = new Mesh(new PlaneGeometry(34, 7), hazeMat);
+    m.position.set(0, 2.6, -8 - i * 7);
+    g.add(m);
+  }
+  g.userData = { mat, hazeMat };
+  return g;
+}
+
+// Einschalten (aus index.html, nach dem Freigabe-Gate). Was schon da ist,
+// wird nicht neu gebaut; Turm und Halle bekommen ihre Teile, sobald sie
+// geladen sind (ensureFx30 aus loadTower).
+function setFeatures(f){
+  const on = !!(f && f.b30);
+  if(on === fx30) return;
+  fx30 = on;
+  if(on && ready){ ensureFx30(); prewarm(); }
+}
+function ensureFx30(){
+  if(!fx30 || !ready) return;
+  if(!fx.hero){ fx.hero = makeHeroFx(); scene.add(fx.hero); }
+  if(!fx.bokeh){ fx.bokeh = makeBokeh(); scene.add(fx.bokeh); registerDensity(fx.bokeh); }
+  if(!fx.storm){ fx.storm = makeStorm(); scene.add(fx.storm); registerDensity(fx.storm); }
+  if(!fx.sky){ fx.sky = makeSky(); scene.add(fx.sky); }
+  if(tower && !fx.trails){ fx.trails = makeTrails(); tower.add(fx.trails); }
+  if(hall && !fx.columns){
+    fx.columns = makeColumns(); hall.add(fx.columns);
+    fx.nave = makeNave(); hall.add(fx.nave);
+  }
+}
+// Ein Lichtblitz an einer Stelle der Welt (oder der Bildmitte). Mindestens
+// 1,2 s Abstand, damit schnelles Scrollen kein Gewitter macht.
+function flashAt(amount, world, t){
+  if(t - fx.flashLast < 1.2) return;
+  fx.flashLast = t; fx.flashAge = 0; fx.flashPeak = amount;
+  if(world){
+    _fp.copy(world).project(camera);
+    if(_fp.z < 1) fx.flashAt.set(Math.max(0.05, Math.min(0.95, _fp.x * 0.5 + 0.5)), Math.max(0.05, Math.min(0.95, _fp.y * 0.5 + 0.5)));
+    else fx.flashAt.set(0.5, 0.55);
+  }else fx.flashAt.set(0.5, 0.55);
+}
+
+const _towerTop = new Vector3(), _lPos = new Vector3();
+const clamp01 = (v) => Math.max(0, Math.min(1, v));
+// Pro Bild, nach applyTransform: Staerken, Kamera-Feinheiten, Lichtblitze.
+function updateFx30(t, dtRaw, dt){
+  const on = fx30;
+  if(grade){
+    const gu = grade.uniforms;
+    if(!on){ gu.uFlash.value = 0; gu.uBlur.value = 0; }
+  }
+  if(!on){
+    if(fx.fov !== 42){ fx.fov = 42; camera.fov = 42; camera.updateProjectionMatrix(); }
+    for(const o of [fx.hero, fx.bokeh, fx.storm, fx.sky, fx.trails, fx.columns, fx.nave]) if(o) o.visible = false;
+    towerNight.value = 0; sparkBurst.value = 0;
+    if(hall){
+      hall.userData.floor.material.uniforms.uDrops.value = 0;
+      hall.userData.glitter.material.uniforms.uSwirl.value = 0;
+    }
+    return;
+  }
+  const tw = towerShown;
+  const b = tw * tw * tw * (tw * (tw * 6 - 15) + 10);
+  const eo = 1 - smoothstep(clamp01((tw - 0.08) / 0.42));
+  const hv = 1 - smoothstep(clamp01(heroShown / 0.9));
+  const endV = smoothstep(clamp01((shown - 0.94) / 0.06));
+  const eh = hallShown * hallShown * hallShown * (hallShown * (hallShown * 6 - 15) + 10);
+  const fit = Math.max(0.50, Math.min(1, camera.aspect / 1.35));
+  const es = emblem.scale.x;
+
+  // --- Startbild: Strahlen, Puls, Bokeh
+  const heroV = eo * Math.max(hv, endV * 0.8) * (1 - b);
+  if(fx.hero){
+    fx.hero.visible = heroV > 0.01;
+    if(fx.hero.visible){
+      fx.hero.position.set(emblem.position.x, emblem.position.y, emblem.position.z - 1.3);
+      fx.hero.quaternion.copy(camera.quaternion);
+      fx.hero.scale.setScalar(es * 14);
+      const u = fx.hero.material.uniforms;
+      u.uTime.value = t; u.uVis.value = heroV;
+      u.uPulse.value = Math.min(1, (t % 4.8) / 2.1);
+    }
+  }
+  if(fx.bokeh){
+    const v = eo * (0.3 + 0.7 * Math.max(hv, endV)) * (1 - b);
+    fx.bokeh.visible = v > 0.01;
+    if(fx.bokeh.visible){
+      fx.bokeh.position.set(emblem.position.x, emblem.position.y * 0.5, emblem.position.z);
+      const u = fx.bokeh.material.uniforms;
+      u.uTime.value = t; u.uVis.value = v; u.uPx.value = pxScale;
+    }
+  }
+
+  // --- Lichtblitze an den Uebergaengen
+  const edge = Math.floor(turnShown - 0.5);
+  if(edge !== fx.lastTurn){
+    if(fx.lastTurn !== null && b < 0.1 && eo > 0.5) flashAt(0.26, emblem.position, t);
+    fx.lastTurn = edge;
+  }
+  if(tw > 0.6 && fx.towerWas <= 0.6 && tower){
+    _towerTop.set(TOWER_AT.x, TOWER_AT.y + TOWER_HEIGHT * 0.45 * fit, TOWER_AT.z);
+    flashAt(0.55, _towerTop, t);
+  }
+  fx.towerWas = tw;
+  if(hallShown > 0.55 && fx.hallWas <= 0.55) flashAt(0.5, null, t);
+  fx.hallWas = hallShown;
+  fx.flashAge += dtRaw;
+  fx.flash = fx.flashPeak * (1 - Math.exp(-fx.flashAge * 28)) * Math.exp(-fx.flashAge * 2.6);
+  if(fx.flash < 0.002) fx.flash = 0;
+
+  // --- Kamera: weiter beim Fliegen, Schraeglage in der Kurve
+  const fly = (b > 0.001 && b < 0.999) ? Math.sin(Math.PI * b) : 0;
+  const sink = (eh > 0.001 && eh < 0.999) ? Math.sin(Math.PI * eh) : 0;
+  const fov = 42 + 9 * fly + 7 * sink;
+  if(Math.abs(fov - fx.fov) > 0.01){ fx.fov = fov; camera.fov = fov; camera.updateProjectionMatrix(); }
+  const roll = fly * 0.07 + b * (1 - hallShown) * Math.sin(tourShown * Math.PI * 2) * 0.05;
+  if(Math.abs(roll) > 0.0005) camera.rotateZ(roll);
+
+  // --- Fokus-Zieher und Goldsturm
+  if(grade){
+    const gu = grade.uniforms;
+    const turnMid = (b < 0.1) ? Math.sin(Math.PI * (turnShown - Math.floor(turnShown))) * 0.22 * (1 - hv) : 0;
+    gu.uBlur.value = level < 5 ? Math.min(1, Math.max(fly * 0.75, sink * 0.7, fx.flash * 0.6, turnMid)) : 0;
+    gu.uFlash.value = fx.flash;
+    gu.uFlare.value.copy(fx.flashAt);
+  }
+  if(fx.storm){
+    const v = Math.max(Math.pow(fly, 1.2) * 0.8, sink * 0.8, fx.flash * 0.5);
+    fx.storm.visible = v > 0.01;
+    fx.stormPhase += dt * (0.18 + 1.3 * v);
+    if(fx.storm.visible){
+      const u = fx.storm.material.uniforms;
+      u.uPhase.value = fx.stormPhase; u.uVis.value = v; u.uLen.value = 1.2 + 4.5 * v;
+    }
+  }
+
+  // --- Turm: Himmel, Nachtlicht, Funkeln zur vollen Stunde, Lichtschweife
+  if(fx.sky){
+    const v = Math.pow(tw, 1.5) * (1 - smoothstep(clamp01((hallShown - 0.1) / 0.5)));
+    fx.sky.visible = v > 0.01;
+    if(fx.sky.visible){
+      const u = fx.sky.material.uniforms;
+      u.uTime.value = t; u.uVis.value = v;
+      u.uOct.value = (lite || matSimple) ? 2 : 3;
+    }
+  }
+  if(tower){
+    towerNight.value = 1;
+    towerBase.value = tower.position.y; towerH.value = TOWER_HEIGHT * tower.scale.y;
+    // Zur vollen Stunde funkelt der echte Turm fuenf Minuten lang - hier
+    // dann auch. Sonst alle 26 Sekunden ein kurzer Vorgeschmack.
+    const x = t % 26;
+    let burst = smoothstep(clamp01(x / 0.8)) * (1 - smoothstep(clamp01((x - 4) / 1.2)));
+    if(new Date().getMinutes() < 5) burst = 1;
+    sparkBurst.value = burst;
+    if(fx.trails){
+      const v = smoothstep(Math.min(1, tw * 4)) * (1 - Math.min(1, hallShown * 2));
+      fx.trails.visible = v > 0.01;
+      for(const m of fx.trails.userData.mats){ m.uniforms.uTime.value = t; m.uniforms.uVis.value = v; }
+    }
+  }
+
+  // --- Halle: Saeulen, Gewoelbe im Dunst, Regenringe, das L baut sich auf
+  if(hall){
+    const hv2 = smoothstep(clamp01((hallShown - 0.25) / 0.6));
+    const hu = hall.userData;
+    hu.floor.material.uniforms.uDrops.value = 1;
+    const gu = hu.glitter.material.uniforms;
+    gu.uSwirl.value = 1;
+    const asm = 0.3 * smoothstep(clamp01((hallShown - 0.35) / 0.65)) + 0.7 * smoothstep(clamp01((hallPShown - 0.05) / 0.65));
+    gu.uAssemble.value = asm;
+    if(asm > 0.985 && fx.lWas <= 0.985){
+      _lPos.set(HALL_AT.x, HALL_AT.y + 3.25, HALL_AT.z);
+      flashAt(0.45, _lPos, t);
+    }
+    fx.lWas = asm;
+    if(fx.columns){
+      fx.columns.visible = hv2 > 0.01;
+      const u = fx.columns.userData.mat.uniforms; u.uTime.value = t; u.uVis.value = hv2;
+    }
+    if(fx.nave){
+      fx.nave.visible = hv2 > 0.01;
+      fx.nave.userData.mat.uniforms.uVis.value = hv2;
+      const hz = fx.nave.userData.hazeMat.uniforms; hz.uTime.value = t; hz.uVis.value = hv2;
+    }
+  }
+}
+
 // Die Reise des Emblems, als Tabelle statt als Trigonometrie: pro Stützstelle
 // der Scroll-Fortschritt und wo der Ring dann steht. Dazwischen wird weich
 // interpoliert. So lässt sich jede Szene einzeln nachjustieren, ohne dass
@@ -2130,7 +2828,7 @@ function init(canvas, opts){
         // Kraeftiges Irisieren: beim Drehen wandert ein Schimmer ueber die
         // Kante, wie das verchromte Zeichen in der Referenz.
         iridescence: 0.92, iridescenceIOR: 1.38, iridescenceThicknessRange: [180, 760],
-        clearcoat: 1, clearcoatRoughness: 0.03,
+        clearcoat: 1, clearcoatRoughness: 0.08,
         envMapIntensity: 3.4, transparent: true,
       });
 
@@ -2158,7 +2856,7 @@ function init(canvas, opts){
     : new MeshPhysicalMaterial({
         color: GOLD_BRIGHT, emissive: new Color(GOLD), emissiveIntensity: 0.12,
         metalness: 1, roughness: 0.045, envMapIntensity: 3.6,
-        clearcoat: 1, clearcoatRoughness: 0.02, transparent: true }));
+        clearcoat: 1, clearcoatRoughness: 0.08, transparent: true }));
   const helix = makeHelix(ribbonMat, lite);
   emblem.add(helix);
   // Der Staub an den Straengen haengt am Zeichen und dreht mit.
@@ -2265,6 +2963,17 @@ function init(canvas, opts){
                                 0.42,   // Staerke
                                 0.78,   // Radius - lieber weit und weich
                                 0.80);  // Schwelle - nur wirklich Helles blueht
+    // Schutz gegen den schwarzen Schirm (Build 30): ein einziges NaN/Inf im
+    // HalfFloat-Bild wurde vom Nachgluehen ueber alle Stufen zu grossen
+    // schwarzen Flaechen verschmiert. Gereinigt wird dort, wo das Nachgluehen
+    // das Bild liest - das kostet keinen eigenen Durchgang. Falls three.js
+    // den Shader einmal anders schreibt, bleibt es beim eigenen Pass.
+    const hp = bloom.materialHighPassFilter;
+    const hpSrc = hp.fragmentShader
+      .replace('void main() {', 'float okc(float v){ return (v >= 0.0 && v <= 60000.0) ? min(v, 48.0) : 0.0; }\nvoid main() {')
+      .replace('vec4 texel = texture2D( tDiffuse, vUv );', 'vec4 texel = texture2D( tDiffuse, vUv );\n texel.rgb = vec3(okc(texel.r), okc(texel.g), okc(texel.b));');
+    if(hpSrc.indexOf('okc(texel.r)') > 0){ hp.fragmentShader = hpSrc; hp.needsUpdate = true; }
+    else composer.addPass(new ShaderPass(SanitizeShader));
     composer.addPass(bloom);
     composer.addPass(new OutputPass());
     // Nach dem Farbraum, damit Korn und Vignette auf dem fertigen Bild
@@ -2337,14 +3046,23 @@ const TOUR = {
   // Turm, mit dem Ruecken zum Zeichen, und muesste sich umdrehen.
   to:   { ang: Math.PI * 2 - 0.45, y: 2.1, dist: 9.4, look: 2.6 },  // am Fuss
 };
+// Build 30: naeher dran, tiefer am Fuss - die Kamera soll den Turm spueren
+// lassen. Dazu kommt in updateFx30 eine leichte Schraeglage.
+const TOUR30 = {
+  from: { ang: -0.55,             y: 9.5, dist: 5.9, look: 8.9 },
+  to:   { ang: Math.PI * 2 - 0.55, y: 1.3, dist: 7.9, look: 3.0 },
+};
 const _camTour = new Vector3(), _lookTour = new Vector3(), _look = new Vector3();
 const _dirA = new Vector3(), _dirB = new Vector3();
 function tourCamera(q){
   const e = smoothstep(q);
-  const ang  = TOUR.from.ang  + (TOUR.to.ang  - TOUR.from.ang)  * e;
-  const y    = TOUR.from.y    + (TOUR.to.y    - TOUR.from.y)    * e;
-  const dist = TOUR.from.dist + (TOUR.to.dist - TOUR.from.dist) * e;
-  const look = TOUR.from.look + (TOUR.to.look - TOUR.from.look) * e;
+  const T = fx30 ? TOUR30 : TOUR;
+  // Unterwegs ein Atemzug naeher heran und wieder zurueck (Build 30).
+  const push = fx30 ? Math.sin(Math.PI * e) * 0.9 : 0;
+  const ang  = T.from.ang  + (T.to.ang  - T.from.ang)  * e;
+  const y    = T.from.y    + (T.to.y    - T.from.y)    * e;
+  const dist = T.from.dist + (T.to.dist - T.from.dist) * e - push;
+  const look = T.from.look + (T.to.look - T.from.look) * e;
   _camTour.set(Math.sin(ang) * dist, y, Math.cos(ang) * dist);
   _lookTour.set(0, look, 0);
 }
@@ -2663,6 +3381,7 @@ function frame(){
     if(!videos.seine && videoUrls.seine && (tower || towerLoading)) videos.seine = makeVideo(videoUrls.seine);
   }
   applyTransform(shown, t);
+  updateFx30(t, dtRaw, dt);
   // Die Schlieren gehen mit dem Emblem: waehrend der Turm die Buehne hat,
   // sollen sie nicht durch sein Gitterwerk ziehen.
   updateStreaks(streaks, t, dt, streakAmt);
@@ -2814,6 +3533,10 @@ function resize(){
   }
   if(paris) paris.sheet.material.uniforms.uViewH.value = h * pr;
   if(tramSheet) tramSheet.material.uniforms.uViewH.value = h * pr;
+  if(grade){
+    grade.uniforms.uTexel.value.set(1 / (w * pr), 1 / (h * pr));
+    grade.uniforms.uAspect.value = w / h;
+  }
 }
 
 function start(){
@@ -2836,14 +3559,15 @@ function renderOnce(){
   heroShown = heroT; if(heroFadeIn > 0) heroFadeIn = 1;
   turnShown = turnTarget; spin = turnShown * Math.PI;   // Standbild folgt dem Scroll direkt
   applyTransform(shown, 0);
+  updateFx30(0, 0, 0);
   updateStreaks(streaks, 0, 0, streakAmt * 0.5);
   if(paris && parisVis > 0.005 && !videoUsable(videos.seine)) renderParis(0);
   draw();
 }
 
 window.LumiereGL = { init, start, stop, resize, setProgress, setTower, setPointer, setTurn, setHero, setTheme, setHall,
-  renderOnce, loadTower, setVideos,
+  renderOnce, loadTower, setVideos, setFeatures,
   get ready(){ return ready; },
   get hasTower(){ return !!tower; },
   // Nur zum Messen (Playwright): Szene und Renderer ansehen.
-  get _debug(){ return { scene, renderer }; } };
+  get _debug(){ return { scene, renderer, composer, camera }; } };

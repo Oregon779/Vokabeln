@@ -2929,6 +2929,104 @@
     .cine-card-go{ bottom:1.2rem; }
   }
 
+
+  /* --- Build 30: Karten mit Video der Funktion ------------------------
+     Hinten laeuft ein kurzes Video der echten Bedienung (nur auf der
+     vorderen Karte, siehe cardVideo), davor eine Milchglas-Schicht, die
+     das Video weich und hell macht, aber durchscheinen laesst, ganz vorn
+     Titel und Text. Bis zur Freigabe bleiben Bild + fliessendes Bild. */
+  .cine-card-video{
+    display:none; position:absolute; inset:11px; width:calc(100% - 22px); height:calc(100% - 22px);
+    border-radius:21px; object-fit:cover; object-position:50% 30%; z-index:1; pointer-events:none;
+    background:#0b0e17;
+  }
+  html.build-30-live .cine-card-video{ display:block; }
+  html.build-30-live .cine-card .cine-card-img,
+  html.build-30-live .cine-card-liquid{ display:none; }
+  html.build-30-live .cine-card-glass::after{
+    /* Milchglas: heller, leicht getoenter Schleier - das Video bleibt
+       sichtbar, die Schrift davor bleibt lesbar. */
+    background:
+      radial-gradient(120% 85% at 20% 0%, rgba(255,255,255,.26), transparent 55%),
+      radial-gradient(62% 55% at 50% 54%, rgba(8,10,18,.7), rgba(8,10,18,.32) 65%, rgba(8,10,18,.08) 100%),
+      linear-gradient(180deg, color-mix(in srgb, var(--c1, #f0b545) 22%, rgba(236,240,255,.16)) 0%,
+        color-mix(in srgb, var(--c2, #7a4fd0) 26%, rgba(10,12,22,.5)) 100%);
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.26), inset 0 0 60px rgba(255,255,255,.1);
+  }
+  /* Titel: kein Glitch mehr, dafuer ein weicher Auftritt, wenn die Karte
+     nach vorn kommt, und ein Glanz, der einmal darueber laeuft. */
+  html.build-30-live .cine-card-title::before, html.build-30-live .cine-card-title::after{ display:none; }
+  html.build-30-live .cine-card .cine-card-body > *{ transition:opacity .6s var(--ease), transform .7s var(--ease), filter .7s var(--ease); }
+  html.build-30-live .cine-card:not(.is-front) .cine-card-title,
+  html.build-30-live .cine-card:not(.is-front) .cine-card-text{ opacity:.55; transform:translateY(8px); filter:blur(1.5px); }
+  html.build-30-live .cine-card.is-front .cine-card-title{
+    background:linear-gradient(100deg, #fff 0%, #fff 42%, color-mix(in srgb, var(--c1, #f0b545) 55%, white) 50%, #fff 58%, #fff 100%);
+    background-size:250% 100%; -webkit-background-clip:text; background-clip:text; color:transparent;
+    text-shadow:none;
+    filter:drop-shadow(0 0 20px color-mix(in srgb, var(--c1, #f0b545) 60%, transparent)) drop-shadow(0 2px 10px rgba(0,0,0,.6));
+    animation:cardTitleShine 5.5s var(--ease) infinite;
+  }
+  @keyframes cardTitleShine{ 0%{ background-position:120% 0; } 45%, 100%{ background-position:-20% 0; } }
+  @media (prefers-reduced-motion: reduce){ html.build-30-live .cine-card.is-front .cine-card-title{ animation:none; } }
+  @media (max-width:700px){ .cine-card-video{ inset:8px; width:calc(100% - 16px); height:calc(100% - 16px); border-radius:15px; } }
+
+  /* --- Build 30: Glanz im Titel ---------------------------------------
+     Ueber die goldene Wortmarke (und "Kostenlos starten") laeuft alle
+     sieben Sekunden ein heller Glanz - eine zweite Hintergrundschicht, die
+     mit dem Text ausgeschnitten wird. Dazwischen steht er still (kein
+     Neuzeichnen). */
+  html.build-30-live .cine-seuil .cine-wordmark,
+  html.build-30-live .cine-start-title{
+    background:
+      linear-gradient(105deg, transparent 0 42%, rgba(255,252,240,.95) 49%, rgba(255,236,190,.6) 52%, transparent 60% 100%),
+      linear-gradient(180deg, #fff0c8 0%, #f2c878 38%, #d69a45 66%, #a86d24 100%);
+    background-size:260% 100%, 100% 100%;
+    background-position:130% 0, 0 0;
+    -webkit-background-clip:text; background-clip:text;
+    animation:titleShine30 7s cubic-bezier(.45,.05,.3,1) 1.2s infinite;
+  }
+  @keyframes titleShine30{
+    0%{ background-position:130% 0, 0 0; }
+    26%, 100%{ background-position:-30% 0, 0 0; }
+  }
+
+  /* --- Build 30: Text-Auftritt -----------------------------------------
+     Statt dass eine Szene als Block erscheint, kommen ihre Zeilen
+     nacheinander: Kicker, Titel, Text, Knoepfe - jede aus der Unschaerfe,
+     leicht versetzt. Haengt wie bisher an --enter (Scroll), nicht an der Uhr. */
+  html.build-30-live .cine-scene[data-from] > *{ opacity:1; filter:none; transform:none; }
+  html.build-30-live .cine-scene[data-from] .cine-stack > *:not(.cine-split),
+  html.build-30-live .cine-scene[data-from] .cine-headline,
+  html.build-30-live .cine-scene[data-from] .cine-notes > *{
+    --e:clamp(0, calc(var(--enter, 1) * 1.9 - var(--i, 0) * 0.15), 1);
+    opacity:var(--e);
+    filter:blur(calc((1 - var(--e)) * 12px));
+    transform:translate3d(calc((1 - var(--e)) * var(--slide-x, 0px)), calc((1 - var(--e)) * 30px), 0)
+              scale(calc(.965 + .035 * var(--e)));
+    transition:opacity .12s linear, filter .12s linear, transform .12s linear;
+  }
+  html.build-30-live .cine-scene[data-from] .cine-stack > :nth-child(2),
+  html.build-30-live .cine-scene[data-from] .cine-notes > :nth-child(1){ --i:1; }
+  html.build-30-live .cine-scene[data-from] .cine-stack > :nth-child(3),
+  html.build-30-live .cine-scene[data-from] .cine-notes > :nth-child(2){ --i:2; }
+  html.build-30-live .cine-scene[data-from] .cine-stack > :nth-child(4),
+  html.build-30-live .cine-scene[data-from] .cine-notes > :nth-child(3){ --i:3; }
+  html.build-30-live .cine-scene[data-from] .cine-stack > :nth-child(5),
+  html.build-30-live .cine-scene[data-from] .cine-notes > :nth-child(4){ --i:4; }
+  html.build-30-live .cine-scene[data-from] .cine-stack > :nth-child(n+6){ --i:5; }
+  /* Der Anfangsblock (Willkommen, Ersatz-Emblem, Wortmarke ...) zaehlt
+     ohne die beiden meist versteckten ersten Kinder. */
+  html.build-30-live .cine-seuil .cine-stack > .cine-wordmark{ --i:0; }
+  html.build-30-live .cine-seuil .cine-stack > .cine-ornament{ --i:1; }
+  html.build-30-live .cine-seuil .cine-stack > .cine-morph{ --i:2; }
+  html.build-30-live .cine-seuil .cine-stack > .cine-lede{ --i:3; }
+  html.build-30-live .cine-seuil .cine-stack > .cine-entry{ --i:4; }
+  @media (prefers-reduced-motion: reduce){
+    html.build-30-live .cine-seuil .cine-wordmark, html.build-30-live .cine-start-title{ animation:none; }
+    html.build-30-live .cine-scene[data-from] .cine-stack > *, html.build-30-live .cine-scene[data-from] .cine-headline,
+    html.build-30-live .cine-scene[data-from] .cine-notes > *{ opacity:1 !important; filter:none !important; transform:none !important; }
+  }
+
   /* --- Belohnungen --- */
   .rewards-grid{display:grid; grid-template-columns:1fr; gap:1rem; margin-top:1.6rem;}
   @media (min-width:760px){ .rewards-grid{grid-template-columns:1fr 1.4fr;} }
@@ -3703,7 +3801,8 @@
     <button type="button" class="header-nav-item" data-goto="about">Über uns</button>
   </nav>
   <div class="header-right">
-    <div class="lang-switch" role="group" aria-label="Sprache der Oberfläche">
+    <!-- Build 30: die Seite gibt es nur auf Deutsch - der Umschalter faellt weg. -->
+    <div class="lang-switch" role="group" aria-label="Sprache der Oberfläche" data-build-old="30">
       <button type="button" class="lang-opt is-active" id="langDe" data-lang="de">DE</button>
       <button type="button" class="lang-opt" id="langEn" data-lang="en">EN</button>
     </div>
@@ -4212,7 +4311,7 @@
             <div class="cine-deck-halo" id="cineDeckHalo" data-build="14" aria-hidden="true"></div>
             <div class="cine-deck-world" id="cineDeckWorld">
             <button type="button" class="cine-card" data-goto="home" data-theme="#f0b545 #7a4fd0" style="--c1:#f0b545; --c2:#7a4fd0">
-              <span class="cine-card-glass"><img class="cine-card-img" src="./shot-lernsets.webp?v=28" alt="Ansicht der Seite Lernsets" loading="lazy" decoding="async" width="1600" height="1000"></span>
+              <span class="cine-card-glass"><img class="cine-card-img" src="./shot-lernsets.webp?v=28" alt="Ansicht der Seite Lernsets" loading="lazy" decoding="async" width="1600" height="1000"><video class="cine-card-video" data-vid="card-lernsets" muted playsinline loop preload="none" aria-hidden="true" disablepictureinpicture></video></span>
               <span class="cine-card-veil" aria-hidden="true"></span>
               <span class="cine-card-body">
                 <span class="cine-card-idx">01</span>
@@ -4223,7 +4322,7 @@
               <span class="cine-card-side" aria-hidden="true"><span>Eigene Sammlungen anlegen</span><span>Aus einem Text importieren</span><span>Karteikasten nach Leitner</span></span>
             </button>
             <button type="button" class="cine-card" data-goto="listen" data-theme="#9b6bff #2fb7c9" style="--c1:#9b6bff; --c2:#2fb7c9">
-              <span class="cine-card-glass"><img class="cine-card-img" src="./shot-aussprache.webp?v=28" alt="Ansicht der Seite Aussprache" loading="lazy" decoding="async" width="1600" height="1000"></span>
+              <span class="cine-card-glass"><img class="cine-card-img" src="./shot-aussprache.webp?v=28" alt="Ansicht der Seite Aussprache" loading="lazy" decoding="async" width="1600" height="1000"><video class="cine-card-video" data-vid="card-aussprache" muted playsinline loop preload="none" aria-hidden="true" disablepictureinpicture></video></span>
               <span class="cine-card-veil" aria-hidden="true"></span>
               <span class="cine-card-body">
                 <span class="cine-card-idx">02</span>
@@ -4234,7 +4333,7 @@
               <span class="cine-card-side" aria-hidden="true"><span>Jedes Wort vorgesprochen</span><span>Lautschrift dazu</span><span>Ganze Sets am Stück hören</span></span>
             </button>
             <button type="button" class="cine-card" data-goto="grammar" data-theme="#27c2b0 #3a5bd9" style="--c1:#27c2b0; --c2:#3a5bd9">
-              <span class="cine-card-glass"><img class="cine-card-img" src="./shot-grammatik.webp?v=28" alt="Ansicht der Seite Grammatik" loading="lazy" decoding="async" width="1600" height="1000"></span>
+              <span class="cine-card-glass"><img class="cine-card-img" src="./shot-grammatik.webp?v=28" alt="Ansicht der Seite Grammatik" loading="lazy" decoding="async" width="1600" height="1000"><video class="cine-card-video" data-vid="card-grammatik" muted playsinline loop preload="none" aria-hidden="true" disablepictureinpicture></video></span>
               <span class="cine-card-veil" aria-hidden="true"></span>
               <span class="cine-card-body">
                 <span class="cine-card-idx">03</span>
@@ -4245,7 +4344,7 @@
               <span class="cine-card-side" aria-hidden="true"><span>Zeiten, Fälle, Artikel</span><span>Beispiele aus deinen Wörtern</span><span>Nachfragen ausdrücklich erlaubt</span></span>
             </button>
             <button type="button" class="cine-card" data-goto="rewards" data-theme="#ff9b3d #d6425f" style="--c1:#ff9b3d; --c2:#d6425f">
-              <span class="cine-card-glass"><img class="cine-card-img" src="./shot-belohnungen.webp?v=28" alt="Ansicht der Seite Belohnungen" loading="lazy" decoding="async" width="1600" height="1000"></span>
+              <span class="cine-card-glass"><img class="cine-card-img" src="./shot-belohnungen.webp?v=28" alt="Ansicht der Seite Belohnungen" loading="lazy" decoding="async" width="1600" height="1000"><video class="cine-card-video" data-vid="card-belohnungen" muted playsinline loop preload="none" aria-hidden="true" disablepictureinpicture></video></span>
               <span class="cine-card-veil" aria-hidden="true"></span>
               <span class="cine-card-body">
                 <span class="cine-card-idx">04</span>
@@ -4256,7 +4355,7 @@
               <span class="cine-card-side" aria-hidden="true"><span>Münzen für jede Runde</span><span>Vier Spiele in der Spielhalle</span><span>Rangliste gegen alle anderen</span></span>
             </button>
             <button type="button" class="cine-card" data-goto="calendar" data-theme="#ef6f9a #7b4fd6" style="--c1:#ef6f9a; --c2:#7b4fd6">
-              <span class="cine-card-glass"><img class="cine-card-img" src="./shot-kalender.webp?v=28" alt="Ansicht der Seite Kalender" loading="lazy" decoding="async" width="1600" height="1000"></span>
+              <span class="cine-card-glass"><img class="cine-card-img" src="./shot-kalender.webp?v=28" alt="Ansicht der Seite Kalender" loading="lazy" decoding="async" width="1600" height="1000"><video class="cine-card-video" data-vid="card-kalender" muted playsinline loop preload="none" aria-hidden="true" disablepictureinpicture></video></span>
               <span class="cine-card-veil" aria-hidden="true"></span>
               <span class="cine-card-body">
                 <span class="cine-card-idx">05</span>
@@ -4267,7 +4366,7 @@
               <span class="cine-card-side" aria-hidden="true"><span>Klausuren eintragen</span><span>Lernplan rückwärts gerechnet</span><span>Erinnerung vor dem Termin</span></span>
             </button>
             <button type="button" class="cine-card" data-goto="appDownload" data-theme="#4d8dff #2fd0c4" style="--c1:#4d8dff; --c2:#2fd0c4">
-              <span class="cine-card-glass"><img class="cine-card-img" src="./shot-app.webp?v=28" alt="Ansicht der Seite App installieren" loading="lazy" decoding="async" width="1600" height="1000"></span>
+              <span class="cine-card-glass"><img class="cine-card-img" src="./shot-app.webp?v=28" alt="Ansicht der Seite App installieren" loading="lazy" decoding="async" width="1600" height="1000"><video class="cine-card-video" data-vid="card-app" muted playsinline loop preload="none" aria-hidden="true" disablepictureinpicture></video></span>
               <span class="cine-card-veil" aria-hidden="true"></span>
               <span class="cine-card-body">
                 <span class="cine-card-idx">06</span>
@@ -4278,7 +4377,7 @@
               <span class="cine-card-side" aria-hidden="true"><span>Ohne App-Store installieren</span><span>Offline weiterüben</span><span>Symbol auf dem Startbildschirm</span></span>
             </button>
             <button type="button" class="cine-card" data-goto="about" data-theme="#f3d9a4 #c98a4a" style="--c1:#f3d9a4; --c2:#c98a4a">
-              <span class="cine-card-glass"><img class="cine-card-img" src="./shot-ueberuns.webp?v=28" alt="Ansicht der Seite Über uns" loading="lazy" decoding="async" width="1600" height="1000"></span>
+              <span class="cine-card-glass"><img class="cine-card-img" src="./shot-ueberuns.webp?v=28" alt="Ansicht der Seite Über uns" loading="lazy" decoding="async" width="1600" height="1000"><video class="cine-card-video" data-vid="card-ueberuns" muted playsinline loop preload="none" aria-hidden="true" disablepictureinpicture></video></span>
               <span class="cine-card-veil" aria-hidden="true"></span>
               <span class="cine-card-body">
                 <span class="cine-card-idx">07</span>
@@ -5871,7 +5970,7 @@
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="./lumiere-gl.js?v=29" defer></script>
+<script src="./lumiere-gl.js?v=30" defer></script>
 <script>
 /* ============================================================
    WICHTIG: Bei jedem inhaltlichen Deploy hochzaehlen (wie CACHE_NAME
@@ -5882,7 +5981,7 @@
       unten) - neue, noch nicht "veroeffentlichte" Features hinter
       isReleased(N) verstecken; Admins sehen sie trotzdem sofort.
    ============================================================ */
-const APP_VERSION = 29;
+const APP_VERSION = 30;
 
 // Site-weites Feature-Gate: neue, aber noch nicht freigegebene Funktionen
 // hinter isReleased(<APP_VERSION beim Einbau>) verstecken. Admins (echtes
@@ -5938,6 +6037,11 @@ function applyReleaseGate(){
   setHref('link[rel="apple-touch-icon"]', icons29 ? 'icon-touch-180.png' : 'icon-192.png');
   setHref('link[rel="manifest"]', icons29 ? 'manifest-29.json' : 'manifest.json');
   if(typeof applyBanScreen === 'function') applyBanScreen();
+  // Build 30: die neuen 3D-Wirkungen (Strahlen, Blitze, Goldsturm, Himmel,
+  // Turmlicht, Halle) entstehen erst nach der Freigabe.
+  if(window.LumiereGL && window.LumiereGL.ready && window.LumiereGL.setFeatures){
+    window.LumiereGL.setFeatures({ b30: isReleased(30) });
+  }
   // Vorschau-Hinweis: ein Admin, der auf einem Stand sitzt, den normale
   // Nutzer noch nicht sehen, soll das wissen - sonst wundert er sich,
   // warum Nutzer etwas anderes berichten.
@@ -6664,20 +6768,27 @@ function sndScrollBed(speed){
 // Kopie schon wieder vorn beginnt. Geholt wird sie erst, wenn jemand die
 // Musik einschaltet. Klang je Ort: oben vertraeumt, am Turm voll, in der
 // Halle weicher (musicMood aus scrub()).
-const MUSIC_URL = './soir.mp3?v=28';
-const MUSIC_LOOP = 120;
-const MUSIC_GAIN = 0.85;
-const music = { playing: false, els: [], cur: 0, timer: 0, stopT: 0, fc: 0 };
+// Ab Build 30 "Ouverture": Kino-Trailer (Streicher-Ostinato, Blech, Pauken,
+// Chor, zwei grosse Schlaege, am Ende das Paris-Motiv), 32 Takte bei 100
+// Schlaegen = 76,8 s, tools/compose-epic.py. Bis zur Freigabe bleibt Soir.
+const MUSIC_TRACKS = {
+  soir:      { url: './soir.mp3?v=28',      loop: 120,  gain: 0.85, top: 2400 },
+  ouverture: { url: './ouverture.mp3?v=30', loop: 76.8, gain: 0.8,  top: 4200 },
+};
+function musicTrack(){ return isReleased(30) ? MUSIC_TRACKS.ouverture : MUSIC_TRACKS.soir; }
+const music = { playing: false, els: [], cur: 0, timer: 0, stopT: 0, fc: 0, track: null };
+const musicLoop = () => (music.track || musicTrack()).loop;
+const musicGain = () => (music.track || musicTrack()).gain;
 function musicVolume(){ return Math.max(0, Math.min(1, (store.settings.musicVolume ?? 40) / 100)); }
 function musicEl(i){
   if(!music.els[i]){
     const a = new Audio();
     a.preload = 'auto';
     a.setAttribute('playsinline', '');
-    a.src = MUSIC_URL;
+    a.src = music.track.url;
     try{ audioCtx.createMediaElementSource(a).connect(AUD.musicFilter); }catch(e){}
     // Sicherheitsnetz, falls der Zeitgeber gedrosselt wurde.
-    a.addEventListener('timeupdate', () => { if(music.playing && music.els[music.cur] === a && a.currentTime > MUSIC_LOOP + 0.4) musicNext(); });
+    a.addEventListener('timeupdate', () => { if(music.playing && music.els[music.cur] === a && a.currentTime > musicLoop() + 0.4) musicNext(); });
     music.els[i] = a;
   }
   return music.els[i];
@@ -6690,12 +6801,12 @@ function musicNext(){
   b.play().catch(() => {});
   musicArm();
 }
-// Plant den Einsatz der zweiten Kopie auf MUSIC_LOOP genau.
+// Plant den Einsatz der zweiten Kopie auf das Schleifenende genau.
 function musicArm(){
   clearTimeout(music.timer);
   const a = music.els[music.cur];
   if(!a || !music.playing) return;
-  const left = MUSIC_LOOP - a.currentTime;
+  const left = musicLoop() - a.currentTime;
   if(left > 9){ music.timer = setTimeout(musicArm, (left - 8) * 1000); return; }
   const b = musicEl(1 - music.cur);
   if(b.paused){ try{ b.currentTime = 0; }catch(e){} }
@@ -6706,10 +6817,16 @@ function musicStart(){
   const ctx = ensureAudioCtx(); if(!ctx) return;
   if(ctx.state === 'suspended') ctx.resume();
   clearTimeout(music.stopT);
+  // Stueck gewechselt (Freigabe, Anmelden als Admin): alte Kopien verwerfen.
+  const tr = musicTrack();
+  if(music.track !== tr){
+    music.els.forEach(a => { try{ a.pause(); a.removeAttribute('src'); a.load(); }catch(e){} });
+    music.els = []; music.cur = 0; music.track = tr;
+  }
   music.playing = true;
   const g = AUD.music.gain;
   holdParam(g, ctx.currentTime);
-  g.linearRampToValueAtTime(musicVolume() * MUSIC_GAIN, ctx.currentTime + 2.5);
+  g.linearRampToValueAtTime(musicVolume() * musicGain(), ctx.currentTime + 2.5);
   const a = musicEl(music.cur);
   a.play().then(musicArm).catch(() => { music.playing = false; updateMusicUI(); });
   updateMusicUI();
@@ -11828,7 +11945,7 @@ const CINE_PAIRS = [
     if(play && scrollSpeed < 5 && sndGate('moment', 1500)) play();
     // Oben vertraeumt, unterwegs klarer, am Turm voll, in der Halle weicher.
     const hero = Math.max(0, Math.min(1, 1 + heroTop));
-    let fc = 7000 + (2400 - 7000) * hero;
+    let fc = 7000 + ((music.track || MUSIC_TRACKS.soir).top - 7000) * hero;
     fc += (18000 - fc) * towerAmt;
     fc += (4200 - fc) * hallIn;
     musicMood(fc);
@@ -11862,6 +11979,7 @@ const CINE_PAIRS = [
       window.LumiereGL.setVideos({ tram: './tram.mp4?v=' + APP_VERSION, seine: './seine.mp4?v=' + APP_VERSION });
     }
     if(!glReady){ document.body.classList.add('no-webgl'); return; }
+    if(window.LumiereGL.setFeatures) window.LumiereGL.setFeatures({ b30: isReleased(30) });
     then && then();
   }
 
@@ -12017,11 +12135,13 @@ const CINE_PAIRS = [
 
     drawDust();
     // Fluessiges Bild der vorderen Karte - nur, solange der Turm zu sehen ist.
-    if(tourVis > 0.02 && !reduced()){
+    // Ab Build 30 laeuft dort stattdessen ein Video (cardVideo).
+    if(tourVis > 0.02 && !reduced() && !isReleased(30)){
       const c = cards[Math.max(0, deckIndex)];
       if(c && liquidFor !== c){ liquidFor = c; cardLiquid.attach(c); scrambleCard(c); }
       cardLiquid.draw(performance.now() / 1000);
     }
+    cardVideo.update(Math.max(0, deckIndex), tourVis > 0.02 && !view.hidden);
     rafId = requestAnimationFrame(step);
   }
 
@@ -12173,6 +12293,41 @@ const CINE_PAIRS = [
     return { attach, draw, size };
   })();
 
+  // Karten-Videos (Build 30): nur die vordere Karte spielt ihr Video. Die
+  // Nachbarn bekommen nur ihr Standbild (kleines webp), damit beim Drehen
+  // nichts leer aufblitzt. Geladen wird erst, wenn eine Karte vorn steht -
+  // wer nie zum Turm scrollt, laedt kein einziges Video. MP4 (H.264) fuer
+  // Safari/iPhone, WebM als Ersatz (der Playwright-Chromium kann kein H.264).
+  const cardVideo = (() => {
+    let lastIdx = -1, lastOn = false;
+    const vidOf = (c) => c && c.querySelector('.cine-card-video');
+    function poster(v){ if(v && !v.poster) v.poster = './' + v.dataset.vid + '.webp?v=30'; }
+    function load(v){
+      if(!v || v.dataset.ready) return;
+      v.dataset.ready = '1';
+      poster(v);
+      const base = './' + v.dataset.vid;
+      v.innerHTML = `<source src="${base}.mp4?v=30" type="video/mp4"><source src="${base}.webm?v=30" type="video/webm">`;
+      v.load();
+    }
+    function update(idx, on){
+      if(!isReleased(30)) on = false;
+      if(idx === lastIdx && on === lastOn) return;
+      lastIdx = idx; lastOn = on;
+      cards.forEach((c, i) => {
+        const v = vidOf(c);
+        if(!v) return;
+        if(on && Math.abs(i - idx) <= 1) poster(v);
+        if(on && i === idx && !reduced()){
+          load(v);
+          try{ v.currentTime = 0; }catch(e){}
+          const p = v.play(); if(p && p.catch) p.catch(() => {});
+        } else if(!v.paused) v.pause();
+      });
+    }
+    return { update };
+  })();
+
   // Zeichensalat: der Titel und die Stichpunkte der neuen vorderen Karte
   // setzen sich aus zufaelligen Zeichen zusammen - wie in der Referenz.
   const SCRAMBLE = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ#%&*+=<>/|01ÉÈÀ';
@@ -12194,7 +12349,9 @@ const CINE_PAIRS = [
     setTimeout(() => { el.textContent = final; }, dur + 60);
   }
   function scrambleCard(card){
-    if(!card) return;
+    // Build 30: kein Zeichensalat mehr - der Titel blendet nur weich ein
+    // (CSS .cine-card.is-front). Halb verwuerfelte Titel sahen nach Fehler aus.
+    if(!card || isReleased(30)) return;
     scrambleText(card.querySelector('.cine-card-title'), 520);
     card.querySelectorAll('.cine-card-side span').forEach((sp, i) => setTimeout(() => scrambleText(sp, 600), 120 + i * 110));
   }
@@ -12268,7 +12425,7 @@ const CINE_PAIRS = [
       // nehmen den Ton der vorderen Karte an.
       const th = (cards[idx] && cards[idx].dataset.theme || '').split(' ');
       if(th.length === 2 && window.LumiereGL && window.LumiereGL.setTheme) window.LumiereGL.setTheme(th[0], th[1], 1);
-      if(tourVis > 0.02){ liquidFor = cards[idx]; cardLiquid.attach(cards[idx]); scrambleCard(cards[idx]); }
+      if(tourVis > 0.02 && !isReleased(30)){ liquidFor = cards[idx]; cardLiquid.attach(cards[idx]); scrambleCard(cards[idx]); }
       if(deckDots){
         Array.from(deckDots.children).forEach((li, i) => li.classList.toggle('is-on', i === idx));
       }
@@ -12490,6 +12647,7 @@ const CINE_PAIRS = [
   function stop(){
     running = false;
     if(rafId){ cancelAnimationFrame(rafId); rafId = 0; }
+    cardVideo.update(0, false);
     canvas.classList.remove('is-live');
     glCanvas.classList.remove('is-live');
     if(glReady) window.LumiereGL.stop();
@@ -12569,7 +12727,7 @@ document.getElementById('musicVolumeSlider').addEventListener('input', (e) => {
   if(music.playing && audioCtx){
     const g = AUD.music.gain;
     holdParam(g, audioCtx.currentTime);
-    g.setTargetAtTime(musicVolume() * MUSIC_GAIN, audioCtx.currentTime, 0.1);
+    g.setTargetAtTime(musicVolume() * musicGain(), audioCtx.currentTime, 0.1);
   }
 });
 document.getElementById('musicVolumeSlider').addEventListener('change', () => saveData(store));

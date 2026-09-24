@@ -777,6 +777,70 @@ Function `lumiere-mail` hat zwei neue Auftraege (neu bereitstellen!).
   Rand, die Seite war auf dem iPhone 431 statt 390 px breit, Kopfleiste
   angeschnitten. Jetzt `.view{overflow-x:clip}`.
 
+## Build 30: Schwarzer Schirm, Karten-Videos, Ouverture, alles krasser
+
+Alles Neue haengt am Gate (`data-build="30"`, `html.build-30-live`,
+`isReleased(30)`, in der 3D-Ebene `LumiereGL.setFeatures({ b30 })` aus
+`applyReleaseGate` und nach `init`). Ausnahme: der Schwarzbild-Schutz gilt
+sofort fuer alle.
+
+- **Schwarzer Schirm am Turm (behoben):** Ein einzelnes NaN/Inf im
+  HalfFloat-Bild (Klarlack mit sehr kleiner Rauheit) wurde vom Bloom ueber
+  alle Mip-Stufen zu grossen schwarzen Rechtecken verschmiert. Jetzt reinigt
+  der Hochpass des Bloom selbst (`okc()` in `materialHighPassFilter`, kein
+  eigener Durchgang), `GradeShader` reinigt seine Abtastungen, die
+  Klarlack-Rauheit ist nicht mehr extrem klein. Nur falls three.js den
+  Hochpass-Shader einmal anders schreibt, faellt es auf `SanitizeShader`
+  als eigenen Pass zurueck. Pruefen: `inj30.js`-Muster - ein NaN-Pixel per
+  Shader einschleusen; Build 29 wird schwarz, Build 30 nicht.
+- **DE/EN-Umschalter weg** (`data-build-old="30"`), **Titel-Zeichensalat
+  weg** (`scrambleCard` tut ab 30 nichts).
+- **Karten mit Video der Bedienung:** `card-<name>.{mp4,webm,webp}`
+  (1120 x 700, 5-13 s, Schleife mit Ueberblendung, leicht weich). Hinten das
+  Video, davor Milchglas (`.cine-card-glass::after`), vorn Titel mit Glanz.
+  Gespielt wird nur die vordere Karte (`cardVideo.update` aus `step()`),
+  Nachbarn bekommen nur das Poster; geladen erst bei Bedarf. Neu aufnehmen:
+  `tools/cards/` (CDP-Screencast in Echtzeit mit Beispieldaten aus
+  `seed.js`, dann `encode.py`).
+- **Musik "Ouverture"** (`ouverture.mp3`, `tools/compose-epic.py`):
+  Kino-Trailer in d-Moll/D-Dur, 100 BPM, 32 Takte = 76,8 s Schleife (+6,5 s
+  Nachhall). Streicher-Ostinato (Legato-Samples ab 0,36 s angespielt, sonst
+  zu weich - `off=` in `note()`), Horn-Thema, Trompete im Dur-Teil, Taiko,
+  Pauken, Chor, zwei grosse Schlaege (Takt 16 und 28, selbst erzeugter
+  Tiefton `boom()`), Paris-Motiv am Klavier zum Schluss. Welche Datei
+  spielt: `MUSIC_TRACKS` / `musicTrack()`; wechselt das Gate, verwirft
+  `musicStart` die alten `<audio>`.
+- **3D (alles in `lumiere-gl.src.js`, Block "Build 30: krasser"):**
+  Strahlen + Energie-Puls hinter dem Zeichen (`makeHeroFx`), Bokeh
+  (`makeBokeh`), Lichtblitz mit Linsenschweif (`flashAt`, GradeShader
+  `uFlash/uFlare` - bei Kante des Zeichens, Ankunft am Turm, Abstieg,
+  fertigem L; mind. 1,2 s Abstand), Fokus-Zieher (`uBlur`, Mitte scharf,
+  ab Stufe 5 aus), Goldsturm (`makeStorm`, Striche im Kamera-Raum),
+  Nachthimmel mit Mond, Sternen, Wolken (`makeSky`, Kugel um den Turm,
+  Wolken-Oktaven 3 / Handy 2), Nachtbeleuchtung des Turms (`towerNight` im
+  Turm-Shader), Funkeln zur vollen Stunde (`sparkBurst`: echte Minute < 5,
+  sonst alle 26 s kurz), Lichtschweife (`makeTrails`), Kamera naeher mit
+  Schraeglage und weiterem Blickwinkel im Flug (`TOUR30`, `updateFx30`),
+  Halle mit Lichtsaeulen hinter dem Kaefig (`makeColumns`), Gewoelbe aus
+  Saeulen und Boegen im Dunst (`makeNave`, instanziert + gespiegelt),
+  Regenringe im Wasser (`uDrops`, nur nahe am Kaefig), das L baut sich aus
+  einem Wirbel auf (`uSwirl`; 30 % beim Ankommen, der Rest bis "Kostenlos
+  starten"). **Falle:** alles hier rechnet in linearem Licht vor der
+  Tonwertkurve - Dunst/Himmel ueber ~0,03 sieht nach Tonemapping beige aus.
+- **Text-Auftritt / Glanz (CSS):** Zeilen einer Szene kommen gestaffelt aus
+  der Unschaerfe (`--e` aus `--enter` minus `--i` je Zeile); ueber Wortmarke
+  und "Kostenlos starten" laeuft alle 7 s ein Glanz (`titleShine30`).
+- **Vorwaermen der Shader repariert (galt schon seit Build 28 nicht):**
+  `renderer.compile` uebergeht unsichtbare Objekte, und ohne Ziel wurden die
+  Bildschirm-Fassungen statt der Composer-Fassungen uebersetzt. `prewarm()`
+  blendet Turm/Halle/Wirkungen fuer den Durchlauf kurz ein und setzt
+  `composer.readBuffer` als Ziel. Pruefen: `renderer.info.programs.length`
+  vor und nach der ganzen Reise - es darf nichts dazukommen (jetzt 46 -> 46,
+  vorher kamen 18 mitten im Flug dazu).
+- Bildzeit (Software-Renderer der Testmaschine, nur relativ): Startbild und
+  Turm etwa gleich wie Build 29, Halle rund +30 %, Flug zum Turm ohnehin
+  guenstig.
+
 ## Testen mit Freigabe-Gate
 
 Lokal gibt es kein Supabase, also ist niemand Admin und alle Build-14-Teile
