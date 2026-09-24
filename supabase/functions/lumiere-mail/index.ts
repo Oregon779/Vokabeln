@@ -4,6 +4,18 @@
 //                                        Nur fuer Admins (Bearer-Token der Sitzung).
 //   { kind: "reminders" }             -> Erinnerung 3 Tage vor Ablauf. Kommt taeglich
 //                                        per pg_cron, geschuetzt ueber x-cron-secret.
+//   { kind: "test", redirect }        -> (Build 29, nur Admins) jede Mail-Vorlage
+//                                        einmal an die eigene Adresse: die Brevo-Mails
+//                                        und die Supabase-Mails (Bestaetigung,
+//                                        Passwort, Magic Link, Einladung,
+//                                        E-Mail-Aenderung). Wo Supabase eine fremde
+//                                        Adresse braucht, dient ein "+"-Alias der
+//                                        eigenen Adresse; das Hilfskonto wird danach
+//                                        sofort wieder geloescht.
+//   { kind: "set_password", user_id, password }
+//                                     -> (Build 29, nur Admins) neues Passwort fuer ein
+//                                        Konto. Braucht den Service-Schluessel, deshalb
+//                                        hier und nicht im Browser.
 //
 // Secrets (Supabase -> Edge Functions -> Secrets):
 //   BREVO_API_KEY  xkeysib-...           (Pflicht)
@@ -165,10 +177,98 @@ async function reminders() {
   return sent;
 }
 
+// Wer ruft? Admin-Pruefung ueber das Sitzungs-Token.
+async function adminFrom(req: Request) {
+  const token = (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, "");
+  const { data: u } = await admin.auth.getUser(token);
+  if (!u?.user) return { error: json({ error: "nicht angemeldet" }, 401) };
+  const { data: me } = await admin.from("profiles").select("is_admin").eq("user_id", u.user.id).single();
+  if (!me?.is_admin) return { error: json({ error: "nur für Admins" }, 403) };
+  return { user: u.user };
+}
+
+const alias = (email: string, tag: string) => {
+  const [local, domain] = email.split("@");
+  return `${local}+lumiere-${tag}-${Date.now().toString(36)}@${domain}`;
+};
+// Hilfskonten wieder entfernen - die Mail ist da schon unterwegs.
+async function dropUser(id?: string | null) {
+  if (id) await admin.auth.admin.deleteUser(id).catch(() => {});
+}
+
+async function testMails(to: string, redirect: string) {
+  const out: { name: string; ok: boolean; info: string }[] = [];
+  const step = async (name: string, fn: () => Promise<string>) => {
+    try { out.push({ name, ok: true, info: await fn() }); }
+    catch (e) { out.push({ name, ok: false, info: String((e as Error).message || e).slice(0, 200) }); }
+  };
+  // Brevo-Vorlagen mit Beispielwerten.
+  const until = date(new Date(Date.now() + 30 * 86400000).toISOString());
+  await step("Tarif freigeschaltet (Brevo)", async () => {
+    const html = layout("Plus ist freigeschaltet", "Hallo, deine Anfrage ist durch – ab sofort hast du mehr KI-Anfragen für Beispielsätze, Erklärungen und die Grammatik-Hilfe.",
+      [["Tarif", "Plus"], ["KI-Anfragen", "200 pro Tag"], ["Laufzeit", "1 Monat"], ["Gültig bis", until], ["Betrag", euro(299)]],
+      "Kurz vor Ablauf erinnern wir dich per E-Mail. Danach gilt automatisch wieder der Gratis-Tarif – nichts verlängert sich ohne deine Zustimmung.", "Zu Lumière");
+    await send(to, null, "[Test] Dein Tarif Plus ist freigeschaltet", html, `Plus ist freigeschaltet (Test).\n${SITE}`);
+    return to;
+  });
+  await step("Tarif abgelehnt (Brevo)", async () => {
+    const html = layout("Deine Anfrage für Plus", "Hallo, danke für dein Interesse an Plus.", [], esc(DEFAULT_REJECT), "Zu Lumière");
+    await send(to, null, "[Test] Deine Anfrage für Plus", html, `${DEFAULT_REJECT}\n${SITE}`);
+    return to;
+  });
+  await step("Tarif läuft bald ab (Brevo)", async () => {
+    const html = layout("Plus läuft bald ab", `Hallo, dein Tarif Plus gilt noch bis <strong style="color:#f6c35c;">${until}</strong>. Danach gilt automatisch wieder der Gratis-Tarif.`,
+      [["Tarif", "Plus"], ["Gültig bis", until]], "Möchtest du verlängern? Frag in „Mein Konto“ einfach erneut an – wir melden uns.", "Zu Mein Konto");
+    await send(to, null, `[Test] Dein Tarif Plus läuft am ${until} ab`, html, `Plus gilt noch bis ${until} (Test).\n${SITE}`);
+    return to;
+  });
+  // Supabase-Vorlagen (Authentication -> Email Templates).
+  await step("Passwort zurücksetzen (Supabase)", async () => {
+    const { error } = await admin.auth.resetPasswordForEmail(to, { redirectTo: redirect });
+    if (error) throw error;
+    return to;
+  });
+  await step("Magic Link (Supabase)", async () => {
+    const { error } = await admin.auth.signInWithOtp({ email: to, options: { shouldCreateUser: false, emailRedirectTo: redirect } });
+    if (error) throw error;
+    return to;
+  });
+  await step("Konto bestätigen (Supabase)", async () => {
+    const a = alias(to, "test");
+    const { data, error } = await admin.auth.signUp({ email: a, password: crypto.randomUUID(), options: { emailRedirectTo: redirect } });
+    await dropUser(data?.user?.id);
+    if (error) throw error;
+    return a;
+  });
+  await step("Einladung (Supabase)", async () => {
+    const a = alias(to, "invite");
+    const { data, error } = await admin.auth.admin.inviteUserByEmail(a, { redirectTo: redirect });
+    await dropUser(data?.user?.id);
+    if (error) throw error;
+    return a;
+  });
+  await step("E-Mail ändern (Supabase)", async () => {
+    const a = alias(to, "old"), b = alias(to, "new"), pw = crypto.randomUUID();
+    const { data: cu, error: ce } = await admin.auth.admin.createUser({ email: a, password: pw, email_confirm: true });
+    if (ce) throw ce;
+    try {
+      const anon = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_ANON_KEY")!, { auth: { persistSession: false } });
+      const { error: se } = await anon.auth.signInWithPassword({ email: a, password: pw });
+      if (se) throw se;
+      const { error } = await anon.auth.updateUser({ email: b }, { emailRedirectTo: redirect });
+      if (error) throw error;
+    } finally {
+      await dropUser(cu?.user?.id);
+    }
+    return b;
+  });
+  return out;
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
   if (req.method !== "POST") return json({ error: "POST erwartet" }, 405);
-  let body: { kind?: string; request_id?: string } = {};
+  let body: { kind?: string; request_id?: string; redirect?: string; user_id?: string; password?: string } = {};
   try { body = await req.json(); } catch { /* leer */ }
 
   try {
@@ -190,6 +290,25 @@ Deno.serve(async (req) => {
         await admin.from("upgrade_requests").update({ mail_error: String((e as Error).message).slice(0, 300) }).eq("id", body.request_id);
         throw e;
       }
+      return json({ ok: true });
+    }
+
+    if (body.kind === "test") {
+      const who = await adminFrom(req);
+      if (who.error) return who.error;
+      const redirect = body.redirect && body.redirect.startsWith(SITE) ? body.redirect : SITE + "/";
+      return json({ ok: true, results: await testMails(who.user!.email!, redirect) });
+    }
+
+    if (body.kind === "set_password" && body.user_id && body.password) {
+      const who = await adminFrom(req);
+      if (who.error) return who.error;
+      if (body.password.length < 8) return json({ error: "Mindestens 8 Zeichen" }, 400);
+      const { data: target } = await admin.from("profiles").select("is_admin").eq("user_id", body.user_id).single();
+      // Andere Admins nicht von hier aus - nur das eigene Konto oder normale Nutzer.
+      if (target?.is_admin && body.user_id !== who.user!.id) return json({ error: "Nicht bei anderen Admin-Konten" }, 403);
+      const { error } = await admin.auth.admin.updateUserById(body.user_id, { password: body.password });
+      if (error) throw error;
       return json({ ok: true });
     }
 

@@ -82,10 +82,14 @@ Freigegeben wird im Admin-Panel unter "Version" (schreibt
 Ein Element mit `data-build` darf sein `hidden` nicht selbst umschalten —
 sonst streiten sich zwei Stellen darum. Im Zweifel einen Hüll-Container nehmen.
 
-**Ausnahme — komplette Neugestaltung einer bestehenden Seite:** dafür
-taugt das Gate nicht (beide Fassungen müssten gleichzeitig in der Datei
-liegen, mit doppelten Element-IDs). In dem Fall **vorher fragen**, ob der
-Nutzer erst nach seiner Abnahme pullt oder den doppelten Aufwand will.
+**Seit Build 29 gilt: ALLES durchs Gate, auch Neugestaltungen** (Entscheidung
+des Nutzers). Build 27/28 liefen noch ohne Gate und waren deshalb sofort
+fuer alle sichtbar - das hielt der Nutzer fuer einen Fehler. Bei einer
+Neugestaltung also beide Fassungen in der Datei halten (alte mit
+`data-build-old`, neue mit `data-build`, IDs der neuen umbenennen) oder
+per `html.build-N-live` umschalten. Was sich nicht per Markup gaten laesst
+(Icons, Manifest, JS-Verhalten), haengt an `isReleased(N)` - Beispiel:
+die Icon-Umschaltung in `applyReleaseGate()`.
 
 ## Die 3D-Ebene der Startseite
 
@@ -721,6 +725,57 @@ Convolver) und Musik (`AUD.musicFilter` -> `AUD.music`) -> Kompressor.
   `python3 -m http.server` kann keine Range-Anfragen - Springen in der Musik
   geht dort nicht. Fuer Musiktests einen Server mit Range nehmen
   (`python3 tools/rangeserver.py 8097 .`, oder nginx).
+
+## Build 29: Footer ueberall, Icon, Sperr-Bildschirm, Admin-Werkzeuge
+
+Alles hinter `data-build="29"` bzw. `isReleased(29)`; Admin-Oberflaeche
+sieht der Admin ohnehin sofort. SQL: `supabase/build29.sql`. Die Edge
+Function `lumiere-mail` hat zwei neue Auftraege (neu bereitstellen!).
+
+- **Footer auf allen Seiten:** `.site-foot` am Ende von `<main>`, dieselbe
+  `.cine-colophon` wie auf der Startseite (inkl. Namensnennungen). Auf der
+  Startseite aus (`body.on-hub`, gesetzt in `showView`). Jahr/Version ueber
+  `[data-foot-year]`/`[data-foot-version]`.
+- **Icon ohne schwarzes Viereck:** `icon-round-*.png` (freigestellter Kreis,
+  Tab + Manifest "any"), `icon-touch-180.png` und
+  `icon-round-512-maskable.png` (Kreis auf Nachthimmel - iOS/Android fuellen
+  Durchsichtiges sonst schwarz/weiss). `applyReleaseGate` tauscht Favicon,
+  apple-touch-icon und Manifest (`manifest-29.json`).
+- **Sperre mit Grund und Dauer:** `profiles.ban_reason`, `banned_until`
+  (null = dauerhaft). Wirksam = `banRunning(p)`; abgelaufene Sperren raeumt
+  der pg_cron-Job `lumiere-stuendlich` ab, der Client rechnet selbst auch.
+  `#banScreen` (z 9600, alles andere `inert`, kein Abmelden - so gewollt)
+  zeigt Grund, Ende und Restzeit. `enforceBan()` beim Laden des Profils und
+  jede Minute (eigenes Profil nachsehen). Vor der Freigabe: altes Verhalten
+  (Hinweis + Abmelden).
+- **Admin-Dialog** `#admUserBackdrop` (`admOpen(mode, p)`, `admSave`):
+  `rename` (Name + Grund + "darf nicht mehr selbst aendern" =
+  `name_locked`), `password` (setzt per Edge Function
+  `{kind:'set_password'}` - braucht den Service-Schluessel; das Passwort wird
+  nirgends gespeichert und steht NICHT in der Nachricht), `reset`
+  (`resetPasswordForEmail` direkt aus dem Browser), `ban` (Grund + Dauer).
+  Jede Aktion schreibt eine Nachricht an den Nutzer. **Passwoerter ansehen
+  gibt es bewusst nicht** - Supabase kennt nur den Hash, und Klartext
+  mitzuschneiden waere ein Sicherheits-/DSGVO-Problem (mit dem Nutzer so
+  besprochen).
+- **Name:** das Profil ist massgeblich. `loadOrCreateProfile` schreibt den
+  Namen nicht mehr aus den Metadaten zurueck (sonst war eine Umbenennung
+  beim naechsten Anmelden weg), sondern gleicht umgekehrt die Metadaten an.
+  `protect_admin_fields` haelt `name_locked` fest; Trigger ziehen den Namen
+  in `game_records` nach (Ranglisten), und `game_records.display_name` kommt
+  immer aus dem Profil.
+- **KI-Limit:** der Tag zaehlt nach deutscher Zeit (`increment_ai_usage`,
+  `berlinToday()`); ein Zaehler von gestern zeigt 0 (`aiUsedToday`), der
+  Stunden-Job setzt ihn auch in der Datenbank zurueck. Im Admin-Menue:
+  "KI-Anfragen heute auf 0" und "Eigenes KI-Limit entfernen" (frueher hiess
+  das missverstaendlich "Limit zuruecksetzen").
+- **Test-Mails:** ein Knopf, Edge Function `{kind:'test'}`: 3 Brevo-Vorlagen
+  + 5 Supabase-Vorlagen an die eigene Adresse; wo Supabase eine fremde
+  Adresse braucht, ein `+`-Alias, das Hilfskonto wird sofort geloescht.
+  Ergebnis je Mail als Liste. Supabase-Standardversand drosselt stark.
+- **Handy-Breite (Fehler seit laengerem):** `.page-glow` ragte ueber den
+  Rand, die Seite war auf dem iPhone 431 statt 390 px breit, Kopfleiste
+  angeschnitten. Jetzt `.view{overflow-x:clip}`.
 
 ## Testen mit Freigabe-Gate
 

@@ -427,6 +427,11 @@
   .page-motif{position:absolute; opacity:.16; color:var(--ember-dim); animation:floatSlow 7s ease-in-out infinite;}
   .page-motif:nth-of-type(2n){animation-duration:8.5s; animation-delay:.6s; color:var(--ember-bright); opacity:.12;}
   .page-motif:nth-of-type(3n){animation-duration:6.2s; animation-delay:1.3s;}
+  /* Der Lichtschein ragt mit negativem right/left ueber den Rand - ohne
+     diese Sperre machte er die Seite auf dem Handy breiter (431 statt 390 px),
+     die Kopfleiste war rechts angeschnitten. clip statt hidden: kein
+     Scrollcontainer, sticky bleibt. */
+  .view{ overflow-x:clip; }
   @media (prefers-reduced-motion: reduce){ .page-glow, .page-motif{animation:none;} }
   @media (max-width:600px){ .page-motif{display:none;} .page-glow{opacity:.6;} }
 
@@ -3604,6 +3609,59 @@
   .info-manifest blockquote{ font-family:var(--font-serif); font-style:italic; font-weight:400; font-size:clamp(1.4rem,3vw,1.85rem); line-height:1.4; color:var(--text); margin:0 0 1.3rem; }
   .info-manifest-body{ color:var(--stone); line-height:1.7; margin:0; font-size:.92rem; }
   .info-manifest-signature{ margin-top:1.4rem; padding-top:1.2rem; border-top:1px solid var(--border-solid); font-family:var(--font-mono); font-size:.72rem; color:var(--sand-light, var(--stone)); text-transform:uppercase; letter-spacing:.2em; }
+
+  /* --- Build 29: Footer auf allen Seiten, Sperr-Bildschirm, Admin-Dialoge --- */
+  .site-foot{ padding:3rem 1.2rem 1.5rem; }
+  body.on-hub .site-foot{ display:none; }
+  body.quicknav-visible .site-foot{ padding-bottom:calc(1.5rem + 76px); }
+  .site-colophon{ margin-top:0; }
+
+  .ban-screen{
+    position:fixed; inset:0; z-index:9600; display:flex; align-items:center; justify-content:center;
+    padding:1.2rem; overflow-y:auto;
+    background:radial-gradient(ellipse at 50% 30%, #1a2130 0%, #0b0e14 62%, #07080c 100%);
+  }
+  .ban-screen[hidden]{ display:none; }
+  html.is-banned, html.is-banned body{ overflow:hidden; }
+  .ban-card{
+    width:100%; max-width:30rem; text-align:center; padding:2.4rem 1.8rem 2rem;
+    background:#141922; border:1px solid rgba(246,195,92,.22); border-radius:24px;
+    box-shadow:0 30px 80px rgba(0,0,0,.55), 0 0 90px -30px rgba(246,195,92,.35);
+  }
+  .ban-mark{ width:72px; height:72px; display:block; margin:0 auto 1.2rem; filter:grayscale(.35) brightness(.8); }
+  .ban-eyebrow{ margin:0 0 .5rem; font-family:var(--font-mono); font-size:.68rem; letter-spacing:.24em; text-transform:uppercase; color:#e27a6a; }
+  .ban-title{ margin:0 0 .8rem; font-family:var(--font-serif); font-style:italic; font-weight:600; font-size:clamp(1.7rem, 5vw, 2.2rem); color:var(--text); }
+  .ban-text{ margin:0 0 1.6rem; color:var(--stone); line-height:1.6; }
+  .ban-reason, .ban-until{ text-align:left; padding:.95rem 1.1rem; border-radius:14px; background:#0f131c; border:1px solid #262a33; margin-top:.7rem; }
+  .ban-label{ display:block; font-family:var(--font-mono); font-size:.62rem; letter-spacing:.2em; text-transform:uppercase; color:var(--ember-dim); margin-bottom:.35rem; }
+  .ban-reason p, .ban-until p{ margin:0; color:var(--text); line-height:1.55; white-space:pre-wrap; overflow-wrap:anywhere; }
+  .ban-until .ban-left{ margin-top:.3rem; color:var(--ember-bright); font-size:.9rem; }
+
+  .adm-user-box{ max-width:420px; }
+  .adm-user-who{ margin:-.5rem 0 1rem; color:var(--stone); font-size:.85rem; overflow-wrap:anywhere; }
+  .adm-user-box label.adm-l{ display:block; font-size:.78rem; color:var(--stone); margin:0 0 .35rem; }
+  .adm-user-box .modal-input{ margin-bottom:.9rem; }
+  .adm-user-box textarea.modal-input{ resize:vertical; min-height:4.5rem; font-size:.95rem; }
+  .adm-chips{ display:flex; flex-wrap:wrap; gap:.4rem; margin:0 0 1rem; }
+  .adm-chip{ font:inherit; font-size:.82rem; padding:.45rem .8rem; border-radius:999px; cursor:pointer;
+    background:var(--surface-2); color:var(--text); border:1px solid var(--border-solid); }
+  .adm-chip.is-on{ background:var(--ember); color:#1a1406; border-color:var(--ember); font-weight:600; }
+  .adm-check{ display:flex; gap:.6rem; align-items:flex-start; font-size:.88rem; color:var(--text); margin:0 0 1rem; cursor:pointer; }
+  .adm-check input{ margin-top:.2rem; accent-color:var(--ember); width:17px; height:17px; flex-shrink:0; }
+  .adm-pw-row{ display:flex; gap:.5rem; align-items:stretch; }
+  .adm-pw-row .modal-input{ flex:1; min-width:0; font-family:var(--font-mono); }
+  .adm-pw-row .btn{ margin-bottom:.9rem; white-space:nowrap; }
+  .adm-user-note{ margin:0 0 1rem; font-size:.82rem; line-height:1.5; color:var(--stone); }
+  .adm-user-err{ margin:0 0 .9rem; font-size:.85rem; color:#e27a6a; }
+  .adm-user-done{ padding:.8rem 1rem; border-radius:12px; background:rgba(120,190,120,.1); border:1px solid rgba(120,190,120,.3); margin-bottom:1rem; font-size:.88rem; line-height:1.5; }
+  .adm-user-done code{ font-family:var(--font-mono); font-size:1rem; color:var(--ember-bright); user-select:all; }
+
+  .adm-mail-list{ list-style:none; margin:1rem 0 0; padding:0; display:grid; gap:.4rem; }
+  .adm-mail-list li{ display:flex; gap:.7rem; align-items:baseline; font-size:.88rem; line-height:1.45; padding:.55rem .8rem; border-radius:10px; background:var(--surface-2); }
+  .adm-mail-list .ok{ color:#8fd18f; } .adm-mail-list .no{ color:#e27a6a; }
+  .adm-mail-list small{ display:block; color:var(--stone); overflow-wrap:anywhere; }
+  .acc-name-lock{ color:var(--ember-bright); }
+  .pill .pill-sub{ opacity:.75; margin-left:.25rem; font-weight:400; }
 </style>
 </head>
 <body>
@@ -3988,6 +4046,39 @@
       </form>
     </div>
     <button type="button" class="pwr-close" id="pwrClose">Abbrechen · zur Startseite</button>
+  </div>
+</div>
+
+<!-- Build 29: gesperrtes Konto. Liegt ueber allem (auch Wartung). -->
+<div class="ban-screen" id="banScreen" hidden role="alertdialog" aria-modal="true" aria-labelledby="banTitle" aria-describedby="banText">
+  <div class="ban-card">
+    <img class="ban-mark" src="./icon-round-192.png" alt="" width="72" height="72">
+    <p class="ban-eyebrow">Konto gesperrt</p>
+    <h1 class="ban-title" id="banTitle">Dein Konto ist gesperrt</h1>
+    <p class="ban-text" id="banText">Du kannst Lumière mit diesem Konto gerade nicht benutzen.</p>
+    <div class="ban-reason" id="banReasonBox">
+      <span class="ban-label">Grund</span>
+      <p id="banReason"></p>
+    </div>
+    <div class="ban-until">
+      <span class="ban-label">Dauer</span>
+      <p id="banUntil"></p>
+      <p class="ban-left" id="banLeft" hidden></p>
+    </div>
+  </div>
+</div>
+
+<!-- Build 29: Admin - Namen aendern, Passwort, Sperren (Inhalt wird je Aktion gebaut). -->
+<div class="modal-backdrop" id="admUserBackdrop">
+  <div class="modal-box adm-user-box" role="dialog" aria-modal="true" aria-labelledby="admUserTitle">
+    <h3 id="admUserTitle">Konto</h3>
+    <p class="adm-user-who" id="admUserWho"></p>
+    <div id="admUserBody"></div>
+    <p class="adm-user-err" id="admUserErr" hidden></p>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-secondary" id="admUserCancel">Abbrechen</button>
+      <button type="button" class="btn btn-primary" id="admUserOk">Speichern</button>
+    </div>
   </div>
 </div>
 
@@ -5245,6 +5336,7 @@
             <button type="submit" class="btn btn-secondary acc-btn" id="authNameSaveBtn">Speichern</button>
           </div>
           <p class="acc-hint">So erscheinst du in der Begrüßung und in den Ranglisten.</p>
+          <p class="acc-hint acc-name-lock" id="accNameLockNote" hidden>Dein Name wurde von uns festgelegt und lässt sich nicht mehr ändern.</p>
         </form>
       </section>
 
@@ -5695,12 +5787,12 @@
             <div class="admin-tab-panel" data-admin-panel="email" hidden>
               <div class="settings-card">
                 <p class="settings-title">✉️ Test-E-Mails</p>
-                <p class="settings-desc">Schick dir selbst die E-Mails, die Nutzer bekommen, um die Templates zu prüfen.</p>
+                <p class="settings-desc">Schickt jede Vorlage einmal an deine eigene Adresse: die drei Tarif-Mails (Brevo) und die fünf Supabase-Mails (Passwort, Magic Link, Bestätigung, Einladung, E-Mail-Änderung). Wo Supabase eine fremde Adresse braucht, geht die Mail an einen „+“-Alias deiner Adresse – landet bei Gmail &amp; Co. im selben Postfach.</p>
                 <div class="btn-group">
-                  <button type="button" class="btn btn-secondary" id="btnSendTestEmail">Passwort-Zurücksetzen testen</button>
-                  <button type="button" class="btn btn-secondary" id="btnSendTestVerifyEmail">Verifizierungs-E-Mail testen</button>
+                  <button type="button" class="btn btn-primary" id="btnSendAllTestMails">Alle Test-Mails an mich senden</button>
                 </div>
                 <p id="adminTestEmailMessage" class="admin-empty-note" hidden></p>
+                <ul class="adm-mail-list" id="adminTestMailList" hidden></ul>
               </div>
             </div>
 
@@ -5748,10 +5840,38 @@
     </div>
   </div>
 
+  <div class="site-foot" data-build="29">
+    <footer class="cine-colophon site-colophon">
+      <nav class="cine-colophon-links" aria-label="Weitere Seiten">
+        <button type="button" data-goto="hub">Startseite</button>
+        <button type="button" data-goto="home">Lernsets</button>
+        <button type="button" data-goto="listen">Aussprache</button>
+        <button type="button" data-goto="grammar">Grammatik</button>
+        <button type="button" data-goto="rewards">Belohnungen</button>
+        <button type="button" data-goto="calendar">Kalender</button>
+        <button type="button" data-goto="appDownload">App</button>
+        <button type="button" data-goto="about">Über uns</button>
+        <button type="button" data-goto="settingsPage">Einstellungen</button>
+      </nav>
+      <p class="cine-colophon-bar">
+        <span data-foot-year>© Lumière</span><span class="dot" aria-hidden="true"></span>
+        <span>Deutsch · Français</span><span class="dot" aria-hidden="true"></span>
+        <span data-foot-version>Version</span><span class="dot" aria-hidden="true"></span>
+        <span class="cine-colophon-credit">Eiffelturm-Modell von
+          <a href="https://sketchfab.com/3d-models/eiffel-tower-6830e60d2c1048f2a33e92679664f652"
+             target="_blank" rel="noopener noreferrer">Johnson Martin</a>,
+          <a href="https://creativecommons.org/licenses/by/4.0/"
+             target="_blank" rel="noopener noreferrer">CC BY 4.0</a></span>
+      </p>
+      <p class="cine-colophon-bar">
+        <span class="cine-colophon-credit">Musik und Klänge aus dem FluidR3-Soundfont von Frank Wen (MIT)</span>
+      </p>
+    </footer>
+  </div>
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="./lumiere-gl.js?v=28" defer></script>
+<script src="./lumiere-gl.js?v=29" defer></script>
 <script>
 /* ============================================================
    WICHTIG: Bei jedem inhaltlichen Deploy hochzaehlen (wie CACHE_NAME
@@ -5762,7 +5882,7 @@
       unten) - neue, noch nicht "veroeffentlichte" Features hinter
       isReleased(N) verstecken; Admins sehen sie trotzdem sofort.
    ============================================================ */
-const APP_VERSION = 28;
+const APP_VERSION = 29;
 
 // Site-weites Feature-Gate: neue, aber noch nicht freigegebene Funktionen
 // hinter isReleased(<APP_VERSION beim Einbau>) verstecken. Admins (echtes
@@ -5810,6 +5930,14 @@ function applyReleaseGate(){
   for(let n = 1; n <= APP_VERSION; n++){
     root.classList.toggle('build-' + n + '-live', isReleased(n));
   }
+  // Build 29: Icon ohne schwarzes Viereck (Tab: freigestellter Kreis,
+  // Home-Bildschirm: Kreis auf Nachthimmel). Bis zur Freigabe die alten.
+  const icons29 = isReleased(29);
+  const setHref = (sel, href) => { const l = document.querySelector(sel); if(l && l.getAttribute('href') !== href) l.setAttribute('href', href); };
+  setHref('link[rel="icon"]', icons29 ? 'icon-round-192.png' : 'icon-192.png');
+  setHref('link[rel="apple-touch-icon"]', icons29 ? 'icon-touch-180.png' : 'icon-192.png');
+  setHref('link[rel="manifest"]', icons29 ? 'manifest-29.json' : 'manifest.json');
+  if(typeof applyBanScreen === 'function') applyBanScreen();
   // Vorschau-Hinweis: ein Admin, der auf einem Stand sitzt, den normale
   // Nutzer noch nicht sehen, soll das wissen - sonst wundert er sich,
   // warum Nutzer etwas anderes berichten.
@@ -5904,7 +6032,7 @@ async function checkAiUsageAllowed(){
   try{
     const { data, error } = await sb.rpc('increment_ai_usage');
     if(error){ console.error('KI-Nutzungscheck fehlgeschlagen:', error.message); return { allowed: true }; }
-    if(currentProfile && typeof data.used === 'number') currentProfile.ai_requests_today = data.used;
+    if(currentProfile && typeof data.used === 'number'){ currentProfile.ai_requests_today = data.used; currentProfile.ai_requests_date = berlinToday(); }
     return data;
   }catch(e){ console.error('KI-Nutzungscheck fehlgeschlagen:', e.message); return { allowed: true }; }
 }
@@ -7470,18 +7598,33 @@ async function loadOrCreateProfile(){
   if(!sb || !currentUser){ currentProfile = null; return; }
   try{
     const displayName = (currentUser.user_metadata && currentUser.user_metadata.display_name) || null;
-    const { data, error } = await sb.from('profiles')
-      .upsert({ user_id: currentUser.id, email: currentUser.email, display_name: displayName }, { onConflict: 'user_id' })
-      .select().single();
+    // Build 29: der Name im Profil ist massgeblich - ein Admin kann ihn
+    // aendern. Frueher schrieb jedes Anmelden den Namen aus den
+    // Konto-Metadaten zurueck und machte eine Umbenennung wieder rueckgaengig.
+    let { data, error } = await sb.from('profiles').select('*').eq('user_id', currentUser.id).maybeSingle();
+    if(!error && !data){
+      ({ data, error } = await sb.from('profiles')
+        .insert({ user_id: currentUser.id, email: currentUser.email, display_name: displayName })
+        .select().single());
+    } else if(!error && data){
+      const patch = {};
+      if(data.email !== currentUser.email) patch.email = currentUser.email;
+      if(!data.display_name && displayName) patch.display_name = displayName;
+      if(Object.keys(patch).length){
+        const r = await sb.from('profiles').update(patch).eq('user_id', currentUser.id).select().single();
+        if(!r.error && r.data) data = r.data;
+      }
+    }
     if(error){ console.error('Profil konnte nicht geladen werden:', error.message); return; }
     currentProfile = data;
-    // Admin-Konten sind immun gegen Sperren (siehe toggleUserBan) - dieselbe
-    // Immunitaet muss auch hier gelten, sonst wuerde ein Admin, dessen
-    // banned-Flag (z.B. vor dieser Aenderung) gesetzt wurde, sich selbst aussperren.
-    if(data.banned && !data.is_admin){
-      showToast('Dein Konto wurde gesperrt.', true);
-      await sb.auth.signOut();
+    if(data.display_name && data.display_name !== displayName){
+      sb.auth.updateUser({ data: { display_name: data.display_name } })
+        .then(({ data: u }) => { if(u && u.user){ currentUser = u.user; updateAccountUI(); } }).catch(() => {});
     }
+    // Admin-Konten sind immun gegen Sperren. Gesperrte sehen ab Build 29
+    // den Sperr-Bildschirm (Grund, Ende), vorher wurden sie abgemeldet.
+    if(banActive(data) && !siteSettings) await loadSiteSettings();
+    enforceBan();
     applyMaintenanceMode();
     applyReleaseGate();
   }catch(e){ console.error('Profil konnte nicht geladen werden:', e.message); }
@@ -7512,7 +7655,7 @@ async function refreshAccountStatus(){
   if(!currentUser || !currentProfile){ card.hidden = true; return; }
   card.hidden = false;
   const limit = accEffectiveLimit();
-  const used = currentProfile.ai_requests_today || 0;
+  const used = aiUsedToday(currentProfile);
   const aiPct = limit ? Math.min(100, Math.round((used / limit) * 100)) : 0;
   document.getElementById('statusAiUsageText').textContent = `${used} / ${limit}`;
   document.getElementById('statusAiUsageFill').style.width = aiPct + '%';
@@ -7920,7 +8063,7 @@ let adminUserSearch = '';
 let adminUserPage = 1;
 function renderAdminUsers(profiles){
   adminUsersCache = profiles;
-  const banned = profiles.filter(p => p.banned).length;
+  const banned = profiles.filter(p => banRunning(p)).length;
   const admins = profiles.filter(p => p.is_admin).length;
   document.getElementById('adminStatUsers').textContent = profiles.length;
   document.getElementById('adminStatBanned').textContent = banned;
@@ -7935,8 +8078,8 @@ function renderAdminUsers(profiles){
 function filteredAdminUsers(){
   const q = adminUserSearch.trim().toLowerCase();
   return adminUsersCache.filter(p => {
-    if(adminUserFilter === 'active' && (p.banned || p.is_admin)) return false;
-    if(adminUserFilter === 'banned' && !p.banned) return false;
+    if(adminUserFilter === 'active' && (banRunning(p) || p.is_admin)) return false;
+    if(adminUserFilter === 'banned' && !banRunning(p)) return false;
     if(adminUserFilter === 'admin' && !p.is_admin) return false;
     if(!q) return true;
     return [p.display_name, p.email].some(v => (v || '').toLowerCase().includes(q));
@@ -7957,12 +8100,12 @@ function renderFilteredAdminUsers(){
     const email = escapeHtml(p.email || '');
     const statusPill = p.is_admin
       ? `<span class="pill is-gold" data-tip="Admin-Konten sind immun gegen Sperren"><span class="pill-indicator gold"></span>Admin</span>`
-      : p.banned
-        ? `<span class="pill is-err"><span class="pill-indicator err"></span>Gesperrt</span>`
+      : banRunning(p)
+        ? `<span class="pill is-err"${p.ban_reason ? ` data-tip="${escapeHtml(p.ban_reason)}"` : ''}><span class="pill-indicator err"></span>Gesperrt${p.banned_until ? `<span class="pill-sub">bis ${new Date(p.banned_until).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', timeZone: 'Europe/Berlin' })}</span>` : ''}</span>`
         : `<span class="pill is-ok"><span class="pill-indicator ok"></span>Aktiv</span>`;
     tr.innerHTML = `
       <td><span class="admin-user-cell">${picOn() ? `<button type="button" class="admin-user-pic${picSource(p) ? ' has-pic' : ''}" data-pad-open="${p.user_id}" aria-label="Profilbild von ${name} verwalten">${picHTML(p) || escapeHtml(lbInitials(p.display_name || p.email || '?'))}</button>` : ''}<span class="admin-user-name"><span>${name}</span><span>${email}</span></span></span></td>
-      <td>${p.ai_requests_today === null || p.ai_requests_today === undefined ? 0 : p.ai_requests_today}</td>
+      <td>${aiUsedToday(p)}</td>
       <td><input type="number" min="1" class="admin-limit-input" value="${p.ai_limit_override === null || p.ai_limit_override === undefined ? '' : p.ai_limit_override}" placeholder="Standard" aria-label="Eigenes KI-Limit"></td>
       <td>${statusPill}</td>
       <td class="right">
@@ -7974,9 +8117,15 @@ function renderFilteredAdminUsers(){
             <span class="dd-label">${name}</span>
             <div class="dd-sep"></div>
             ${email ? `<button type="button" class="dd-item" data-action="copy-email">E-Mail kopieren</button>` : ''}
-            <button type="button" class="dd-item" data-action="reset-limit">Limit zurücksetzen</button>
+            <button type="button" class="dd-item" data-action="rename">Namen ändern …</button>
             ${picOn() ? `<button type="button" class="dd-item" data-action="pic">Profilbild &amp; Nachricht</button>` : ''}
-            ${p.is_admin ? '' : `<div class="dd-sep"></div><button type="button" class="dd-item${p.banned ? '' : ' danger'}" data-action="toggle-ban">${p.banned ? 'Entsperren' : 'Konto sperren'}</button>`}
+            <div class="dd-sep"></div>
+            <button type="button" class="dd-item" data-action="usage-reset">KI-Anfragen heute auf 0</button>
+            <button type="button" class="dd-item" data-action="reset-limit">Eigenes KI-Limit entfernen</button>
+            ${(!p.is_admin || (currentUser && p.user_id === currentUser.id)) ? `<div class="dd-sep"></div>
+            <button type="button" class="dd-item" data-action="set-password">Neues Passwort setzen …</button>
+            ${email ? `<button type="button" class="dd-item" data-action="send-reset">Link zum Zurücksetzen senden …</button>` : ''}` : ''}
+            ${p.is_admin ? '' : `<div class="dd-sep"></div><button type="button" class="dd-item${banRunning(p) ? '' : ' danger'}" data-action="toggle-ban">${banRunning(p) ? 'Entsperren' : 'Konto sperren …'}</button>`}
           </div>
         </div>
       </td>`;
@@ -7997,10 +8146,18 @@ function renderFilteredAdminUsers(){
           } else showToast('Kopieren nicht möglich.', 'error');
         } else if(action === 'reset-limit'){
           saveUserLimit(p.user_id, '');
+        } else if(action === 'usage-reset'){
+          resetUserUsage(p.user_id);
+        } else if(action === 'rename'){
+          admOpen('rename', p);
+        } else if(action === 'set-password'){
+          admOpen('password', p);
+        } else if(action === 'send-reset'){
+          admOpen('reset', p);
         } else if(action === 'pic'){
           openPadDlg(p.user_id);
         } else if(action === 'toggle-ban'){
-          requestToggleUserBan(p, !p.banned);
+          requestToggleUserBan(p, !banRunning(p));
         }
       });
     });
@@ -8023,6 +8180,7 @@ function setAdminNavBadge(id, count){
 // Sperren ist nicht rueckgaengig zu machen, ohne dass der Nutzer es merkt -
 // deshalb vorher nachfragen statt direkt auszufuehren.
 async function requestToggleUserBan(profile, banned){
+  if(banned){ admOpen('ban', profile); return; }
   const label = profile.display_name || profile.email || 'Dieses Konto';
   const ok = await confirmAction({
     title: banned ? 'Konto sperren?' : 'Konto entsperren?',
@@ -8080,9 +8238,19 @@ async function saveUserLimit(userId, value){
 async function toggleUserBan(userId, banned){
   const target = adminUsersCache.find(p => p.user_id === userId);
   if(target && target.is_admin){ showToast('Admin-Konten sind immun gegen Sperren.', true); return; }
-  const { error } = await sb.from('profiles').update({ banned }).eq('user_id', userId);
+  let { error } = await sb.from('profiles').update(banned ? { banned } : { banned, ban_reason: null, banned_until: null }).eq('user_id', userId);
+  // Vor build29.sql gibt es die beiden Spalten noch nicht.
+  if(error && !banned && /column|schema cache/i.test(error.message || '')) ({ error } = await sb.from('profiles').update({ banned }).eq('user_id', userId));
   if(error){ showToast('Status konnte nicht geändert werden.', true); return; }
+  if(!banned) sendUserMessage(userId, 'admin', 'ok', 'Dein Konto ist wieder frei', 'Die Sperre wurde aufgehoben – du kannst Lumière wieder ganz normal benutzen.');
   showToast(banned ? 'Nutzer gesperrt.' : 'Nutzer entsperrt.');
+  loadAdminData();
+}
+async function resetUserUsage(userId){
+  const { error } = await sb.from('profiles').update({ ai_requests_today: 0, ai_requests_date: berlinToday() }).eq('user_id', userId);
+  if(error){ showToast('Konnte nicht zurückgesetzt werden.', true); return; }
+  if(currentProfile && currentUser && userId === currentUser.id){ currentProfile.ai_requests_today = 0; currentProfile.ai_requests_date = berlinToday(); refreshAccountStatus(); }
+  showToast('KI-Anfragen für heute auf 0 gesetzt.');
   loadAdminData();
 }
 
@@ -8303,65 +8471,32 @@ function startTestEmailCooldown(btnId, storageKey){
   try{ localStorage.setItem(storageKey, String(Date.now() + TEST_EMAIL_COOLDOWN_MS)); }catch(e){}
   applyTestEmailCooldown(btnId, storageKey);
 }
-applyTestEmailCooldown('btnSendTestEmail', 'lumiere_test_email_cooldown');
-applyTestEmailCooldown('btnSendTestVerifyEmail', 'lumiere_test_verify_email_cooldown');
-
-document.getElementById('btnSendTestEmail').addEventListener('click', async () => {
-  sndClick();
+// Build 29: alle Vorlagen auf einen Klick (Brevo + Supabase), ueber die
+// Edge Function lumiere-mail ({kind:'test'}). Ergebnis je Mail als Liste.
+applyTestEmailCooldown('btnSendAllTestMails', 'lumiere_test_all_mails_cooldown');
+document.getElementById('btnSendAllTestMails').addEventListener('click', async () => {
+  const btn = document.getElementById('btnSendAllTestMails');
   const msg = document.getElementById('adminTestEmailMessage');
-  if(!sb || !currentUser){
-    msg.textContent = 'Nicht angemeldet.'; msg.hidden = false;
+  const list = document.getElementById('adminTestMailList');
+  if(!sb || !currentUser){ msg.textContent = 'Nicht angemeldet.'; msg.hidden = false; return; }
+  btn.disabled = true;
+  list.hidden = true;
+  msg.textContent = 'Wird verschickt … (dauert ein paar Sekunden)';
+  msg.hidden = false;
+  const { data, errMsg } = await invokeLumiere({ kind: 'test', redirect: location.origin + location.pathname });
+  if(errMsg){
+    msg.textContent = 'Fehlgeschlagen: ' + errMsg + ' – ist die Edge Function „lumiere-mail“ in der neuen Fassung bereitgestellt?';
+    btn.disabled = false;
     return;
   }
-  const btn = document.getElementById('btnSendTestEmail');
-  btn.disabled = true;
-  try{
-    const { error } = await sb.auth.resetPasswordForEmail(currentUser.email, {
-      redirectTo: window.location.origin + window.location.pathname,
-    });
-    if(error) throw error;
-    msg.textContent = `Passwort-Zurücksetzen-E-Mail an ${currentUser.email} verschickt — im Postfach das Template prüfen. Supabase erlaubt nur wenige E-Mails pro Stunde, deshalb ist der Button jetzt kurz gesperrt.`;
-    msg.hidden = false;
-    startTestEmailCooldown('btnSendTestEmail', 'lumiere_test_email_cooldown');
-  }catch(err){
-    msg.textContent = translateAuthError(err.message);
-    msg.hidden = false;
-    btn.disabled = false;
-  }
-});
-
-document.getElementById('btnSendTestVerifyEmail').addEventListener('click', async () => {
-  sndClick();
-  const msg = document.getElementById('adminTestEmailMessage');
-  if(!sb || !currentUser){
-    msg.textContent = 'Nicht angemeldet.'; msg.hidden = false;
-    return;
-  }
-  const btn = document.getElementById('btnSendTestVerifyEmail');
-  btn.disabled = true;
-  try{
-    // Supabase verschickt die "Bestätige deine E-Mail"-Mail nur an noch
-    // unbestätigte Adressen - das eigene, längst bestätigte Admin-Konto kann
-    // sie also nie direkt bekommen (Fehler "already confirmed"). Workaround:
-    // ein frisches Test-Konto mit einer "+"-Alias-Adresse anlegen, die bei
-    // den meisten Anbietern (Gmail, Outlook, Fastmail, ...) trotzdem im
-    // selben Postfach landet - so kommt wirklich die echte Vorlage an.
-    const [local, domain] = currentUser.email.split('@');
-    if(!domain) throw new Error('E-Mail-Adresse ungültig.');
-    const aliasEmail = `${local}+lumiere-test-${Date.now().toString(36)}@${domain}`;
-    const { error } = await sb.auth.signUp({
-      email: aliasEmail, password: uid(),
-      options: { emailRedirectTo: window.location.origin + window.location.pathname },
-    });
-    if(error) throw error;
-    msg.textContent = `Verifizierungs-E-Mail an ${aliasEmail} verschickt — landet bei den meisten Postfächern (Gmail, Outlook, Fastmail, ...) trotzdem im normalen Posteingang. Funktioniert nicht bei jedem Anbieter (z. B. manchen Firmen-Postfächern ohne "+"-Alias-Unterstützung).`;
-    msg.hidden = false;
-  }catch(err){
-    msg.textContent = translateAuthError(err.message);
-    msg.hidden = false;
-  }finally{
-    btn.disabled = false;
-  }
+  const res = (data && data.results) || [];
+  const ok = res.filter(r => r.ok).length;
+  const throttled = res.some(r => !r.ok && /rate|limit|security purposes/i.test(r.info));
+  msg.textContent = `${ok} von ${res.length} Mails an ${currentUser.email} verschickt.` +
+    (throttled ? ' Supabase drosselt den Versand – in ein paar Minuten erneut versuchen oder in Supabase einen eigenen SMTP-Versand (z. B. Brevo) eintragen.' : '');
+  list.innerHTML = res.map(r => `<li><span class="${r.ok ? 'ok' : 'no'}" aria-hidden="true">${r.ok ? '✓' : '✗'}</span><span>${escapeHtml(r.name)}<small>${escapeHtml(r.info || '')}</small></span></li>`).join('');
+  list.hidden = false;
+  startTestEmailCooldown('btnSendAllTestMails', 'lumiere_test_all_mails_cooldown');
 });
 
 function updateAccountUI(){
@@ -8369,7 +8504,11 @@ function updateAccountUI(){
   const label = document.getElementById('accountBtnLabel');
   const statusText = document.getElementById('accountStatusText');
   if(currentUser){
-    const displayName = (currentUser.user_metadata && currentUser.user_metadata.display_name) || '';
+    const displayName = (currentProfile && currentProfile.display_name) || (currentUser.user_metadata && currentUser.user_metadata.display_name) || '';
+    const nameLocked = !!(currentProfile && currentProfile.name_locked);
+    document.getElementById('authDisplayNameEdit').disabled = nameLocked;
+    document.getElementById('authNameSaveBtn').disabled = nameLocked;
+    document.getElementById('accNameLockNote').hidden = !nameLocked;
     btn.classList.add('is-logged-in');
     label.textContent = displayName || currentUser.email.split('@')[0];
     statusText.textContent = `Angemeldet als ${displayName || currentUser.email} — deine Daten werden automatisch geräteübergreifend gesichert.`;
@@ -10301,6 +10440,247 @@ async function sendUserMessage(userId, kind, tone, title, body){
   }catch(e){ return false; }
 }
 
+// --- Build 29: Sperre mit Grund und Dauer, Namen/Passwort durch den Admin ---
+// Der KI-Tag zaehlt nach deutscher Zeit (wie increment_ai_usage ab
+// build29.sql). Ein Zaehler von gestern ist heute 0 - auch wenn in der
+// Datenbank noch die alte Zahl steht, bis der Nutzer wieder fragt.
+function berlinToday(){ return new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Berlin' }).format(new Date()); }
+function aiUsedToday(p){ return p && p.ai_requests_date === berlinToday() ? (p.ai_requests_today || 0) : 0; }
+// Gesperrt = Flag gesetzt und (dauerhaft oder Ende noch nicht erreicht).
+function banRunning(p){ return !!(p && p.banned && (!p.banned_until || new Date(p.banned_until).getTime() > Date.now())); }
+function banActive(p){ return banRunning(p) && !p.is_admin; }
+function fmtBerlin(iso){
+  return new Date(iso).toLocaleString('de-DE', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Berlin' }) + ' Uhr';
+}
+function fmtLeft(ms){
+  const h = Math.max(1, Math.ceil(ms / 3600000));
+  if(h < 48) return `Noch ${h} Stunde${h === 1 ? '' : 'n'}.`;
+  return `Noch ${Math.ceil(ms / 86400000)} Tage.`;
+}
+// Edge Function lumiere-mail aufrufen und die Fehlermeldung des Servers lesen.
+async function invokeLumiere(body){
+  try{
+    const { data, error } = await sb.functions.invoke('lumiere-mail', { body });
+    if(!error) return { data };
+    let msg = error.message;
+    try{ const j = await error.context.json(); if(j && j.error) msg = j.error; }catch(e){}
+    return { errMsg: msg };
+  }catch(e){ return { errMsg: e.message }; }
+}
+
+// Sperr-Bildschirm: liegt ueber allem, alles andere wird unbedienbar
+// (inert). Abmelden gibt es bewusst nicht - der Bildschirm bleibt, bis die
+// Sperre endet. Vor der Freigabe von Build 29 gilt das alte Verhalten
+// (Hinweis + Abmelden).
+function applyBanScreen(){
+  const scr = document.getElementById('banScreen');
+  if(!scr) return;
+  const on = banActive(currentProfile) && isReleased(29);
+  if(on){
+    const p = currentProfile;
+    const reason = (p.ban_reason || '').trim();
+    document.getElementById('banReason').textContent = reason || 'Es wurde kein Grund angegeben.';
+    const until = document.getElementById('banUntil'), left = document.getElementById('banLeft');
+    if(p.banned_until){
+      until.textContent = 'Bis ' + fmtBerlin(p.banned_until) + '. Danach ist dein Konto automatisch wieder frei.';
+      left.textContent = fmtLeft(new Date(p.banned_until).getTime() - Date.now());
+      left.hidden = false;
+    } else {
+      until.textContent = 'Die Sperre gilt dauerhaft.';
+      left.hidden = true;
+    }
+  }
+  if(on === !scr.hidden) return;
+  scr.hidden = !on;
+  document.documentElement.classList.toggle('is-banned', on);
+  for(const el of document.body.children){
+    if(el !== scr && el.tagName !== 'SCRIPT') el.inert = on;
+  }
+  if(on){
+    try{ musicStop(); }catch(e){}
+    try{ closeNavOverlay(); }catch(e){}
+  }
+}
+function enforceBan(){
+  if(banActive(currentProfile) && !isReleased(29)){
+    showToast('Dein Konto wurde gesperrt.', true);
+    if(sb) sb.auth.signOut();
+    return;
+  }
+  applyBanScreen();
+}
+// Einmal pro Minute das eigene Profil nachsehen: eine neue Sperre greift
+// so auch in einer offenen Sitzung, eine abgelaufene gibt die Seite frei.
+setInterval(async () => {
+  if(!sb || !currentUser || !currentProfile || currentProfile.is_admin || document.hidden) return;
+  try{
+    const { data } = await sb.from('profiles').select('banned, banned_until, ban_reason, name_locked, display_name').eq('user_id', currentUser.id).maybeSingle();
+    if(data){ Object.assign(currentProfile, data); enforceBan(); }
+    else applyBanScreen();
+  }catch(e){}
+}, 60000);
+
+// Admin-Dialog fuer Namen, Passwort, Reset-Link und Sperre.
+const BAN_DURATIONS = [
+  { key: '1h', label: '1 Stunde', ms: 3600e3 },
+  { key: '1d', label: '1 Tag', ms: 86400e3 },
+  { key: '3d', label: '3 Tage', ms: 3 * 86400e3 },
+  { key: '7d', label: '7 Tage', ms: 7 * 86400e3 },
+  { key: '30d', label: '30 Tage', ms: 30 * 86400e3 },
+  { key: 'perm', label: 'Dauerhaft', ms: 0 },
+];
+const admDlg = { mode: null, p: null, dur: '7d', busy: false, done: false };
+function admRandomPw(){
+  const abc = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789';
+  const a = new Uint32Array(12); crypto.getRandomValues(a);
+  return Array.from(a, n => abc[n % abc.length]).join('');
+}
+function admErr(text){ const e = document.getElementById('admUserErr'); e.textContent = text || ''; e.hidden = !text; }
+function admClose(){
+  document.getElementById('admUserBackdrop').classList.remove('open');
+  admDlg.mode = null; admDlg.p = null; admDlg.busy = false; admDlg.done = false;
+}
+function admOpen(mode, p){
+  admDlg.mode = mode; admDlg.p = p; admDlg.done = false; admDlg.busy = false; admDlg.dur = '7d';
+  const who = p.display_name ? `${p.display_name} · ${p.email || ''}` : (p.email || p.user_id);
+  document.getElementById('admUserWho').textContent = who;
+  const body = document.getElementById('admUserBody');
+  const ok = document.getElementById('admUserOk');
+  const title = document.getElementById('admUserTitle');
+  admErr('');
+  ok.disabled = false;
+  if(mode === 'rename'){
+    title.textContent = 'Namen ändern';
+    ok.textContent = 'Speichern';
+    body.innerHTML = `
+      <label class="adm-l" for="admName">Neuer Anzeigename</label>
+      <input type="text" id="admName" class="modal-input" maxlength="40" value="${escapeHtml(p.display_name || '')}">
+      <label class="adm-l" for="admReason">Grund (steht in der Nachricht an den Nutzer, optional)</label>
+      <textarea id="admReason" class="modal-input" maxlength="400"></textarea>
+      <label class="adm-check"><input type="checkbox" id="admLock"${p.name_locked ? ' checked' : ''}><span>Nutzer darf den Namen danach nicht mehr selbst ändern</span></label>
+      <p class="adm-user-note">Der neue Name erscheint sofort auch in allen Ranglisten. Der Nutzer bekommt eine Nachricht in „Mein Konto“.</p>`;
+  } else if(mode === 'password'){
+    title.textContent = 'Neues Passwort setzen';
+    ok.textContent = 'Passwort setzen';
+    body.innerHTML = `
+      <label class="adm-l" for="admPw">Neues Passwort (mindestens 8 Zeichen)</label>
+      <div class="adm-pw-row">
+        <input type="text" id="admPw" class="modal-input" maxlength="72" autocomplete="off" spellcheck="false" value="${admRandomPw()}">
+        <button type="button" class="btn btn-secondary" id="admPwGen">Zufällig</button>
+      </div>
+      <p class="adm-user-note">Gilt sofort, alte Anmeldungen bleiben bestehen. Das Passwort wird nirgends gespeichert und steht auch nicht in der Nachricht – gib es dem Nutzer selbst weiter.</p>`;
+    document.getElementById('admPwGen').addEventListener('click', () => { document.getElementById('admPw').value = admRandomPw(); });
+  } else if(mode === 'reset'){
+    title.textContent = 'Link zum Zurücksetzen senden';
+    ok.textContent = 'Link senden';
+    body.innerHTML = `<p class="adm-user-note">Supabase schickt eine Mail an <strong>${escapeHtml(p.email || '–')}</strong> mit einem Link, über den der Nutzer selbst ein neues Passwort wählt. Das bisherige Passwort gilt so lange weiter.</p>`;
+  } else if(mode === 'ban'){
+    title.textContent = 'Konto sperren';
+    ok.textContent = 'Sperren';
+    body.innerHTML = `
+      <label class="adm-l" for="admReason">Grund (wird dem Nutzer angezeigt)</label>
+      <textarea id="admReason" class="modal-input" maxlength="400" placeholder="z. B. Beleidigende Inhalte in der Rangliste"></textarea>
+      <span class="adm-l">Dauer</span>
+      <div class="adm-chips" role="radiogroup" aria-label="Dauer der Sperre">${BAN_DURATIONS.map(d =>
+        `<button type="button" class="adm-chip${d.key === admDlg.dur ? ' is-on' : ''}" role="radio" aria-checked="${d.key === admDlg.dur}" data-dur="${d.key}">${d.label}</button>`).join('')}</div>
+      <p class="adm-user-note">Der Nutzer sieht sofort (spätestens nach einer Minute) einen Sperr-Bildschirm mit Grund und Ende und kann nichts mehr tun. Nach Ablauf ist das Konto automatisch wieder frei.</p>`;
+    body.querySelectorAll('[data-dur]').forEach(b => b.addEventListener('click', () => {
+      admDlg.dur = b.dataset.dur;
+      body.querySelectorAll('[data-dur]').forEach(x => { const on = x === b; x.classList.toggle('is-on', on); x.setAttribute('aria-checked', on); });
+    }));
+  }
+  document.getElementById('admUserBackdrop').classList.add('open');
+  const first = body.querySelector('input, textarea');
+  if(first) setTimeout(() => first.focus(), 60);
+}
+async function admSave(){
+  const { mode, p } = admDlg;
+  if(!mode || !p || admDlg.busy) return;
+  if(admDlg.done){ admClose(); return; }
+  const ok = document.getElementById('admUserOk');
+  admErr('');
+  const needSql = (error) => /column|schema cache/i.test(error.message || '') ? ' – bitte zuerst supabase/build29.sql ausführen.' : '';
+  admDlg.busy = true; ok.disabled = true;
+  try{
+    if(mode === 'rename'){
+      const name = document.getElementById('admName').value.trim();
+      const reason = document.getElementById('admReason').value.trim();
+      const lock = document.getElementById('admLock').checked;
+      if(!name){ admErr('Bitte einen Namen eingeben.'); return; }
+      const { error } = await sb.from('profiles').update({ display_name: name, name_locked: lock }).eq('user_id', p.user_id);
+      if(error){ admErr('Konnte nicht gespeichert werden' + needSql(error)); return; }
+      if(name !== (p.display_name || '')){
+        await sendUserMessage(p.user_id, 'admin', 'info', 'Dein Name wurde geändert',
+          `Dein Anzeigename lautet jetzt „${name}“.` + (reason ? `\n${reason}` : '') + (lock ? '\nDu kannst ihn nicht mehr selbst ändern.' : ''));
+      } else if(lock !== !!p.name_locked){
+        await sendUserMessage(p.user_id, 'admin', 'info', lock ? 'Dein Name ist jetzt festgelegt' : 'Du kannst deinen Namen wieder ändern',
+          (lock ? 'Deinen Anzeigenamen kannst du nicht mehr selbst ändern.' : 'Deinen Anzeigenamen kannst du ab sofort wieder in „Mein Konto“ ändern.') + (reason ? `\n${reason}` : ''));
+      }
+      if(currentUser && p.user_id === currentUser.id && currentProfile){
+        currentProfile.display_name = name; currentProfile.name_locked = lock;
+        sb.auth.updateUser({ data: { display_name: name } }).then(({ data }) => { if(data && data.user) currentUser = data.user; updateAccountUI(); });
+      }
+      showToast('Name gespeichert.');
+      admClose();
+      loadAdminData();
+    } else if(mode === 'password'){
+      const pw = document.getElementById('admPw').value;
+      if(pw.length < 8){ admErr('Mindestens 8 Zeichen.'); return; }
+      const { errMsg } = await invokeLumiere({ kind: 'set_password', user_id: p.user_id, password: pw });
+      if(errMsg){ admErr('Fehlgeschlagen: ' + errMsg); return; }
+      if(!currentUser || p.user_id !== currentUser.id){
+        await sendUserMessage(p.user_id, 'admin', 'info', 'Dein Passwort wurde geändert',
+          'Ein Admin hat dir ein neues Passwort gegeben – du bekommst es direkt von uns. Ändern kannst du es danach jederzeit in „Mein Konto“.');
+      }
+      document.getElementById('admUserBody').innerHTML =
+        `<div class="adm-user-done">Neues Passwort gesetzt:<br><code>${escapeHtml(pw)}</code></div>
+         <div class="adm-pw-row"><button type="button" class="btn btn-secondary" id="admPwCopy">Kopieren</button></div>`;
+      document.getElementById('admPwCopy').addEventListener('click', () => {
+        if(navigator.clipboard) navigator.clipboard.writeText(pw).then(() => showToast('Kopiert.'), () => showToast('Kopieren nicht möglich.', 'error'));
+      });
+      admDlg.done = true;
+      ok.textContent = 'Fertig';
+      document.getElementById('admUserCancel').hidden = true;
+    } else if(mode === 'reset'){
+      if(!p.email){ admErr('Zu diesem Konto ist keine E-Mail-Adresse bekannt.'); return; }
+      const { error } = await sb.auth.resetPasswordForEmail(p.email, { redirectTo: location.origin + location.pathname });
+      if(error){ admErr(translateAuthError(error.message)); return; }
+      await sendUserMessage(p.user_id, 'admin', 'info', 'Link zum Zurücksetzen verschickt',
+        'Wir haben dir eine E-Mail mit einem Link geschickt, mit dem du ein neues Passwort wählen kannst. Der Link gilt nur kurz – falls er abgelaufen ist, fordere auf der Anmeldeseite einfach einen neuen an.');
+      showToast('Link verschickt.');
+      admClose();
+    } else if(mode === 'ban'){
+      if(p.is_admin){ admErr('Admin-Konten sind immun gegen Sperren.'); return; }
+      const reason = document.getElementById('admReason').value.trim();
+      const d = BAN_DURATIONS.find(x => x.key === admDlg.dur) || BAN_DURATIONS[3];
+      const until = d.ms ? new Date(Date.now() + d.ms).toISOString() : null;
+      const { error } = await sb.from('profiles').update({ banned: true, ban_reason: reason || null, banned_until: until }).eq('user_id', p.user_id);
+      if(error){ admErr('Konnte nicht gesperrt werden' + needSql(error)); return; }
+      await sendUserMessage(p.user_id, 'admin', 'no', 'Dein Konto wurde gesperrt',
+        (reason ? `Grund: ${reason}\n` : '') + (until ? `Die Sperre endet am ${fmtBerlin(until)}.` : 'Die Sperre gilt dauerhaft.'));
+      showToast('Nutzer gesperrt.');
+      admClose();
+      loadAdminData();
+    }
+  } finally {
+    admDlg.busy = false;
+    if(document.getElementById('admUserBackdrop').classList.contains('open')) ok.disabled = false;
+  }
+}
+document.getElementById('admUserOk').addEventListener('click', admSave);
+document.getElementById('admUserCancel').addEventListener('click', () => { sndClick(); admClose(); });
+document.getElementById('admUserBackdrop').addEventListener('click', (e) => { if(e.target.id === 'admUserBackdrop') admClose(); });
+document.addEventListener('keydown', (e) => {
+  if(!document.getElementById('admUserBackdrop').classList.contains('open')) return;
+  if(e.key === 'Escape') admClose();
+  if(e.key === 'Enter' && e.target.tagName === 'INPUT') admSave();
+});
+// Der Abbrechen-Knopf ist nach "Passwort gesetzt" versteckt - beim naechsten
+// Oeffnen wieder zeigen.
+document.getElementById('admUserBackdrop').addEventListener('transitionend', () => {
+  if(!document.getElementById('admUserBackdrop').classList.contains('open')) document.getElementById('admUserCancel').hidden = false;
+});
+
 // --- Admin: Profilbild eines Kontos gross ansehen, loeschen, sperren, anschreiben ---
 const PAD_DEFAULT = {
   delAvatar: 'Dein Avatar entsprach nicht unseren Regeln und wurde entfernt. Du kannst dir jederzeit einen neuen bauen.',
@@ -11188,6 +11568,7 @@ function showView(name){
   if(qn) qn.hidden = !visible;
   document.body.classList.toggle('quicknav-visible', visible);
   document.body.classList.toggle('wide-view-active', name === 'hub' || name === 'appDownload' || name === 'admin');
+  document.body.classList.toggle('on-hub', name === 'hub');
   document.body.classList.toggle('admin-view-active', name === 'admin');
   persistLastView(name);
   if(lastShownView && lastShownView !== name) sndPage();
@@ -11329,6 +11710,7 @@ document.querySelectorAll('#view-hub [data-auth-tab]').forEach(el => {
   });
 });
 document.getElementById('footerCopyright').textContent = '© ' + new Date().getFullYear() + ' Lumière';
+document.querySelectorAll('[data-foot-year]').forEach(el => { el.textContent = '© ' + new Date().getFullYear() + ' Lumière'; });
 
 function openGrammar(){
   if(requireAccountFor('grammar', 'Grammatik')) return;
@@ -15679,7 +16061,10 @@ renderHub();
 // Erster Heartbeat erst NACH initAuth() abfeuern, sonst waere currentUser noch
 // nicht gesetzt und frisch angekommene, eingeloggte Nutzer wuerden im Admin-
 // Panel bis zu 90s lang faelschlich als "Gast" auftauchen.
-(() => { const el = document.getElementById('footerVersion'); if(el) el.textContent = 'Version ' + APP_VERSION; })();
+(() => {
+  const el = document.getElementById('footerVersion'); if(el) el.textContent = 'Version ' + APP_VERSION;
+  document.querySelectorAll('[data-foot-version]').forEach(x => { x.textContent = 'Version ' + APP_VERSION; });
+})();
 applyReleaseGate();   // vor Supabase: noch nicht freigegebene Teile bleiben aus
 initAuth().then(() => { restoreLastView(); sendSessionHeartbeat(); });
 loadSiteSettings();
