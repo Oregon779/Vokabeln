@@ -2808,49 +2808,121 @@
   }
 
 
-  /* --- Build 27: Karten zeigen die echte Seite ---------------------------
-     Statt Foto ueber die ganze Flaeche sitzt eine Aufnahme der App-Seite in
-     einem goldgerahmten Fenster, leicht schraeg im Raum; der Text steht
-     daneben (Desktop) bzw. darunter (Handy). Beim Drehen gleitet die
-     Aufnahme im Fenster mit (--rel aus layoutDeck) - das gibt Tiefe. */
-  .cine-card{
-    background:radial-gradient(120% 90% at 82% 18%, rgba(233,170,70,.17), transparent 58%),
-               linear-gradient(160deg, #151b29 0%, #0c0f17 62%, #0a0c12 100%);
-  }
-  .cine-card-shot{
-    position:absolute; top:9%; right:4.5%; width:55%; aspect-ratio:880 / 541;
-    border-radius:14px; overflow:hidden; display:block; background:#0b0e16;
-    border:1px solid rgba(246,214,150,.6);
-    box-shadow:0 30px 60px rgba(0,0,0,.6), 0 0 0 5px rgba(9,12,20,.85), 0 0 0 6px rgba(246,195,92,.25), 0 0 44px rgba(233,170,70,.2);
-    transform:perspective(1400px) rotateY(-10deg) rotateX(3deg); transform-origin:75% 50%;
-  }
-  .cine-card .cine-card-shot img{
-    position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:0 0;
-    filter:none; transition:none;
-    transform:scale(1.07) translate3d(calc(var(--rel, 0) * -3.2%), calc(var(--rel, 0) * 1.2%), 0);
-  }
-  html:not(.build-14-live) .cine-card.is-front:hover .cine-card-shot img{ filter:brightness(1.08); }
-  /* Glasreflex auf dem Fenster. */
-  .cine-card-shot::after{
-    content:''; position:absolute; inset:0; pointer-events:none;
-    background:linear-gradient(125deg, rgba(255,250,235,.13) 0%, rgba(255,250,235,0) 32%, rgba(255,250,235,0) 70%, rgba(255,220,150,.07) 100%);
-  }
-  .cine-card-veil{ background:linear-gradient(90deg, rgba(8,10,16,.5) 0%, rgba(8,10,16,0) 46%); }
-  .cine-card-body{
-    top:0; right:auto; width:43%; display:flex; flex-direction:column; justify-content:center;
-    padding:clamp(1.4rem, 3vw, 2.4rem) 0 clamp(1.4rem, 3vw, 2.4rem) clamp(1.4rem, 3.2vw, 2.6rem);
-  }
-  .cine-card-title{ font-size:clamp(1.8rem, 3.6vw, 2.8rem); }
-  .cine-card-text{ font-size:.9rem; }
-  @media (max-width:700px){
-    .cine-card-shot{ top:4.5%; left:6%; right:6%; width:auto; transform:perspective(900px) rotateX(7deg); transform-origin:50% 100%; border-radius:12px; }
-    .cine-card-veil{ background:linear-gradient(180deg, rgba(8,10,16,0) 40%, rgba(8,10,16,.6) 100%); }
-    .cine-card-body{ top:auto; left:0; right:0; width:auto; justify-content:flex-end; padding:1.3rem 1.3rem 1.4rem; }
-    .cine-card-title{ font-size:1.6rem; margin-bottom:.5rem; }
-    .cine-card-points{ margin-top:.7rem; }
-    .cine-card-go{ margin-top:.8rem; }
-  }
 
+
+
+
+  /* --- Build 28: Karten aus Milchglas mit fluessigem Bild ---------------
+     Dicke Glasscheibe (Lichtkante in der Kartenfarbe --c1/--c2), darin die
+     App-Seite. Auf der vorderen Karte fliesst sie wie Farbe (eigener kleiner
+     Shader, .cine-card-liquid, siehe cardLiquid), die anderen zeigen das
+     ruhige Bild. Titel gross in der Mitte mit Glitch, Stichpunkte als
+     Zeichen-Etikett daneben - wie in der Referenz. */
+  .cine-card{
+    background:transparent; overflow:visible; border-radius:30px;
+    box-shadow:0 40px 100px rgba(0,0,0,.55), 0 0 80px -12px color-mix(in srgb, var(--c1, #f0b545) 42%, transparent);
+  }
+  .cine-card::after{
+    padding:1.5px; opacity:1; z-index:5;
+    background:linear-gradient(155deg, rgba(255,255,255,.8), color-mix(in srgb, var(--c1, #f0b545) 75%, white) 26%,
+      rgba(255,255,255,.08) 52%, color-mix(in srgb, var(--c2, #7a4fd0) 70%, transparent) 84%, rgba(255,255,255,.55));
+  }
+  .cine-card-glass{
+    position:absolute; inset:0; border-radius:inherit; overflow:hidden; display:block;
+    background:linear-gradient(160deg, rgba(255,255,255,.17), rgba(255,255,255,.05) 38%, rgba(255,255,255,.1)),
+               color-mix(in srgb, var(--c1, #f0b545) 10%, #0b0e17);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.6), inset 0 -26px 50px rgba(0,0,0,.35);
+  }
+  .cine-card .cine-card-img, .cine-card-liquid{
+    position:absolute; inset:11px; width:calc(100% - 22px); height:calc(100% - 22px);
+    border-radius:21px; object-fit:cover; object-position:50% 0; display:block;
+  }
+  .cine-card .cine-card-img{
+    filter:none; transition:none; opacity:.92;
+    transform:scale(1.05) translate3d(calc(var(--rel, 0) * -2.2%), 0, 0);
+  }
+  .cine-card-liquid{ z-index:1; opacity:0; transition:opacity .5s var(--ease); pointer-events:none; }
+  .cine-card-liquid.is-on{ opacity:1; }
+  /* Milchglas ueber dem Bild: oben ein heller Schimmer, unten Kartenfarbe,
+     innen eine feine Glaskante. */
+  .cine-card-glass::after{
+    content:''; position:absolute; inset:11px; border-radius:21px; pointer-events:none; z-index:2;
+    background:radial-gradient(120% 90% at 18% 0%, rgba(255,255,255,.2), transparent 52%),
+               radial-gradient(60% 55% at 50% 50%, rgba(6,8,14,.55), transparent 75%),
+               linear-gradient(180deg, color-mix(in srgb, var(--c1, #f0b545) 18%, rgba(10,12,20,.34)) 0%,
+                 color-mix(in srgb, var(--c2, #7a4fd0) 30%, rgba(6,8,14,.66)) 100%);
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.2), inset 0 0 34px rgba(255,255,255,.07);
+  }
+  /* Glanz beim Drehen (Position aus layoutDeck). */
+  .cine-card-glass::before{
+    content:''; position:absolute; inset:-30% -60%; z-index:3; pointer-events:none;
+    background:linear-gradient(105deg, transparent 40%, rgba(255,250,235,.2) 48%, rgba(255,255,255,.34) 50%,
+      rgba(255,250,235,.2) 52%, transparent 60%);
+    transform:translateX(var(--sheen-x, -45%)); opacity:var(--sheen-o, 0);
+  }
+  html.build-14-live .cine-card-veil::after{ display:none; }
+  /* Ferne Karten treten per Schleier zurueck (statt teurem blur). */
+  .cine-card-veil{ z-index:4; border-radius:inherit; background:rgba(5,7,12,.74); opacity:var(--far, 0); }
+  .cine-card-body{
+    z-index:6; inset:0; width:auto; top:0; display:flex; flex-direction:column; align-items:center;
+    justify-content:center; text-align:center; padding:2.4rem 3rem;
+  }
+  .cine-card-idx{ position:absolute; top:1.7rem; left:2rem; margin:0; color:rgba(255,255,255,.8); }
+  .cine-card-title{
+    position:relative; margin:0 0 .9rem; color:#fff;
+    font-size:clamp(2.4rem, 5vw, 4.4rem);
+    text-shadow:0 0 26px color-mix(in srgb, var(--c1, #f0b545) 75%, transparent), 0 2px 14px rgba(0,0,0,.65);
+  }
+  .cine-card-text{ max-width:28rem; color:rgba(248,243,233,.92); font-size:.96rem; text-shadow:0 1px 10px rgba(0,0,0,.8); }
+  .cine-card-go{
+    position:absolute; bottom:1.6rem; left:50%; transform:translateX(-50%); margin:0; color:#fff;
+    border-bottom-color:color-mix(in srgb, var(--c1, #f0b545) 80%, white);
+  }
+  /* Glitch: zwei farbige Kopien des Titels zucken ab und zu versetzt auf. */
+  .cine-card-title::before, .cine-card-title::after{
+    content:attr(data-text); position:absolute; inset:0; opacity:0; pointer-events:none; text-shadow:none;
+  }
+  .cine-card.is-front .cine-card-title::before{ color:var(--c1, #f0b545); animation:cardGlitchA 4.6s steps(1) infinite; }
+  .cine-card.is-front .cine-card-title::after{ color:var(--c2, #7a4fd0); animation:cardGlitchB 4.6s steps(1) infinite; }
+  @keyframes cardGlitchA{
+    0%, 86%, 100%{ opacity:0; transform:none; clip-path:inset(0); }
+    87%{ opacity:.9; transform:translate(-4px, 1px); clip-path:inset(12% 0 52% 0); }
+    89%{ opacity:.9; transform:translate(3px, -1px); clip-path:inset(58% 0 10% 0); }
+    91%{ opacity:.75; transform:translate(-2px, 0); clip-path:inset(34% 0 40% 0); }
+    93%{ opacity:0; }
+  }
+  @keyframes cardGlitchB{
+    0%, 87%, 100%{ opacity:0; transform:none; clip-path:inset(0); }
+    88%{ opacity:.85; transform:translate(4px, -1px); clip-path:inset(46% 0 22% 0); }
+    90%{ opacity:.85; transform:translate(-3px, 1px); clip-path:inset(4% 0 70% 0); }
+    92%{ opacity:0; }
+  }
+  @media (prefers-reduced-motion: reduce){ .cine-card-title::before, .cine-card-title::after{ animation:none !important; } }
+  /* Zeichen-Etikett rechts neben der vorderen Karte. */
+  .cine-card-side{
+    position:absolute; top:50%; left:calc(100% + 1.8rem); transform:translateY(-50%); z-index:6;
+    display:flex; flex-direction:column; gap:.6rem; text-align:left; pointer-events:none;
+    /* Nur so breit wie der Rand neben der Karte - sonst laeuft es aus dem Bild. */
+    width:min(16rem, calc((100vw - 50rem) / 2 - 3.6rem));
+    opacity:0; transition:opacity .45s var(--ease);
+  }
+  .cine-card.is-front .cine-card-side{ opacity:1; }
+  .cine-card-side span{
+    font-family:var(--font-mono); font-size:.66rem; letter-spacing:.14em; text-transform:uppercase;
+    color:color-mix(in srgb, var(--c1, #f0b545) 65%, white); line-height:1.5;
+    text-shadow:0 0 12px rgba(0,0,0,.9);
+  }
+  .cine-card-side span::before{ content:'→  '; opacity:.55; }
+  @media (max-width:1240px){ .cine-card-side{ display:none; } }
+  @media (max-width:700px){
+    .cine-card{ border-radius:22px; }
+    .cine-card .cine-card-img, .cine-card-liquid, .cine-card-glass::after{ inset:8px; width:calc(100% - 16px); height:calc(100% - 16px); border-radius:15px; }
+    .cine-card-title{ font-size:2.3rem; }
+    .cine-card-text{ font-size:.86rem; }
+    .cine-card-body{ padding:2rem 1.4rem; }
+    .cine-card-idx{ top:1.2rem; left:1.3rem; }
+    .cine-card-go{ bottom:1.2rem; }
+  }
 
   /* --- Belohnungen --- */
   .rewards-grid{display:grid; grid-template-columns:1fr; gap:1rem; margin-top:1.6rem;}
@@ -4048,82 +4120,82 @@
           <div class="cine-deck" id="cineDeck">
             <div class="cine-deck-halo" id="cineDeckHalo" data-build="14" aria-hidden="true"></div>
             <div class="cine-deck-world" id="cineDeckWorld">
-            <button type="button" class="cine-card" data-goto="home">
-              <span class="cine-card-shot"><img src="./shot-lernsets.webp?v=27" alt="Ansicht der Seite Lernsets" loading="lazy" decoding="async" width="880" height="541"></span>
+            <button type="button" class="cine-card" data-goto="home" data-theme="#f0b545 #7a4fd0" style="--c1:#f0b545; --c2:#7a4fd0">
+              <span class="cine-card-glass"><img class="cine-card-img" src="./shot-lernsets.webp?v=28" alt="Ansicht der Seite Lernsets" loading="lazy" decoding="async" width="1600" height="1000"></span>
               <span class="cine-card-veil" aria-hidden="true"></span>
               <span class="cine-card-body">
                 <span class="cine-card-idx">01</span>
-                <span class="cine-card-title">Lernsets</span>
+                <span class="cine-card-title" data-text="Lernsets">Lernsets</span>
                 <span class="cine-card-text">Deine eigenen Sammlungen — der Stoff deiner Klausur, nicht der eines Lehrplans.</span>
-                <span class="cine-card-points" aria-hidden="true"><span>Eigene Sammlungen anlegen</span><span>Aus einem Text importieren</span><span>Karteikasten nach Leitner</span></span>
                 <span class="cine-card-go">Öffnen</span>
               </span>
+              <span class="cine-card-side" aria-hidden="true"><span>Eigene Sammlungen anlegen</span><span>Aus einem Text importieren</span><span>Karteikasten nach Leitner</span></span>
             </button>
-            <button type="button" class="cine-card" data-goto="listen">
-              <span class="cine-card-shot"><img src="./shot-aussprache.webp?v=27" alt="Ansicht der Seite Aussprache" loading="lazy" decoding="async" width="880" height="541"></span>
+            <button type="button" class="cine-card" data-goto="listen" data-theme="#9b6bff #2fb7c9" style="--c1:#9b6bff; --c2:#2fb7c9">
+              <span class="cine-card-glass"><img class="cine-card-img" src="./shot-aussprache.webp?v=28" alt="Ansicht der Seite Aussprache" loading="lazy" decoding="async" width="1600" height="1000"></span>
               <span class="cine-card-veil" aria-hidden="true"></span>
               <span class="cine-card-body">
                 <span class="cine-card-idx">02</span>
-                <span class="cine-card-title">Aussprache</span>
+                <span class="cine-card-title" data-text="Aussprache">Aussprache</span>
                 <span class="cine-card-text">Jedes Wort vorgesprochen und phonetisch notiert — so, wie es in Paris klingt.</span>
-                <span class="cine-card-points" aria-hidden="true"><span>Jedes Wort vorgesprochen</span><span>Lautschrift dazu</span><span>Ganze Sets am Stück hören</span></span>
                 <span class="cine-card-go">Öffnen</span>
               </span>
+              <span class="cine-card-side" aria-hidden="true"><span>Jedes Wort vorgesprochen</span><span>Lautschrift dazu</span><span>Ganze Sets am Stück hören</span></span>
             </button>
-            <button type="button" class="cine-card" data-goto="grammar">
-              <span class="cine-card-shot"><img src="./shot-grammatik.webp?v=27" alt="Ansicht der Seite Grammatik" loading="lazy" decoding="async" width="880" height="541"></span>
+            <button type="button" class="cine-card" data-goto="grammar" data-theme="#27c2b0 #3a5bd9" style="--c1:#27c2b0; --c2:#3a5bd9">
+              <span class="cine-card-glass"><img class="cine-card-img" src="./shot-grammatik.webp?v=28" alt="Ansicht der Seite Grammatik" loading="lazy" decoding="async" width="1600" height="1000"></span>
               <span class="cine-card-veil" aria-hidden="true"></span>
               <span class="cine-card-body">
                 <span class="cine-card-idx">03</span>
-                <span class="cine-card-title">Grammatik</span>
+                <span class="cine-card-title" data-text="Grammatik">Grammatik</span>
                 <span class="cine-card-text">Regeln erklärt, wenn du sie brauchst — nicht vorher, nicht auf Vorrat.</span>
-                <span class="cine-card-points" aria-hidden="true"><span>Zeiten, Fälle, Artikel</span><span>Beispiele aus deinen Wörtern</span><span>Nachfragen ausdrücklich erlaubt</span></span>
                 <span class="cine-card-go">Öffnen</span>
               </span>
+              <span class="cine-card-side" aria-hidden="true"><span>Zeiten, Fälle, Artikel</span><span>Beispiele aus deinen Wörtern</span><span>Nachfragen ausdrücklich erlaubt</span></span>
             </button>
-            <button type="button" class="cine-card" data-goto="rewards">
-              <span class="cine-card-shot"><img src="./shot-belohnungen.webp?v=27" alt="Ansicht der Seite Belohnungen" loading="lazy" decoding="async" width="880" height="541"></span>
+            <button type="button" class="cine-card" data-goto="rewards" data-theme="#ff9b3d #d6425f" style="--c1:#ff9b3d; --c2:#d6425f">
+              <span class="cine-card-glass"><img class="cine-card-img" src="./shot-belohnungen.webp?v=28" alt="Ansicht der Seite Belohnungen" loading="lazy" decoding="async" width="1600" height="1000"></span>
               <span class="cine-card-veil" aria-hidden="true"></span>
               <span class="cine-card-body">
                 <span class="cine-card-idx">04</span>
-                <span class="cine-card-title">Belohnungen</span>
+                <span class="cine-card-title" data-text="Belohnungen">Belohnungen</span>
                 <span class="cine-card-text">Münzen fürs Üben, vier Spiele in der Spielhalle und eine Rangliste.</span>
-                <span class="cine-card-points" aria-hidden="true"><span>Münzen für jede Runde</span><span>Vier Spiele in der Spielhalle</span><span>Rangliste gegen alle anderen</span></span>
                 <span class="cine-card-go">Öffnen</span>
               </span>
+              <span class="cine-card-side" aria-hidden="true"><span>Münzen für jede Runde</span><span>Vier Spiele in der Spielhalle</span><span>Rangliste gegen alle anderen</span></span>
             </button>
-            <button type="button" class="cine-card" data-goto="calendar">
-              <span class="cine-card-shot"><img src="./shot-kalender.webp?v=27" alt="Ansicht der Seite Kalender" loading="lazy" decoding="async" width="880" height="541"></span>
+            <button type="button" class="cine-card" data-goto="calendar" data-theme="#ef6f9a #7b4fd6" style="--c1:#ef6f9a; --c2:#7b4fd6">
+              <span class="cine-card-glass"><img class="cine-card-img" src="./shot-kalender.webp?v=28" alt="Ansicht der Seite Kalender" loading="lazy" decoding="async" width="1600" height="1000"></span>
               <span class="cine-card-veil" aria-hidden="true"></span>
               <span class="cine-card-body">
                 <span class="cine-card-idx">05</span>
-                <span class="cine-card-title">Kalender</span>
+                <span class="cine-card-title" data-text="Kalender">Kalender</span>
                 <span class="cine-card-text">Klausuren eintragen, und die Wörter kommen rechtzeitig zurück.</span>
-                <span class="cine-card-points" aria-hidden="true"><span>Klausuren eintragen</span><span>Lernplan rückwärts gerechnet</span><span>Erinnerung vor dem Termin</span></span>
                 <span class="cine-card-go">Öffnen</span>
               </span>
+              <span class="cine-card-side" aria-hidden="true"><span>Klausuren eintragen</span><span>Lernplan rückwärts gerechnet</span><span>Erinnerung vor dem Termin</span></span>
             </button>
-            <button type="button" class="cine-card" data-goto="appDownload">
-              <span class="cine-card-shot"><img src="./shot-app.webp?v=27" alt="Ansicht der Seite App installieren" loading="lazy" decoding="async" width="880" height="541"></span>
+            <button type="button" class="cine-card" data-goto="appDownload" data-theme="#4d8dff #2fd0c4" style="--c1:#4d8dff; --c2:#2fd0c4">
+              <span class="cine-card-glass"><img class="cine-card-img" src="./shot-app.webp?v=28" alt="Ansicht der Seite App installieren" loading="lazy" decoding="async" width="1600" height="1000"></span>
               <span class="cine-card-veil" aria-hidden="true"></span>
               <span class="cine-card-body">
                 <span class="cine-card-idx">06</span>
-                <span class="cine-card-title">Als App</span>
+                <span class="cine-card-title" data-text="Als App">Als App</span>
                 <span class="cine-card-text">Auf dem Handy installieren und offline weiterlernen.</span>
-                <span class="cine-card-points" aria-hidden="true"><span>Ohne App-Store installieren</span><span>Offline weiterüben</span><span>Symbol auf dem Startbildschirm</span></span>
                 <span class="cine-card-go">Öffnen</span>
               </span>
+              <span class="cine-card-side" aria-hidden="true"><span>Ohne App-Store installieren</span><span>Offline weiterüben</span><span>Symbol auf dem Startbildschirm</span></span>
             </button>
-            <button type="button" class="cine-card" data-goto="about">
-              <span class="cine-card-shot"><img src="./shot-ueberuns.webp?v=27" alt="Ansicht der Seite Über uns" loading="lazy" decoding="async" width="880" height="541"></span>
+            <button type="button" class="cine-card" data-goto="about" data-theme="#f3d9a4 #c98a4a" style="--c1:#f3d9a4; --c2:#c98a4a">
+              <span class="cine-card-glass"><img class="cine-card-img" src="./shot-ueberuns.webp?v=28" alt="Ansicht der Seite Über uns" loading="lazy" decoding="async" width="1600" height="1000"></span>
               <span class="cine-card-veil" aria-hidden="true"></span>
               <span class="cine-card-body">
                 <span class="cine-card-idx">07</span>
-                <span class="cine-card-title">Über uns</span>
+                <span class="cine-card-title" data-text="Über uns">Über uns</span>
                 <span class="cine-card-text">Wer dahintersteckt, was mit deinen Daten passiert und was das Ganze soll.</span>
-                <span class="cine-card-points" aria-hidden="true"><span>Wer das hier baut</span><span>Was gespeichert wird</span><span>Konto jederzeit löschbar</span></span>
                 <span class="cine-card-go">Öffnen</span>
               </span>
+              <span class="cine-card-side" aria-hidden="true"><span>Wer das hier baut</span><span>Was gespeichert wird</span><span>Konto jederzeit löschbar</span></span>
             </button>
             </div>
           </div>
@@ -4204,6 +4276,9 @@
                target="_blank" rel="noopener noreferrer">Johnson Martin</a>,
             <a href="https://creativecommons.org/licenses/by/4.0/"
                target="_blank" rel="noopener noreferrer">CC BY 4.0</a></span>
+        </p>
+        <p class="cine-colophon-bar">
+          <span class="cine-colophon-credit">Musik und Klänge aus dem FluidR3-Soundfont von Frank Wen (MIT)</span>
         </p>
       </footer>
     </section>
@@ -5676,7 +5751,7 @@
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="./lumiere-gl.js?v=27" defer></script>
+<script src="./lumiere-gl.js?v=28" defer></script>
 <script>
 /* ============================================================
    WICHTIG: Bei jedem inhaltlichen Deploy hochzaehlen (wie CACHE_NAME
@@ -5687,7 +5762,7 @@
       unten) - neue, noch nicht "veroeffentlichte" Features hinter
       isReleased(N) verstecken; Admins sehen sie trotzdem sofort.
    ============================================================ */
-const APP_VERSION = 27;
+const APP_VERSION = 28;
 
 // Site-weites Feature-Gate: neue, aber noch nicht freigegebene Funktionen
 // hinter isReleased(<APP_VERSION beim Einbau>) verstecken. Admins (echtes
@@ -5965,18 +6040,19 @@ Antworte NUR mit dem Tipp selbst, maximal 15 Wörter, ohne Anführungszeichen, o
   return result ? result.trim() : null;
 }
 
-// --- Sound-System (ab Build 27: eigene Klangwelt) --------------------
-// Alles wird im Browser erzeugt - keine Dateien, keine Lizenzen, nichts zu
-// laden. Ein Weg fuer alle Klaenge: Effekte und Musik laufen je ueber einen
-// eigenen Regler in einen gemeinsamen Kompressor; ein selbst berechneter
-// Nachhall (abklingendes Rauschen) gibt beiden denselben Raum. Die alten
-// Funktionen (playTone, sndClick, sndCorrect ...) heissen wie vorher und
-// klingen nur anders - so bekommen Uebungen und Spiele die neuen Klaenge
-// ohne jede Aenderung dort.
+// --- Klang (ab Build 28: echte Instrumente) ------------------------------
+// Effekte kommen aus einer kleinen Klangbibliothek (sfx.mp3: Harfe, Kristall,
+// Marimba, Klavier, Chor, Horn ... aus dem FluidR3-Soundfont, MIT). Sie wird
+// erst mit der ersten Beruehrung geholt; bis dahin und ohne Netz klingen die
+// alten, im Browser erzeugten Stimmen. Die Namen (playTone, sndClick,
+// sndCorrect ...) sind geblieben - Spiele und Uebungen brauchen keine
+// Aenderung. Alles geht durch eine Drossel: jeder Klang hat einen
+// Mindestabstand, und mehr als sechs Klaenge in 150 ms gibt es nie.
 let audioCtx = null;
 let masterVolume = 0.7;
 let soundEnabled = true;
-const AUD = { out: null, sfx: null, sfxSend: null, music: null, noise: null };
+let audioUnlocked = false;
+const AUD = { out: null, sfx: null, sfxSend: null, music: null, musicFilter: null, noise: null };
 function ensureAudioCtx(){
   if(!audioCtx){
     try{ audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }catch(e){ return null; }
@@ -5986,48 +6062,152 @@ function ensureAudioCtx(){
 }
 function buildAudioGraph(ctx){
   const comp = ctx.createDynamicsCompressor();
-  comp.threshold.value = -18; comp.knee.value = 14; comp.ratio.value = 3;
-  comp.attack.value = 0.004; comp.release.value = 0.3;
+  comp.threshold.value = -16; comp.knee.value = 12; comp.ratio.value = 3;
+  comp.attack.value = 0.004; comp.release.value = 0.25;
   comp.connect(ctx.destination);
   AUD.out = comp;
+  // Raum: abklingendes Rauschen, links und rechts verschieden, mit ein paar
+  // fruehen Reflexionen - klingt nach Saal statt nach Blechdose.
   const rev = ctx.createConvolver();
-  const len = Math.floor(ctx.sampleRate * 2.4);
+  const len = Math.floor(ctx.sampleRate * 2.6);
   const buf = ctx.createBuffer(2, len, ctx.sampleRate);
   for(let ch = 0; ch < 2; ch++){
     const d = buf.getChannelData(ch);
     for(let i = 0; i < len; i++){
       const t = i / len;
-      d[i] = (Math.random() * 2 - 1) * Math.pow(1 - t, 3.4) * Math.min(1, i / 240);
+      d[i] = (Math.random() * 2 - 1) * Math.pow(1 - t, 3.2) * Math.min(1, i / 400);
     }
+    [0.011, 0.019, 0.027, 0.041].forEach((s, k) => { d[Math.floor((s + ch * 0.003) * ctx.sampleRate)] += 0.5 / (k + 1); });
   }
   rev.buffer = buf;
-  const revOut = ctx.createGain(); revOut.gain.value = 0.3;
+  const revOut = ctx.createGain(); revOut.gain.value = 0.34;
   rev.connect(revOut); revOut.connect(comp);
   AUD.sfx = ctx.createGain(); AUD.sfx.connect(comp);
   AUD.sfxSend = ctx.createGain(); AUD.sfxSend.connect(rev);
-  AUD.music = ctx.createGain(); AUD.music.gain.value = 0; AUD.music.connect(comp);
-  const mSend = ctx.createGain(); mSend.gain.value = 0.85;
+  // Musik: Tiefpass (Stimmung je Ort der Startseite) -> Lautstaerke. Das
+  // Stueck hat seinen Hall schon, deshalb nur ein Hauch in den Raum.
+  AUD.musicFilter = ctx.createBiquadFilter(); AUD.musicFilter.type = 'lowpass';
+  AUD.musicFilter.frequency.value = 2600; AUD.musicFilter.Q.value = 0.5;
+  AUD.music = ctx.createGain(); AUD.music.gain.value = 0;
+  AUD.musicFilter.connect(AUD.music); AUD.music.connect(comp);
+  const mSend = ctx.createGain(); mSend.gain.value = 0.1;
   AUD.music.connect(mSend); mSend.connect(rev);
-  // Eine Sekunde Rauschen fuer Wusch-Klaenge, einmal erzeugt.
-  const nb = ctx.createBuffer(1, ctx.sampleRate, ctx.sampleRate);
+  // Zwei Sekunden Rauschen fuer Luft und Wusch, einmal erzeugt.
+  const nb = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate);
   const nd = nb.getChannelData(0);
   for(let i = 0; i < nd.length; i++) nd[i] = Math.random() * 2 - 1;
   AUD.noise = nb;
 }
+// Browser erlauben Ton erst nach einer Beruehrung. Vorher wird gar nichts
+// geplant - sonst staut sich alles und platzt beim ersten Klick heraus.
+function unlockAudio(){
+  audioUnlocked = true;
+  if(!soundEnabled && !(typeof store !== 'undefined' && store.settings && store.settings.musicOn)) return;
+  const c = ensureAudioCtx();
+  if(c && c.state === 'suspended') c.resume();
+  loadSprite();
+}
+['pointerdown', 'touchend', 'keydown', 'click'].forEach(t => window.addEventListener(t, unlockAudio, { capture: true, passive: true }));
 function sfxCtx(){
-  if(!soundEnabled || masterVolume <= 0) return null;
+  if(!audioUnlocked || !soundEnabled || masterVolume <= 0 || document.hidden) return null;
   const ctx = ensureAudioCtx();
   if(!ctx) return null;
+  // Nach dem Freischalten ist "suspended" nur ein kurzer Uebergang (oder eine
+  // Unterbrechung auf dem iPhone) - fortsetzen, der Klang kommt dann mit.
   if(ctx.state === 'suspended') ctx.resume();
+  loadSprite();
   return ctx;
 }
+// Drossel: je Klang ein Mindestabstand, dazu hoechstens sechs Klaenge in 150 ms.
+const sndGates = {};
+const sndLim = { t: 0, n: 0 };
+function sndGate(key, gap){
+  const now = performance.now();
+  if(now - (sndGates[key] || -1e9) < gap) return false;
+  sndGates[key] = now;
+  return true;
+}
+function sndOk(key, gap){
+  const c = sfxCtx(); if(!c) return null;
+  if(key && !sndGate(key, gap)) return null;
+  const now = performance.now();
+  if(now - sndLim.t > 150){ sndLim.t = now; sndLim.n = 0; }
+  if(++sndLim.n > 6) return null;
+  return c;
+}
+// Tempo des Scrollens (Bildschirmhoehen je Sekunde), gesetzt aus scrub().
+// Wer schnell scrollt, hoert den Teppich statt einzelner Toene.
+let scrollSpeed = 0, scrollSpeedAt = 0;
+const scrollFast = () => scrollSpeed > 2.2 && performance.now() - scrollSpeedAt < 250;
+function holdParam(p, now){
+  if(p.cancelAndHoldAtTime) p.cancelAndHoldAtTime(now);
+  else{ p.cancelScheduledValues(now); p.setValueAtTime(p.value, now); }
+}
 const midiHz = (m) => 440 * Math.pow(2, (m - 69) / 12);
-// Eine Stimme: Oszillator durch Tiefpass, weich ein- und ausgeblendet, mit
-// etwas Hall. bus = Ziel (Effekte oder Musik).
+
+// --- Klangbibliothek ------------------------------------------------------
+// Platz: [Beginn s, Laenge s, MIDI-Ton]. Der genaue Einsatz wird beim Laden
+// gesucht (MP3 hat je nach Browser etwas Vorlauf).
+const SPRITE_URL = './sfx.mp3?v=28';
+const SPRITE_MAP = {
+  harp: [0.3, 2.2, 62], harpHi: [2.8, 1.8, 81], crystal: [4.9, 2.4, 86],
+  marimba: [7.6, 0.9, 74], mariHi: [8.8, 0.6, 86], piano: [9.7, 2.2, 74],
+  pianoLo: [12.2, 3.0, 50], epiano: [15.5, 2.0, 69], pizz: [17.8, 0.8, 62],
+  choir: [18.9, 3.2, 62], glass: [22.4, 3.2, 69], halo: [25.9, 2.8, 74],
+  horn: [29.0, 1.8, 62], timp: [31.1, 2.4, 38],
+};
+const sprite = { buf: null, loading: false, on: {} };
+function loadSprite(){
+  if(sprite.buf || sprite.loading || !audioCtx) return;
+  sprite.loading = true;
+  const go = () => fetch(SPRITE_URL)
+    .then(r => r.ok ? r.arrayBuffer() : Promise.reject(new Error('sfx ' + r.status)))
+    .then(ab => new Promise((res, rej) => audioCtx.decodeAudioData(ab, res, rej)))
+    .then(b => {
+      const d = b.getChannelData(0), sr = b.sampleRate;
+      Object.keys(SPRITE_MAP).forEach(k => {
+        const s = SPRITE_MAP[k][0];
+        let i = Math.max(0, Math.floor((s - 0.15) * sr));
+        const end = Math.min(d.length, Math.floor((s + 0.25) * sr));
+        while(i < end && Math.abs(d[i]) < 0.003) i++;
+        sprite.on[k] = Math.max(0, i - 4) / sr;
+      });
+      sprite.buf = b;
+    })
+    .catch(() => { setTimeout(() => { sprite.loading = false; }, 30000); });
+  if(window.requestIdleCallback) requestIdleCallback(go, { timeout: 1500 }); else setTimeout(go, 200);
+}
+// Ein Ton aus der Bibliothek, auf `midi` umgestimmt. false = (noch) nicht da.
+function samp(c, name, midi, vol, delay = 0, o = {}){
+  const slot = SPRITE_MAP[name];
+  if(!sprite.buf || !slot) return false;
+  const t0 = c.currentTime + delay;
+  const src = c.createBufferSource(); src.buffer = sprite.buf;
+  const rate = Math.pow(2, ((midi == null ? slot[2] : midi) - slot[2]) / 12);
+  src.playbackRate.value = rate;
+  const len = Math.min(o.dur || 99, slot[1] / rate);
+  const g = c.createGain();
+  if(o.attack){ g.gain.setValueAtTime(0.0001, t0); g.gain.linearRampToValueAtTime(vol, t0 + o.attack); }
+  else g.gain.setValueAtTime(vol, t0);
+  if(o.dur) g.gain.setTargetAtTime(0.0001, t0 + len * 0.55, len * 0.14);
+  let node = src;
+  if(o.filter){ const f = c.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = o.filter; f.Q.value = 0.6; src.connect(f); node = f; }
+  node.connect(g);
+  let out = g;
+  if(o.pan && c.createStereoPanner){ const p = c.createStereoPanner(); p.pan.value = o.pan; g.connect(p); out = p; }
+  out.connect(AUD.sfx);
+  const wet = o.wet == null ? 0.35 : o.wet;
+  if(wet > 0){ const s = c.createGain(); s.gain.value = wet; out.connect(s); s.connect(AUD.sfxSend); }
+  src.start(t0, sprite.on[name] || slot[0], slot[1]);
+  src.stop(t0 + len + 0.06);
+  return true;
+}
+
+// --- Ersatzstimmen (bis die Bibliothek da ist, und fuer Spiele) -----------
 function voice(ctx, o){
   const t0 = ctx.currentTime + (o.delay || 0);
   const osc = ctx.createOscillator(), g = ctx.createGain(), f = ctx.createBiquadFilter();
-  f.type = 'lowpass'; f.frequency.value = o.filter || o.freq * 2.4; f.Q.value = 0.7;
+  f.type = 'lowpass'; f.frequency.value = Math.min(ctx.sampleRate * 0.45, o.filter || o.freq * 2.4); f.Q.value = 0.7;
   osc.type = o.type || 'sine';
   osc.frequency.setValueAtTime(o.freq, t0);
   if(o.detune) osc.detune.value = o.detune;
@@ -6037,31 +6217,25 @@ function voice(ctx, o){
   g.gain.linearRampToValueAtTime(Math.max(0.0002, o.vol), t0 + atk);
   g.gain.exponentialRampToValueAtTime(0.0001, t0 + Math.max(atk + 0.02, o.dur));
   osc.connect(f); f.connect(g);
-  if(o.bus === 'music'){ g.connect(AUD.music); }
-  else{
-    g.connect(AUD.sfx);
-    const wet = o.wet == null ? 0.45 : o.wet;
-    if(wet > 0){ const s = ctx.createGain(); s.gain.value = wet; g.connect(s); s.connect(AUD.sfxSend); }
-  }
+  g.connect(AUD.sfx);
+  const wet = o.wet == null ? 0.45 : o.wet;
+  if(wet > 0){ const s = ctx.createGain(); s.gain.value = wet; g.connect(s); s.connect(AUD.sfxSend); }
   osc.start(t0); osc.stop(t0 + o.dur + 0.05);
 }
-// Glocke: Grundton plus unharmonische Teiltoene, die schneller verklingen.
-function bell(ctx, freq, vol, delay = 0, dur = 1.3, bus){
-  voice(ctx, { freq, dur, vol, delay, attack: 0.002, filter: freq * 6, bus, wet: 0.6 });
-  voice(ctx, { freq: freq * 2.0,  dur: dur * 0.45, vol: vol * 0.3,  delay, attack: 0.002, filter: freq * 8, bus, wet: 0.6 });
-  voice(ctx, { freq: freq * 2.76, dur: dur * 0.28, vol: vol * 0.18, delay, attack: 0.002, filter: freq * 10, bus, wet: 0.6 });
-  voice(ctx, { freq: freq * 5.4,  dur: dur * 0.12, vol: vol * 0.07, delay, attack: 0.001, filter: freq * 14, bus, wet: 0.6 });
+function bell(ctx, freq, vol, delay = 0, dur = 1.3){
+  voice(ctx, { freq, dur, vol, delay, attack: 0.002, filter: freq * 6, wet: 0.6 });
+  voice(ctx, { freq: freq * 2.0,  dur: dur * 0.45, vol: vol * 0.3,  delay, attack: 0.002, filter: freq * 8, wet: 0.6 });
+  voice(ctx, { freq: freq * 2.76, dur: dur * 0.28, vol: vol * 0.18, delay, attack: 0.002, filter: freq * 10, wet: 0.6 });
 }
-// Harfe/Klavier mit Filz: Dreieck, kurzer Anschlag, weiches Verklingen.
-function pluck(ctx, freq, vol, delay = 0, dur = 1.1, bus){
-  voice(ctx, { freq, dur, vol, delay, type: 'triangle', attack: 0.003, filter: freq * 3.2, bus });
-  voice(ctx, { freq: freq * 2, dur: dur * 0.5, vol: vol * 0.25, delay, attack: 0.003, filter: freq * 5, bus });
+function pluck(ctx, freq, vol, delay = 0, dur = 1.1){
+  voice(ctx, { freq, dur, vol, delay, type: 'triangle', attack: 0.003, filter: freq * 3.2 });
+  voice(ctx, { freq: freq * 2, dur: dur * 0.5, vol: vol * 0.25, delay, attack: 0.003, filter: freq * 5 });
 }
 // Wusch: Rauschen durch einen wandernden Bandpass.
 function swoosh(ctx, from, to, dur, vol, delay = 0){
   const t0 = ctx.currentTime + delay;
   const src = ctx.createBufferSource(); src.buffer = AUD.noise; src.loop = true;
-  const bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.Q.value = 1.4;
+  const bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.Q.value = 1.2;
   bp.frequency.setValueAtTime(from, t0); bp.frequency.exponentialRampToValueAtTime(to, t0 + dur);
   const g = ctx.createGain();
   g.gain.setValueAtTime(0.0001, t0);
@@ -6069,129 +6243,347 @@ function swoosh(ctx, from, to, dur, vol, delay = 0){
   g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
   src.connect(bp); bp.connect(g); g.connect(AUD.sfx);
   const s = ctx.createGain(); s.gain.value = 0.5; g.connect(s); s.connect(AUD.sfxSend);
-  src.start(t0); src.stop(t0 + dur + 0.05);
+  src.start(t0, Math.random()); src.stop(t0 + dur + 0.05);
 }
+// Instrument mit Ersatz: erst die Bibliothek, sonst eine erzeugte Stimme.
+const FALLBACK = {
+  harp: 'pluck', harpHi: 'pluck', pizz: 'pluck', piano: 'pluck', pianoLo: 'pluck', marimba: 'pluck', mariHi: 'pluck',
+  crystal: 'bell', epiano: 'bell', halo: 'bell', glass: 'bell', choir: 'pad', horn: 'pad', timp: 'drum',
+};
+function inst(c, name, midi, vol, delay = 0, o = {}){
+  if(samp(c, name, midi, vol, delay, o)) return;
+  const f = midiHz(midi == null ? SPRITE_MAP[name][2] : midi), kind = FALLBACK[name];
+  const dur = o.dur || (kind === 'pluck' ? 0.9 : 1.4);
+  if(kind === 'bell') bell(c, f, vol * 0.45, delay, dur);
+  else if(kind === 'pad') voice(c, { freq: f, dur: dur * 1.3, vol: vol * 0.35, delay, attack: o.attack || 0.25, type: 'triangle', filter: f * 2 });
+  else if(kind === 'drum') voice(c, { freq: f * 2, glideTo: f, dur: 0.9, vol: vol * 0.6, delay, filter: 400 });
+  else pluck(c, f, vol * 0.55, delay, dur);
+}
+const DMAJ = [62, 64, 66, 69, 71, 74, 76, 78, 81, 83, 86, 88, 90, 93, 95, 98];
 
-// Die alte Schnittstelle - Spiele und Uebungen rufen sie direkt auf.
+// Die alte Schnittstelle - Spiele rufen sie mit eigenen Tonhoehen auf.
 function playTone(freq, duration, type, volume, delay = 0, filterFreq){
   const ctx = sfxCtx(); if(!ctx) return;
   voice(ctx, { freq, dur: duration, type, vol: volume * masterVolume, delay, filter: filterFreq, wet: 0.35 });
 }
-function sndHover(){ const c = sfxCtx(); if(c) bell(c, 2093, 0.012 * masterVolume, 0, 0.25); }
+
+// --- Bedienung ------------------------------------------------------------
+// Ein Klick, der schon einen eigenen Klang hatte (Schalter, Reiter), bleibt
+// sonst stumm - sonst klingt beides uebereinander.
+let uiSoundAt = 0;
+const uiSounded = () => performance.now() - uiSoundAt < 120;
+function sndHover(){ const c = sndOk('hover', 80); if(c) inst(c, 'mariHi', 98, 0.022 * masterVolume, 0, { dur: 0.25, filter: 4200, wet: 0.2 }); }
 function sndClick(){
-  const c = sfxCtx(); if(!c) return;
-  voice(c, { freq: 620, dur: 0.07, type: 'triangle', vol: 0.07 * masterVolume, filter: 2200, wet: 0.2 });
-  bell(c, 1568, 0.018 * masterVolume, 0.005, 0.35);
+  if(uiSounded()) return;
+  const c = sndOk('click', 45); if(!c) return;
+  inst(c, 'marimba', 86, 0.085 * masterVolume, 0, { dur: 0.3, filter: 3800, wet: 0.14 });
 }
-function sndCorrect(){
-  const c = sfxCtx(); if(!c) return; const v = masterVolume;
-  pluck(c, midiHz(79), 0.09 * v, 0, 0.7);
-  pluck(c, midiHz(83), 0.09 * v, 0.08, 0.8);
-  bell(c, midiHz(86), 0.05 * v, 0.16, 1.1);
+function sndTab(){
+  const c = sndOk('tab', 60); if(!c) return;
+  uiSoundAt = performance.now();
+  inst(c, 'mariHi', 93, 0.07 * masterVolume, 0, { dur: 0.3, wet: 0.2 });
+  inst(c, 'mariHi', 98, 0.035 * masterVolume, 0.045, { dur: 0.25, wet: 0.2 });
 }
-function sndWrong(){
-  const c = sfxCtx(); if(!c) return;
-  voice(c, { freq: 233, glideTo: 170, dur: 0.3, type: 'triangle', vol: 0.09 * masterVolume, filter: 520, wet: 0.25 });
-  voice(c, { freq: 175, glideTo: 130, dur: 0.34, vol: 0.05 * masterVolume, delay: 0.05, filter: 400, wet: 0.2 });
+function sndToggle(on){
+  const c = sndOk('toggle', 60); if(!c) return;
+  uiSoundAt = performance.now();
+  const v = 0.08 * masterVolume;
+  if(on){ inst(c, 'marimba', 81, v, 0, { dur: 0.35 }); inst(c, 'marimba', 86, v, 0.06, { dur: 0.45 }); }
+  else { inst(c, 'marimba', 86, v * 0.8, 0, { dur: 0.3 }); inst(c, 'marimba', 79, v * 0.7, 0.06, { dur: 0.35, filter: 2200 }); }
 }
-function sndRetry(){ const c = sfxCtx(); if(c) pluck(c, midiHz(67), 0.06 * masterVolume, 0, 0.5); }
-function sndComplete(){
-  const c = sfxCtx(); if(!c) return; const v = masterVolume;
-  [74, 78, 81, 86, 90].forEach((m, i) => pluck(c, midiHz(m), 0.07 * v, i * 0.09, 1.2));
-  bell(c, midiHz(93), 0.045 * v, 0.5, 2.2);
+function sndSlide(frac){
+  const c = sndOk('slide', 55); if(!c) return;
+  const m = DMAJ[4 + Math.round(Math.max(0, Math.min(1, frac)) * 10)];
+  inst(c, 'mariHi', m, 0.035 * masterVolume, 0, { dur: 0.2, wet: 0.15 });
 }
-// Glitzern: eine kurze, steigende Kette winziger Glocken.
-function sndShimmer(vol = 1){
-  const c = sfxCtx(); if(!c) return;
-  const notes = [86, 90, 93, 95, 98, 102];
-  notes.forEach((m, i) => bell(c, midiHz(m), 0.02 * vol * masterVolume, i * 0.055 + Math.random() * 0.02, 0.9));
+function sndKey(){
+  const c = sndOk('key', 38); if(!c || !soundIsFine) return;
+  const t0 = c.currentTime;
+  const src = c.createBufferSource(); src.buffer = AUD.noise;
+  const bp = c.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 2600 + Math.random() * 1600; bp.Q.value = 2.2;
+  const g = c.createGain();
+  g.gain.setValueAtTime(0.022 * masterVolume, t0); g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.035);
+  src.connect(bp); bp.connect(g); g.connect(AUD.sfx);
+  src.start(t0, Math.random() * 1.5, 0.05);
 }
-// Feuerwerk: dumpfer Abschuss, Aufplatzen, Knistern, Glitzer.
-function sndFirework(){
-  const c = sfxCtx(); if(!c) return; const v = masterVolume;
-  for(let k = 0; k < 3; k++){
-    const d = k * 0.47;
-    voice(c, { freq: 110, glideTo: 48, dur: 0.5, vol: 0.13 * v, delay: d, filter: 300, wet: 0.5 });
-    swoosh(c, 3000, 600, 0.6, 0.05 * v, d);
-    for(let i = 0; i < 9; i++) voice(c, { freq: 2400 + Math.random() * 2600, dur: 0.03, vol: 0.02 * v, delay: d + 0.35 + Math.random() * 0.9, type: 'square', filter: 6000, wet: 0.6 });
-  }
-  setTimeout(() => sndShimmer(0.8), 250);
+function sndSubmit(){
+  const c = sndOk('submit', 250); if(!c) return;
+  uiSoundAt = performance.now();
+  const v = masterVolume;
+  inst(c, 'marimba', 74, 0.07 * v, 0, { dur: 0.4 });
+  inst(c, 'marimba', 81, 0.07 * v, 0.05, { dur: 0.5 });
+  inst(c, 'crystal', 93, 0.025 * v, 0.1, { dur: 0.8 });
 }
-// Startseite: tief und weich, mit Raum.
-function sndCineEnter(){
-  const c = sfxCtx(); if(!c) return; const v = masterVolume;
-  pluck(c, midiHz(50), 0.08 * v, 0, 1.8);
-  pluck(c, midiHz(57), 0.06 * v, 0.05, 1.8);
-  bell(c, midiHz(81), 0.035 * v, 0.1, 1.6);
-  swoosh(c, 400, 2400, 0.55, 0.03 * v);
+function sndPage(){
+  // Hatte der ausloesende Knopf schon einen eigenen Klang, bleibt es dabei.
+  if(uiSounded()) return;
+  const c = sndOk('page', 350); if(!c) return;
+  const v = masterVolume;
+  swoosh(c, 900, 3200, 0.34, 0.018 * v);
+  inst(c, 'harpHi', 81, 0.045 * v, 0.02, { dur: 0.9, pan: -0.15 });
+  inst(c, 'harpHi', 86, 0.035 * v, 0.07, { dur: 0.9, pan: 0.15 });
 }
-function sndCineScene(){
-  const c = sfxCtx(); if(!c) return;
-  swoosh(c, 700, 2600, 0.7, 0.026 * masterVolume);
-  bell(c, midiHz(88), 0.012 * masterVolume, 0.12, 1.2);
+function sndMenuOpen(){
+  const c = sndOk('menu', 200); if(!c) return;
+  uiSoundAt = performance.now();
+  const v = masterVolume;
+  [74, 78, 81, 86].forEach((m, i) => inst(c, 'harp', m, 0.06 * v, i * 0.035, { dur: 1.0, pan: -0.3 + i * 0.2 }));
+  swoosh(c, 500, 2600, 0.4, 0.016 * v);
 }
-function sndCineWord(){ const c = sfxCtx(); if(c) bell(c, midiHz(84), 0.014 * masterVolume, 0, 1.0); }
-function sndCineHover(){ const c = sfxCtx(); if(c) bell(c, midiHz(91), 0.008 * masterVolume, 0, 0.5); }
-// Karte umblaettern: Papierrascheln und ein gezupfter Ton.
-function sndCardTurn(){
-  const c = sfxCtx(); if(!c) return;
-  swoosh(c, 1800, 5200, 0.28, 0.028 * masterVolume);
-  pluck(c, midiHz(76 + [0, 2, 4, 7, 9][Math.floor(Math.random() * 5)]), 0.03 * masterVolume, 0.06, 0.9);
+function sndMenuClose(){
+  const c = sndOk('menu', 200); if(!c) return;
+  const v = masterVolume;
+  [86, 81, 78].forEach((m, i) => inst(c, 'harp', m, 0.045 * v, i * 0.035, { dur: 0.8, pan: 0.3 - i * 0.2 }));
+  swoosh(c, 2400, 700, 0.35, 0.013 * v);
+}
+function sndModalOpen(){
+  const c = sndOk('modal', 250); if(!c) return;
+  const v = masterVolume;
+  inst(c, 'epiano', 81, 0.07 * v, 0, { dur: 1.1 });
+  inst(c, 'crystal', 93, 0.02 * v, 0.05, { dur: 0.9 });
+}
+function sndModalClose(){
+  const c = sndOk('modal', 250); if(!c) return;
+  inst(c, 'epiano', 74, 0.05 * masterVolume, 0, { dur: 0.8, filter: 2600 });
 }
 
-// --- Hintergrundmusik "Pariser Abend" (Startseite) ------------------------
-// Ruhige Akkorde wie in einem Cafe bei Nacht: gezupfte Klavier-Harfe mit
-// weichem Teppich darunter und seltenen Melodietoenen, alles mit Hall.
-// Erzeugt, nicht abgespielt - sie wiederholt sich also nie genau gleich.
-// Laeuft nur auf der Startseite und nur, wenn sie eingeschaltet ist.
-const MUSIC_CHORDS = [
-  { bass: 38, notes: [54, 57, 61, 64] },   // Dmaj9
-  { bass: 35, notes: [50, 57, 61, 66] },   // Hm9
-  { bass: 43, notes: [54, 59, 62, 69] },   // Gmaj9
-  { bass: 45, notes: [55, 59, 62, 66] },   // A13sus
-  { bass: 40, notes: [55, 59, 62, 66] },   // Em9
-  { bass: 45, notes: [55, 61, 64, 66] },   // A13
-];
-const MUSIC_MELODY = [74, 76, 78, 81, 83, 86, 88];
-const music = { playing: false, timer: 0, step: 0 };
-const BAR = 5.2;
-function musicBar(){
-  if(!music.playing || !audioCtx) return;
-  const ctx = audioCtx;
-  const ch = MUSIC_CHORDS[music.step % MUSIC_CHORDS.length];
-  music.step++;
-  // Bass: weich, lang.
-  voice(ctx, { freq: midiHz(ch.bass), dur: BAR * 1.1, vol: 0.12, attack: 0.08, filter: 320, bus: 'music' });
-  // Akkord, leicht gebrochen gespielt.
-  ch.notes.forEach((m, i) => pluck(ctx, midiHz(m), 0.05, 0.05 + i * 0.07, 3.6, 'music'));
-  // Teppich: zwei leicht verstimmte Dreiecke, langsam ein- und ausgeblendet.
-  ch.notes.slice(1).forEach(m => {
-    voice(ctx, { freq: midiHz(m), dur: BAR * 1.25, vol: 0.016, attack: 1.6, type: 'triangle', filter: 900, detune: -6, bus: 'music' });
-    voice(ctx, { freq: midiHz(m), dur: BAR * 1.25, vol: 0.016, attack: 1.6, type: 'triangle', filter: 900, detune: 7, bus: 'music' });
-  });
-  // Melodie: selten, zwei, drei Toene - wie jemand, der nebenbei spielt.
-  if(Math.random() < 0.7){
-    const n = 1 + Math.floor(Math.random() * 3);
-    let t = 1.2 + Math.random() * 1.2;
-    for(let i = 0; i < n; i++){
-      const m = MUSIC_MELODY[Math.floor(Math.random() * MUSIC_MELODY.length)];
-      bell(ctx, midiHz(m), 0.022, t, 2.2, 'music');
-      t += 0.55 + Math.random() * 0.7;
-    }
-  }
-  music.timer = setTimeout(musicBar, BAR * 1000);
+// --- Rueckmeldung beim Lernen ---------------------------------------------
+function sndCorrect(){
+  const c = sndOk('correct', 90); if(!c) return; const v = masterVolume;
+  inst(c, 'harp', 74, 0.16 * v, 0, { dur: 1.1, pan: -0.1 });
+  inst(c, 'harp', 81, 0.14 * v, 0.075, { dur: 1.2, pan: 0.1 });
+  inst(c, 'crystal', 86, 0.06 * v, 0.14, { dur: 1.4 });
 }
+function sndWrong(){
+  const c = sndOk('wrong', 120); if(!c) return; const v = masterVolume;
+  inst(c, 'pizz', 62, 0.13 * v, 0, { filter: 1600 });
+  inst(c, 'pizz', 57, 0.12 * v, 0.11, { filter: 1300 });
+  inst(c, 'pianoLo', 45, 0.05 * v, 0.02, { dur: 0.9, filter: 900, wet: 0.2 });
+}
+function sndRetry(){ const c = sndOk('retry', 150); if(c) inst(c, 'pizz', 69, 0.09 * masterVolume, 0, { filter: 2400 }); }
+function sndComplete(){
+  const c = sndOk('complete', 800); if(!c) return; const v = masterVolume;
+  [62, 66, 69, 74, 78, 81].forEach((m, i) => inst(c, 'harp', m, 0.11 * v, i * 0.07, { dur: 1.6, pan: -0.35 + i * 0.14 }));
+  inst(c, 'piano', 86, 0.09 * v, 0.45, { dur: 2.0 });
+  inst(c, 'crystal', 93, 0.05 * v, 0.5, { dur: 1.8 });
+  inst(c, 'halo', 74, 0.06 * v, 0.05, { attack: 0.5 });
+}
+function sndCoin(){
+  const c = sndOk('coin', 140); if(!c) return; const v = masterVolume;
+  inst(c, 'mariHi', 98, 0.06 * v, 0, { dur: 0.25, wet: 0.25 });
+  inst(c, 'crystal', 105, 0.04 * v, 0.07, { dur: 0.7 });
+}
+function sndStreak(){
+  const c = sndOk('streak', 5000); if(!c) return; const v = masterVolume;
+  inst(c, 'horn', 62, 0.07 * v, 0.35, { attack: 0.08 });
+  inst(c, 'horn', 69, 0.06 * v, 0.5, { attack: 0.08 });
+  [74, 78, 81].forEach((m, i) => inst(c, 'harpHi', m, 0.06 * v, 0.55 + i * 0.08, { dur: 1.2 }));
+}
+function sndGoal(){
+  const c = sndOk('goal', 5000); if(!c) return; const v = masterVolume;
+  inst(c, 'horn', 62, 0.08 * v, 0.3, { attack: 0.1 });
+  inst(c, 'horn', 66, 0.065 * v, 0.3, { attack: 0.1 });
+  inst(c, 'horn', 69, 0.065 * v, 0.3, { attack: 0.1 });
+  inst(c, 'piano', 86, 0.09 * v, 0.55, { dur: 2.0 });
+  inst(c, 'halo', 74, 0.07 * v, 0.3, { attack: 0.6 });
+  [90, 93, 95, 98].forEach((m, i) => inst(c, 'crystal', m, 0.03 * v, 0.7 + i * 0.07, { dur: 1.2 }));
+}
+function sndRecord(){
+  const c = sndOk('record', 3000); if(!c) return; const v = masterVolume;
+  inst(c, 'horn', 69, 0.08 * v, 0, { attack: 0.05, dur: 0.5 });
+  inst(c, 'horn', 74, 0.09 * v, 0.22, { attack: 0.05 });
+  [74, 78, 81, 86, 90].forEach((m, i) => inst(c, 'harp', m, 0.08 * v, 0.3 + i * 0.06, { dur: 1.4 }));
+  sndShimmer(1.2, 0.6);
+}
+
+// --- Hinweise -------------------------------------------------------------
+function sndToast(type){
+  const c = sndOk('notice', 600); if(!c) return; const v = masterVolume;
+  if(type === 'error'){
+    inst(c, 'epiano', 62, 0.07 * v, 0, { dur: 0.7, filter: 1800 });
+    inst(c, 'epiano', 57, 0.06 * v, 0.12, { dur: 0.9, filter: 1500 });
+  } else if(type === 'info'){
+    inst(c, 'epiano', 78, 0.055 * v, 0, { dur: 0.8 });
+    inst(c, 'epiano', 81, 0.05 * v, 0.1, { dur: 1.0 });
+  } else {
+    inst(c, 'epiano', 81, 0.055 * v, 0, { dur: 0.8 });
+    inst(c, 'epiano', 86, 0.05 * v, 0.09, { dur: 1.1 });
+  }
+}
+function sndMessage(){
+  const c = sndOk('notice', 600); if(!c) return; const v = masterVolume;
+  [86, 93, 90].forEach((m, i) => inst(c, 'crystal', m, 0.05 * v, i * 0.13, { dur: 1.3 }));
+  inst(c, 'epiano', 74, 0.04 * v, 0, { dur: 1.2 });
+}
+function sndLogin(){
+  const c = sndOk('login', 3000); if(!c) return; const v = masterVolume;
+  sndGate('notice', 0);
+  [62, 69, 74].forEach((m, i) => inst(c, 'harp', m, 0.08 * v, i * 0.08, { dur: 1.4 }));
+  inst(c, 'piano', 81, 0.07 * v, 0.28, { dur: 1.8 });
+  inst(c, 'halo', 74, 0.05 * v, 0.1, { attack: 0.5 });
+}
+
+// --- Startseite -----------------------------------------------------------
+// Glitzern: eine kurze, steigende Kette aus Kristall.
+function sndShimmer(vol = 1, delay = 0){
+  const c = sfxCtx(); if(!c) return;
+  [86, 90, 93, 95, 98, 102].forEach((m, i) => inst(c, 'crystal', m, 0.035 * vol * masterVolume, delay + i * 0.06 + Math.random() * 0.02, { dur: 1.1, pan: -0.4 + i * 0.16 }));
+}
+// Der Flug zum Turm: Glas schwillt an, eine Harfe laeuft hinauf.
+function sndFlight(){
+  const c = sndOk('flight', 4000); if(!c) return; const v = masterVolume;
+  inst(c, 'glass', 69, 0.09 * v, 0, { attack: 0.7 });
+  inst(c, 'glass', 74, 0.06 * v, 0.1, { attack: 0.8 });
+  DMAJ.slice(3, 12).forEach((m, i) => inst(c, 'harp', m, 0.045 * v, 0.35 + i * 0.05, { dur: 1.0, pan: -0.5 + i * 0.12 }));
+  sndShimmer(0.9, 0.85);
+}
+// Lichtregen: vereinzelte Kristalltropfen ueber zwei Sekunden, dazu Glas.
+function sndLightRain(){
+  const c = sndOk('rain', 5000); if(!c) return; const v = masterVolume;
+  inst(c, 'glass', 81, 0.05 * v, 0, { attack: 0.9 });
+  const pool = [86, 88, 90, 93, 95, 98, 100, 102];
+  for(let i = 0; i < 14; i++){
+    inst(c, 'crystal', pool[Math.floor(Math.random() * pool.length)], (0.014 + Math.random() * 0.024) * v,
+      0.2 + Math.random() * 2.4, { dur: 1.2, pan: Math.random() * 1.6 - 0.8, wet: 0.6 });
+  }
+}
+const sndFirework = sndLightRain;
+// Abstieg in die Halle: Pauke, Chor, tiefes Klavier.
+function sndDescent(){
+  const c = sndOk('descent', 5000); if(!c) return; const v = masterVolume;
+  inst(c, 'timp', 38, 0.16 * v, 0, { wet: 0.5 });
+  inst(c, 'pianoLo', 38, 0.08 * v, 0.02, { filter: 900 });
+  inst(c, 'choir', 62, 0.08 * v, 0.1, { attack: 1.1 });
+  inst(c, 'choir', 69, 0.055 * v, 0.2, { attack: 1.2 });
+  inst(c, 'glass', 57, 0.04 * v, 0.3, { attack: 1.0 });
+}
+// Unten angekommen: ein ruhiger Akkord.
+function sndHallArrive(){
+  const c = sndOk('arrive', 5000); if(!c) return; const v = masterVolume;
+  [62, 69, 74, 78, 81].forEach((m, i) => inst(c, 'harp', m, 0.06 * v, i * 0.09, { dur: 1.8 }));
+  inst(c, 'piano', 86, 0.05 * v, 0.5, { dur: 2.0 });
+  inst(c, 'halo', 74, 0.05 * v, 0.2, { attack: 0.8 });
+}
+function sndCineEnter(){
+  const c = sndOk('enter', 300); if(!c) return; const v = masterVolume;
+  uiSoundAt = performance.now();
+  inst(c, 'pianoLo', 50, 0.11 * v, 0, { filter: 1800 });
+  inst(c, 'piano', 69, 0.07 * v, 0.03, { dur: 1.8 });
+  inst(c, 'harpHi', 86, 0.05 * v, 0.1, { dur: 1.4 });
+  swoosh(c, 400, 2400, 0.55, 0.022 * v);
+}
+// Szenenwechsel beim Scrollen: selten und leise, beim schnellen Scrollen gar nicht.
+function sndCineScene(){
+  if(scrollFast()) return;
+  const c = sndOk('scene', 2600); if(!c) return; const v = masterVolume;
+  inst(c, 'harpHi', 81, 0.032 * v, 0, { dur: 1.2, pan: -0.2 });
+  inst(c, 'harpHi', 88, 0.024 * v, 0.09, { dur: 1.2, pan: 0.2 });
+}
+// Das Wort wechselt: nur ein Hauch.
+function sndCineWord(){
+  if(scrollFast()) return;
+  const c = sndOk('word', 1400); if(!c) return;
+  inst(c, 'crystal', 93, 0.009 * masterVolume, 0, { dur: 0.9, wet: 0.7 });
+}
+function sndCineHover(){}
+// Karte am Turm: leises Papier, ein gezupfter Ton - beim schnellen Drehen nur die Luft.
+function sndCardTurn(){
+  const c = sndOk('card', 380); if(!c) return; const v = masterVolume;
+  swoosh(c, 1600, 4800, 0.26, 0.016 * v);
+  if(!scrollFast()) inst(c, 'pizz', [74, 76, 78, 81, 83][Math.floor(Math.random() * 5)], 0.05 * v, 0.04, { filter: 3000, wet: 0.45 });
+}
+// Scroll-Teppich: Luft und ein tiefer Grundton, die mit dem Tempo anschwellen.
+const bed = { g: null, f: null, src: null, oscs: null, stopT: 0, at: 0 };
+function sndScrollBed(speed){
+  const c = audioCtx;
+  if(!c || !audioUnlocked || !soundEnabled || masterVolume <= 0 || c.state !== 'running' || document.hidden) return;
+  const nowMs = performance.now();
+  if(nowMs - bed.at < 50) return;
+  bed.at = nowMs;
+  if(!bed.g){
+    bed.f = c.createBiquadFilter(); bed.f.type = 'lowpass'; bed.f.frequency.value = 300; bed.f.Q.value = 0.9;
+    bed.g = c.createGain(); bed.g.gain.value = 0;
+    bed.f.connect(bed.g); bed.g.connect(AUD.sfx);
+    const s = c.createGain(); s.gain.value = 0.7; bed.g.connect(s); s.connect(AUD.sfxSend);
+  }
+  if(!bed.src){
+    bed.src = c.createBufferSource(); bed.src.buffer = AUD.noise; bed.src.loop = true;
+    bed.src.connect(bed.f); bed.src.start();
+    const tone = c.createGain(); tone.gain.value = 0.18; tone.connect(bed.f);
+    bed.oscs = [midiHz(38), midiHz(45), midiHz(50)].map((f, i) => {
+      const o = c.createOscillator(); o.type = 'sine'; o.frequency.value = f; o.detune.value = (i - 1) * 4;
+      o.connect(tone); o.start(); return o;
+    });
+  }
+  const now = c.currentTime, amt = Math.min(1, speed / 3);
+  holdParam(bed.g.gain, now);
+  bed.g.gain.setTargetAtTime(amt * 0.07 * masterVolume, now, 0.14);
+  bed.g.gain.setTargetAtTime(0, now + 0.2, 0.4);
+  holdParam(bed.f.frequency, now);
+  bed.f.frequency.setTargetAtTime(240 + amt * 2600, now, 0.16);
+  clearTimeout(bed.stopT);
+  bed.stopT = setTimeout(() => {
+    try{ bed.src.stop(); bed.oscs.forEach(o => o.stop()); }catch(e){}
+    bed.src = null; bed.oscs = null;
+  }, 3000);
+}
+
+// --- Hintergrundmusik "Soir à Paris" (Startseite) -------------------------
+// Ein eigenes Stueck, Kino und Jazz: Einleitung, Jazz-Teil mit Klavier und
+// Kontrabass, ein Kino-Teil mit Cello und Harfe, Ausklang - 36 Takte bei 72
+// Schlaegen, gerendert aus dem FluidR3-Soundfont (MIT). Die Datei ist 7 s
+// laenger als die Schleife: dort klingt nur der Hall aus, waehrend die zweite
+// Kopie schon wieder vorn beginnt. Geholt wird sie erst, wenn jemand die
+// Musik einschaltet. Klang je Ort: oben vertraeumt, am Turm voll, in der
+// Halle weicher (musicMood aus scrub()).
+const MUSIC_URL = './soir.mp3?v=28';
+const MUSIC_LOOP = 120;
+const MUSIC_GAIN = 0.85;
+const music = { playing: false, els: [], cur: 0, timer: 0, stopT: 0, fc: 0 };
 function musicVolume(){ return Math.max(0, Math.min(1, (store.settings.musicVolume ?? 40) / 100)); }
+function musicEl(i){
+  if(!music.els[i]){
+    const a = new Audio();
+    a.preload = 'auto';
+    a.setAttribute('playsinline', '');
+    a.src = MUSIC_URL;
+    try{ audioCtx.createMediaElementSource(a).connect(AUD.musicFilter); }catch(e){}
+    // Sicherheitsnetz, falls der Zeitgeber gedrosselt wurde.
+    a.addEventListener('timeupdate', () => { if(music.playing && music.els[music.cur] === a && a.currentTime > MUSIC_LOOP + 0.4) musicNext(); });
+    music.els[i] = a;
+  }
+  return music.els[i];
+}
+function musicNext(){
+  if(!music.playing) return;
+  music.cur = 1 - music.cur;
+  const b = musicEl(music.cur);
+  try{ b.currentTime = 0; }catch(e){}
+  b.play().catch(() => {});
+  musicArm();
+}
+// Plant den Einsatz der zweiten Kopie auf MUSIC_LOOP genau.
+function musicArm(){
+  clearTimeout(music.timer);
+  const a = music.els[music.cur];
+  if(!a || !music.playing) return;
+  const left = MUSIC_LOOP - a.currentTime;
+  if(left > 9){ music.timer = setTimeout(musicArm, (left - 8) * 1000); return; }
+  const b = musicEl(1 - music.cur);
+  if(b.paused){ try{ b.currentTime = 0; }catch(e){} }
+  music.timer = setTimeout(musicNext, Math.max(0, left * 1000));
+}
 function musicStart(){
-  if(music.playing) return;
+  if(music.playing || !audioUnlocked) return;
   const ctx = ensureAudioCtx(); if(!ctx) return;
   if(ctx.state === 'suspended') ctx.resume();
+  clearTimeout(music.stopT);
   music.playing = true;
   const g = AUD.music.gain;
-  g.cancelScheduledValues(ctx.currentTime);
-  g.setValueAtTime(g.value, ctx.currentTime);
-  g.linearRampToValueAtTime(musicVolume() * 1.8, ctx.currentTime + 2.5);
-  musicBar();
+  holdParam(g, ctx.currentTime);
+  g.linearRampToValueAtTime(musicVolume() * MUSIC_GAIN, ctx.currentTime + 2.5);
+  const a = musicEl(music.cur);
+  a.play().then(musicArm).catch(() => { music.playing = false; updateMusicUI(); });
   updateMusicUI();
 }
 function musicStop(){
@@ -6200,18 +6592,26 @@ function musicStop(){
   clearTimeout(music.timer);
   if(audioCtx){
     const g = AUD.music.gain;
-    g.cancelScheduledValues(audioCtx.currentTime);
-    g.setValueAtTime(g.value, audioCtx.currentTime);
+    holdParam(g, audioCtx.currentTime);
     g.linearRampToValueAtTime(0, audioCtx.currentTime + 1.2);
   }
+  clearTimeout(music.stopT);
+  music.stopT = setTimeout(() => { if(!music.playing) music.els.forEach(a => a.pause()); }, 1300);
   updateMusicUI();
+}
+// Stimmung je Ort: fc = Grenzfrequenz des Tiefpasses.
+function musicMood(fc){
+  if(!music.playing || !audioCtx) return;
+  if(Math.abs(fc - music.fc) < music.fc * 0.04) return;
+  music.fc = fc;
+  const p = AUD.musicFilter.frequency;
+  holdParam(p, audioCtx.currentTime);
+  p.setTargetAtTime(fc, audioCtx.currentTime, 0.45);
 }
 function musicWanted(){
   return !!store.settings.musicOn && currentViewIsHub() && document.visibilityState === 'visible';
 }
 function currentViewIsHub(){ const v = document.getElementById('view-hub'); return !!v && !v.hidden; }
-// Browser erlauben Ton erst nach einer Beruehrung. Ist die Musik
-// eingeschaltet, beginnt sie deshalb mit der ersten Beruehrung der Seite.
 function musicSync(){ if(musicWanted()) musicStart(); else musicStop(); }
 function updateMusicUI(){
   const on = !!store.settings.musicOn;
@@ -6233,6 +6633,43 @@ function wireSounds(root = document){
     if(!el.dataset.soundWiredClick){ el.addEventListener('click', sndClick); el.dataset.soundWiredClick = '1'; }
   });
 }
+// Bedienung (Build 28): Schalter, Reiter, Regler, Tippen und Absenden -
+// einmal fuer die ganze Seite. In der Fangphase, damit der eigene Klang vor
+// dem allgemeinen Klick kommt und diesen verstummen laesst (uiSounded).
+document.addEventListener('click', (e) => {
+  const t = e.target;
+  if(!t || !t.closest) return;
+  if(t.matches('input[type="checkbox"]')) sndToggle(t.checked);
+  else if(t.closest('[role="tab"], [data-admin-tab], .lb-tabs .chip')) sndTab();
+}, true);
+// Regler ohne Fangphase: erst stellt der Regler selbst die Lautstaerke um,
+// dann klingt der Ton schon in der neuen.
+document.addEventListener('input', (e) => {
+  const t = e.target;
+  if(t && t.type === 'range') sndSlide((t.value - (t.min || 0)) / ((t.max || 100) - (t.min || 0)));
+});
+document.addEventListener('keydown', (e) => {
+  const t = e.target;
+  if(!t || e.repeat || e.ctrlKey || e.metaKey) return;
+  const typing = t.tagName === 'TEXTAREA' || (t.tagName === 'INPUT' && /^(text|search|email|password|url|tel)$/.test(t.type));
+  if(typing && (e.key.length === 1 || e.key === 'Backspace')) sndKey();
+}, true);
+// Antworten in Uebungen haben ihren eigenen Klang (richtig/falsch).
+document.addEventListener('submit', (e) => { if(!e.target.matches('#freeTextForm, #formListenFree')) sndSubmit(); }, true);
+// Fenster auf und zu: ein Beobachter fuer alle Dialoge statt Aufrufe an
+// jeder Stelle, die eins oeffnet.
+(function watchDialogs(){
+  const els = [...document.querySelectorAll('.modal-backdrop, .confirm-backdrop, .pic-backdrop, #pwResetScreen')];
+  const isOpen = (el) => el.matches('.pic-backdrop, #pwResetScreen') ? !el.hidden : el.classList.contains('open');
+  const state = new Map(els.map(el => [el, isOpen(el)]));
+  const mo = new MutationObserver((recs) => recs.forEach(r => {
+    const el = r.target, o = isOpen(el);
+    if(o === state.get(el)) return;
+    state.set(el, o);
+    if(o) sndModalOpen(); else sndModalClose();
+  }));
+  els.forEach(el => mo.observe(el, { attributes: true, attributeFilter: ['class', 'hidden'] }));
+})();
 
 // --- Text-zu-Sprache (Aussprache) ------------------------------------
 function speak(text, lang, btn){
@@ -6841,6 +7278,7 @@ function showToast(message, type = 'success'){
   else if(type === false) type = 'success';
   if(!TOAST_ICONS[type]) type = 'info';
   toast.className = 'toast toast-' + type;
+  sndToast(type);
   toast.innerHTML =
     `<svg class="toast-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${TOAST_ICONS[type]}</svg>` +
     `<span>${escapeHtml(message)}</span>`;
@@ -8061,6 +8499,7 @@ async function initAuth(){
       openPasswordResetScreen();
     } else if(event === 'SIGNED_IN' && session && (!currentUser || currentUser.id !== session.user.id)){
       currentUser = session.user;
+      sndLogin();
       Promise.all([pullCloudData(), loadOrCreateProfile()]).then(() => {
         updateAccountUI();
         loadInbox(true).then(() => setTimeout(inboxLoginToast, 900));
@@ -9821,6 +10260,7 @@ function inboxLoginToast(){
   if(!unread) return;
   const key = 'lumiere_inbox_toast_' + currentUser.id;
   try{ if(sessionStorage.getItem(key)) return; sessionStorage.setItem(key, '1'); }catch(e){}
+  sndMessage();
   showToast(unread === 1 ? 'Du hast eine neue Nachricht – in „Mein Konto“.' : `Du hast ${unread} neue Nachrichten – in „Mein Konto“.`, 'info');
 }
 document.getElementById('accInbox').addEventListener('click', async (e) => {
@@ -10279,8 +10719,10 @@ function reducedMotionActive(){
 
 function recordDailyProgress(n = 1){
   const key = todayKey();
-  store.dailyProgress[key] = (store.dailyProgress[key] || 0) + n;
+  const before = store.dailyProgress[key] || 0, goal = store.settings.dailyGoal;
+  store.dailyProgress[key] = before + n;
   saveData(store);
+  if(goal && before < goal && before + n >= goal) setTimeout(sndGoal, 450);
 }
 function applySettingsToUI(){
   const g = store.settings.glowIntensity;
@@ -10727,6 +11169,7 @@ function persistLastView(name, adminTab){
   if(name === 'admin') payload.adminTab = adminTab || 'overview';
   try{ sessionStorage.setItem(LAST_VIEW_KEY, JSON.stringify(payload)); }catch(e){}
 }
+let lastShownView = null;
 function showView(name){
   // Soundbug: Aussprache-Wiedergabe lief bisher im Hintergrund weiter, wenn man
   // waehrend des Vorlesens auf eine andere Seite wechselte - die Stimme redete
@@ -10747,6 +11190,8 @@ function showView(name){
   document.body.classList.toggle('wide-view-active', name === 'hub' || name === 'appDownload' || name === 'admin');
   document.body.classList.toggle('admin-view-active', name === 'admin');
   persistLastView(name);
+  if(lastShownView && lastShownView !== name) sndPage();
+  lastShownView = name;
   // Signal fuer Effekte, die nur auf bestimmten Seiten laufen sollen (Hero-Shader).
   window.dispatchEvent(new CustomEvent('lumiere:viewchange', { detail: { view: name } }));
 }
@@ -10804,6 +11249,7 @@ function updateNavActiveStates(){
 }
 
 function openNavOverlay(){
+  if(!navOverlay.classList.contains('open')) sndMenuOpen();
   navOverlay.classList.add('open');
   btnMenu.classList.add('open');
   btnMenu.setAttribute('aria-expanded', 'true');
@@ -10811,13 +11257,14 @@ function openNavOverlay(){
   updateNavActiveStates();
 }
 function closeNavOverlay(){
+  // Fuehrt der Klick auf eine andere Seite, klingt nur der Seitenwechsel.
+  if(navOverlay.classList.contains('open')) setTimeout(() => { if(performance.now() - (sndGates.page || -1e9) > 150) sndMenuClose(); }, 40);
   navOverlay.classList.remove('open');
   btnMenu.classList.remove('open');
   btnMenu.setAttribute('aria-expanded', 'false');
   document.body.classList.remove('nav-overlay-open');
 }
 btnMenu.addEventListener('click', () => {
-  sndClick();
   if(navOverlay.classList.contains('open')) closeNavOverlay(); else openNavOverlay();
 });
 navOverlay.querySelector('.nav-overlay-bg').addEventListener('click', closeNavOverlay);
@@ -10953,18 +11400,58 @@ const CINE_PAIRS = [
 
   // Schwache Geraete bekommen dieselbe Inszenierung, nur guenstiger gerechnet:
   // weniger Partikel, einfacheres Material, niedrigere Aufloesung.
-  const lite = window.matchMedia('(max-width: 820px)').matches
-            || (navigator.hardwareConcurrency || 8) <= 4;
+  // Geraeteklasse (Build 28): nur das Handy ist "lite". Das iPad (820 px
+  // hochkant) galt frueher auch als lite und bekam die grobe Geometrie ohne
+  // Kantenglaettung - daher wirkte es pixelig. Es laeuft jetzt voll, die
+  // Qualitaetsregelung der 3D-Ebene faengt es ab, falls es eng wird.
   const coarse = window.matchMedia('(pointer: coarse)').matches;
+  const shortSide = Math.min(screen.width || innerWidth, screen.height || innerHeight);
+  const tier = (shortSide < 600 || (navigator.hardwareConcurrency || 8) <= 2) ? 'phone'
+             : coarse ? 'tablet' : 'desktop';
+  const lite = tier === 'phone';
 
   let dpr = 1, w = 0, h = 0, rafId = 0, running = false;
   let glReady = false, glTried = false;
   let pointer = { x: -9999, y: -9999, vx: 0, vy: 0, active: false };
   let motes = [], pairIndex = 0, lastSceneKey = '';
   let deckIndex = -1;
-  let deckTarget = 0, deckShown = 0;
+  let deckTarget = 0, deckShown = 0, deckAt = 0;
   let tourVis = 0;
-  let flightChimed = false;
+  // Klang der Reise (Build 28): Tempo -> Scroll-Teppich, vier besondere
+  // Momente je einmal pro Durchgang (erst wieder, wenn man deutlich
+  // zurueckgescrollt hat), Musik je Ort heller oder dunkler.
+  const moments = { flight: false, rain: false, descent: false, arrive: false };
+  let sndScrollY = window.scrollY, sndScrollT = performance.now();
+  function cineSound(towerAmt, tp, hallIn, hallP, heroTop){
+    const now = performance.now(), dt = Math.max(8, now - sndScrollT);
+    // Erstes Ereignis nach einer Pause (Seitenwechsel, Groessenaenderung):
+    // nur neu ansetzen, sonst gaebe der Sprung ein falsches Tempo.
+    const inst = dt > 300 ? 0 : Math.abs(window.scrollY - sndScrollY) / window.innerHeight / (dt / 1000);
+    if(dt > 300) scrollSpeed = 0;
+    sndScrollY = window.scrollY; sndScrollT = now; scrollSpeedAt = now;
+    scrollSpeed = scrollSpeed * 0.7 + Math.min(12, inst) * 0.3;
+    if(scrollSpeed > 0.15) sndScrollBed(scrollSpeed);
+    // Schnell durchgerauscht: der Moment gilt als erlebt, klingt aber nicht.
+    // Springt die Seite ueber mehrere Momente auf einmal, klingt nur der
+    // letzte - nie drei uebereinander.
+    let play = null;
+    const hit = (key, on, off, fn) => {
+      if(!moments[key] && on){ moments[key] = true; play = fn; }
+      else if(moments[key] && off) moments[key] = false;
+    };
+    hit('flight', towerAmt > 0.25, towerAmt < 0.05, sndFlight);
+    hit('rain', towerAmt > 0.9 && tp > 0.86, tp < 0.7, sndLightRain);
+    hit('descent', hallIn > 0.35, hallIn < 0.08, sndDescent);
+    hit('arrive', hallP > 0.9, hallP < 0.6, sndHallArrive);
+    if(play && scrollSpeed < 5 && sndGate('moment', 1500)) play();
+    // Oben vertraeumt, unterwegs klarer, am Turm voll, in der Halle weicher.
+    const hero = Math.max(0, Math.min(1, 1 + heroTop));
+    let fc = 7000 + (2400 - 7000) * hero;
+    fc += (18000 - fc) * towerAmt;
+    fc += (4200 - fc) * hallIn;
+    musicMood(fc);
+  }
+  let liquidFor = null;
 
   function reduced(){ return reducedMotionActive(); }
 
@@ -10985,7 +11472,7 @@ const CINE_PAIRS = [
       .getPropertyValue('--bg').trim() || '#0f131c';
     // Marmor fuer das Startbild (Build 27): auf schwachen Geraeten die kleine Fassung.
     const marble = (lite ? './marble-s.webp' : './marble.webp') + '?v=' + APP_VERSION;
-    glReady = window.LumiereGL.init(glCanvas, { lite, bg, marble });
+    glReady = window.LumiereGL.init(glCanvas, { lite, tier, bg, marble });
     // Die beiden Punkt-Videos (Build 18). Die 3D-Ebene holt sie erst, wenn
     // sie gebraucht werden, und nimmt MP4 oder WebM - je nachdem, was der
     // Browser kann.
@@ -11003,6 +11490,7 @@ const CINE_PAIRS = [
     canvas.style.width = w + 'px'; canvas.style.height = h + 'px';
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     if(glReady) window.LumiereGL.resize();
+    try{ cardLiquid.size(); }catch(e){}
   }
 
   // Kometen mit Tiefe. Jeder bekommt eine Tiefe d (0 = weit weg, 1 = nah),
@@ -11131,13 +11619,27 @@ const CINE_PAIRS = [
     ctx.globalCompositeOperation = 'source-over';
 
     // Der Kaertchen-Kreis zieht dem Scroll weich nach - ohne das wuerde
-    // jeder Mausrad-Sprung als Ruck in der Drehung sichtbar.
-    if(Math.abs(deckTarget - deckShown) > 0.0004){
-      deckShown += (deckTarget - deckShown) * 0.12;
+    // jeder Mausrad-Sprung als Ruck in der Drehung sichtbar. Seit Build 28
+    // nach der Zeit statt pro Bild (auf langsamen Geraeten hing er sonst
+    // halb zwischen zwei Karten) und mit einem Magneten: um jede Karte herum
+    // bleibt sie eine Weile ruhig vorn stehen und wechselt dann zuegig -
+    // so steht beim Lesen nie eine Karte halb aus dem Bild.
+    const nowD = performance.now(), dtD = Math.min(0.1, (nowD - (deckAt || nowD)) / 1000);
+    deckAt = nowD;
+    const k0 = Math.round(deckTarget), fr = deckTarget - k0;
+    const snapT = k0 + Math.sign(fr) * Math.pow(Math.abs(fr) * 2, 2.6) / 2;
+    if(Math.abs(snapT - deckShown) > 0.0004){
+      deckShown += (snapT - deckShown) * (1 - Math.exp(-8 * dtD));
       layoutDeck(deckShown);
     }
 
     drawDust();
+    // Fluessiges Bild der vorderen Karte - nur, solange der Turm zu sehen ist.
+    if(tourVis > 0.02 && !reduced()){
+      const c = cards[Math.max(0, deckIndex)];
+      if(c && liquidFor !== c){ liquidFor = c; cardLiquid.attach(c); scrambleCard(c); }
+      cardLiquid.draw(performance.now() / 1000);
+    }
     rafId = requestAnimationFrame(step);
   }
 
@@ -11162,6 +11664,157 @@ const CINE_PAIRS = [
       // teilweise zur Kamera, sonst schwenken sie aus dem Bild.
       face: narrow ? 0.45 : 1,
     };
+  }
+
+  /* Fluessiges Bild auf der vorderen Karte (Build 28). EIN kleiner eigener
+     WebGL-Canvas wandert mit der vorderen Karte mit und zeichnet dort die
+     App-Seite, als floesse sie wie Farbe: Stroemungsfeld (verzerrte Noise),
+     leichter Farbsaum, Farbschlieren in den Kartenfarben. Gerechnet wird in
+     Geraeteaufloesung (hoechstens 1,5-fach - das Bild ist ohnehin weich), und
+     nur, solange der Turm zu sehen ist. Die anderen Karten zeigen das Bild
+     ruhig. Faellt WebGL aus, bleibt es einfach beim ruhigen Bild. */
+  const cardLiquid = (() => {
+    const cv = document.createElement('canvas');
+    cv.className = 'cine-card-liquid';
+    cv.setAttribute('aria-hidden', 'true');
+    let gl = null, prog = null, tex = null, texFor = null, host = null, ok = null;
+    const U = {};
+    const c1 = [1, 0.7, 0.3], c2 = [0.5, 0.3, 0.8];
+    const VS = 'attribute vec2 p; varying vec2 v; void main(){ v = p * 0.5 + 0.5; gl_Position = vec4(p, 0.0, 1.0); }';
+    const FS = `precision highp float;
+      uniform sampler2D uTex; uniform float uTime, uAspect, uTexAspect;
+      uniform vec3 uC1, uC2; varying vec2 v;
+      float h(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+      float n(vec2 p){ vec2 i = floor(p), f = fract(p); f = f * f * (3.0 - 2.0 * f);
+        return mix(mix(h(i), h(i + vec2(1, 0)), f.x), mix(h(i + vec2(0, 1)), h(i + vec2(1, 1)), f.x), f.y); }
+      float fbm(vec2 p){ float s = 0.0, a = 0.5; for(int i = 0; i < 3; i++){ s += a * n(p); p = p * 2.03 + 7.1; a *= 0.5; } return s; }
+      vec2 cover(vec2 uv){
+        // Bild deckt die Karte, oben buendig (dort steht der Seitentitel).
+        vec2 u = uv - vec2(0.5, 1.0);
+        if(uAspect > uTexAspect) u.y *= uTexAspect / uAspect; else u.x *= uAspect / uTexAspect;
+        return u + vec2(0.5, 1.0);
+      }
+      void main(){
+        vec2 uv = vec2(v.x, v.y);
+        float t = uTime * 0.07;
+        vec2 p = vec2(uv.x * uAspect, uv.y) * 2.2;
+        vec2 q = vec2(fbm(p + vec2(t, -t * 0.7)), fbm(p + vec2(-t * 0.8, t) + 5.2));
+        vec2 r = vec2(fbm(p * 1.3 + q * 1.7 + vec2(1.7, 9.2) + t * 0.6), fbm(p * 1.3 + q * 1.7 + vec2(8.3, 2.8) - t * 0.5));
+        vec2 d = (r - 0.5) * 0.055;
+        vec2 tu = cover(vec2(uv.x, 1.0 - uv.y));
+        // Weich gezeichnet (vier Abtastungen) und mit Farbsaum: die Seite
+        // bleibt erkennbar, tritt aber hinter den Titel zurueck.
+        vec2 o = vec2(0.0035, 0.0055);
+        vec3 col;
+        col.r = texture2D(uTex, tu + d * 1.14 + o).r + texture2D(uTex, tu + d * 1.14 - o).r;
+        col.g = texture2D(uTex, tu + d + vec2(o.x, -o.y)).g + texture2D(uTex, tu + d - vec2(o.x, -o.y)).g;
+        col.b = texture2D(uTex, tu + d * 0.86 + o.yx).b + texture2D(uTex, tu + d * 0.86 - o.yx).b;
+        col *= 0.5 * 0.62;
+        // Farbschlieren in den Kartenfarben, die langsam durch das Bild ziehen.
+        float i1 = smoothstep(0.52, 0.8, fbm(p * 0.8 + r * 1.3 + t * 0.5));
+        float i2 = smoothstep(0.55, 0.85, fbm(p * 0.9 - r * 1.2 + 3.1 - t * 0.4));
+        col = mix(col, col * 0.5 + uC1 * 0.7, i1 * 0.6);
+        col += uC2 * i2 * 0.42;
+        // Dunkler Hof in der Mitte, dort steht der Titel.
+        vec2 cc = (uv - vec2(0.5, 0.5)) * vec2(uAspect, 1.0);
+        col *= 1.0 - 0.42 * exp(-dot(cc, cc) * 5.0);
+        // Heller Schliff, der ueber das Glas wandert.
+        float sw = uv.x * 0.7 + uv.y * 0.5 - fract(uTime * 0.05) * 2.2 + 0.3;
+        col += vec3(1.0, 0.97, 0.9) * exp(-sw * sw / 0.004) * 0.18;
+        gl_FragColor = vec4(col, 1.0);
+      }`;
+    function init(){
+      try{ gl = cv.getContext('webgl', { alpha: false, antialias: false, premultipliedAlpha: false }); }catch(e){ gl = null; }
+      if(!gl) return false;
+      const sh = (type, src) => { const o = gl.createShader(type); gl.shaderSource(o, src); gl.compileShader(o); return gl.getShaderParameter(o, gl.COMPILE_STATUS) ? o : null; };
+      const vs = sh(gl.VERTEX_SHADER, VS), fs = sh(gl.FRAGMENT_SHADER, FS);
+      if(!vs || !fs) return false;
+      prog = gl.createProgram(); gl.attachShader(prog, vs); gl.attachShader(prog, fs); gl.linkProgram(prog);
+      if(!gl.getProgramParameter(prog, gl.LINK_STATUS)) return false;
+      gl.useProgram(prog);
+      const buf = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+      const loc = gl.getAttribLocation(prog, 'p');
+      gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+      for(const k of ['uTex', 'uTime', 'uAspect', 'uTexAspect', 'uC1', 'uC2']) U[k] = gl.getUniformLocation(prog, k);
+      tex = gl.createTexture();
+      gl.bindTexture(gl.TEXTURE_2D, tex);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+      cv.addEventListener('webglcontextlost', (e) => { e.preventDefault(); ok = false; });
+      return true;
+    }
+    const hex = (h, out) => { const n = parseInt(h.replace('#', ''), 16); out[0] = (n >> 16 & 255) / 255; out[1] = (n >> 8 & 255) / 255; out[2] = (n & 255) / 255; };
+    function upload(img){
+      if(!gl || !img.naturalWidth) return;
+      gl.bindTexture(gl.TEXTURE_2D, tex);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
+      texFor = img;
+      cv.classList.add('is-on');
+    }
+    function attach(card){
+      if(reduced()) return;
+      if(ok === null) ok = init();
+      if(!ok || !card) return;
+      const glass = card.querySelector('.cine-card-glass');
+      const img = card.querySelector('.cine-card-img');
+      if(!glass || !img || host === glass) return;
+      cv.classList.remove('is-on');
+      host = glass;
+      glass.insertBefore(cv, img.nextSibling);
+      const th = (card.dataset.theme || '').split(' ');
+      if(th.length === 2){ hex(th[0], c1); hex(th[1], c2); }
+      size();
+      if(img.loading === 'lazy') img.loading = 'eager';
+      if(img.complete && img.naturalWidth) upload(img);
+      else img.addEventListener('load', () => { if(host === glass) upload(img); }, { once: true });
+    }
+    function size(){
+      if(!host) return;
+      const r = Math.min(window.devicePixelRatio || 1, 1.5);
+      const w = Math.max(2, Math.round((host.clientWidth - 22) * r)), hgt = Math.max(2, Math.round((host.clientHeight - 22) * r));
+      if(cv.width !== w || cv.height !== hgt){ cv.width = w; cv.height = hgt; }
+    }
+    function draw(t){
+      if(!ok || !host || !texFor || !cv.classList.contains('is-on')) return;
+      gl.viewport(0, 0, cv.width, cv.height);
+      gl.uniform1i(U.uTex, 0);
+      gl.uniform1f(U.uTime, t);
+      gl.uniform1f(U.uAspect, cv.width / cv.height);
+      gl.uniform1f(U.uTexAspect, texFor.naturalWidth / texFor.naturalHeight);
+      gl.uniform3fv(U.uC1, c1); gl.uniform3fv(U.uC2, c2);
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    }
+    return { attach, draw, size };
+  })();
+
+  // Zeichensalat: der Titel und die Stichpunkte der neuen vorderen Karte
+  // setzen sich aus zufaelligen Zeichen zusammen - wie in der Referenz.
+  const SCRAMBLE = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ#%&*+=<>/|01ÉÈÀ';
+  function scrambleText(el, dur){
+    if(!el || reduced()) return;
+    const final = el.dataset.final || el.textContent;
+    el.dataset.final = final;
+    const t0 = performance.now();
+    const tick = () => {
+      const k = Math.min(1, (performance.now() - t0) / dur);
+      const fixed = Math.floor(final.length * k);
+      let out = final.slice(0, fixed);
+      for(let i = fixed; i < final.length; i++) out += final[i] === ' ' ? ' ' : SCRAMBLE[Math.floor(Math.random() * SCRAMBLE.length)];
+      el.textContent = out;
+      if(k < 1) requestAnimationFrame(tick);
+    };
+    tick();
+    // Stockt die Bildrate, steht der Text trotzdem rechtzeitig fertig da.
+    setTimeout(() => { el.textContent = final; }, dur + 60);
+  }
+  function scrambleCard(card){
+    if(!card) return;
+    scrambleText(card.querySelector('.cine-card-title'), 520);
+    card.querySelectorAll('.cine-card-side span').forEach((sp, i) => setTimeout(() => scrambleText(sp, 600), 120 + i * 110));
   }
 
   function layoutDeck(pos){
@@ -11207,7 +11860,10 @@ const CINE_PAIRS = [
         ` translate(-50%, -50%)`;
       card.style.setProperty('--rel', Math.max(-1.5, Math.min(1.5, rel)).toFixed(3));
       card.style.opacity = op.toFixed(3);
-      card.style.filter = ad > 0.4 ? `blur(${Math.min(5, (ad - 0.4) * 3.4).toFixed(1)}px)` : 'none';
+      // Kein CSS-Weichzeichner mehr (Build 28): ein blur() auf grossen,
+      // 3D-gedrehten Karten musste jedes Bild neu gerechnet werden und machte
+      // den Turm zaeh. Die Tiefe kommt jetzt ueber einen Schleier (--far).
+      card.style.setProperty('--far', Math.min(1, Math.max(0, (ad - 0.35) / 1.1)).toFixed(3));
       card.classList.toggle('is-front', ad < 0.5);
       // Der Glanz haengt am Drehwinkel: kommt die Karte nach vorn oder geht
       // sie, zieht ein Lichtreflex ueber sie hinweg. Steht sie still vorn,
@@ -11226,6 +11882,11 @@ const CINE_PAIRS = [
     const idx = Math.round(pos);
     if(idx !== deckIndex){
       deckIndex = idx;
+      // Farbe je Karte (Build 28): Turmkante, Blueten und Hintergrund
+      // nehmen den Ton der vorderen Karte an.
+      const th = (cards[idx] && cards[idx].dataset.theme || '').split(' ');
+      if(th.length === 2 && window.LumiereGL && window.LumiereGL.setTheme) window.LumiereGL.setTheme(th[0], th[1], 1);
+      if(tourVis > 0.02){ liquidFor = cards[idx]; cardLiquid.attach(cards[idx]); scrambleCard(cards[idx]); }
       if(deckDots){
         Array.from(deckDots.children).forEach((li, i) => li.classList.toggle('is-on', i === idx));
       }
@@ -11367,17 +12028,21 @@ const CINE_PAIRS = [
     // der Schrift durch - dort wird er durchscheinender.
     // Der Turm uebernimmt, waehrend der hohe Track vor der Kamera steht, und
     // blendet an beiden Enden ueber eine halbe Bildschirmhoehe ein und aus.
-    let towerAmt = 0, tourProgress = 0;
+    let towerAmt = 0, tourProgress = 0, hallIn = 0, hallP = 0;
     if(tourTrack){
       const tr = tourTrack.getBoundingClientRect();
       // Die Fahrt zum Turm dauert genau eine Bildschirmhoehe und endet in
       // dem Moment, in dem die Turm-Szene festsitzt und die Umrundung
       // beginnt - so geht der Flug nahtlos in die Kamerafahrt ueber.
       const fadeIn  = Math.max(0, Math.min(1, (vh - tr.top) / vh));
-      // Lang ausblenden: der Turm soll weg sein, bevor die Atelier-Zahlen
-      // einsetzen - sonst stehen beide gleichzeitig halb im Bild.
-      const fadeOut = Math.max(0, Math.min(1, tr.bottom / (vh * 1.5)));
-      towerAmt = Math.min(fadeIn, fadeOut);
+      // Seit Build 28 weicht die Kamera nach den Karten nicht mehr zurueck,
+      // sie sinkt in die Halle unter dem Turm: der Turm bleibt "an", bis die
+      // Halle ihn abloest. hallIn: eine Bildschirmhoehe Abstieg ab dem Ende
+      // des Tracks, hallP: Weg durch die Halle (Atelier -> Schluss).
+      towerAmt = fadeIn;
+      hallIn = Math.max(0, Math.min(1, (vh - tr.bottom) / vh));
+      const rest = last.bottom - tr.bottom;
+      hallP = Math.max(0, Math.min(1, -tr.bottom / Math.max(1, rest - vh)));
       const span = tr.height - vh;
       tourProgress = span > 0 ? Math.max(0, Math.min(1, -tr.top / span)) : 0;
       const tp = tourProgress;
@@ -11393,8 +12058,8 @@ const CINE_PAIRS = [
       deckTarget = Math.max(0, Math.min(1, (tp - 0.06) / 0.72)) * (cards.length - 1);
     }
     if(glReady && window.LumiereGL.setTower) window.LumiereGL.setTower(towerAmt, tourProgress);
-    if(towerAmt > 0.25 && !flightChimed){ flightChimed = true; sndShimmer(1); }
-    else if(towerAmt < 0.05) flightChimed = false;
+    if(glReady && window.LumiereGL.setHall) window.LumiereGL.setHall(hallIn, hallP);
+    cineSound(towerAmt, tourProgress, hallIn, hallP, first.top / vh);
     tourVis = towerAmt;
 
     const dip = Math.max(0, 1 - Math.abs(p - 0.19) / 0.20);
@@ -11521,15 +12186,14 @@ document.getElementById('musicVolumeSlider').addEventListener('input', (e) => {
   updateSliderFill(e.target);
   if(music.playing && audioCtx){
     const g = AUD.music.gain;
-    g.cancelScheduledValues(audioCtx.currentTime);
-    g.setTargetAtTime(musicVolume() * 1.8, audioCtx.currentTime, 0.1);
+    holdParam(g, audioCtx.currentTime);
+    g.setTargetAtTime(musicVolume() * MUSIC_GAIN, audioCtx.currentTime, 0.1);
   }
 });
 document.getElementById('musicVolumeSlider').addEventListener('change', () => saveData(store));
 window.addEventListener('lumiere:viewchange', musicSync);
 document.addEventListener('visibilitychange', musicSync);
 ['pointerdown', 'keydown'].forEach(t => window.addEventListener(t, () => { if(musicWanted() && !music.playing) musicStart(); }, { passive: true }));
-window.addEventListener('lumiere:firework', () => { if(currentViewIsHub()) sndFirework(); });
 updateMusicUI();
 document.getElementById('btnHubContinue').addEventListener('click', () => { sndCineEnter(); renderHome(); });
 
@@ -11540,6 +12204,7 @@ function recordStreakActivity(){
   const key = todayKey();
   if(!store.streakDates.includes(key)){
     store.streakDates.push(key);
+    setTimeout(sndStreak, 300);
     if(store.streakDates.length > 90) store.streakDates = store.streakDates.slice(-90);
     saveData(store);
   }
@@ -12708,7 +13373,7 @@ function endBalloonGame(){
   const score = gameScore;
   submitRecord('balloon', score).then(isRecord => {
     const badge = document.getElementById('balloonRecordBadge');
-    if(badge && isRecord) badge.hidden = false;
+    if(badge && isRecord){ badge.hidden = false; sndRecord(); }
   });
   area.innerHTML = `
     <div class="game-final">
@@ -12823,6 +13488,7 @@ function addCoins(n){
   store.coins += n;
   saveData(store);
   updateCoinDisplays();
+  sndCoin();
   return n;
 }
 function spendCoins(n){
@@ -13149,7 +13815,7 @@ async function finishArcadeGame(key, score){
     </div>
     ${canAfford ? '' : '<p class="hint">Nicht genug Coins — übe eine Runde, um neue zu verdienen.</p>'}
   `);
-  sndComplete();
+  if(isRecord) sndRecord(); else sndComplete();
   document.getElementById('btnArcadeAgain').addEventListener('click', () => launchArcadeGame(key));
   document.getElementById('btnArcadeExit').addEventListener('click', () => { sndClick(); renderRewards(); });
 }

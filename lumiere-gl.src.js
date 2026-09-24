@@ -8,7 +8,7 @@
 // Nach aussen gibt es nur window.LumiereGL. Die Seite selbst weiss nichts
 // von Three.js.
 import {
-  WebGLRenderer, Scene, PerspectiveCamera, Group, Mesh, Points, Clock,
+  WebGLRenderer, Scene, PerspectiveCamera, Group, Mesh, Points,
   TorusGeometry, TubeGeometry, ExtrudeGeometry, Shape, CatmullRomCurve3,
   BufferGeometry, Float32BufferAttribute, Box3,
   MeshPhysicalMaterial, MeshStandardMaterial, PointsMaterial,
@@ -17,6 +17,8 @@ import {
   ConeGeometry, ShaderMaterial, Sprite, SpriteMaterial, WebGLRenderTarget, VideoTexture,
   ACESFilmicToneMapping, SRGBColorSpace, AdditiveBlending,
   TextureLoader, InstancedMesh, Object3D, PlaneGeometry, LinearFilter,
+  HalfFloatType, InstancedBufferAttribute,
+  ShapeGeometry, CylinderGeometry, BoxGeometry, CircleGeometry, LineSegments,
 } from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
@@ -315,14 +317,15 @@ function makeBackdrop(bg){
       uTex: { value: null }, uReady: { value: 0 }, uAmt: { value: 1 },
       uAspect: { value: 1 }, uTime: { value: 0 }, uShift: { value: 0 },
       uBg: { value: new Color(bg || 0x0a0d14) }, uPx: { value: 1 / 900 },
+      uThA: themeA, uThB: themeB, uThemeAmt: themeAmt,
     },
     vertexShader: `
       varying vec2 vUv;
       void main(){ vUv = uv; gl_Position = vec4(position.xy, 0.9999, 1.0); }`,
     fragmentShader: `
       uniform sampler2D uTex;
-      uniform float uReady, uAmt, uAspect, uTime, uShift, uPx;
-      uniform vec3 uBg;
+      uniform float uReady, uAmt, uAspect, uTime, uShift, uPx, uThemeAmt;
+      uniform vec3 uBg, uThA, uThB;
       varying vec2 vUv;
       // Ein Bogen: Abstand zum Kreis um c mit Radius r, als duenne Linie.
       float arc(vec2 p, vec2 c, float r, float w){
@@ -367,7 +370,16 @@ function makeBackdrop(bg){
         // Nach unten hin geht der Marmor in die Nacht ueber.
         float fadeY = smoothstep(-0.15, 0.35, vUv.y + uShift * 0.9);
         float a = uAmt * uReady * fadeY;
-        gl_FragColor = vec4(mix(uBg, col, a), 1.0);
+        vec3 outc = mix(uBg, col, a);
+        // Farbe je Karte (Build 28): weiche Lichthoefe unten links im
+        // Hauptton, oben rechts im Gegenton - wie in der Referenz.
+        if(uThemeAmt > 0.001){
+          vec2 q = vec2(vUv.x * uAspect, vUv.y);
+          float gA = exp(-dot(q, q) * 2.6);
+          float gB = exp(-dot(q - vec2(uAspect, 1.0), q - vec2(uAspect, 1.0)) * 3.0);
+          outc += (uThA * gA * 0.2 + uThB * gB * 0.14) * uThemeAmt;
+        }
+        gl_FragColor = vec4(outc, 1.0);
         #include <tonemapping_fragment>
         #include <colorspace_fragment>
       }`,
@@ -685,13 +697,35 @@ const TOWER_HEIGHT = 10;        // Zielhoehe in Weltmassen, das Modell wird skal
 const TOWER_AT = new Vector3(0, 0, -38);
 let towerLoading = false;
 
+// Themenfarbe der vorderen Karte (Build 28): faerbt die Glaskante des Turms,
+// das Licht in den Bluetenwolken und den Hintergrund. Kommt aus index.html.
+const themeA = { value: new Color(0xf0b545) };   // Hauptton
+const themeB = { value: new Color(0x6a3fb0) };   // Gegenton
+const themeAmt = { value: 0 };                    // 0 = neutral, 1 = Turm-Szene
+
 function applyTowerLook(root, lite){
-  // Das Modell bringt eigene, matte Materialien mit. Sie werden komplett
-  // ersetzt: poliertes Gold, das von innen glimmt.
-  const mat = new MeshStandardMaterial({
-    color: GOLD, emissive: new Color(AMBER_DEEP), emissiveIntensity: 0.42,
-    metalness: 0.94, roughness: 0.34, envMapIntensity: 1.55, transparent: true,
-  });
+  // Gold-Glas (Build 28): poliertes, schillerndes Gold mit Klarlack, dazu
+  // eine Lichtkante (Fresnel), die die Farbe der vorderen Karte annimmt -
+  // wie die Glas-Wirbelsaeule der Referenz, nur in Gold.
+  const mat = lite
+    ? new MeshStandardMaterial({
+        color: 0xf2c46a, emissive: new Color(AMBER_DEEP), emissiveIntensity: 0.3,
+        metalness: 1, roughness: 0.2, envMapIntensity: 2.2, transparent: true })
+    : new MeshPhysicalMaterial({
+        color: 0xf4c76c, emissive: new Color(AMBER_DEEP), emissiveIntensity: 0.22,
+        metalness: 1, roughness: 0.14, envMapIntensity: 2.4,
+        iridescence: 0.9, iridescenceIOR: 1.75, iridescenceThicknessRange: [220, 820],
+        clearcoat: 1, clearcoatRoughness: 0.04, transparent: true });
+  mat.onBeforeCompile = (sh) => {
+    sh.uniforms.uRimA = themeA; sh.uniforms.uRimB = themeB; sh.uniforms.uThemeAmt = themeAmt;
+    sh.fragmentShader = 'uniform vec3 uRimA;\nuniform vec3 uRimB;\nuniform float uThemeAmt;\n'
+      + sh.fragmentShader.replace('#include <emissivemap_fragment>', `#include <emissivemap_fragment>
+  {
+    float f = 1.0 - abs(dot(normalize(normal), normalize(vViewPosition)));
+    vec3 rim = mix(vec3(1.0, 0.78, 0.45), mix(uRimA, uRimB, 0.35), uThemeAmt);
+    totalEmissiveRadiance += rim * (pow(f, 3.0) * 0.9 + pow(f, 8.0) * 1.4);
+  }`);
+  };
   root.traverse(o => {
     if(o.isMesh){
       if(o.material && o.material.dispose) o.material.dispose();
@@ -701,6 +735,188 @@ function applyTowerLook(root, lite){
     }
   });
   return mat;
+}
+
+// Bluetenwolken (Build 28): wie die Partikel-Blumen der Referenz, in Gold,
+// Rose und Champagner. Jede Wolke besteht aus mehreren Bluetenkoepfen, jeder
+// Kopf aus Punkten auf einer Rosettenform. Die Punkte sind deckend (kein
+// Mischen, Tiefe wird geschrieben) - das sieht nach festen Koernern aus und
+// kostet am wenigsten. Licht: von oben warm, von der Seite in Themenfarbe.
+const BLOOM_SPOTS = [
+  // h (Anteil der Hoehe), Winkel, Abstand-Faktor, Groesse - dicht am Gitterwerk
+  [0.02, 0.78, 0.92, 1.35], [0.02, 2.36, 0.92, 1.2],  [0.02, 3.93, 0.92, 1.4],  [0.02, 5.50, 0.92, 1.2],
+  [0.06, 1.57, 0.55, 0.9],  [0.06, 4.71, 0.55, 0.95],
+  [0.175, 0.78, 0.95, 1.05],[0.175, 2.36, 0.95, 0.95],[0.175, 3.93, 0.95, 1.1], [0.175, 5.50, 0.95, 1.0],
+  [0.36, 0.78, 1.0, 0.7],   [0.36, 3.93, 1.0, 0.75],
+  [0.56, 2.3, 1.05, 0.5],   [0.74, 5.2, 1.1, 0.42],
+];
+// Satte Toene: Magenta, Rose, Violett, Pfirsich, Gold - dunkler angelegt,
+// das Licht hellt sie auf (sonst frisst die Tonwertkurve die Farbe weg).
+const BLOOM_PALETTE = [
+  [0.78, 0.20, 0.46], [0.90, 0.38, 0.58], [0.55, 0.28, 0.80], [0.92, 0.55, 0.36],
+  [0.95, 0.70, 0.26], [0.70, 0.16, 0.30], [0.96, 0.78, 0.62],
+];
+function makeBlossoms(height, lite){
+  const florets = lite ? 36 : 70;         // Bluetchen je Dolde
+  const perFloret = lite ? 8 : 11;
+  const pos = [], col = [], nrm = [], seed = [];
+  const P = new Vector3(), N = new Vector3(), F = new Vector3();
+  for(const [h, ang, fac, size] of BLOOM_SPOTS){
+    const r0 = towerHalf(h, height) * fac + 0.1;
+    const C = new Vector3(Math.cos(ang) * r0, h * height + 0.2 * size, Math.sin(ang) * r0);
+    const heads = 5 + Math.floor(Math.random() * 5);
+    const base = BLOOM_PALETTE[Math.floor(Math.random() * BLOOM_PALETTE.length)];
+    for(let k = 0; k < heads; k++){
+      // Dolden haengen als Busch zusammen, eher nach aussen und unten.
+      const hc = new Vector3(gauss() * 0.5 * size, gauss() * 0.3 * size - 0.1, gauss() * 0.5 * size).add(C);
+      const R = (0.16 + Math.random() * 0.2) * size;
+      const pal = Math.random() < 0.6 ? base : BLOOM_PALETTE[Math.floor(Math.random() * BLOOM_PALETTE.length)];
+      for(let f = 0; f < florets; f++){
+        // Bluetchen sitzen auf der Kugel der Dolde.
+        F.set(gauss(), gauss() * 0.8 + 0.25, gauss()).normalize();
+        const fr = R * 0.24;
+        const fdepth = 0.6 + 0.4 * Math.sqrt(Math.random());   // auch innen Bluetchen: die Dolde wirkt voll
+        const shade = 0.7 + Math.random() * 0.45;
+        const hue = Math.random();
+        for(let i = 0; i < perFloret; i++){
+          const th = (i / perFloret) * Math.PI * 2 + Math.random() * 0.4;
+          const rr = fr * (i === 0 ? 0 : 0.35 + 0.65 * Math.random());
+          // Tangentialebene an der Kugel
+          N.copy(F);
+          const t1 = new Vector3(-N.z, 0, N.x).normalize();
+          const t2 = new Vector3().crossVectors(N, t1);
+          P.copy(hc).addScaledVector(N, R * fdepth).addScaledVector(t1, Math.cos(th) * rr).addScaledVector(t2, Math.sin(th) * rr);
+          pos.push(P.x, P.y, P.z);
+          nrm.push(N.x, N.y, N.z);
+          const c = i === 0 ? 1.25 : 1;       // Mitte heller (Staubgefaess)
+          const g = [pal[0] * (0.85 + 0.3 * hue), pal[1] * (0.8 + 0.35 * (1 - hue)), pal[2]];
+          col.push(g[0] * shade * c, g[1] * shade * c, g[2] * shade * c);
+          seed.push(Math.random());
+        }
+      }
+    }
+  }
+  const geo = new BufferGeometry();
+  geo.setAttribute('position', new Float32BufferAttribute(pos, 3));
+  geo.setAttribute('aCol', new Float32BufferAttribute(col, 3));
+  geo.setAttribute('aNrm', new Float32BufferAttribute(nrm, 3));
+  geo.setAttribute('aSeed', new Float32BufferAttribute(seed, 1));
+  // Mischen, damit die Dichteregelung (drawRange) gleichmaessig ausduennt.
+  shufflePoints(geo);
+  const mat = new ShaderMaterial({
+    uniforms: { uTime: { value: 0 }, uPx: { value: 1 }, uOpacity: { value: 0 },
+                uRimA: themeA, uRimB: themeB, uThemeAmt: themeAmt },
+    vertexShader: `
+      attribute vec3 aCol, aNrm;
+      attribute float aSeed;
+      uniform float uTime, uPx;
+      uniform vec3 uRimA, uRimB;
+      uniform float uThemeAmt;
+      varying vec3 vCol;
+      void main(){
+        vec3 p = position;
+        float s = aSeed * 6.2831;
+        // Atmen: die Dolden wiegen sich ganz leicht.
+        p += aNrm * sin(uTime * 0.9 + s) * 0.01 + vec3(sin(uTime * 0.4 + p.y), 0.0, cos(uTime * 0.35 + p.x)) * 0.012;
+        vec4 mv = modelViewMatrix * vec4(p, 1.0);
+        gl_Position = projectionMatrix * mv;
+        vec3 n = normalize(mat3(modelMatrix) * aNrm);
+        float key = clamp(dot(n, normalize(vec3(0.3, 1.0, 0.4))), 0.0, 1.0);
+        vec3 vdir = normalize(cameraPosition - (modelMatrix * vec4(p, 1.0)).xyz);
+        float rim = pow(1.0 - clamp(dot(n, vdir), 0.0, 1.0), 2.0);
+        vec3 themeCol = mix(vec3(1.0, 0.75, 0.45), mix(uRimA, uRimB, 0.5), uThemeAmt);
+        vCol = aCol * (0.32 + 0.6 * key) + themeCol * rim * 0.35;
+        gl_PointSize = (2.0 + aSeed * 1.8) * uPx * 9.0 / max(0.5, -mv.z);
+      }`,
+    fragmentShader: `
+      uniform float uOpacity;
+      varying vec3 vCol;
+      void main(){
+        vec2 c = gl_PointCoord - 0.5;
+        float d = dot(c, c);
+        if(d > 0.25 || uOpacity < 0.02) discard;
+        // Leichte Woelbung: Rand dunkler, das liest sich als Koerper.
+        gl_FragColor = vec4(vCol * (1.0 - d * 1.6) * uOpacity, 1.0);
+      }`,
+  });
+  const pts = new Points(geo, mat);
+  pts.frustumCulled = false;
+  return pts;
+}
+// Mischt die Punkte einer Geometrie (alle Attribute gleich), damit ein
+// gekuerzter drawRange gleichmaessig ausduennt statt ganze Wolken zu kappen.
+function shufflePoints(geo){
+  const n = geo.attributes.position.count;
+  const idx = Array.from({ length: n }, (_, i) => i);
+  for(let i = n - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); const t = idx[i]; idx[i] = idx[j]; idx[j] = t; }
+  for(const name of Object.keys(geo.attributes)){
+    const a = geo.attributes[name], sz = a.itemSize, src = a.array.slice();
+    for(let i = 0; i < n; i++) for(let k = 0; k < sz; k++) a.array[i * sz + k] = src[idx[i] * sz + k];
+    a.needsUpdate = true;
+  }
+}
+
+// Die Lichtkette (Build 28): eine echte Kette aus Gliedern, die sich auf der
+// Bahn der Kamera um den Turm windet - dicht am Gitterwerk. Ein Licht laeuft
+// mit der Fahrt an ihr entlang (aAlong, uHead) und fuehrt von Karte zu Karte.
+function makeChain(height, lite){
+  const pts = [];
+  const N = 220;
+  for(let i = 0; i <= N; i++){
+    const q = i / N;
+    const e = smoothstep(q);
+    const ang = TOUR.from.ang + (TOUR.to.ang - TOUR.from.ang) * e + 0.55;
+    const y = TOUR.from.y + (TOUR.to.y - TOUR.from.y) * e + 0.35;
+    const r = towerHalf(Math.max(0, Math.min(1, y / height)), height) + 0.95 + Math.sin(q * 40) * 0.05;
+    pts.push(new Vector3(Math.sin(ang) * r, y + Math.sin(q * 26) * 0.12, Math.cos(ang) * r));
+  }
+  const curve = new CatmullRomCurve3(pts);
+  const len = curve.getLength();
+  const step = lite ? 0.2 : 0.125;
+  const count = Math.floor(len / step);
+  const linkGeo = new TorusGeometry(0.058, 0.016, lite ? 5 : 8, lite ? 10 : 16);
+  linkGeo.scale(1.55, 1, 1);
+  const along = new Float32Array(count);
+  const mat = new MeshPhysicalMaterial({
+    color: 0xf6d08a, metalness: 1, roughness: 0.12, envMapIntensity: 2.6,
+    iridescence: lite ? 0 : 1, iridescenceIOR: 1.9, iridescenceThicknessRange: [300, 900],
+    emissive: new Color(0x3a1c04), emissiveIntensity: 1, transparent: true,
+  });
+  const head = { value: 0 };
+  mat.onBeforeCompile = (sh) => {
+    sh.uniforms.uHead = head; sh.uniforms.uRimA = themeA; sh.uniforms.uThemeAmt = themeAmt;
+    sh.vertexShader = 'attribute float aAlong;\nvarying float vAlong;\n'
+      + sh.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\n  vAlong = aAlong;');
+    sh.fragmentShader = 'uniform float uHead;\nuniform vec3 uRimA;\nuniform float uThemeAmt;\nvarying float vAlong;\n'
+      + sh.fragmentShader.replace('#include <emissivemap_fragment>', `#include <emissivemap_fragment>
+  {
+    float d = vAlong - uHead;
+    float g = exp(-d * d / (d > 0.0 ? 0.00006 : 0.0012));
+    vec3 lc = mix(vec3(1.0, 0.86, 0.55), uRimA, uThemeAmt * 0.6);
+    totalEmissiveRadiance += lc * g * 3.2;
+    float f = 1.0 - abs(dot(normalize(normal), normalize(vViewPosition)));
+    totalEmissiveRadiance += lc * pow(f, 4.0) * 0.5;
+  }`);
+  };
+  const mesh = new InstancedMesh(linkGeo, mat, count);
+  const dummy = new Object3D(), P = new Vector3(), T = new Vector3(), U = new Vector3(0, 1, 0);
+  for(let i = 0; i < count; i++){
+    const u = (i + 0.5) / count;
+    curve.getPointAt(u, P); curve.getTangentAt(u, T);
+    dummy.position.copy(P);
+    dummy.lookAt(P.x + T.x, P.y + T.y, P.z + T.z);
+    dummy.rotateY(Math.PI / 2);                 // Laengsachse des Glieds entlang der Kette
+    dummy.rotateX(i % 2 ? Math.PI / 2 : 0);     // jedes zweite Glied um 90 Grad gedreht
+    dummy.updateMatrix();
+    mesh.setMatrixAt(i, dummy.matrix);
+    along[i] = u;
+  }
+  linkGeo.setAttribute('aAlong', new InstancedBufferAttribute(along, 1));
+  mesh.instanceMatrix.needsUpdate = true;
+  mesh.userData.head = head;
+  mesh.userData.curve = curve;
+  mesh.frustumCulled = false;
+  return mesh;
 }
 
 // Das Funkeln: Punkte im Volumen des Turms, die einzeln und kurz aufblitzen -
@@ -795,7 +1011,7 @@ function makeEmbers(height, lite){
           p.xz *= 1.0 + life * 0.35;
           p.x += sin(uTime * 1.3 + s * 3.0) * 0.18 * life;
           p.z += cos(uTime * 1.1 + s * 2.0) * 0.18 * life;
-          vCol = mix(vec3(1.0, 0.55, 0.16), vec3(1.0, 0.82, 0.45), aSeed);
+          vCol = mix(vec3(1.0, 0.62, 0.3), vec3(0.98, 0.6, 0.72), aSeed);
         }else{
           // Glitter: rieselt in Schlangenlinien herab.
           p.y -= life * 5.0;
@@ -824,136 +1040,6 @@ function makeEmbers(height, lite){
   });
   const pts = new Points(geo, mat);
   pts.frustumCulled = false;
-  return pts;
-}
-
-// Der Lichtfaden: windet sich auf derselben Bahn wie die Kamera um den Turm,
-// nur enger, und waechst mit der Fahrt. Sein Kopf laeuft der Kamera ein
-// Stueck voraus - so fuehrt er den Blick von Karte zu Karte.
-const TRAIL_LEAD = 0.07;
-function makeTrail(height, lite){
-  const pts = [];
-  const N = 160;
-  for(let i = 0; i <= N; i++){
-    const q = i / N;
-    const e = smoothstep(q);
-    const ang = TOUR.from.ang + (TOUR.to.ang - TOUR.from.ang) * e + 0.5;
-    const y = TOUR.from.y + (TOUR.to.y - TOUR.from.y) * e + 0.4;
-    const r = towerHalf(Math.max(0, Math.min(1, y / height)), height) + 1.25;
-    pts.push(new Vector3(Math.sin(ang) * r, y, Math.cos(ang) * r));
-  }
-  const curve = new CatmullRomCurve3(pts);
-  const tub = lite ? 260 : 600, rad = lite ? 4 : 6;
-  const geo = new TubeGeometry(curve, tub, 0.028, rad, false);
-  const along = new Float32Array((tub + 1) * (rad + 1));
-  for(let r = 0; r <= tub; r++) for(let j = 0; j <= rad; j++) along[r * (rad + 1) + j] = r / tub;
-  geo.setAttribute('aAlong', new Float32BufferAttribute(along, 1));
-  const mat = new ShaderMaterial({
-    uniforms: { uReveal: { value: 0 }, uOpacity: { value: 0 }, uTime: { value: 0 } },
-    vertexShader: `
-      attribute float aAlong;
-      varying float vAlong;
-      void main(){ vAlong = aAlong; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
-    fragmentShader: `
-      uniform float uReveal, uOpacity, uTime;
-      varying float vAlong;
-      void main(){
-        float on = smoothstep(uReveal + 0.004, uReveal - 0.004, vAlong);
-        if(on <= 0.0) discard;
-        float head = exp(-pow((vAlong - uReveal) / 0.012, 2.0));
-        // Hinter dem Kopf verblasst der Faden langsam, ganz weg ist er nie.
-        float tail = 0.28 + 0.72 * smoothstep(uReveal - 0.35, uReveal, vAlong);
-        // Kleine Lichtpakete laufen den Faden entlang.
-        float pulse = 0.6 + 0.4 * pow(0.5 + 0.5 * sin(vAlong * 90.0 - uTime * 4.0), 6.0);
-        vec3 col = vec3(1.0, 0.7, 0.28) * tail * pulse + vec3(1.0, 0.95, 0.8) * head * 3.0;
-        gl_FragColor = vec4(col * on * uOpacity, 1.0);
-      }`,
-    transparent: true, depthWrite: false, blending: AdditiveBlending,
-  });
-  const mesh = new Mesh(geo, mat);
-  mesh.frustumCulled = false;
-  mesh.userData.curve = curve;
-  // Der Kopf als weicher Lichtpunkt.
-  const c = document.createElement('canvas'); c.width = c.height = 64;
-  const x = c.getContext('2d');
-  const gr = x.createRadialGradient(32, 32, 0, 32, 32, 32);
-  gr.addColorStop(0, 'rgba(255,245,215,1)'); gr.addColorStop(0.25, 'rgba(255,200,110,.55)');
-  gr.addColorStop(1, 'rgba(0,0,0,0)');
-  x.fillStyle = gr; x.fillRect(0, 0, 64, 64);
-  const tex = new CanvasTexture(c); tex.colorSpace = SRGBColorSpace;
-  const headS = new Sprite(new SpriteMaterial({ map: tex, blending: AdditiveBlending, transparent: true, depthWrite: false, opacity: 0 }));
-  headS.scale.setScalar(0.9);
-  mesh.userData.head = headS;
-  return mesh;
-}
-
-// Feuerwerk: drei Garben, kurz nacheinander, wenn die letzte Karte erreicht
-// ist. Jede Garbe ist ein Satz Punkte mit eigener Richtung; Flugbahn,
-// Schwerkraft und Verloeschen rechnet der Shader aus der Startzeit.
-// Die Startpunkte werden beim Zuenden gesetzt (fireworks()), passend zur
-// Blickrichtung der Kamera - sonst gingen die Garben hinter den Karten auf.
-const FW_ORIGINS = [new Vector3(), new Vector3(), new Vector3()];
-function makeFireworks(lite){
-  const per = lite ? 200 : 480, n = per * 3;
-  const dir = new Float32Array(n * 3), burst = new Float32Array(n), seed = new Float32Array(n);
-  for(let i = 0; i < n; i++){
-    const b = Math.floor(i / per);
-    // Gleichmaessig auf der Kugel, mit etwas Streuung in der Weite.
-    const u = Math.random() * 2 - 1, a = Math.random() * Math.PI * 2, r = Math.sqrt(1 - u * u);
-    const sp = 0.75 + Math.random() * 0.35;
-    dir[i * 3] = Math.cos(a) * r * sp; dir[i * 3 + 1] = u * sp; dir[i * 3 + 2] = Math.sin(a) * r * sp;
-    burst[i] = b; seed[i] = Math.random();
-  }
-  const geo = new BufferGeometry();
-  geo.setAttribute('position', new Float32BufferAttribute(dir, 3));
-  geo.setAttribute('aBurst', new Float32BufferAttribute(burst, 1));
-  geo.setAttribute('aSeed', new Float32BufferAttribute(seed, 1));
-  const mat = new ShaderMaterial({
-    uniforms: {
-      uTime: { value: 0 }, uPx: { value: 1 }, uOpacity: { value: 1 }, uR: { value: 3 },
-      uStart: { value: new Vector3(-99, -99, -99) },
-      uO0: { value: FW_ORIGINS[0] }, uO1: { value: FW_ORIGINS[1] }, uO2: { value: FW_ORIGINS[2] },
-    },
-    vertexShader: `
-      attribute float aBurst, aSeed;
-      uniform float uTime, uPx, uR;
-      uniform vec3 uStart, uO0, uO1, uO2;
-      varying float vA;
-      varying vec3 vCol;
-      void main(){
-        float st = aBurst < 0.5 ? uStart.x : (aBurst < 1.5 ? uStart.y : uStart.z);
-        vec3 o  = aBurst < 0.5 ? uO0 : (aBurst < 1.5 ? uO1 : uO2);
-        float age = uTime - st;
-        float life = 2.6;
-        if(age < 0.0 || age > life){ gl_Position = vec4(2.0, 2.0, 2.0, 1.0); gl_PointSize = 0.0; vA = 0.0; return; }
-        float R = uR * (aBurst < 0.5 ? 1.15 : 0.95);
-        vec3 p = o + position * R * (1.0 - exp(-age * 2.4)) + vec3(0.0, -0.55 * age * age, 0.0);
-        vec4 mv = modelViewMatrix * vec4(p, 1.0);
-        gl_Position = projectionMatrix * mv;
-        float k = age / life;
-        // Zum Ende hin knistern die Funken, bevor sie verloeschen.
-        float crackle = k > 0.6 ? step(0.5, fract(sin(aSeed * 91.7 + floor(uTime * 14.0)) * 43758.5)) : 1.0;
-        vA = pow(1.0 - k, 1.4) * crackle * (1.0 + 2.0 * exp(-age * 6.0));
-        vec3 c0 = vec3(1.0, 0.8, 0.4), c1 = vec3(1.0, 0.93, 0.78), c2 = vec3(1.0, 0.6, 0.25);
-        vCol = aBurst < 0.5 ? c0 : (aBurst < 1.5 ? c1 : c2);
-        gl_PointSize = (4.6 - k * 2.4) * uPx * 9.0 / max(0.5, -mv.z);
-      }`,
-    fragmentShader: `
-      uniform float uOpacity;
-      varying float vA;
-      varying vec3 vCol;
-      void main(){
-        vec2 c = gl_PointCoord - 0.5;
-        float d = dot(c, c) * 4.0;
-        if(d > 1.0) discard;
-        float a = (1.0 - d) * vA * uOpacity;
-        gl_FragColor = vec4(vCol * a, a);
-      }`,
-    transparent: true, depthWrite: false, blending: AdditiveBlending,
-  });
-  const pts = new Points(geo, mat);
-  pts.frustumCulled = false;
-  pts.visible = false;
   return pts;
 }
 
@@ -1045,30 +1131,355 @@ function loadTower(url){
     const beacon = makeBeacon(lite);
     beacon.position.y = TOWER_HEIGHT * 0.985;
     g.add(beacon);
-    // Build 27: Glut und Glitter, Lichtfaden, Feuerwerk mit Lichtblitz.
+    // Glut und Bluetenstaub (Build 27), Bluetenwolken und Lichtkette (Build 28).
     const embers = makeEmbers(TOWER_HEIGHT, lite);
     g.add(embers);
-    const trail = makeTrail(TOWER_HEIGHT, lite);
-    g.add(trail); g.add(trail.userData.head);
-    const fw = makeFireworks(lite);
-    g.add(fw);
-    const flash = new Sprite(trail.userData.head.material.clone());
-    flash.scale.setScalar(9);
-    flash.visible = false;
-    g.add(flash);
-    g.userData.embers = embers; g.userData.trail = trail; g.userData.fw = fw; g.userData.flash = flash;
+    const blossoms = makeBlossoms(TOWER_HEIGHT, lite);
+    g.add(blossoms);
+    const chain = makeChain(TOWER_HEIGHT, lite);
+    g.add(chain);
+    registerDensity(embers); registerDensity(sparks); registerDensity(blossoms);
+    g.userData.embers = embers; g.userData.blossoms = blossoms; g.userData.chain = chain;
+    // Die Halle unter dem Turm und der Lichtregen (Build 28).
+    hall = makeHall(lite); scene.add(hall);
+    rain = makeRain(lite); scene.add(rain);
+    registerDensity(hall.userData.glitter);
     g.visible = false;
     scene.add(g);
     tower = g;
-    towerMats = [mat];
+    towerMats = [mat, chain.material];
     addParisTower(model);
     tower.userData.sparks = sparks;
     tower.userData.beacon = beacon;
+    towerMats.forEach(m => { m.userData.q = { ir: m.iridescence || 0, cc: m.clearcoat || 0 }; });
+    applyMatQuality();
+    prewarm();
     towerLoading = false;
   }, undefined, err => {
     console.warn('Turm-Modell konnte nicht geladen werden:', err);
     towerLoading = false;
   });
+}
+
+// Shader vorab uebersetzen (Build 28). Sonst baut der Browser sie erst in
+// dem Moment, in dem Turm und Halle ins Bild kommen - mitten im Flug, und
+// das war ein Teil des Ruckelns auf dem Weg zum Turm. Geladen wird der Turm
+// zwei Bildschirmhoehen vorher, da ist Zeit. Der Turm hat zwei Fassungen:
+// durchscheinend beim Auftauchen, deckend, sobald er ganz da ist (deckend
+// ist billiger: kein Mischen, verdeckte Streben werden gar nicht erst
+// gerechnet). Beide werden gebaut.
+function prewarm(){
+  const par = renderer.extensions.has('KHR_parallel_shader_compile') && renderer.compileAsync;
+  const warm = () => par ? renderer.compileAsync(scene, camera) : Promise.resolve(renderer.compile(scene, camera));
+  setTimeout(() => {
+    try{
+      warm().then(() => {
+        towerMats.forEach(m => { m.transparent = false; m.needsUpdate = true; });
+        const p = warm();
+        towerMats.forEach(m => { m.transparent = true; m.needsUpdate = true; });
+        return p;
+      }).catch(() => {});
+    }catch(e){}
+  }, 60);
+}
+// Schillern und Klarlack sind die teuersten Teile des Goldes. Erst wenn die
+// Regelung weit herunter muss (matSimple), fallen sie weg - vor jeder
+// weiteren Senkung der Aufloesung.
+let matSimple = false;
+function applyMatQuality(){
+  for(const m of towerMats){
+    if(!m.userData.q || !m.isMeshPhysicalMaterial) continue;
+    const ir = matSimple ? 0 : m.userData.q.ir, cc = matSimple ? 0 : m.userData.q.cc;
+    if(m.iridescence !== ir || m.clearcoat !== cc){ m.iridescence = ir; m.clearcoat = cc; m.needsUpdate = true; }
+  }
+}
+
+/* ------------------------------------------- Die goldene Halle (Build 28) */
+
+// Nach der letzten Karte regnet Licht vom Turm in die Tiefe, die Kamera
+// sinkt hinterher und kommt in einem dunklen Gewoelbe unter dem Turm an -
+// wie der Schluss der Referenz: ein Kaefig aus Gold auf einem Sockel,
+// Kabel, die aus der Decke haengen, darin schwebt das L aus Glitzer, der
+// Boden spiegelt wie Wasser. Dort stehen "Dein Atelier" und "Kostenlos
+// starten". Gebaut wird die Halle erst, wenn der Turm geladen ist.
+const HALL_AT = new Vector3(0, -30, -38);
+let hall = null, rain = null, hallAmt = 0, hallShown = 0, hallP = 0, hallPShown = 0;
+const hallLight = { value: 0 };
+
+function glyphShape(){
+  const s = new Shape();
+  for(let i = 0; i < L_OUTLINE.length; ){
+    const op = L_OUTLINE[i++];
+    if(op === 0)      s.moveTo(L_OUTLINE[i++], L_OUTLINE[i++]);
+    else if(op === 1) s.lineTo(L_OUTLINE[i++], L_OUTLINE[i++]);
+    else              s.quadraticCurveTo(L_OUTLINE[i++], L_OUTLINE[i++], L_OUTLINE[i++], L_OUTLINE[i++]);
+  }
+  s.closePath();
+  return s;
+}
+
+// Das L aus Glitzer: Punkte in der Flaeche und dicht an der Kante des echten
+// Glyphen (dieselbe Form wie das 3D-L und die Wortmarke), mit etwas Tiefe.
+// Ein Teil loest sich unten und tropft wie in der Referenz herab.
+function makeGlitterL(lite){
+  const shape = glyphShape();
+  const tri = new ShapeGeometry(shape, 6);
+  tri.computeBoundingBox();
+  const bb = tri.boundingBox, cx = (bb.min.x + bb.max.x) / 2, cy = (bb.min.y + bb.max.y) / 2;
+  const P = tri.attributes.position.array, I = tri.index ? tri.index.array : null;
+  const tris = [], areas = [];
+  let total = 0;
+  const nT = I ? I.length / 3 : P.length / 9;
+  for(let t = 0; t < nT; t++){
+    const ia = I ? I[t * 3] : t * 3, ib = I ? I[t * 3 + 1] : t * 3 + 1, ic = I ? I[t * 3 + 2] : t * 3 + 2;
+    const ax = P[ia * 3], ay = P[ia * 3 + 1], bx = P[ib * 3], by = P[ib * 3 + 1], ccx = P[ic * 3], ccy = P[ic * 3 + 1];
+    const a = Math.abs((bx - ax) * (ccy - ay) - (ccx - ax) * (by - ay)) / 2;
+    tris.push([ax, ay, bx, by, ccx, ccy]); total += a; areas.push(total);
+  }
+  const edge = shape.getSpacedPoints(lite ? 500 : 1400);
+  const nFill = lite ? 2600 : 7000, nEdge = edge.length * 2, nDrip = lite ? 350 : 900;
+  const n = nFill + nEdge + nDrip;
+  const pos = new Float32Array(n * 3), seed = new Float32Array(n), kind = new Float32Array(n), col = new Float32Array(n * 3);
+  const pal = [[1.0, 0.86, 0.55], [0.98, 0.72, 0.36], [1.0, 0.95, 0.85], [0.95, 0.62, 0.72], [0.8, 0.7, 1.0]];
+  let k = 0;
+  const put = (x, y, z, kd) => {
+    pos[k * 3] = (x - cx) * 2.1; pos[k * 3 + 1] = (y - cy) * 2.1; pos[k * 3 + 2] = z;
+    seed[k] = Math.random(); kind[k] = kd;
+    const c = pal[Math.floor(Math.random() * (Math.random() < 0.8 ? 3 : 5))];
+    col[k * 3] = c[0]; col[k * 3 + 1] = c[1]; col[k * 3 + 2] = c[2];
+    k++;
+  };
+  for(let i = 0; i < nFill; i++){
+    const r = Math.random() * total;
+    let lo = 0, hi = areas.length - 1;
+    while(lo < hi){ const m = (lo + hi) >> 1; if(areas[m] < r) lo = m + 1; else hi = m; }
+    const [ax, ay, bx, by, ccx, ccy] = tris[lo];
+    let u = Math.random(), v = Math.random();
+    if(u + v > 1){ u = 1 - u; v = 1 - v; }
+    put(ax + (bx - ax) * u + (ccx - ax) * v, ay + (by - ay) * u + (ccy - ay) * v, gauss() * 0.07, 0);
+  }
+  for(let i = 0; i < nEdge; i++){
+    const e = edge[i % edge.length];
+    put(e.x + gauss() * 0.004, e.y + gauss() * 0.004, (i < edge.length ? -1 : 1) * 0.08 + gauss() * 0.01, 1);
+  }
+  for(let i = 0; i < nDrip; i++){
+    // Tropfen: starten am unteren Rand des L
+    const e = edge[Math.floor(Math.random() * edge.length)];
+    put(e.x, bb.min.y + (e.y - bb.min.y) * 0.15, gauss() * 0.06, 2);
+  }
+  tri.dispose();
+  const geo = new BufferGeometry();
+  geo.setAttribute('position', new Float32BufferAttribute(pos, 3));
+  geo.setAttribute('aSeed', new Float32BufferAttribute(seed, 1));
+  geo.setAttribute('aKind', new Float32BufferAttribute(kind, 1));
+  geo.setAttribute('aCol', new Float32BufferAttribute(col, 3));
+  shufflePoints(geo);
+  const mat = new ShaderMaterial({
+    uniforms: { uTime: { value: 0 }, uPx: { value: 1 }, uOpacity: { value: 0 }, uAssemble: { value: 1 } },
+    vertexShader: `
+      attribute float aSeed, aKind;
+      attribute vec3 aCol;
+      uniform float uTime, uPx, uAssemble;
+      varying float vA;
+      varying vec3 vCol;
+      void main(){
+        vec3 p = position;
+        float s = aSeed * 6.2831;
+        // Setzt sich beim Ankommen aus einer Wolke zusammen (uAssemble 0 -> 1).
+        vec3 scatter = vec3(sin(s * 3.1), cos(s * 2.3), sin(s * 5.7)) * 2.4 * (1.0 - uAssemble);
+        p += scatter + vec3(sin(uTime * 0.8 + s), cos(uTime * 0.7 + s * 1.3), 0.0) * 0.012;
+        float life = 1.0;
+        if(aKind > 1.5){
+          float c = fract(uTime * 0.09 * (0.6 + aSeed) + aSeed);
+          p.y -= c * 3.2;
+          p.x += sin(c * 6.0 + s) * 0.04;
+          life = sin(3.14159 * c);
+        }
+        vec4 mv = modelViewMatrix * vec4(p, 1.0);
+        gl_Position = projectionMatrix * mv;
+        float tw = pow(0.5 + 0.5 * sin(uTime * (2.0 + aSeed * 3.0) + s * 7.0), 4.0);
+        vA = life * (aKind > 0.5 && aKind < 1.5 ? 0.95 : 0.65) * (0.55 + 0.9 * tw);
+        vCol = aCol * (1.0 + tw * 0.8);
+        gl_PointSize = (aKind > 0.5 && aKind < 1.5 ? 2.2 : 1.8) * (1.0 + tw * 0.9) * uPx * 9.0 / max(0.5, -mv.z);
+      }`,
+    fragmentShader: `
+      uniform float uOpacity;
+      varying float vA;
+      varying vec3 vCol;
+      void main(){
+        vec2 c = gl_PointCoord - 0.5;
+        float d = dot(c, c) * 4.0;
+        if(d > 1.0) discard;
+        float a = (1.0 - d) * vA * uOpacity;
+        gl_FragColor = vec4(vCol * a, a);
+      }`,
+    transparent: true, depthWrite: false, blending: AdditiveBlending,
+  });
+  const pts = new Points(geo, mat);
+  pts.frustumCulled = false;
+  return pts;
+}
+
+// Kaefig, Sockel, Kabel, Saeulen und der spiegelnde Boden.
+function makeHall(lite){
+  const g = new Group();
+  const gold = new MeshPhysicalMaterial({
+    color: 0xe9c07a, metalness: 1, roughness: 0.18, envMapIntensity: 2.2,
+    iridescence: lite ? 0 : 0.7, iridescenceIOR: 1.7, iridescenceThicknessRange: [250, 800],
+    emissive: new Color(0x2a1504), emissiveIntensity: 1, transparent: true,
+  });
+  const dark = new MeshStandardMaterial({ color: 0x17130f, metalness: 0.9, roughness: 0.3, envMapIntensity: 1.1, transparent: true });
+  const glow = new MeshBasicMaterial({ color: 0xffd48a, transparent: true, blending: AdditiveBlending, depthWrite: false });
+  const rad = lite ? 8 : 20;
+  const cage = new Group();
+  // Sockel: drei Stufen mit Lichtfugen
+  const steps = [[3.3, 0.22], [2.85, 0.2], [2.4, 0.18]];
+  let y = 0;
+  for(const [r, h] of steps){
+    // Dunkler Stein mit Goldfuge - ein goldener Sockel ueberstrahlte im Licht.
+    const m = new Mesh(new CylinderGeometry(r, r * 1.02, h, lite ? 32 : 72), dark);
+    m.position.y = y + h / 2; cage.add(m);
+    const ring = new Mesh(new TorusGeometry(r * 1.005, 0.012, 6, lite ? 48 : 120), glow);
+    ring.rotation.x = Math.PI / 2; ring.position.y = y + h; cage.add(ring);
+    y += h;
+  }
+  const baseTop = y;
+  // Staebe
+  const bars = lite ? 12 : 18, R = 2.25, top = 5.4;
+  const barGeo = new CylinderGeometry(0.03, 0.03, top - baseTop, 8);
+  for(let i = 0; i < bars; i++){
+    const a = (i / bars) * Math.PI * 2;
+    const m = new Mesh(barGeo, gold);
+    m.position.set(Math.cos(a) * R, baseTop + (top - baseTop) / 2, Math.sin(a) * R);
+    cage.add(m);
+  }
+  // Deckel: zwei Ringe und eine flache Scheibe mit Lichtfuge
+  for(const [yy, r, t] of [[top, R + 0.12, 0.05], [top + 0.35, R + 0.45, 0.07], [2.2, R + 0.02, 0.025]]){
+    const m = new Mesh(new TorusGeometry(r, t, 8, lite ? 48 : 120), gold);
+    m.rotation.x = Math.PI / 2; m.position.y = yy; cage.add(m);
+  }
+  const cap = new Mesh(new CylinderGeometry(R + 0.55, R + 0.3, 0.4, lite ? 32 : 72, 1, true), dark);
+  cap.position.y = top + 0.55; cage.add(cap);
+  const capRing = new Mesh(new TorusGeometry(R + 0.56, 0.014, 6, 120), glow);
+  capRing.rotation.x = Math.PI / 2; capRing.position.y = top + 0.36; cage.add(capRing);
+  // Kabel: haengen vom Deckel in weiten Boegen zum Boden
+  const cables = lite ? 7 : 14;
+  for(let i = 0; i < cables; i++){
+    const a = (i / cables) * Math.PI * 2 + 0.2;
+    const r0 = R + 0.5, r1 = 5 + Math.random() * 4;
+    const pts = [];
+    for(let k = 0; k <= 16; k++){
+      const u = k / 16;
+      const rr = r0 + (r1 - r0) * u;
+      const yy = top + 0.5 + (0.02 - (top + 0.5)) * u - Math.sin(Math.PI * u) * (1.2 + Math.random() * 0.2) + (u < 0.1 ? 0.3 * (0.1 - u) : 0);
+      pts.push(new Vector3(Math.cos(a) * rr, Math.max(0.03, yy), Math.sin(a) * rr));
+    }
+    const m = new Mesh(new TubeGeometry(new CatmullRomCurve3(pts), lite ? 24 : 48, 0.035 + Math.random() * 0.02, 6, false), dark);
+    cage.add(m);
+  }
+  g.add(cage);
+  // Dunkle Saeulen im Hintergrund, nur als Silhouette mit Lichtkante
+  const pillarMat = new MeshStandardMaterial({ color: 0x0c0d12, metalness: 0.4, roughness: 0.6, transparent: true });
+  for(let i = 0; i < 6; i++){
+    const a = Math.PI * (0.15 + i * 0.14) + (i > 2 ? 0.55 : 0);
+    const m = new Mesh(new BoxGeometry(1.4, 16, 1.4), pillarMat);
+    m.position.set(Math.cos(a + Math.PI) * 13, 6, Math.sin(a + Math.PI) * 13 - 2);
+    m.rotation.y = -a;
+    g.add(m);
+  }
+  // Das L aus Glitzer schwebt im Kaefig
+  const glitter = makeGlitterL(lite);
+  glitter.position.y = 3.25;
+  g.add(glitter);
+  // Spiegelung: Kaefig und L noch einmal, an der Bodenebene gespiegelt
+  const mirror = new Group();
+  const cageM = cage.clone(); mirror.add(cageM);
+  const glitterM = new Points(glitter.geometry, glitter.material); glitterM.position.y = 3.25; mirror.add(glitterM);
+  mirror.scale.y = -1;
+  g.add(mirror);
+  // Wasserflaeche darueber: dunkel, halb durchsichtig, mit wandernden
+  // Lichtwellen - so wirkt die Spiegelung wie auf nassem Stein.
+  const floor = new Mesh(new CircleGeometry(40, 64), new ShaderMaterial({
+    uniforms: { uTime: { value: 0 }, uOpacity: { value: 0 }, uLight: hallLight },
+    vertexShader: 'varying vec3 vW; void main(){ vec4 w = modelMatrix * vec4(position, 1.0); vW = w.xyz; gl_Position = projectionMatrix * viewMatrix * w; }',
+    fragmentShader: `
+      uniform float uTime, uOpacity, uLight;
+      varying vec3 vW;
+      void main(){
+        vec2 p = vW.xz;
+        float r = length(p - vec2(0.0, -38.0));
+        float rip = sin(r * 5.0 - uTime * 1.4) * sin(p.x * 1.3 + uTime * 0.5) * 0.5 + 0.5;
+        float near = exp(-r * r / 60.0);
+        vec3 col = vec3(0.012, 0.012, 0.018) + vec3(1.0, 0.75, 0.4) * rip * near * 0.05 * uLight;
+        gl_FragColor = vec4(col, (0.78 + 0.12 * (1.0 - near)) * uOpacity);
+      }`,
+    transparent: true, depthWrite: false,
+  }));
+  floor.rotation.x = -Math.PI / 2;
+  floor.position.y = 0.001;
+  floor.renderOrder = 1;
+  g.add(floor);
+  // Licht von oben in den Kaefig, als weicher Kegel
+  const beamMat = new ShaderMaterial({
+    uniforms: { uOpacity: { value: 0 } },
+    vertexShader: 'varying float vY; varying vec3 vN; varying vec3 vV; void main(){ vY = position.y; vec4 mv = modelViewMatrix * vec4(position, 1.0); vV = -mv.xyz; vN = normalize(normalMatrix * normal); gl_Position = projectionMatrix * mv; }',
+    fragmentShader: 'uniform float uOpacity; varying float vY; varying vec3 vN; varying vec3 vV; void main(){ float f = pow(abs(dot(normalize(vN), normalize(vV))), 1.5); float fall = smoothstep(-2.6, 2.6, vY); gl_FragColor = vec4(vec3(1.0, 0.85, 0.6) * f * fall * uOpacity * 0.16, 1.0); }',
+    transparent: true, depthWrite: false, blending: AdditiveBlending, side: DoubleSide,
+  });
+  const beam = new Mesh(new CylinderGeometry(0.6, 2.1, 5.2, 32, 1, true), beamMat);
+  beam.position.y = baseTop + 2.6;
+  g.add(beam);
+  g.userData = { gold, dark, glow, pillarMat, glitter, glitterM, floor, beam, cage, mirror,
+                 mats: [gold, dark, pillarMat] };
+  g.position.copy(HALL_AT);
+  g.visible = false;
+  return g;
+}
+
+// Lichtregen: goldene Streifen fallen vom Turm in die Tiefe - er ersetzt
+// das Feuerwerk und fuehrt die Kamera in die Halle.
+function makeRain(lite){
+  const n = lite ? 260 : 700;
+  const pos = new Float32Array(n * 2 * 3), seed = new Float32Array(n * 2), end = new Float32Array(n * 2);
+  for(let i = 0; i < n; i++){
+    const r = Math.abs(gauss()) * 2.2 + 0.3, a = Math.random() * Math.PI * 2, s = Math.random();
+    for(let e = 0; e < 2; e++){
+      const j = i * 2 + e;
+      pos[j * 3] = Math.cos(a) * r; pos[j * 3 + 1] = 0; pos[j * 3 + 2] = Math.sin(a) * r;
+      seed[j] = s; end[j] = e;
+    }
+  }
+  const geo = new BufferGeometry();
+  geo.setAttribute('position', new Float32BufferAttribute(pos, 3));
+  geo.setAttribute('aSeed', new Float32BufferAttribute(seed, 1));
+  geo.setAttribute('aEnd', new Float32BufferAttribute(end, 1));
+  const mat = new ShaderMaterial({
+    uniforms: { uTime: { value: 0 }, uOpacity: { value: 0 }, uTop: { value: 8 }, uBottom: { value: -30 } },
+    vertexShader: `
+      attribute float aSeed, aEnd;
+      uniform float uTime, uTop, uBottom;
+      varying float vA;
+      void main(){
+        float span = uTop - uBottom;
+        float c = fract(uTime * (0.10 + aSeed * 0.08) + aSeed * 13.0);
+        float y = uTop - c * span;
+        float len = 0.6 + aSeed * 1.6;
+        vec3 p = position;
+        p.y = y + aEnd * len;
+        vA = (1.0 - aEnd) * smoothstep(0.0, 0.05, c) * (1.0 - smoothstep(0.9, 1.0, c));
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(p, 1.0);
+      }`,
+    fragmentShader: `
+      uniform float uOpacity;
+      varying float vA;
+      void main(){ gl_FragColor = vec4(vec3(1.0, 0.82, 0.48) * vA * uOpacity, 1.0); }`,
+    transparent: true, depthWrite: false, blending: AdditiveBlending,
+  });
+  const lines = new LineSegments(geo, mat);
+  lines.frustumCulled = false;
+  lines.position.set(HALL_AT.x, 0, HALL_AT.z);
+  lines.visible = false;
+  return lines;
 }
 
 /* ------------------------------------------------------------- Staub  */
@@ -1651,35 +2062,34 @@ let renderer, scene, camera, clock, composer, bloom, grade;
 let streaks;
 let emblem, ringMain, tower, towerMats = [], emblemMats = [];
 let raf = 0, running = false, lite = false, ready = false;
+// Geraeteklasse (Build 28): 'phone' | 'tablet' | 'desktop'. lite = Handy.
+// Das iPad gilt seit Build 28 nicht mehr als lite - es bekommt die volle
+// Geometrie, die Qualitaetsregelung fangt es ab, falls es eng wird.
+let tier = 'desktop';
 let progress = 0, shown = 0;
 let spin = 0, spinT = 0;
 let towerAmt = 0, towerShown = 0, tourP = 0, tourShown = 0;
 let streakAmt = 0, parisVis = 0;
 let halo, dust, paris = null, tramSheet = null, tramVis = 0;
 let backdrop = null, waves = null, heroT = 0, heroShown = 0, heroFadeIn = 0;
-let pxScale = 1, fwStage = 0, fwFlashT = -99;
-// Drei Garben kurz nacheinander, dazu ein Lichtblitz und ein Signal an die
-// Seite (fuer den Klang).
-function fireworks(fu, t, radius, flashAt){
-  fu.uStart.value.set(t, t + 0.45, t + 0.95);
-  fu.uR.value = radius;
-  fwFlashT = t;
-  if(tower && tower.userData.flash) tower.userData.flash.position.copy(flashAt);
-  try{ window.dispatchEvent(new CustomEvent('lumiere:firework')); }catch(e){}
-}
+let pxScale = 1;
+let hallKey = null, hallRim = null;
+const _camHall = new Vector3(), _lookHall = new Vector3(), _q0 = new Vector3(), _q1 = new Vector3();
+const _dT = new Vector3(), _dH = new Vector3(), _dD = new Vector3(0, -1, -0.35).normalize();
 let pointerX = 0, pointerY = 0, px = 0, py = 0;
 
 function init(canvas, opts){
   if(ready) return true;
   opts = opts || {};
-  lite = !!opts.lite;
+  tier = opts.tier || (opts.lite ? 'phone' : 'desktop');
+  lite = tier === 'phone';
   try{
-    renderer = new WebGLRenderer({ canvas, antialias: !lite, alpha: true, powerPreference: lite ? 'low-power' : 'high-performance' });
+    renderer = new WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance' });
   }catch(e){ return false; }
   if(!renderer.getContext()) return false;
 
   // Startwert; die Qualitaetsregelung passt ihn danach an das Geraet an.
-  prNow = Math.min(window.devicePixelRatio || 1, lite ? 1.5 : 2);
+  prNow = Math.min(window.devicePixelRatio || 1, 2);
   renderer.setPixelRatio(prNow);
   renderer.toneMapping = ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.12;
@@ -1754,6 +2164,7 @@ function init(canvas, opts){
   // Der Staub an den Straengen haengt am Zeichen und dreht mit.
   dust = makeDust(helix.userData.curves);
   emblem.add(dust);
+  registerDensity(dust);
 
   // Ein zweiter, schmaler Reif dicht innen. Er sitzt eine Spur vor dem
   // grossen und gibt dem Zeichen eine zweite Ebene - ohne ihn sieht ein
@@ -1801,6 +2212,7 @@ function init(canvas, opts){
   loadMarble(opts.marble);
   waves = makeWaves(lite);
   scene.add(waves);
+  registerDensity(waves);
 
   /* --- Licht: warm von oben, Weinrot als Gegenlicht von unten -----------
      Die Reichweite muss den Turm mit abdecken (10 Einheiten hoch), deshalb
@@ -1810,6 +2222,10 @@ function init(canvas, opts){
   const rim  = new PointLight(CHAMPAGNE,   120, 90); rim.position.set(-11, 3, 6);   scene.add(rim);
   const back = new PointLight(NIGHT_BLUE,  260, 90); back.position.set(-7, -6, -10); scene.add(back);
   const warm = new PointLight(AMBER_DEEP,  200, 90); warm.position.set(11, 1, -7);  scene.add(warm);
+  // Licht der Halle (Build 28): von Anfang an da, nur mit Staerke 0 - sonst
+  // muessten beim Ankommen alle Materialien neu uebersetzt werden (Ruckler).
+  hallKey = new PointLight(0xffd9a0, 0, 30); hallKey.position.set(HALL_AT.x + 1.5, HALL_AT.y + 8.5, HALL_AT.z + 3); scene.add(hallKey);
+  hallRim = new PointLight(0x8fb6ff, 0, 30); hallRim.position.set(HALL_AT.x - 5, HALL_AT.y + 3, HALL_AT.z - 4); scene.add(hallRim);
 
   /* --- Lichtschlieren und Nachglühen ------------------------------------ */
   streaks = makeStreaks();
@@ -1839,7 +2255,11 @@ function init(canvas, opts){
   // Qualitaetsregelung (governor) schaltet ihn ab, falls das Geraet es nicht
   // fluessig schafft.
   {
-    composer = new EffectComposer(renderer);
+    // Kantenglaettung: mit Nachbearbeitung rendert die Szene in eine Textur,
+    // dort greift das antialias des Canvas NICHT - ohne Mehrfachabtastung
+    // (samples) waren alle Kanten gezackt. Daher ein eigenes Ziel mit MSAA.
+    const rt = new WebGLRenderTarget(4, 4, { type: HalfFloatType, samples: lite ? 2 : 4 });
+    composer = new EffectComposer(renderer, rt);
     composer.addPass(new RenderPass(scene, camera));
     bloom = new UnrealBloomPass(new Vector2(window.innerWidth, window.innerHeight),
                                 0.42,   // Staerke
@@ -1853,9 +2273,25 @@ function init(canvas, opts){
     composer.addPass(grade);
   }
 
-  clock = new Clock();
-  resize();
+  // Eigene kleine Uhr statt THREE.Clock (in r186 veraltet, meldet sich in
+  // der Konsole). start() setzt nur den Bezugspunkt, nie die Laufzeit zurueck.
+  clock = {
+    last: 0, elapsedTime: 0, on: false,
+    start(){ this.last = performance.now(); this.on = true; },
+    getDelta(){
+      if(!this.on) this.start();
+      const n = performance.now(), d = (n - this.last) / 1000;
+      this.last = n; this.elapsedTime += d;
+      return d;
+    },
+  };
   ready = true;
+  // Startstufe: Desktop voll, iPad mit Nachgluehen in halber Aufloesung,
+  // Handy zusaetzlich mit weniger Partikeln.
+  // ?q=N erzwingt eine Stufe (nur zum Messen; die Regelung bleibt davon unberuehrt).
+  const forcedQ = /[?&]q=(\d)/.exec(location.search);
+  applyLevel(forcedQ ? +forcedQ[1] : tier === 'desktop' ? 0 : tier === 'tablet' ? 1 : 2);
+  levelCeil = level;
   return true;
 }
 
@@ -1873,6 +2309,22 @@ function setPointer(nx, ny){ pointerX = nx; pointerY = ny; }
 // Wie weit das Startbild schon weggescrollt ist, in Bildschirmhoehen
 // (0 = ganz oben, 1 = eine Hoehe weiter). Treibt Marmor und Goldwellen.
 function setHero(v){ if(typeof v === 'number' && isFinite(v)) heroT = Math.max(0, v); }
+// Die Halle (Build 28): amount 0 = am Turm, 1 = unten angekommen;
+// p = Fortschritt in der Halle (Atelier -> Kostenlos starten).
+function setHall(amount, p){
+  hallAmt = Math.max(0, Math.min(1, amount || 0));
+  if(typeof p === 'number') hallP = Math.max(0, Math.min(1, p));
+}
+// Themenfarbe der vorderen Karte (Build 28), weich ueberblendet in frame().
+const _thA = new Color(0xf0b545), _thB = new Color(0x6a3fb0);
+const _thMixA = new Color(), _thMixB = new Color();
+const HALL_TH_A = new Color(0xd9822b), HALL_TH_B = new Color(0xb4467a);
+let themeTarget = 0;
+function setTheme(a, b, amt){
+  if(a) _thA.set(a);
+  if(b) _thB.set(b);
+  if(typeof amt === 'number') themeTarget = Math.max(0, Math.min(1, amt));
+}
 
 /* Die Fahrt um den Turm: oben an der Spitze los, eine halbe Umrundung nach
    rechts und dabei hinunter zum Fuss. Zwei Stuetzstellen reichen - Winkel,
@@ -2003,7 +2455,7 @@ function applyTransform(p, t){
     u.uShift.value = heroShown;
     u.uAmt.value = 1 - smoothstep(Math.max(0, Math.min(1, (heroShown - 0.25) / 0.85)));
     u.uReady.value = heroFadeIn;
-    backdrop.visible = u.uAmt.value * heroFadeIn > 0.002;
+    backdrop.visible = u.uAmt.value * heroFadeIn > 0.002 || themeAmt.value > 0.002;
   }
   if(waves){
     // Zum Schluss ("Kostenlos starten") kehren die Goldwellen zurueck.
@@ -2021,8 +2473,33 @@ function applyTransform(p, t){
     }
   }
 
+  if(hall){
+    const hv2 = smoothstep(Math.max(0, Math.min(1, (hallShown - 0.25) / 0.6)));
+    hall.visible = hv2 > 0.01;
+    const hu = hall.userData;
+    for(const m of hu.mats) m.opacity = hv2;
+    hu.glow.opacity = hv2 * (0.75 + 0.25 * Math.sin(t * 1.7));
+    hu.floor.material.uniforms.uOpacity.value = hv2;
+    hu.floor.material.uniforms.uTime.value = t;
+    hu.beam.material.uniforms.uOpacity.value = hv2 * (0.8 + 0.2 * Math.sin(t * 0.9));
+    const gu = hu.glitter.material.uniforms;
+    gu.uTime.value = t; gu.uPx.value = pxScale; gu.uOpacity.value = hv2;
+    gu.uAssemble.value = smoothstep(Math.max(0, Math.min(1, (hallShown - 0.45) / 0.55)));
+    hu.glitter.rotation.y = Math.sin(t * 0.25) * 0.35;
+    hu.glitterM.rotation.y = hu.glitter.rotation.y;
+    hallLight.value = hv2;
+    if(hallKey){ hallKey.intensity = 24 * hv2; hallRim.intensity = 30 * hv2; }
+  }
+  if(rain){
+    // Faellt, sobald die letzte Karte erreicht ist, und tropft in der Halle weiter.
+    const start = smoothstep(Math.max(0, Math.min(1, (tourShown - 0.84) / 0.12)));
+    const rv = Math.max(start * tw, hallShown) * (1 - 0.55 * smoothstep(Math.max(0, Math.min(1, (hallShown - 0.6) / 0.4))));
+    rain.visible = rv > 0.01;
+    rain.material.uniforms.uOpacity.value = rv;
+    rain.material.uniforms.uTime.value = t;
+  }
   if(tower){
-    tower.visible = tw > 0.01;
+    tower.visible = tw > 0.01 && hallShown < 0.85;
     if(tower.visible){
       // Auf einem hochkantigen Schirm faellt der Turm schmaler aus, sonst
       // passt er nicht zwischen Kopfleiste und Kaertchen.
@@ -2031,48 +2508,21 @@ function applyTransform(p, t){
       // Taucht am Horizont auf, sobald die Fahrt beginnt - aus der Ferne
       // ist das ein Auftauchen, kein Ueberblenden.
       const app = smoothstep(Math.min(1, tw * 4));
-      for(const m of towerMats) m.opacity = app;
+      const opaque = app > 0.995;
+      for(const m of towerMats){
+        m.opacity = app;
+        if(m.transparent === opaque){ m.transparent = !opaque; m.needsUpdate = true; }
+      }
       // Funkeln: jeder Punkt blitzt fuer sich (Shader), hier nur die Staerke.
       const ud = tower.userData;
       const su = ud.sparks.material.uniforms;
       su.uTime.value = t; su.uOpacity.value = app; su.uPx.value = pxScale;
       const eu = ud.embers.material.uniforms;
       eu.uTime.value = t; eu.uOpacity.value = app * 0.9; eu.uPx.value = pxScale;
-      // Der Lichtfaden waechst mit der Fahrt, sein Kopf laeuft voraus.
-      const tu = ud.trail.material.uniforms;
-      const reveal = Math.min(1, tourShown + TRAIL_LEAD);
-      tu.uReveal.value = reveal; tu.uTime.value = t;
-      tu.uOpacity.value = app * smoothstep(Math.min(1, tourShown / 0.04));
-      ud.trail.userData.curve.getPointAt(reveal, ud.trail.userData.head.position);
-      ud.trail.userData.head.material.opacity = tu.uOpacity.value * (0.8 + 0.2 * Math.sin(t * 6));
-      // Feuerwerk, sobald die letzte Karte erreicht ist - einmal je Besuch.
-      const fw = ud.fw, fu = fw.material.uniforms;
-      fu.uTime.value = t; fu.uPx.value = pxScale; fu.uOpacity.value = app;
-      // Erste Runde an der letzten Karte: links und rechts ueber den Karten,
-      // wo die Kamera gerade hinschaut. Zweite Runde beim Zurueckweichen,
-      // wenn der ganze Turm im Bild steht: ueber der Spitze.
-      if(fwStage === 0 && tourShown > 0.8 && app > 0.5){
-        fwStage = 1;
-        const e = smoothstep(tourShown);
-        const ang = TOUR.from.ang + (TOUR.to.ang - TOUR.from.ang) * e;
-        const rx = Math.cos(ang), rz = -Math.sin(ang);          // rechts, von der Kamera aus
-        const fx = -Math.sin(ang), fz = -Math.cos(ang);         // von der Kamera weg
-        FW_ORIGINS[0].set(-rx * 3.8 + fx * 1.2, 5.3, -rz * 3.8 + fz * 1.2);
-        FW_ORIGINS[1].set( rx * 3.9 + fx * 1.0, 5.8,  rz * 3.9 + fz * 1.0);
-        FW_ORIGINS[2].set(-rx * 1.4 + fx * 2.4, 6.4, -rz * 1.4 + fz * 2.4);
-        fireworks(fu, t, 2.9, FW_ORIGINS[0]);
-      }else if(fwStage === 1 && tourShown > 0.96 && towerShown < towerAmt + 0.02 && towerAmt < 0.8){
-        fwStage = 2;
-        FW_ORIGINS[0].set(0, 11.6, 0);
-        FW_ORIGINS[1].set(-2.2, 10.6, 0.8);
-        FW_ORIGINS[2].set(2.3, 10.9, -0.8);
-        fireworks(fu, t, 3.6, new Vector3(0, TOWER_HEIGHT * 0.99, 0));
-      }
-      if(tourShown < 0.55) fwStage = 0;
-      fw.visible = t - fu.uStart.value.z < 2.8;
-      const fa = Math.exp(-(t - fwFlashT) * 3.2);
-      ud.flash.visible = fa > 0.02 && app > 0.01;
-      ud.flash.material.opacity = fa * 1.3 * app;
+      // Bluetenwolken und Lichtkette: das Licht laeuft der Kamera ein Stueck voraus.
+      const bu = ud.blossoms.material.uniforms;
+      bu.uTime.value = t; bu.uPx.value = pxScale; bu.uOpacity.value = app;
+      ud.chain.userData.head.value = Math.min(1.05, tourShown + 0.06);
       // Der Scheinwerfer kreist in 16 Sekunden einmal.
       const beacon = tower.userData.beacon;
       if(beacon){
@@ -2118,6 +2568,28 @@ function applyTransform(p, t){
   _dirA.lerp(_dirB, b).normalize();
   _look.copy(camera.position).addScaledVector(_dirA, 10);
   camera.lookAt(_look);
+  // Abstieg in die Halle (Build 28): von der Turmkamera auf einer Bogenbahn
+  // hinab - unterwegs schaut sie nach unten, dem Lichtregen hinterher -,
+  // dann richtet sie sich auf den Kaefig aus.
+  if(hall && hallShown > 0.0005){
+    const eh = hallShown * hallShown * hallShown * (hallShown * (hallShown * 6 - 15) + 10);
+    const hp = hallPShown;
+    const fitD = 1 / Math.max(0.5, fit);
+    _camHall.set(HALL_AT.x + Math.sin(t * 0.09) * 0.35, HALL_AT.y + 4.4 - hp * 1.0 + Math.sin(t * 0.13) * 0.1,
+                 HALL_AT.z + (17.5 - hp * 3.5) * fitD);
+    _lookHall.set(HALL_AT.x, HALL_AT.y + 2.1 + hp * 0.25, HALL_AT.z);
+    _q0.copy(camera.position);
+    _q1.set(_q0.x * 0.3 + HALL_AT.x * 0.7, HALL_AT.y + 17, _q0.z * 0.5 + _camHall.z * 0.5);
+    const a0 = (1 - eh) * (1 - eh), a1 = 2 * (1 - eh) * eh, a2 = eh * eh;
+    _dT.copy(_look).sub(_q0).normalize();
+    _dH.copy(_lookHall).sub(_camHall).normalize();
+    camera.position.set(_q0.x * a0 + _q1.x * a1 + _camHall.x * a2,
+                        _q0.y * a0 + _q1.y * a1 + _camHall.y * a2,
+                        _q0.z * a0 + _q1.z * a1 + _camHall.z * a2);
+    _dT.lerp(_dH, eh).normalize().lerp(_dD, Math.sin(Math.PI * eh) * 0.6).normalize();
+    _look.copy(camera.position).addScaledVector(_dT, 10);
+    camera.lookAt(_look);
+  }
   // Die Punktwelt zeigt sich nur auf dem Weg: sie kommt mit dem Flug und
   // geht, sobald die Umrundung beginnt (dort saehe man sie von der Seite).
   // Nach der ganzen Runde steht die Kamera wieder davor - beim Zurueck-
@@ -2126,6 +2598,7 @@ function applyTransform(p, t){
     const mid = Math.min(tourShown, 1 - tourShown);
     parisVis = smoothstep(Math.max(0, Math.min(1, (b - 0.06) / 0.4)))
              * (1 - smoothstep(Math.max(0, Math.min(1, mid / 0.07))));
+    parisVis *= 1 - Math.min(1, hallShown * 2.5);
     paris.sheet.visible = paris.shine.visible = parisVis > 0.005;
     paris.sheet.material.uniforms.uVis.value = parisVis;
     paris.shine.material.opacity = 0.32 * parisVis;
@@ -2170,6 +2643,14 @@ function frame(){
   if(grade) grade.uniforms.uTime.value = t;
   if(dust) dust.material.uniforms.uTime.value = t;
   heroShown += (heroT - heroShown) * smooth(10);
+  hallShown  += (hallAmt - hallShown)  * smooth(6);
+  hallPShown += (hallP - hallPShown)   * smooth(5);
+  // In der Halle eigene, warme Farben: Bernstein und Rose.
+  const hk = Math.min(1, Math.max(0, (hallShown - 0.3) / 0.5));
+  _thMixA.copy(_thA).lerp(HALL_TH_A, hk); _thMixB.copy(_thB).lerp(HALL_TH_B, hk);
+  themeA.value.lerp(_thMixA, smooth(2.5));
+  themeB.value.lerp(_thMixB, smooth(2.5));
+  themeAmt.value += (Math.max(themeTarget * towerShown * (1 - hk), hk * 0.8) - themeAmt.value) * smooth(3);
   if(heroFadeIn > 0 && heroFadeIn < 1) heroFadeIn = Math.min(1, heroFadeIn + Math.min(dtRaw, 0.1) * 1.4);
   if(backdrop) backdrop.material.uniforms.uTime.value = t;
   if(waves) waves.material.uniforms.uTime.value = t;
@@ -2218,25 +2699,69 @@ function draw(){
 
 /* ---------------------------------------------- Qualitaetsregelung  */
 
-// Ziel: 60 Bilder/s auf jedem Geraet, und dabei so schoen wie moeglich. Die
-// Regelung misst laufend die echte Bildzeit. Wird es zu langsam, sinkt
-// zuerst die Aufloesung (bis 1.0), dann faellt das Nachgluehen weg, dann
-// sinkt die Aufloesung weiter. Ist Luft, geht es langsam wieder hinauf - aber
-// nie ueber die Stufe, an der es zuletzt zu langsam wurde.
+// Ziel: 60 Bilder/s UND ein scharfes Bild (Build 28). Die Regelung misst
+// laufend die echte Bildzeit und geht Stufe fuer Stufe vor - zuerst weg mit
+// dem, was man kaum sieht (Nachgluehen in halber Aufloesung, weniger
+// Partikel, weniger Kantenglaettung), erst ganz zuletzt an die Aufloesung,
+// und auch dann nur bis zu einer Untergrenze je Geraet: auf Desktop und iPad
+// wird es nie pixelig. Ist Luft, geht es wieder hinauf - aber nie ueber die
+// Stufe, an der es zuletzt zu langsam wurde.
 // In automatisierten Tests (navigator.webdriver) ist sie aus - die
 // Testmaschine rendert ohne Grafikkarte und wuerde alles herunterregeln;
 // mit ?gov=1 laesst sie sich dort trotzdem pruefen.
-const PR_MAX = Math.min(window.devicePixelRatio || 1, 2);
-const PR_MIN = 0.6;
-let bloomOn = true;
-let prNow = 1, prCeil = PR_MAX;
+const DPR = Math.min(window.devicePixelRatio || 1, 2);
+let bloomOn = true, bloomScale = 1, density = 1, msaa = 4;
+let prNow = 1;
+// Je Stufe: Aufloesung (Anteil der Geraete-Aufloesung), Nachgluehen,
+// Nachgluehen-Aufloesung, Partikeldichte, MSAA.
+function qualityLevels(){
+  const floorPr = tier === 'phone' ? 1 : Math.max(1, DPR * 0.75);
+  const L = [
+    { pr: DPR,                          bloom: true,  bs: 1,   d: 1,    ms: 4 },
+    { pr: DPR,                          bloom: true,  bs: 0.5, d: 1,    ms: 4 },
+    { pr: DPR,                          bloom: true,  bs: 0.5, d: 0.65, ms: 4 },
+    { pr: DPR,                          bloom: true,  bs: 0.5, d: 0.65, ms: 2 },
+    { pr: DPR,                          bloom: true,  bs: 0.5, d: 0.65, ms: 2, simple: true },
+    { pr: Math.max(floorPr, DPR * 0.87),bloom: true,  bs: 0.5, d: 0.5,  ms: 2, simple: true },
+    { pr: floorPr,                      bloom: true,  bs: 0.5, d: 0.5,  ms: 2, simple: true },
+    { pr: floorPr,                      bloom: false, bs: 0.5, d: 0.5,  ms: 0, simple: true },
+  ];
+  if(tier === 'phone'){
+    // Das Handy darf als letztes Mittel etwas weicher werden.
+    L.push({ pr: 0.85, bloom: false, bs: 0.5, d: 0.4, ms: 0, simple: true });
+    L.forEach(l => { if(l.ms > 2) l.ms = 2; });
+  }
+  return L;
+}
+let levels = null, level = 0, levelCeil = 0;
 const gov = { on: !navigator.webdriver || /[?&]gov=1/.test(location.search),
-              acc: 0, n: 0, good: 0, cool: 0 };
-function setQuality(pr, bloomState){
-  prNow = Math.max(PR_MIN, Math.min(prCeil, pr));
+              acc: 0, n: 0, good: 0, cool: 0, calm: 0 };
+// Partikelsysteme, deren Dichte die Regelung ueber setDrawRange steuert.
+const densityTargets = [];
+function registerDensity(obj){
+  const g = obj.geometry;
+  const n = g.attributes.position.count;
+  densityTargets.push({ g, n });
+  g.setDrawRange(0, Math.floor(n * density));
+}
+function applyLevel(i){
+  if(!levels) levels = qualityLevels();
+  level = Math.max(0, Math.min(levels.length - 1, i));
+  const L = levels[level];
+  prNow = L.pr; bloomOn = !!composer && L.bloom; bloomScale = L.bs;
+  if(L.d !== density){
+    density = L.d;
+    for(const t of densityTargets) t.g.setDrawRange(0, Math.floor(t.n * density));
+  }
+  if(composer && L.ms !== msaa){
+    msaa = L.ms;
+    for(const rtx of [composer.renderTarget1, composer.renderTarget2]){
+      if(rtx){ rtx.samples = msaa; rtx.dispose(); }
+    }
+  }
+  if(!!L.simple !== matSimple){ matSimple = !!L.simple; applyMatQuality(); }
   renderer.setPixelRatio(prNow);
   if(composer) composer.setPixelRatio(prNow);
-  bloomOn = !!composer && bloomState;
   resize();
 }
 function governor(dtRaw){
@@ -2246,18 +2771,23 @@ function governor(dtRaw){
   if(gov.n < 40) return;
   const avg = gov.acc / gov.n;
   gov.acc = 0; gov.n = 0;
-  if(avg > 1 / 52){
+  if(avg > 1 / 54){
     gov.good = 0;
-    // Zu langsam: diese Stufe merkt sich die Regelung als Obergrenze.
-    prCeil = Math.max(PR_MIN, prNow * 0.98);
-    if(prNow > 1.01)            setQuality(Math.max(1, prNow * 0.8), bloomOn);
-    else if(bloomOn)            setQuality(prNow, false);
-    else if(prNow > PR_MIN)     setQuality(prNow * 0.85, false);
+    if(level < levels.length - 1){
+      // Zu langsam: diese Stufe merkt sich die Regelung als Obergrenze.
+      levelCeil = level + 1;
+      gov.calm = 0;
+      applyLevel(level + 1);
+    }
     gov.cool = 20;
-  }else if(avg < 1 / 58){
-    // Drei gute Messungen in Folge: eine Stufe hinauf.
-    if(++gov.good >= 3 && prNow < prCeil - 0.01){
-      setQuality(prNow * 1.12, bloomOn);
+  }else if(avg < 1 / 58.5){
+    // Drei gute Messungen in Folge: eine Stufe hinauf - bis zur Grenze.
+    // Nach langer ruhiger Zeit (~20 s) darf die Grenze wieder eine Stufe
+    // steigen: die Szene davor war vielleicht nur schwerer (Turm).
+    gov.good++; gov.calm++;
+    if(gov.calm >= 30 && levelCeil > 0){ levelCeil--; gov.calm = 0; }
+    if(gov.good >= 3 && level > levelCeil){
+      applyLevel(level - 1);
       gov.good = 0; gov.cool = 20;
     }
   }else gov.good = 0;
@@ -2268,7 +2798,8 @@ function resize(){
   const w = window.innerWidth, h = window.innerHeight;
   renderer.setSize(w, h, false);
   if(composer) composer.setSize(w, h);
-  if(bloom) bloom.setSize(w, h);
+  // Das Nachgluehen darf in halber Aufloesung laufen - es ist ohnehin weich.
+  if(bloom) bloom.setSize(Math.round(w * prNow * bloomScale), Math.round(h * prNow * bloomScale));
   camera.aspect = w / h;
   camera.updateProjectionMatrix();
   // Punktgroessen in Geraetepixeln, auf die Bildhoehe bezogen - sonst
@@ -2288,6 +2819,9 @@ function resize(){
 function start(){
   if(!ready || running) return;
   running = true;
+  // Die Uhr laeuft weiter, statt bei 0 neu zu beginnen: alles, was an einer
+  // Startzeit haengt (Lichtblitz, Garben), hielt einen alten Zeitpunkt nach
+  // dem Neustart sonst fuer "gerade eben" - daher der weisse Schirm am Turm.
   clock.start();
   if(!raf) raf = requestAnimationFrame(frame);
 }
@@ -2307,7 +2841,9 @@ function renderOnce(){
   draw();
 }
 
-window.LumiereGL = { init, start, stop, resize, setProgress, setTower, setPointer, setTurn, setHero,
+window.LumiereGL = { init, start, stop, resize, setProgress, setTower, setPointer, setTurn, setHero, setTheme, setHall,
   renderOnce, loadTower, setVideos,
   get ready(){ return ready; },
-  get hasTower(){ return !!tower; } };
+  get hasTower(){ return !!tower; },
+  // Nur zum Messen (Playwright): Szene und Renderer ansehen.
+  get _debug(){ return { scene, renderer }; } };

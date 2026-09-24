@@ -215,17 +215,28 @@ weichgezeichnet, additiv, Raender ausgeblendet, die Punkte liegen um
 Schleier ueber die ganze Nacht. Staerke je Vorhang: `plane` (Seine 0.62,
 Strassenbahn 0.42).
 
-## Qualitaetsregelung: 60 Bilder/s auf Handy und iPad (ab Build 19)
+## Qualitaetsregelung: 60 Bilder/s auf Handy und iPad (ab Build 19, neu in Build 28)
 
-`governor()` misst jedes Bild die echte Bildzeit (Mittel ueber 40 Bilder).
-Zu langsam (> 1/52 s): erst Aufloesung runter bis 1.0, dann Bloom aus
-(`bloomOn`, `draw()` rendert dann direkt), dann Aufloesung weiter bis 0.6.
-Drei gute Messungen (< 1/58 s) in Folge: eine Stufe hinauf, aber nie ueber
-die Stufe, an der es zuletzt zu langsam wurde (`prCeil`). Deshalb gibt es
-den Bloom jetzt auch auf `lite` - die Regelung nimmt ihn weg, wenn das
-Geraet ihn nicht schafft. **In Playwright ist die Regelung aus**
-(`navigator.webdriver`), weil die Testmaschine ohne Grafikkarte rendert und
-alles herunterregeln wuerde; mit `?gov=1` laesst sie sich trotzdem pruefen.
+Seit Build 28 gilt: **erst alles andere, die Aufloesung zuletzt** - der
+Nutzer will auf Desktop und iPad nichts Pixeliges sehen.
+
+- **Geraeteklasse** (`tier` in index.html, an `LumiereGL.init` uebergeben):
+  `phone` (kurze Bildschirmseite < 600 px oder <= 2 Kerne), `tablet` (grober
+  Zeiger), sonst `desktop`. `lite` = phone.
+- **Kantenglaettung:** der Composer rendert in ein MSAA-Ziel (`samples` 4,
+  Handy 2, HalfFloat). Auf echten GPUs (Apple: auf dem Kachelspeicher) kostet
+  das wenig; im Software-Renderer der Testmaschine ist es der groesste Posten.
+- **Stufen** (`qualityLevels()`): Bloom halbe Aufloesung -> Partikeldichte
+  (`registerDensity`, per drawRange) -> MSAA 2 -> Gold ohne Schillern und
+  Klarlack (`simple`, `applyMatQuality`) -> Aufloesung bis `DPR * 0.75`
+  (Desktop nie unter 1) -> Bloom aus. Nur das Handy darf zuletzt auf 0.85.
+  Start: Desktop Stufe 0, Tablet 1, Handy 2.
+- `governor()`: Mittel ueber 40 Bilder; langsamer als 1/54 s -> eine Stufe
+  runter (`levelCeil` merkt sich die Grenze), dreimal schneller als 1/58,5 s
+  -> eine hinauf. Bildzeiten ueber 0,25 s zaehlen nicht (Tabwechsel, Laden).
+- **In Playwright ist die Regelung aus** (`navigator.webdriver`), mit
+  `?gov=1` laesst sie sich pruefen. `?q=N` erzwingt eine Stufe (nur zum
+  Messen), `LumiereGL._debug` gibt Szene und Renderer heraus.
 
 ## Das Zeichen bleibt mittig (ab Build 17)
 
@@ -396,6 +407,12 @@ Scrollen ziehen nahe Kometen deutlich mit, ferne kaum (`dScroll * (0.03 +
 d * 0.55)`) - das macht die Tiefe spuerbar, ohne jede Maus.
 
 ## Die Karten am Turm
+
+(Seit Build 28 Milchglas, siehe unten "Build 28". Der Magnet: der Stapel
+bleibt um jede Karte herum eine Weile ruhig stehen und wechselt dann
+zuegig - `snapT` in step(), nachgezogen nach der Zeit, nicht pro Bild.
+Ohne das stand beim Anhalten oft eine Karte halb aus dem Bild, auf dem
+Handy mit abgeschnittenem Text.)
 
 Vier Lichtwirkungen, alle ohne Hover: eine Lichtkante, die um die vordere
 Karte laeuft (`::before`, konischer Verlauf, `@property --beam-a`), ein
@@ -604,19 +621,13 @@ Screenshots). Ziel: das Zeichen ist schoen, aber der Text soll gelesen werden.
   Stiele; Kind des Emblems, dreht also mit. Die Straenge sind duenner
   (`thick` 0.03) und im Startbild halb so hell (`hv`), Staub ebenso.
 - **Turm:** Funken blitzen einzeln (`makeSparks`, Shader statt gemeinsamem
-  Pulsieren), Glut steigt auf und Glitter rieselt (`makeEmbers`), ein
-  Lichtfaden windet sich auf der Kamerabahn um den Turm und laeuft ihr um
-  `TRAIL_LEAD` voraus (`makeTrail`). Feuerwerk (`makeFireworks`, drei Garben
-  aus einer Startzeit, alles im Shader): Runde 1 bei `tourShown > 0.8` links/
-  rechts ueber den Karten - die Startpunkte werden aus dem Kamerawinkel
-  berechnet, sonst gingen sie hinter den Karten auf -, Runde 2 beim
-  Zurueckweichen ueber der Spitze. Meldet `lumiere:firework` (Klang).
-- **Karten** zeigen die echte Seite (`shot-*.webp`, Aufnahmen mit
-  Playwright bei 1280 x 800, 880 px breit, zusammen 120 KB statt 930 KB
-  Fotos) in einem goldgerahmten, schraegen Fenster `.cine-card-shot`.
-  `layoutDeck` laesst kommende Karten aus der Tiefe gekippt einfliegen und
-  setzt `--rel` fuer die Parallaxe im Fenster. Neue Aufnahmen: Seiten mit
-  echten Daten fuellen (`makePair`, `store.examEvents`), sonst steht "NaN" da.
+  Pulsieren), Glut steigt auf und Glitter rieselt (`makeEmbers`).
+  (Lichtfaden `makeTrail` und Feuerwerk `makeFireworks` sind seit Build 28
+  wieder raus - ersetzt durch Lichtkette und Lichtregen.)
+- **Karten** zeigen die echte Seite (`shot-*.webp`). `layoutDeck` laesst
+  kommende Karten aus der Tiefe gekippt einfliegen und setzt `--rel`. Neue
+  Aufnahmen: Seiten mit echten Daten fuellen (`makePair`,
+  `store.examEvents`), sonst steht "NaN" da.
 - **Schluss:** kein grosser Footer mehr. `.cine-entrer` zeigt Gaesten
   "Kostenlos starten" (Registrieren/Anmelden oeffnen das Anmeldefenster ueber
   `data-auth-tab`, dazu "ohne Konto ausprobieren"), Angemeldeten "Weiter
@@ -624,22 +635,92 @@ Screenshots). Ziel: das Zeichen ist schoen, aber der Text soll gelesen werden.
   `.cine-colophon` mit Links und der **CC-BY-Namensnennung des Turms**.
   `KEYS` letzte Zeile: Emblem klein oben (top = 1), Text darunter.
 
-## Klaenge und Musik (ab Build 27)
+## Build 28: Turm aus Gold-Glas, Milchglas-Karten, die Halle
 
-Alles synthetisch (WebAudio), keine Dateien. Ein AudioContext, Graph:
-Effekte (`AUD.sfx`) und Musik (`AUD.music`) -> Kompressor -> Ausgang, beide
-mit Anteil in einen selbst berechneten Hall (Convolver aus abklingendem
-Rauschen). Bausteine `voice`, `bell`, `pluck`, `swoosh`; die alten Namen
-(`playTone`, `sndClick`, `sndCorrect`, ...) bleiben und klingen neu - Spiele
-und Uebungen brauchen deshalb keine Aenderung. Neu: `sndCardTurn` (Karte am
-Turm), `sndShimmer` (Flug zum Turm), `sndFirework`.
+Ohne Freigabe-Gate (Neugestaltung - der Nutzer pullt nach Abnahme).
 
-"Pariser Abend" (`musicBar`): Akkordfolge in `MUSIC_CHORDS`, alle 5,2 s ein
-Takt per setTimeout (nicht rAF), gezupfter Akkord + weicher Teppich + seltene
-Glockenmelodie. Nur auf der Startseite und nur wenn `store.settings.musicOn`;
-`musicSync()` bei Seitenwechsel und `visibilitychange`, Start mit der ersten
-Beruehrung (Browser-Regel). Knopf `#hubMusic` im Startbild und Schalter +
-Regler in den Einstellungen teilen sich `musicOn`/`musicVolume`.
+- **Weisser Schirm / zaeh am Turm (behoben):** `start()` setzte die Uhr auf 0;
+  alles mit Startzeit hielt einen alten Zeitpunkt danach fuer "gerade eben".
+  Die Uhr ist jetzt eine eigene kleine (`clock` in init, THREE.Clock ist in
+  r186 veraltet) und laeuft beim Neustart weiter. Dazu: kein CSS-`blur()` mehr
+  auf den Karten (Schleier `--far` statt Weichzeichner), und `prewarm()`
+  uebersetzt die Shader von Turm und Halle gleich nach dem Laden
+  (`compileAsync` nur mit KHR_parallel_shader_compile, sonst `compile` -
+  ohne diese Pruefung warnt three.js in der Konsole).
+- **Turm:** `applyTowerLook` - poliertes Gold mit Schillern und Klarlack
+  (Handy: einfaches Metall), Fresnel-Lichtkante in der Farbe der vorderen
+  Karte. Deckend, sobald er ganz da ist (`transparent` nur beim Auftauchen,
+  beide Fassungen vorab uebersetzt) - spart Mischen und verdeckte Streben.
+- **Bluetenwolken** (`makeBlossoms`, `BLOOM_SPOTS`): Hortensien aus deckenden
+  Punkten dicht am Gitterwerk. **Lichtkette** (`makeChain`): InstancedMesh aus
+  Kettengliedern auf einer Wendel entlang der Kamerabahn, ein Lichtpuls
+  (`uHead`) laeuft der Kamera voraus.
+- **Farbe je Karte:** `data-theme="#c1 #c2"` an jeder Karte; `layoutDeck`
+  meldet sie per `LumiereGL.setTheme(a, b, amt)`. Hintergrund (Glut unten
+  links/oben rechts), Turmkante und Blueten nehmen den Ton an; in der Halle
+  gleitet es zu warmem Bernstein/Rose (`HALL_TH_A/B`).
+- **Karten aus Milchglas:** Glasrand in `--c1/--c2`, darin die App-Seite
+  (`shot-*.webp`, 1600 x 1000, DPR 2 ohne Kopfleiste). Auf der vorderen Karte
+  fliesst das Bild (`cardLiquid`: EIN kleiner WebGL1-Canvas, der mit der
+  vorderen Karte mitwandert, hoechstens 1,5-fache Aufloesung). Titel mit
+  Glitch (`cardGlitchA/B`) und Zeichensalat (`scrambleCard`; der Endtext wird
+  per setTimeout garantiert, auch wenn die Bildrate stockt). Stichpunkte
+  `.cine-card-side` rechts daneben, nur ab 1240 px, so breit wie der Rand.
+- **Lichtregen statt Feuerwerk** (`makeRain`, LineSegments) ab
+  `tourShown > 0.84`, die Kamera sinkt hinterher in die **Halle**
+  (`HALL_AT = (0, -30, -38)`, `makeHall`): Sockel, Kaefig aus Goldstaeben,
+  Kabel von der Decke, das L aus Glitzer (`makeGlitterL`, aus dem echten
+  Glyphen) mit Spiegelbild im Wasserboden, Lichtkegel, zwei eigene
+  Punktlichter. `setHall(hallIn, hallP)` aus `scrub()`: `hallIn` = eine
+  Bildschirmhoehe Abstieg nach dem Turm-Track, `hallP` = Weg durch die Halle
+  (Atelier -> Kostenlos starten). Der Abstieg ist eine Bezierkurve von der
+  Turmkamera zur Hallenkamera.
+
+## Klaenge und Musik (ab Build 28)
+
+Ein AudioContext, erst nach der ersten Beruehrung (`unlockAudio`; vorher
+wird nichts geplant, sonst platzt beim ersten Klick alles auf einmal
+heraus). Graph: Effekte (`AUD.sfx`) + Hall-Anteil (`AUD.sfxSend` ->
+Convolver) und Musik (`AUD.musicFilter` -> `AUD.music`) -> Kompressor.
+
+- **Klangbibliothek `sfx.mp3`** (338 KB, 14 Plaetze: Harfe, Kristall,
+  Marimba, Klavier, E-Piano, Pizzicato, Chor, Glas, Halo, Horn, Pauke) aus
+  dem **FluidR3-Soundfont (Frank Wen, MIT)** - Nennung in der
+  `.cine-colophon`, nicht entfernen. `SPRITE_MAP` = [Beginn, Laenge,
+  MIDI-Ton]; den genauen Einsatz sucht `loadSprite` beim Laden (MP3-Vorlauf
+  ist je Browser verschieden). `samp()` stimmt per playbackRate um, `inst()`
+  faellt auf die erzeugten Stimmen (`voice/bell/pluck`) zurueck, solange die
+  Bibliothek fehlt. Neu bauen: `tools/sfx-sprite.py` (numpy + ffmpeg) - die Plaetze
+  muessen dann in `SPRITE_MAP` nachgezogen werden.
+- **Drossel:** `sndOk(key, gap)` = Mindestabstand je Klang + hoechstens
+  sechs Klaenge in 150 ms. `uiSounded()`: hatte ein Klick schon einen eigenen
+  Klang (Schalter, Reiter, Absenden, Menue), bleibt `sndClick` stumm.
+- **Wo was klingt:** Seitenwechsel (`showView` -> `sndPage`), Menue auf/zu,
+  Fenster auf/zu (ein MutationObserver `watchDialogs` fuer alle Dialoge),
+  Schalter/Reiter/Regler/Tippen/Absenden (delegiert in der Fangphase),
+  richtig/falsch/fertig, Muenzen (`addCoins`), Serie
+  (`recordStreakActivity`), Tagesziel (`recordDailyProgress`), Rekord,
+  Hinweise (`showToast` -> `sndToast`), Nachricht, Anmelden.
+- **Startseite:** `cineSound()` in `scrub()` misst das Scrolltempo
+  (`scrollSpeed`, Bildschirmhoehen/s). Tempo -> Scroll-Teppich
+  (`sndScrollBed`: Luft + tiefer Grundton, schwillt an und ab, ohne rAF).
+  Vier Momente je einmal pro Durchgang: Flug zum Turm, Lichtregen, Abstieg,
+  Ankunft - springt die Seite ueber mehrere, klingt nur der letzte; ueber
+  5 Bildschirmhoehen/s klingt keiner. Szenen-, Wort- und Kartenklaenge
+  schweigen beim schnellen Scrollen (`scrollFast`). Der Wortwechsel ist
+  auf Wunsch nur ein Hauch (-45 dB).
+- **Musik "Soir à Paris"** (`soir.mp3`, 2 MB, 128 kbit/s): eigenes Stueck,
+  Kino + Jazz, 36 Takte bei 72 BPM in D-Dur, gerendert aus denselben
+  Samples (`tools/compose-soir.py`). Schleife = 120 s, die Datei ist 7 s laenger (Hall
+  klingt aus): `musicArm` startet genau bei 120 s eine zweite Kopie
+  (zwei `<audio>` ueber `createMediaElementSource`, `timeupdate` als
+  Netz). Geholt erst beim Einschalten; nur Startseite; Standard aus
+  (`#hubMusic`, Einstellungen). `musicMood(fc)` aus `cineSound`: oben
+  vertraeumt (Tiefpass 2,4 kHz), am Turm voll, in der Halle weicher.
+- `sw.js` laesst .mp3 durch (Range-Anfragen, wie Videos). **Test:**
+  `python3 -m http.server` kann keine Range-Anfragen - Springen in der Musik
+  geht dort nicht. Fuer Musiktests einen Server mit Range nehmen
+  (`python3 tools/rangeserver.py 8097 .`, oder nginx).
 
 ## Testen mit Freigabe-Gate
 
