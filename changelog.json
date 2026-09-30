@@ -1,6 +1,23 @@
 {
  "entries": [
   {
+   "build": 32,
+   "date": "2026-09-30",
+   "until": "2026-09-30",
+   "title": "Vier neue Spiele: Neon Drift, Snake, Space Shooter, Breakout",
+   "gate": true,
+   "items": [
+    "Hinter dem Freigabe-Gate (Build 32): Neon Drift - drei Spuren, Lichtperlen, Kombos bis x8, knapp ausweichen, Schild und Zeitlupe. Zwei Modi: Endlos und Tages-Challenge (jeden Tag dieselbe Strecke fuer alle, beliebig oft spielbar, zaehlt unter eigenem Schluessel 'neondaily'). 2 Coins.",
+    "Hinter dem Gate: Snake als Lernspiel - deutsches Wort oben, die franzoesischen Buchstaben der Reihe nach fressen, mit Akzenten (Koeder sind gern derselbe Buchstabe mit anderem Akzent). Wand, Schwanz oder falscher Buchstabe kosten ein Leben (3). Wischen oder Pfeiltasten. 1 Coin.",
+    "Hinter dem Gate: Space Shooter mit Wortwolken - deutsches Wort oben, die richtige franzoesische Wolke abschiessen; falsche treffen oder die richtige verpassen kostet ein Leben (3), alle 5 Treffer schneller, ab Stufe 3 vier Wolken. Rakete folgt dem Finger, Loslassen schiesst. 1 Coin.",
+    "Hinter dem Gate: Breakout mit Mauern in Mustern (Baender, Eiffelturm, Herz, L, Schachbrett), Steinen mit 1-3 Treffern, Extras (breiter Schlaeger, drei Baelle, Feuerball, langsamer, +1 Leben), 3 Leben. 2 Coins.",
+    "Rangliste: Zeitraum 'Heute' fuer alle Spiele, im Neon-Drift-Reiter Umschalter Endlos / Tages-Challenge.",
+    "Spielhalle: Startbildschirm auf dem Handy bei Hochkant-Spielen schon hochkant - die Startkarte war vorher abgeschnitten.",
+    "Aus den hochgeladenen Dateien wurde nur die Spielidee uebernommen, der Code ist neu im Stil der Spielhalle geschrieben. Jump Run wurde bewusst weggelassen (ueberschneidet sich mit Turmsprung/Wort-Laeufer).",
+    "SQL noetig: supabase/build32.sql (Zeitraum 'Heute' in lb_since). Ohne SQL zeigt 'Heute' dasselbe wie Allzeit."
+   ]
+  },
+  {
    "build": 31,
    "date": "2026-09-30",
    "until": "2026-09-30",

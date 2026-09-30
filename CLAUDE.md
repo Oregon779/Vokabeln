@@ -903,6 +903,41 @@ SQL: `supabase/build31.sql`. Edge Function `lumiere-mail` neu bereitstellen.
   technisch nicht moeglich und Taeuschung der Schule. Nicht wieder anbieten;
   der richtige Weg ist eine Freigabe der Domain durch die Schule.
 
+## Build 32: Neon Drift, Snake, Space Shooter, Breakout
+
+Alles hinter `build: 32` in `GAME_DEFS` (Karten, Ranglisten-Reiter, Admin-
+Einstellungen laufen automatisch mit). Code im Block "Build 32: vier neue
+Spiele" vor den Spiel-Vokabeln; Vorlage waren Dateien des Nutzers, uebernommen
+wurde nur die Idee. SQL: `supabase/build32.sql` (Zeitraum `day` in `lb_since`).
+
+- **Neon Drift** (`runNeonDrift(canvas, ctx, mode)`): Modus `endless` oder
+  `daily`. Die Tages-Challenge saet den Zufall mit `berlinToday()` - alle
+  fahren dieselbe Strecke; `rng` wird NUR in `spawnRow` benutzt, sonst
+  verschiebt sich die Strecke. Gespeichert unter `neondaily`
+  (`finishArcadeGame(key, score, { recKey, mode, sub })`). "Nochmal" startet
+  ueber `launchArcadeGame(key, { mode })` direkt, ohne Startbildschirm.
+  Tempo in Einheiten des Originals (640 hoch) mal `S = H / 640`.
+- **Snake** (`runSnake32`): Wort aus `a32SnakePool` (Artikel weg,
+  kleingeschrieben, 2-11 Buchstaben), Leerzeichen/Apostroph fuellen sich
+  selbst. Koeder aus `A32_ACCENTS` (e -> e/e/e ...). Nach zwei Fehlern auf
+  demselben Buchstaben leuchtet der richtige gruen. Weiche Bewegung: Glied i
+  gleitet von `prev[i]` nach `snake[i]` - beim Wachsen bekommt `prev` ein
+  Glied dazu, sonst bleibt es gleich lang.
+- **Space Shooter** (`runShooter32`): eine Runde = ein Zielwort + 2-3 falsche
+  Wolken. Falsch getroffen zeigt `fr = de` der falschen Wolke (man lernt
+  dabei). Maus: Rakete folgt beim Darueberfahren; Touch: ziehen, Loslassen
+  schiesst.
+- **Breakout** (`runBreakout32`): Mauern in `A32_WALLS` (12 Spalten, '.' leer,
+  Ziffer = Treffer), ab Runde 6 wiederholt mit +1 Treffer. Steine einmal je
+  Sorte vorgezeichnet (`brickSprite`), Ball in Teilschritten (<= 5 px), damit
+  er bei niedriger Bildrate nicht durch Steine tunnelt.
+- **Hochkant-Start:** `A32_TALL` - fuer diese Spiele ist die Buehne auf dem
+  Handy schon im Startbildschirm 400 x 620.
+- **Rangliste:** `lb31.period` kennt `day` (Knopf mit `data-build="32"`),
+  `lb31.nd` = Endlos/Tages-Challenge im Neon-Drift-Reiter (`#lb32Mode`).
+- Bildzeit (reines JS je Bild, Testmaschine): alle vier um 1 ms, p95 unter 2 ms
+  (Handy), Ballon Pop 0,2 ms.
+
 ## Testen mit Freigabe-Gate
 
 Lokal gibt es kein Supabase, also ist niemand Admin und alle Build-14-Teile

@@ -3129,6 +3129,11 @@
   }
   .lb31-tabs button.is-on{ border-color:var(--gold-bright); background:rgba(246,195,92,.14); color:#fff3d6; box-shadow:0 0 18px rgba(246,195,92,.18); }
   .lb31-note{ margin:.4rem 0 1rem; font-size:.8rem; color:var(--stone); }
+  /* Build 32: Neon Drift - Endlos / Tages-Challenge in der Rangliste */
+  .lb32-mode{ display:inline-flex; margin:.5rem 0 0; padding:.22rem; border-radius:999px; background:rgba(0,0,0,.35); border:1px solid rgba(246,195,92,.2); }
+  .lb32-mode[hidden]{ display:none; }
+  .lb32-mode button{ border:0; background:none; color:var(--stone); font:inherit; font-size:.78rem; padding:.4rem .9rem; border-radius:999px; cursor:pointer; }
+  .lb32-mode button.is-on{ background:rgba(246,195,92,.18); color:#fff3d6; box-shadow:inset 0 0 0 1px rgba(246,195,92,.5); }
   .lb31-table{ display:flex; flex-direction:column; gap:.5rem; }
   .lb31-row{
     display:grid; grid-template-columns:4.6rem minmax(0, 1fr) 5rem 6rem 7.5rem 7.5rem; align-items:center; gap:.8rem;
@@ -5157,12 +5162,17 @@
           <h3 class="lb31-title" id="lb31Title">Top-Spieler</h3>
         </div>
         <div class="lb31-periods" role="tablist" aria-label="Zeitraum">
+          <button type="button" role="tab" data-lbp="day" data-build="32">Heute</button>
           <button type="button" role="tab" data-lbp="week">Woche</button>
           <button type="button" role="tab" data-lbp="month">Monat</button>
           <button type="button" role="tab" data-lbp="all" class="is-on" aria-selected="true">Allzeit</button>
         </div>
       </div>
       <div class="lb31-tabs" id="lb31Tabs" role="tablist" aria-label="Spiel"></div>
+      <div class="lb32-mode" id="lb32Mode" role="tablist" aria-label="Neon Drift Modus" hidden>
+        <button type="button" role="tab" data-lbnd="endless" class="is-on" aria-selected="true">Endlos</button>
+        <button type="button" role="tab" data-lbnd="daily" aria-selected="false">Tages-Challenge</button>
+      </div>
       <p class="lb31-note" id="lb31Note"></p>
       <div class="lb31-table" id="lb31Table" role="table" aria-label="Rangliste"></div>
     </section>
@@ -6251,7 +6261,7 @@
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="./lumiere-gl.js?v=31" defer></script>
+<script src="./lumiere-gl.js?v=32" defer></script>
 <script>
 /* ============================================================
    WICHTIG: Bei jedem inhaltlichen Deploy hochzaehlen (wie CACHE_NAME
@@ -6262,7 +6272,7 @@
       unten) - neue, noch nicht "veroeffentlichte" Features hinter
       isReleased(N) verstecken; Admins sehen sie trotzdem sofort.
    ============================================================ */
-const APP_VERSION = 31;
+const APP_VERSION = 32;
 
 // Handy und iPad (Build 31): ein schlanker Modus fuer alle Nutzer - keine
 // Hintergrund-Weichzeichner (backdrop-filter ueber der bewegten 3D-Ebene
@@ -14388,6 +14398,20 @@ const GAME_DEFS = {
   wordrun:  { name: 'Wort-Läufer', icon: '🏃', unit: 'Punkte', short: '', build: 20,
     desc: 'Ein Lauf durch Paris bei Nacht. Spring über Hindernisse und lauf durch die richtige Übersetzung.',
     hint: 'Tippen: springen · Halten: höher · richtige Antwort unten bleiben oder oben einsammeln' },
+  // Build 32 - vier neue Spiele. Neon Drift schreibt die Tages-Challenge unter
+  // eigenem Schluessel ("neondaily") in Rangliste und Rekorde.
+  neondrift:{ name: 'Neon Drift', icon: '💫', unit: 'Punkte', short: '', build: 32,
+    desc: 'Drei Spuren, immer schneller: weiche aus, sammle Lichtperlen, bau Kombos bis ×8. Knapp ausweichen gibt extra. Jeden Tag eine Tages-Challenge – dieselbe Strecke für alle.',
+    hint: 'Linke oder rechte Hälfte antippen · Pfeiltasten · Schild fängt einen Crash' },
+  snake:    { name: 'Snake', icon: '🐍', unit: 'Punkte', short: '', build: 32,
+    desc: 'Oben steht ein deutsches Wort – friss die Buchstaben der französischen Übersetzung in der richtigen Reihenfolge, mit Akzent. Wand, eigener Schwanz oder falscher Buchstabe kosten ein Leben.',
+    hint: 'Wischen oder Pfeiltasten · 3 Leben · auf die Akzente achten' },
+  shooter:  { name: 'Space Shooter', icon: '🚀', unit: 'Punkte', short: '', build: 32,
+    desc: 'Wortwolken ziehen über Paris. Schieß die richtige französische Übersetzung ab – falsche treffen oder die richtige verpassen kostet ein Leben. Alle fünf Treffer wird es schneller.',
+    hint: 'Ziehen: Rakete bewegen · Loslassen oder Tippen: Schuss · Pfeiltasten + Leertaste' },
+  breakout: { name: 'Breakout', icon: '🧱', unit: 'Punkte', short: '', build: 32,
+    desc: 'Mauer um Mauer: Eiffelturm, Herz, das L. Manche Steine brauchen mehrere Treffer, Extras machen den Schläger breiter, teilen den Ball oder zünden einen Feuerball.',
+    hint: 'Schläger mit dem Finger oder der Maus führen · Tippen: Ball los · 3 Leben' },
 };
 // Neue Spiele tragen ein build-Feld und bleiben bis zur Freigabe verborgen.
 function arcadeGameVisible(key){
@@ -14415,6 +14439,11 @@ const DEFAULT_GAME_SETTINGS = {
     tourjump: { enabled: true, cost: 2, difficulty: 1, recordBonus: 5 },
     g2048:    { enabled: true, cost: 2, difficulty: 1, recordBonus: 5 },
     wordrun:  { enabled: true, cost: 2, difficulty: 1, recordBonus: 5 },
+    // Build 32: Lernspiele (Snake, Shooter) guenstiger, wie Mot du jour.
+    neondrift:{ enabled: true, cost: 2, difficulty: 1, recordBonus: 5 },
+    snake:    { enabled: true, cost: 1, difficulty: 1, recordBonus: 5 },
+    shooter:  { enabled: true, cost: 1, difficulty: 1, recordBonus: 5 },
+    breakout: { enabled: true, cost: 2, difficulty: 1, recordBonus: 5 },
   },
 };
 // site_settings.game_settings kann fehlen (Spalte noch nicht angelegt) oder nur
@@ -14724,7 +14753,7 @@ async function renderLeaderboard(key){
 // Reiter "Gesamt" + je Spiel, Zeitraum Woche/Monat/Allzeit. Daten aus den RPCs
 // lb_game / lb_overall (build31.sql). Fehlen sie noch, faellt es auf die
 // alte Tabelle game_records zurueck (nur Allzeit-Bestwerte).
-const lb31 = { game: 'overall', period: 'all', seq: 0 };
+const lb31 = { game: 'overall', period: 'all', seq: 0, nd: 'endless' };
 function lbTrophy(place){
   const c = place === 1 ? ['#fff4c9', '#f2c24c', '#a4721c'] : place === 2 ? ['#ffffff', '#c9d2e0', '#7b8699'] : ['#ffd9bf', '#d88a57', '#8a4a24'];
   return `<svg class="lb31-trophy" viewBox="0 0 40 44" aria-hidden="true"><defs>
@@ -14750,25 +14779,40 @@ function renderLb31Tabs(){
     sndClick(); lb31.game = b.dataset.lbg; renderLb31();
   }));
 }
+function syncLbPeriodButtons(){
+  // "Heute" gibt es erst ab Build 32 - vorher faellt die Wahl auf Allzeit zurueck.
+  if(lb31.period === 'day' && !isReleased(32)) lb31.period = 'all';
+  document.querySelectorAll('[data-lbp]').forEach(x => { const on = x.dataset.lbp === lb31.period; x.classList.toggle('is-on', on); x.setAttribute('aria-selected', on); });
+  document.querySelectorAll('[data-lbnd]').forEach(x => { const on = x.dataset.lbnd === lb31.nd; x.classList.toggle('is-on', on); x.setAttribute('aria-selected', on); });
+}
 document.querySelectorAll('[data-lbp]').forEach(b => b.addEventListener('click', () => {
   sndClick(); lb31.period = b.dataset.lbp;
-  document.querySelectorAll('[data-lbp]').forEach(x => { const on = x === b; x.classList.toggle('is-on', on); x.setAttribute('aria-selected', on); });
+  renderLb31();
+}));
+document.querySelectorAll('[data-lbnd]').forEach(b => b.addEventListener('click', () => {
+  sndClick(); lb31.nd = b.dataset.lbnd;
+  if(lb31.nd === 'daily') lb31.period = 'day';
   renderLb31();
 }));
 async function renderLb31(){
   renderLb31Tabs();
+  syncLbPeriodButtons();
   const table = document.getElementById('lb31Table');
   const note = document.getElementById('lb31Note');
   const seq = ++lb31.seq;
   const overall = lb31.game === 'overall';
   const def = overall ? null : GAME_DEFS[lb31.game];
+  // Neon Drift: Endlos oder Tages-Challenge (eigener Schluessel).
+  const ndDaily = lb31.game === 'neondrift' && lb31.nd === 'daily';
+  const gameKey = ndDaily ? 'neondaily' : lb31.game;
+  document.getElementById('lb32Mode').hidden = lb31.game !== 'neondrift';
   table.innerHTML = '<div class="lb31-loading"><span></span><span></span><span></span></div>';
   if(!sb){ table.innerHTML = lbEmptyState('Nicht verfügbar', 'Die Rangliste braucht eine Verbindung zum Konto-Dienst.'); return; }
   let rows = null, fallback = false;
   try{
     const { data, error } = overall
       ? await sb.rpc('lb_overall', { p_games: visibleGameKeys(), p_period: lb31.period, p_limit: 50 })
-      : await sb.rpc('lb_game', { p_game: lb31.game, p_period: lb31.period, p_limit: 50 });
+      : await sb.rpc('lb_game', { p_game: gameKey, p_period: lb31.period, p_limit: 50 });
     if(error) throw error;
     rows = data || [];
   }catch(e){
@@ -14776,7 +14820,7 @@ async function renderLb31(){
     fallback = true;
     if(!overall){
       try{
-        const { data } = await sb.from('game_records').select('user_id, score, display_name').eq('game', lb31.game).order('score', { ascending: false }).limit(50);
+        const { data } = await sb.from('game_records').select('user_id, score, display_name').eq('game', gameKey).order('score', { ascending: false }).limit(50);
         let rank = 0, prev = null;
         rows = (data || []).map((r, i) => { if(r.score !== prev){ rank = i + 1; prev = r.score; } return { rank, user_id: r.user_id, display_name: r.display_name, best: r.score, runs: null, coins: null, status: null, is_me: currentUser && r.user_id === currentUser.id }; });
       }catch(e2){ rows = []; }
@@ -14784,11 +14828,11 @@ async function renderLb31(){
   }
   if(seq !== lb31.seq) return;
   const unit = overall ? 'Punkte' : def.unit;
-  const periodTxt = { week: 'diese Woche', month: 'diesen Monat', all: 'aller Zeiten' }[lb31.period];
+  const periodTxt = { day: 'heute', week: 'diese Woche', month: 'diesen Monat', all: 'aller Zeiten' }[lb31.period];
   note.textContent = fallback
     ? 'Zeitraum, Runden und Coins erscheinen, sobald die neue Rangliste eingerichtet ist (build31.sql).'
     : overall ? `Gesamtwertung ${periodTxt}: Platz 1 in einem Spiel bringt 10 Punkte, Platz 2 bringt 9 … bis Platz 10.`
-              : `${def.name} – beste Runde ${periodTxt}.` + (currentUser ? '' : ' Melde dich an, um mitzuspielen.');
+              : `${def.name}${ndDaily ? ' · Tages-Challenge' : ''} – beste Runde ${periodTxt}.` + (ndDaily && lb31.period === 'day' ? ' Heute fahren alle dieselbe Strecke.' : '') + (currentUser ? '' : ' Melde dich an, um mitzuspielen.');
   if(!rows.length){
     table.innerHTML = lbEmptyState('Noch keine Einträge', lb31.period === 'all' ? 'Sei der Erste in dieser Wertung.' : `In diesem Zeitraum hat noch niemand gespielt – ${periodTxt} gehört der Platz dir.`);
     return;
@@ -14848,7 +14892,7 @@ function showArcadeOverlay(html){
 }
 function setArcadeScore(text){ document.getElementById('arcadeGameScore').textContent = text; }
 
-function launchArcadeGame(key){
+function launchArcadeGame(key, opts = {}){
   sndClick();
   const def = GAME_DEFS[key];
   const cfg = gameCfg(key);
@@ -14865,7 +14909,7 @@ function launchArcadeGame(key){
   document.getElementById('arcadeGameTitle').textContent = `${def.icon} ${def.name}`;
   document.getElementById('arcadeGameHint').textContent = arcadeHint(key);
   setArcadeLives(null);
-  document.getElementById('arcadeGameRecord').innerHTML = `Rekord <strong>${getLocalRecord(key)}</strong>`;
+  document.getElementById('arcadeGameRecord').innerHTML = `Rekord <strong>${getLocalRecord(opts.mode === 'daily' ? 'neondaily' : key)}</strong>`;
   updateCoinDisplays();
   hideArcadeOverlay();
   setArcadeScore('0');
@@ -14878,15 +14922,27 @@ function launchArcadeGame(key){
   if(arc31()){
     // Build 31: erst der Startbildschirm, dann das Spiel. Die Buehne zeigt
     // dahinter schon den Nachthimmel.
-    A31.ensure(); A31.clear(); A31.size(ARCADE_W, ARCADE_H);
+    // Spiele mit Hochkant-Buehne zeigen schon den Startbildschirm hochkant -
+    // im flachen Format war die Startkarte auf dem Handy abgeschnitten.
+    const tall = arcadeNarrow() && A32_TALL.includes(key);
+    const SW = tall ? 400 : ARCADE_W, SH = tall ? 620 : ARCADE_H;
+    canvas.width = SW; canvas.height = SH;
+    A31.ensure(); A31.clear(); A31.size(SW, SH);
     document.getElementById('view-arcade-game').dataset.game = key;
-    A31.sky(ctx, ARCADE_W, ARCADE_H);
-    arcadeStartScreen(key, () => runArcadeKey(key, canvas, ctx));
+    A31.sky(ctx, SW, SH);
+    // "Nochmal" mit festem Modus (Neon Drift) ueberspringt den Startbildschirm.
+    if(opts.mode){ runArcadeKey(key, canvas, ctx, opts.mode); return; }
+    arcadeStartScreen(key, (mode) => runArcadeKey(key, canvas, ctx, mode));
     return;
   }
   runArcadeKey(key, canvas, ctx);
 }
-function runArcadeKey(key, canvas, ctx){
+const A32_TALL = ['balloon', 'motdujour', 'tourjump', 'g2048', 'neondrift', 'snake', 'shooter', 'breakout'];
+function runArcadeKey(key, canvas, ctx, mode){
+  if(key === 'neondrift'){ activeArcadeGame = runNeonDrift(canvas, ctx, mode === 'daily' ? 'daily' : 'endless'); return; }
+  if(key === 'snake'){ activeArcadeGame = runSnake32(canvas, ctx); return; }
+  if(key === 'shooter'){ activeArcadeGame = runShooter32(canvas, ctx); return; }
+  if(key === 'breakout'){ activeArcadeGame = runBreakout32(canvas, ctx); return; }
   if(key === 'balloon') activeArcadeGame = runBalloon31(canvas, ctx);
   else if(key === 'longjump') activeArcadeGame = runLongJump(canvas, ctx);
   else if(key === 'flappy') activeArcadeGame = runFlappy(canvas, ctx);
@@ -14898,14 +14954,16 @@ function runArcadeKey(key, canvas, ctx){
   else if(key === 'wordrun') activeArcadeGame = runWordRunner(canvas, ctx);
 }
 
-async function finishArcadeGame(key, score){
+async function finishArcadeGame(key, score, opts = {}){
   // Spielinstanz sauber beenden: sonst bleiben Tastatur-/Zeiger-Listener nach
   // dem Abpfiff gebunden und die Leertaste loest weiter Spielgeraeusche aus.
   stopAllGames();
   const def = GAME_DEFS[key];
   const cfg = gameCfg(key);
-  const isRecord = await submitRecord(key, score);
-  document.getElementById('arcadeGameRecord').innerHTML = `Rekord <strong>${getLocalRecord(key)}</strong>`;
+  // Build 32: Neon Drift Tages-Challenge zaehlt unter "neondaily".
+  const recKey = opts.recKey || key;
+  const isRecord = await submitRecord(recKey, score);
+  document.getElementById('arcadeGameRecord').innerHTML = `Rekord <strong>${getLocalRecord(recKey)}</strong>`;
   // Bonus-Coins nur bei einem echten neuen Rekord - Trostrunden geben keine extra Coins,
   // sonst waere Wiederholen bis zum Umfallen ein guenstiger Coin-Generator.
   const recordBonus = (isRecord && cfg.recordBonus > 0) ? addCoins(cfg.recordBonus) : 0;
@@ -14914,11 +14972,12 @@ async function finishArcadeGame(key, score){
     // Build 31: "Runde vorbei" im neuen Stil, bei Rekord mit Konfetti.
     setArcadeLives(null);
     showArcadeOverlay(`<div class="a31-card a31-over${isRecord ? ' is-record' : ''}">
-        <p class="a31-kicker">${isRecord ? 'Neuer Rekord!' : 'Runde vorbei'}</p>
+        <p class="a31-kicker">${isRecord ? 'Neuer Rekord!' : 'Runde vorbei'}${opts.mode === 'daily' ? ' · Tages-Challenge' : ''}</p>
         <span class="a31-icon" aria-hidden="true">${isRecord ? '🏆' : def.icon}</span>
         <div class="a31-score"><strong>${score}</strong><span>${escapeHtml(def.unit)}</span></div>
+        ${opts.sub ? `<p class="a31-desc">${escapeHtml(opts.sub)}</p>` : ''}
         <div class="a31-stats">
-          <div><span>Rekord</span><strong>${getLocalRecord(key)}</strong></div>
+          <div><span>Rekord</span><strong>${getLocalRecord(recKey)}</strong></div>
           <div><span>Coins</span><strong>₵ ${getCoins()}</strong></div>
           ${recordBonus > 0 ? `<div class="up"><span>Bonus</span><strong>+${recordBonus} ₵</strong></div>` : ''}
         </div>
@@ -14931,10 +14990,12 @@ async function finishArcadeGame(key, score){
       </div>`);
     arcadeOverlay().classList.add('is-31');
     if(isRecord){ sndRecord(); A31.confetti(); } else sndComplete();
-    document.getElementById('btnArcadeAgain').addEventListener('click', () => launchArcadeGame(key));
+    document.getElementById('btnArcadeAgain').addEventListener('click', () => launchArcadeGame(key, { mode: opts.mode }));
     document.getElementById('btnArcadeExit').addEventListener('click', () => { sndClick(); renderRewards(); });
     document.getElementById('btnArcadeLb').addEventListener('click', () => {
-      sndClick(); lb31.game = key; renderRewards();
+      sndClick(); lb31.game = key;
+      if(key === 'neondrift'){ lb31.nd = opts.mode === 'daily' ? 'daily' : 'endless'; if(lb31.nd === 'daily') lb31.period = 'day'; }
+      renderRewards();
       setTimeout(() => { const el = document.querySelector('.lb31'); if(el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 250);
     });
     return;
@@ -16009,16 +16070,24 @@ function arcadeStartScreen(key, onPlay){
       <h3>${escapeHtml(def.name)}</h3>
       <p class="a31-desc">${escapeHtml(arcadeDesc(key))}</p>
       <div class="a31-ctrl">${hint.map(t => `<span>${escapeHtml(t)}</span>`).join('')}</div>
-      <div class="a31-best"><span>Dein Rekord</span><strong>${rec}</strong><em>${escapeHtml(def.unit)}</em></div>
-      <button type="button" class="a31-play" id="btnA31Play"><span>Spielen</span></button>
+      ${key === 'neondrift'
+        ? `<div class="a31-best"><span>Endlos</span><strong>${rec}</strong><em>·</em><span>Tages-Challenge</span><strong>${getLocalRecord('neondaily')}</strong></div>
+           <div class="a31-actions">
+             <button type="button" class="a31-play" id="btnA31Play" data-mode="daily"><span>Tages-Challenge · ${escapeHtml(new Date().toLocaleDateString('de-DE', { day: 'numeric', month: 'long' }))}</span></button>
+             <button type="button" class="a31-ghost" id="btnA31Endless" data-mode="endless">Endlos</button>
+           </div>`
+        : `<div class="a31-best"><span>Dein Rekord</span><strong>${rec}</strong><em>${escapeHtml(def.unit)}</em></div>
+           <button type="button" class="a31-play" id="btnA31Play"><span>Spielen</span></button>`}
     </div>`);
   arcadeOverlay().classList.add('is-31');
-  const go = () => {
+  const go = (mode) => {
     window.removeEventListener('keydown', onKey);
-    sndClick(); hideArcadeOverlay(); onPlay();
+    sndClick(); hideArcadeOverlay(); onPlay(mode);
   };
-  const onKey = (e) => { if(e.key === 'Enter' || e.code === 'Space'){ e.preventDefault(); go(); } };
-  document.getElementById('btnA31Play').addEventListener('click', go);
+  const onKey = (e) => { if(e.key === 'Enter' || e.code === 'Space'){ e.preventDefault(); go(key === 'neondrift' ? 'daily' : undefined); } };
+  document.getElementById('btnA31Play').addEventListener('click', (e) => go(e.currentTarget.dataset.mode));
+  const endlessBtn = document.getElementById('btnA31Endless');
+  if(endlessBtn) endlessBtn.addEventListener('click', () => go('endless'));
   setTimeout(() => window.addEventListener('keydown', onKey), 120);
 }
 
@@ -16163,6 +16232,912 @@ function runBalloon31(canvas, ctx){
     for(const b of balloons) drawBalloon(b);
   });
   return { stop(){ stopLoop(); canvas.removeEventListener('pointerdown', onDown); setArcadeLives(null); } };
+}
+
+// --- Build 32: vier neue Spiele ---------------------------------------------
+// Neon Drift, Snake, Space Shooter, Breakout. Eigene Umsetzungen im Stil der
+// Spielhalle (Nachthimmel, Gold, Effektschicht A31) - kein fremder Code.
+// Alle rechnen in logischen Buehnen-Koordinaten: quer 720 x 460, auf schmalen
+// Schirmen hochkant (arcadeNarrow). Punkte ueber setArcadeScore, Leben ueber
+// setArcadeLives, Ende ueber finishArcadeGame.
+function a32Seed(str){ let h = 2166136261; for(const c of str){ h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); } return h >>> 0; }
+function a32Rng(a){ return function(){ a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+// Tastatur nur, solange das Spiel laeuft; Pfeile/Leertaste scrollen sonst die Seite.
+function a32Keys(onDown, onUp){
+  const d = (e) => { if(onDown(e) === true) e.preventDefault(); };
+  const u = (e) => { if(onUp && onUp(e) === true) e.preventDefault(); };
+  window.addEventListener('keydown', d); window.addEventListener('keyup', u);
+  return () => { window.removeEventListener('keydown', d); window.removeEventListener('keyup', u); };
+}
+// Seltene DOM-Schreibzugriffe: Punktestand nur bei Aenderung.
+function a32ScoreWriter(){
+  let last = null;
+  return (v) => { const s = String(Math.floor(v)); if(s !== last){ last = s; setArcadeScore(s); } };
+}
+function a32Round(ctx, x, y, w, h, r){ arcadeRoundRect(ctx, x, y, w, h, r); }
+
+// --- Neon Drift: drei Spuren, Kombos, Tages-Challenge ------------------------
+function runNeonDrift(canvas, ctx, mode){
+  const narrow = arcadeNarrow();
+  const W = narrow ? 400 : ARCADE_W, H = narrow ? 620 : ARCADE_H;
+  arcadeHiDpi(canvas, ctx, W, H);
+  const diff = gameCfg('neondrift').difficulty || 1;
+  const daily = mode === 'daily';
+  // Tages-Challenge: dieselbe Strecke fuer alle (deutsches Datum als Saat).
+  const rng = daily ? a32Rng(a32Seed('lumiere-drift-' + berlinToday())) : a32Rng((Math.random() * 4294967296) >>> 0);
+  const ROAD = narrow ? W - 36 : 336, RX = (W - ROAD) / 2, LW = ROAD / 3;
+  const LANES = [0, 1, 2].map(i => RX + LW * (i + 0.5));
+  const PY = H - (narrow ? 118 : 74);
+  const S = H / 640;                       // Tempo-Massstab: Original war 640 hoch
+  const OB = Math.min(46, LW * 0.42);      // halbe Kantenlaenge x2 = Quader
+  const score = a32ScoreWriter();
+  let t = 0, dist = 0, pts = 0, combo = 0, mult = 1, maxMult = 1, orbs = 0, near = 0;
+  let lane = 1, x = LANES[1], objs = [], shield = false, slow = 0, acc = 150 * S, lvl = 1;
+  let curFree = 1, nextFree = Math.floor(rng() * 3), dead = false, deadT = 0, finished = false;
+  const trail = [];
+  setArcadeLives(null); score(0);
+
+  function updMult(){
+    const m = Math.min(8, 1 + Math.floor(combo / 5));
+    if(m > mult){ A31.popup(x, PY - 60, `×${m}!`, { size: 26, color: '#ffe7a8' }); playTone(660 + m * 60, 0.16, 'triangle', 0.05); }
+    mult = m; if(m > maxMult) maxMult = m;
+  }
+  function setLane(n){
+    if(dead) return;
+    n = Math.max(0, Math.min(2, n));
+    if(n === lane) return;
+    const old = lane; lane = n;
+    playTone(300, 0.05, 'triangle', 0.035);
+    // Knapp vorbei: ein Quader direkt vor einem auf der alten Spur.
+    for(const o of objs){
+      if(o.type === 'ob' && o.li === old && !o.nm && o.y > PY - 130 * S && o.y < PY - OB * 0.7){
+        o.nm = true; near++; combo++; updMult();
+        const gain = 50 * mult; pts += gain;
+        A31.popup(LANES[n], PY - 30, `knapp +${gain}`, { color: '#ffb3c6', size: 18 });
+      }
+    }
+  }
+  function spawnRow(){
+    const f = nextFree, others = [0, 1, 2].filter(i => i !== f);
+    const pBoth = 0.5 + Math.min(0.35, t / 150);
+    const obs = rng() < pBoth ? others : [others[rng() < 0.5 ? 0 : 1]];
+    obs.forEach(i => objs.push({ type: 'ob', li: i, x: LANES[i], y: -40 }));
+    const r2 = rng(); let type = null;
+    if(r2 < 0.62) type = 'orb'; else if(r2 < 0.66 && !shield) type = 'sh'; else if(r2 < 0.71) type = 'sl';
+    if(type) objs.push({ type, li: f, x: LANES[f], y: -40 });
+    if(obs.length === 1 && rng() < 0.5){
+      const li = others.find(i => i !== obs[0]);
+      objs.push({ type: 'orb', li, x: LANES[li], y: -40 });
+    }
+    curFree = f; nextFree = Math.floor(rng() * 3);
+  }
+  function collect(o){
+    if(o.type === 'orb'){
+      combo++; orbs++; updMult();
+      const p = 25 * mult; pts += p;
+      A31.burst(o.x, o.y, { n: 10, speed: 170, life: 0.5, gravity: 120 });
+      A31.popup(o.x, o.y - 18, `+${p}`, { size: 18 });
+      playTone(520 + Math.min(combo, 24) * 28, 0.08, 'sine', 0.05);
+    }else if(o.type === 'sh'){
+      shield = true;
+      A31.burst(o.x, o.y, { n: 18, colors: ['#cfe0ff', '#9fb7ff', '#fff'], speed: 200 });
+      A31.popup(o.x, o.y - 18, 'Schild', { color: '#cfe0ff', size: 20 });
+      playTone(700, 0.2, 'triangle', 0.05);
+    }else{
+      slow = 4;
+      A31.burst(o.x, o.y, { n: 18, colors: ['#e4d2ff', '#b28cff', '#fff'], speed: 200 });
+      A31.popup(o.x, o.y - 18, 'Zeitlupe', { color: '#e4d2ff', size: 20 });
+      playTone(300, 0.3, 'sine', 0.05);
+    }
+  }
+  function crash(){
+    dead = true; deadT = 0;
+    A31.burst(x, PY, { n: 46, speed: 340, colors: ['#fff', '#ffe7a8', '#ff9ab2'] });
+    A31.shake(12); A31.flash(0.32, '255,120,140');
+    sndWrong();
+    if(navigator.vibrate) try{ navigator.vibrate(90); }catch(e){}
+  }
+
+  // Eingabe: linke/rechte Haelfte antippen, Pfeiltasten oder A/D.
+  const onDown = (e) => {
+    e.preventDefault();
+    const p = arcadePoint(canvas, e, W, H);
+    setLane(lane + (p.x < W / 2 ? -1 : 1));
+  };
+  canvas.addEventListener('pointerdown', onDown);
+  const unkeys = a32Keys((e) => {
+    if(e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A'){ if(!e.repeat) setLane(lane - 1); return true; }
+    if(e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D'){ if(!e.repeat) setLane(lane + 1); return true; }
+    if(e.code === 'Space') return true;
+  });
+
+  function drawRoad(){
+    ctx.fillStyle = 'rgba(5,7,14,.78)';
+    ctx.fillRect(RX, 0, ROAD, H);
+    const g = ctx.createLinearGradient(0, 0, 0, H);
+    g.addColorStop(0, 'rgba(246,195,92,0)'); g.addColorStop(0.5, 'rgba(246,195,92,.07)'); g.addColorStop(1, 'rgba(246,195,92,.14)');
+    ctx.fillStyle = g; ctx.fillRect(RX, 0, ROAD, H);
+    // Querfugen ziehen vorbei
+    ctx.strokeStyle = slow > 0 ? 'rgba(178,140,255,.16)' : 'rgba(246,195,92,.09)'; ctx.lineWidth = 1;
+    const off = (dist % (80 * S));
+    ctx.beginPath();
+    for(let y = -80 * S + off; y < H; y += 80 * S){ ctx.moveTo(RX, y); ctx.lineTo(RX + ROAD, y); }
+    ctx.stroke();
+    // Spurlinien gestrichelt
+    ctx.strokeStyle = 'rgba(246,195,92,.32)'; ctx.lineWidth = 2;
+    ctx.setLineDash([22 * S, 26 * S]); ctx.lineDashOffset = -dist;
+    ctx.beginPath();
+    for(const lx of [RX + LW, RX + 2 * LW]){ ctx.moveTo(lx, 0); ctx.lineTo(lx, H); }
+    ctx.stroke(); ctx.setLineDash([]);
+    // Goldkanten mit Schein
+    ctx.strokeStyle = 'rgba(246,195,92,.85)'; ctx.lineWidth = 2;
+    ctx.shadowColor = 'rgba(246,195,92,.8)'; ctx.shadowBlur = 12;
+    ctx.beginPath(); ctx.moveTo(RX, 0); ctx.lineTo(RX, H); ctx.moveTo(RX + ROAD, 0); ctx.lineTo(RX + ROAD, H); ctx.stroke();
+    ctx.shadowBlur = 0;
+  }
+  function drawObj(o, tt){
+    ctx.save(); ctx.translate(o.x, o.y);
+    if(o.type === 'ob'){
+      const s = OB;
+      ctx.shadowColor = 'rgba(255,90,130,.75)'; ctx.shadowBlur = 16;
+      const g = ctx.createLinearGradient(0, -s / 2, 0, s / 2);
+      g.addColorStop(0, '#3a1624'); g.addColorStop(1, '#170910');
+      ctx.fillStyle = g; a32Round(ctx, -s / 2, -s / 2, s, s, 8); ctx.fill();
+      ctx.shadowBlur = 0;
+      ctx.strokeStyle = '#ff8aa8'; ctx.lineWidth = 2; ctx.stroke();
+      ctx.strokeStyle = 'rgba(246,195,92,.7)'; ctx.lineWidth = 1;
+      a32Round(ctx, -s / 2 + 7, -s / 2 + 7, s - 14, s - 14, 4); ctx.stroke();
+    }else if(o.type === 'orb'){
+      const s = 1 + Math.sin(tt * 8 + o.y * 0.05) * 0.08;
+      const r = 11 * s;
+      const g = ctx.createRadialGradient(-3, -3, 1, 0, 0, r * 2.2);
+      g.addColorStop(0, '#fffbe8'); g.addColorStop(0.35, '#f6c35c'); g.addColorStop(1, 'rgba(246,195,92,0)');
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0, 0, r * 2.2, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#ffe7a8'; ctx.beginPath(); ctx.arc(0, 0, r * 0.75, 0, Math.PI * 2); ctx.fill();
+    }else if(o.type === 'sh'){
+      ctx.shadowColor = '#9fb7ff'; ctx.shadowBlur = 14; ctx.strokeStyle = '#cfe0ff'; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.arc(0, 0, 15, 0, Math.PI * 2); ctx.stroke();
+      ctx.shadowBlur = 0; ctx.fillStyle = '#cfe0ff';
+      ctx.beginPath(); ctx.moveTo(0, -8); ctx.lineTo(7, -4); ctx.lineTo(6, 4); ctx.lineTo(0, 9); ctx.lineTo(-6, 4); ctx.lineTo(-7, -4); ctx.closePath(); ctx.fill();
+    }else{
+      ctx.rotate(tt * 1.6);
+      ctx.shadowColor = '#b28cff'; ctx.shadowBlur = 14; ctx.fillStyle = '#d9c4ff';
+      ctx.beginPath(); ctx.moveTo(-9, -12); ctx.lineTo(9, -12); ctx.lineTo(0, 0); ctx.lineTo(9, 12); ctx.lineTo(-9, 12); ctx.lineTo(0, 0); ctx.closePath(); ctx.fill();
+    }
+    ctx.restore();
+  }
+  function drawShip(tt){
+    for(let i = 0; i < trail.length; i++){
+      const p = trail[i], k = 1 - p.a;
+      ctx.globalAlpha = Math.max(0, k) * 0.6;
+      ctx.fillStyle = '#f6c35c';
+      ctx.fillRect(p.x - 2, p.y - 2, 4, 4);
+    }
+    ctx.globalAlpha = 1;
+    ctx.save(); ctx.translate(x, PY); ctx.rotate((LANES[lane] - x) / LW * 0.5);
+    ctx.shadowColor = 'rgba(246,195,92,.9)'; ctx.shadowBlur = 18;
+    const g = ctx.createLinearGradient(0, -22, 0, 16);
+    g.addColorStop(0, '#fff6d8'); g.addColorStop(1, '#e0a23c');
+    ctx.fillStyle = g; ctx.strokeStyle = '#fff1c9'; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(0, -24); ctx.lineTo(16, 16); ctx.lineTo(0, 8); ctx.lineTo(-16, 16); ctx.closePath();
+    ctx.fill(); ctx.stroke();
+    ctx.shadowBlur = 0;
+    if(shield){
+      ctx.strokeStyle = 'rgba(207,224,255,.9)'; ctx.lineWidth = 2.5;
+      ctx.beginPath(); ctx.arc(0, -2, 29 + Math.sin(tt * 10) * 1.5, 0, Math.PI * 2); ctx.stroke();
+    }
+    ctx.restore();
+  }
+  function drawHud(){
+    const cx = W / 2, y0 = narrow ? 34 : 30;
+    ctx.textAlign = 'center';
+    ctx.font = `600 ${narrow ? 26 : 24}px ${ARCADE_SERIF}`;
+    ctx.fillStyle = mult >= 5 ? '#ffe7a8' : mult >= 3 ? '#bff0cf' : '#fff3d6';
+    ctx.fillText(`×${mult}`, cx, y0);
+    if(mult < 8){
+      ctx.fillStyle = 'rgba(255,255,255,.14)'; ctx.fillRect(cx - 42, y0 + 8, 84, 4);
+      ctx.fillStyle = '#f6c35c'; ctx.fillRect(cx - 42, y0 + 8, 84 * ((combo % 5) / 5), 4);
+    }
+    if(daily){
+      ctx.font = `500 11px ${ARCADE_SANS}`; ctx.fillStyle = 'rgba(246,195,92,.85)';
+      ctx.fillText('TAGES-CHALLENGE', cx, y0 + 28);
+    }
+    if(slow > 0){ ctx.fillStyle = '#b28cff'; ctx.fillRect(RX, 0, ROAD * (slow / 4), 3); }
+    ctx.textAlign = 'left';
+  }
+
+  const stopLoop = arcadeLoop((dt) => {
+    t += dt;
+    if(!dead){
+      if(slow > 0) slow -= dt;
+      const sp = (260 + Math.min(300, t * 5)) * S * diff * (slow > 0 ? 0.6 : 1), mv = sp * dt;
+      dist += mv; acc += mv; pts += mv / S * 0.03 * mult;
+      x += (LANES[lane] - x) * Math.min(1, dt * 18);
+      if(t > lvl * 20){ lvl++; A31.popup(W / 2, H * 0.32, 'Tempo ↑', { size: 26, life: 1.4 }); A31.flash(0.12); }
+      const gap = (230 - Math.min(80, t * 1.5)) * S;
+      const need = gap + (Math.abs(nextFree - curFree) === 2 ? 70 * S : 0);
+      if(acc >= need){ acc -= need; spawnRow(); }
+      trail.push({ x: x + (Math.random() - 0.5) * 6, y: PY + 16, a: 0 });
+      for(let i = objs.length - 1; i >= 0; i--){
+        const o = objs[i]; o.y += mv;
+        const dx = Math.abs(o.x - x), dy = Math.abs(o.y - PY);
+        if(o.type === 'ob'){
+          if(dx < OB * 0.6 && dy < OB * 0.7){
+            if(shield){
+              shield = false; objs.splice(i, 1);
+              A31.burst(o.x, o.y, { n: 26, colors: ['#ff9ab2', '#cfe0ff', '#fff'], speed: 260 });
+              A31.shake(7); A31.popup(x, PY - 40, 'Schild weg', { color: '#cfe0ff', size: 18 });
+              playTone(150, 0.2, 'sawtooth', 0.06);
+              continue;
+            }
+            crash(); break;
+          }
+        }else if(dx < 32 && dy < 32){ collect(o); objs.splice(i, 1); continue; }
+        if(o.y > H + 50){
+          if(o.type === 'orb' && combo > 0){ combo = Math.floor(combo / 2); mult = Math.min(8, 1 + Math.floor(combo / 5)); }
+          objs.splice(i, 1);
+        }
+      }
+      score(pts);
+    }else{
+      deadT += dt;
+      if(deadT > 0.9 && !finished){
+        finished = true;
+        finishArcadeGame('neondrift', Math.floor(pts), { recKey: daily ? 'neondaily' : undefined, mode,
+          sub: `Kombo bis ×${maxMult} · ${orbs} Lichtperlen · ${near}× knapp ausgewichen` });
+      }
+    }
+    for(const p of trail){ p.y += 160 * dt; p.a += dt * 3.3; }
+    while(trail.length && trail[0].a >= 1) trail.shift();
+
+    arcadeSky(ctx, W, H);
+    drawRoad();
+    for(const o of objs) drawObj(o, t);
+    if(!dead) drawShip(t);
+    drawHud();
+  });
+  return { stop(){ stopLoop(); canvas.removeEventListener('pointerdown', onDown); unkeys(); setArcadeLives(null); } };
+}
+
+// --- Snake: Wort buchstabieren ------------------------------------------------
+// Oben das deutsche Wort, die Schlange frisst die Buchstaben der franzoesischen
+// Uebersetzung der Reihe nach - mit Akzenten. Koeder sind gern derselbe
+// Buchstabe mit anderem (oder ohne) Akzent. Leerzeichen, Bindestriche und
+// Apostrophe fuellen sich selbst.
+const A32_ACCENTS = {
+  a: 'àâ', à: 'aâ', â: 'aà', e: 'éèê', é: 'eèê', è: 'eéê', ê: 'eéè', ë: 'eé', i: 'îï', î: 'iï', ï: 'iî',
+  o: 'ô', ô: 'o', u: 'ùûü', ù: 'uû', û: 'uù', ü: 'u', c: 'ç', ç: 'c', œ: 'o', y: 'ÿ',
+};
+function a32SnakePool(){
+  const letters = (s) => [...s].filter(ch => /\p{L}/u.test(ch)).length;
+  const make = (p) => {
+    const fr = arcadeStripArticle(p.fr).toLocaleLowerCase('fr').trim();
+    const n = letters(fr);
+    if(n < 2 || n > 11 || fr.length > 14 || p.de.length > 26) return null;
+    return { fr, de: p.de, full: p.fr };
+  };
+  const own = arcadeVocab().map(make).filter(Boolean);
+  return arcadeShuffle(own.length >= 6 ? own : own.concat(ARCADE_WORDS.map(make).filter(Boolean)));
+}
+function runSnake32(canvas, ctx){
+  const narrow = arcadeNarrow();
+  const W = narrow ? 400 : ARCADE_W, H = narrow ? 620 : ARCADE_H;
+  arcadeHiDpi(canvas, ctx, W, H);
+  const diff = gameCfg('snake').difficulty || 1;
+  const C = 20, TOP = narrow ? 88 : 80;
+  const COLS = Math.floor(W / C), ROWS = Math.floor((H - TOP) / C);
+  const OX = (W - COLS * C) / 2, OY = TOP + ((H - TOP) - ROWS * C) / 2;
+  const pool = a32SnakePool();
+  let pi = 0;
+  const score = a32ScoreWriter();
+  let pts = 0, lives = 3, words = 0, t = 0, stepT = 0, over = false, pause = 0.6;
+  let snake, prev, dir, queue, grow = 0;
+  let word = null, slots = [], si = 0, items = [], wrongHere = 0, flashWord = 0;
+  setArcadeLives(lives); score(0);
+
+  function resetSnake(){
+    const cy = Math.floor(ROWS / 2), cx = Math.floor(COLS / 4);
+    snake = [{ x: cx, y: cy }, { x: cx - 1, y: cy }, { x: cx - 2, y: cy }];
+    prev = snake.map(p => ({ ...p }));
+    dir = { x: 1, y: 0 }; queue = [];
+  }
+  function nextWord(){
+    word = pool[pi++ % pool.length];
+    slots = [...word.fr].map(ch => ({ ch, need: /\p{L}/u.test(ch), done: !/\p{L}/u.test(ch) }));
+    si = slots.findIndex(s => !s.done);
+    wrongHere = 0; flashWord = 0.5;
+    placeItems();
+  }
+  function occupied(x, y){ return snake.some(p => p.x === x && p.y === y) || items.some(it => it.x === x && it.y === y); }
+  function freeCell(){
+    const h = snake[0];
+    for(let i = 0; i < 400; i++){
+      const x = 1 + Math.floor(Math.random() * (COLS - 2)), y = 1 + Math.floor(Math.random() * (ROWS - 2));
+      if(Math.abs(x - h.x) + Math.abs(y - h.y) < 4) continue;
+      if(!occupied(x, y)) return { x, y };
+    }
+    return null;
+  }
+  function placeItems(){
+    items = [];
+    if(si < 0) return;
+    const need = slots[si].ch;
+    const decoys = new Set();
+    const variants = A32_ACCENTS[need] || '';
+    for(const v of variants) if(decoys.size < 2) decoys.add(v);
+    const inWord = [...word.fr].filter(ch => /\p{L}/u.test(ch) && ch !== need);
+    const want = Math.min(4, 2 + Math.floor(words / 2));
+    let guard = 0;
+    while(decoys.size < want && guard++ < 40){
+      const pick = inWord.length && Math.random() < 0.6 ? inWord[(Math.random() * inWord.length) | 0] : 'abcdefghilmnoprstuvé'[(Math.random() * 20) | 0];
+      if(pick !== need) decoys.add(pick);
+    }
+    const c0 = freeCell(); if(c0) items.push({ ...c0, ch: need, ok: true, born: t });
+    for(const d of decoys){ const c = freeCell(); if(c) items.push({ ...c, ch: d, ok: false, born: t }); }
+  }
+  function cellCenter(p){ return { x: OX + p.x * C + C / 2, y: OY + p.y * C + C / 2 }; }
+  function loseLife(why, at){
+    lives--; setArcadeLives(Math.max(0, lives));
+    const c = cellCenter(at || snake[0]);
+    A31.shake(9); A31.flash(0.26, '255,100,100');
+    A31.popup(c.x, c.y - 10, why, { color: '#ff9a8a', size: 18 });
+    sndWrong();
+    if(lives <= 0){ over = true; setTimeout(() => finishArcadeGame('snake', pts, { sub: `${words} Wörter buchstabiert` }), 750); return; }
+    resetSnake(); pause = 0.9; placeItems();
+  }
+  function step(){
+    if(queue.length){ const d = queue.shift(); if(d.x !== -dir.x || d.y !== -dir.y) dir = d; }
+    prev = snake.map(p => ({ ...p }));
+    const h = { x: snake[0].x + dir.x, y: snake[0].y + dir.y };
+    if(h.x < 0 || h.y < 0 || h.x >= COLS || h.y >= ROWS){ loseLife('Wand!', snake[0]); return; }
+    if(snake.slice(0, -1).some(p => p.x === h.x && p.y === h.y)){ loseLife('Schwanz!', h); return; }
+    snake.unshift(h);
+    const idx = items.findIndex(it => it.x === h.x && it.y === h.y);
+    if(idx >= 0){
+      const it = items[idx];
+      const c = cellCenter(h);
+      if(it.ok){
+        grow += 1;
+        slots[si].done = true;
+        const gain = 10 + words * 2; pts += gain;
+        A31.burst(c.x, c.y, { n: 12, speed: 160, life: 0.5 });
+        A31.popup(c.x, c.y - 14, `+${gain}`, { size: 17 });
+        playTone(520 + si * 40, 0.07, 'triangle', 0.045);
+        si = slots.findIndex(s => !s.done);
+        wrongHere = 0;
+        if(si < 0){
+          words++;
+          const bonus = 25 + slots.filter(s => s.need).length * 5;
+          pts += bonus;
+          A31.burst(c.x, c.y, { n: 36, speed: 280, star: true });
+          A31.popup(W / 2, OY + (ROWS * C) * 0.42, `${word.fr} = ${word.de}  +${bonus}`, { size: narrow ? 19 : 22, life: 1.7 });
+          sndCorrect();
+          setTimeout(() => { if(!over) nextWord(); }, 0);
+          items = [];
+        }else placeItems();
+      }else{
+        items.splice(idx, 1);
+        wrongHere++;
+        A31.burst(c.x, c.y, { n: 16, colors: ['#ff9ab2', '#ffd0dc'], speed: 180 });
+        loseLife(`${it.ch} ist falsch`, h);
+        return;
+      }
+    }
+    // Weiche Bewegung: Glied i gleitet von seiner alten Lage (prev[i]) zur neuen.
+    if(grow > 0){ grow--; prev.push({ ...prev[prev.length - 1] }); } else snake.pop();
+    score(pts);
+  }
+  function turn(d){ if(over) return; const last = queue.length ? queue[queue.length - 1] : dir; if((d.x !== last.x || d.y !== last.y) && (d.x !== -last.x || d.y !== -last.y) && queue.length < 2) queue.push(d); }
+
+  // Wischen: schon waehrend der Bewegung, damit schnelle Kurven gehen.
+  let sw = null;
+  const onDown = (e) => { e.preventDefault(); sw = arcadePoint(canvas, e, W, H); };
+  const onMove = (e) => {
+    if(!sw) return;
+    const p = arcadePoint(canvas, e, W, H);
+    const dx = p.x - sw.x, dy = p.y - sw.y;
+    if(Math.max(Math.abs(dx), Math.abs(dy)) < 22) return;
+    turn(Math.abs(dx) > Math.abs(dy) ? { x: Math.sign(dx), y: 0 } : { x: 0, y: Math.sign(dy) });
+    sw = p;
+  };
+  const onUp = () => { sw = null; };
+  canvas.addEventListener('pointerdown', onDown);
+  canvas.addEventListener('pointermove', onMove);
+  canvas.addEventListener('pointerup', onUp);
+  canvas.addEventListener('pointercancel', onUp);
+  const KEYS = { ArrowUp: [0, -1], ArrowDown: [0, 1], ArrowLeft: [-1, 0], ArrowRight: [1, 0], w: [0, -1], s: [0, 1], a: [-1, 0], d: [1, 0] };
+  const unkeys = a32Keys((e) => { const k = KEYS[e.key]; if(!k) return; turn({ x: k[0], y: k[1] }); return true; });
+
+  function drawHeader(){
+    ctx.fillStyle = 'rgba(5,7,14,.94)';
+    ctx.fillRect(0, 0, W, TOP - 6);
+    ctx.strokeStyle = 'rgba(246,195,92,.35)'; ctx.beginPath(); ctx.moveTo(0, TOP - 6); ctx.lineTo(W, TOP - 6); ctx.stroke();
+    ctx.textAlign = 'center';
+    ctx.font = `500 11px ${ARCADE_SANS}`; ctx.fillStyle = 'rgba(246,195,92,.9)';
+    ctx.fillText('BUCHSTABIERE AUF FRANZÖSISCH', W / 2, narrow ? 18 : 15);
+    ctx.font = `italic 600 ${narrow ? 20 : 19}px ${ARCADE_SERIF}`; ctx.fillStyle = '#fff3d6';
+    ctx.fillText(word.de, W / 2, narrow ? 42 : 38);
+    // Slots
+    const n = slots.length, sw2 = Math.min(26, (W - 40) / n), y = narrow ? 70 : 62;
+    const x0 = W / 2 - (n * sw2) / 2 + sw2 / 2;
+    ctx.font = `600 ${Math.min(19, sw2 * 0.8)}px ${ARCADE_SERIF}`;
+    slots.forEach((s, i) => {
+      const x = x0 + i * sw2;
+      if(!s.need){ ctx.fillStyle = 'rgba(255,243,214,.6)'; ctx.fillText(s.ch === ' ' ? '' : s.ch, x, y); return; }
+      if(s.done){ ctx.fillStyle = '#ffe7a8'; ctx.fillText(s.ch, x, y); }
+      ctx.fillStyle = i === si ? `rgba(246,195,92,${0.6 + 0.4 * Math.sin(t * 6)})` : 'rgba(255,243,214,.35)';
+      ctx.fillRect(x - sw2 * 0.34, y + 4, sw2 * 0.68, 2);
+    });
+    ctx.textAlign = 'left';
+  }
+  function drawBoard(){
+    ctx.fillStyle = 'rgba(5,7,14,.55)';
+    ctx.fillRect(OX, OY, COLS * C, ROWS * C);
+    ctx.fillStyle = 'rgba(246,195,92,.07)';
+    for(let y = 0; y < ROWS; y++) for(let x = (y & 1); x < COLS; x += 2) ctx.fillRect(OX + x * C + C / 2 - 1, OY + y * C + C / 2 - 1, 2, 2);
+    ctx.strokeStyle = 'rgba(246,195,92,.7)'; ctx.lineWidth = 2;
+    ctx.strokeRect(OX - 1, OY - 1, COLS * C + 2, ROWS * C + 2);
+  }
+  function drawItems(){
+    ctx.textAlign = 'center';
+    for(const it of items){
+      const c = cellCenter(it);
+      const k = Math.min(1, (t - it.born) * 5);
+      const hint = it.ok && wrongHere >= 2;
+      ctx.save(); ctx.translate(c.x, c.y); ctx.scale(k, k);
+      if(hint){ ctx.shadowColor = '#8fe0a8'; ctx.shadowBlur = 14 + 6 * Math.sin(t * 8); }
+      ctx.fillStyle = '#141a2b';
+      ctx.beginPath(); ctx.arc(0, 0, C * 0.58, 0, Math.PI * 2); ctx.fill();
+      ctx.shadowBlur = 0;
+      ctx.strokeStyle = hint ? '#8fe0a8' : 'rgba(246,195,92,.85)'; ctx.lineWidth = 1.5; ctx.stroke();
+      ctx.fillStyle = '#fff3d6'; ctx.font = `600 ${C * 0.78}px ${ARCADE_SERIF}`;
+      ctx.fillText(it.ch, 0, C * 0.26);
+      ctx.restore();
+    }
+    ctx.textAlign = 'left';
+  }
+  function drawSnake(k){
+    const n = snake.length;
+    for(let i = n - 1; i >= 0; i--){
+      const a = prev[i] || snake[i], b = snake[i];
+      const px = a.x + (b.x - a.x) * k, py = a.y + (b.y - a.y) * k;
+      const cx = OX + px * C + C / 2, cy = OY + py * C + C / 2;
+      const r = C * (i === 0 ? 0.52 : 0.44 - Math.min(0.12, i * 0.006));
+      const g = ctx.createRadialGradient(cx - r * 0.4, cy - r * 0.4, 1, cx, cy, r * 1.1);
+      g.addColorStop(0, i === 0 ? '#fff6d8' : '#ffe7a8'); g.addColorStop(1, i % 2 ? '#c98a36' : '#e0a23c');
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.fill();
+      if(i === 0){
+        ctx.fillStyle = '#1a1406';
+        const ex = dir.y !== 0 ? 4 : 0, ey = dir.x !== 0 ? 4 : 0;
+        ctx.beginPath(); ctx.arc(cx + dir.x * 4 + ex, cy + dir.y * 4 + ey, 2.2, 0, Math.PI * 2);
+        ctx.arc(cx + dir.x * 4 - ex, cy + dir.y * 4 - ey, 2.2, 0, Math.PI * 2); ctx.fill();
+      }
+    }
+  }
+
+  resetSnake(); nextWord();
+  const stopLoop = arcadeLoop((dt) => {
+    t += dt;
+    const every = Math.max(0.075, 0.16 - words * 0.006) / diff;
+    if(!over){
+      if(pause > 0) pause -= dt;
+      else { stepT += dt; while(stepT >= every && !over){ stepT -= every; step(); } }
+    }
+    if(flashWord > 0) flashWord -= dt;
+    arcadeSky(ctx, W, H);
+    drawBoard();
+    drawItems();
+    drawSnake(pause > 0 ? 1 : Math.min(1, stepT / every));
+    drawHeader();
+    if(pause > 0 && !over && lives < 3 && lives > 0){
+      ctx.textAlign = 'center'; ctx.font = `600 22px ${ARCADE_SERIF}`; ctx.fillStyle = '#fff3d6';
+      ctx.fillText('Weiter …', W / 2, OY + ROWS * C * 0.3); ctx.textAlign = 'left';
+    }
+  });
+  return { stop(){ stopLoop(); over = true; canvas.removeEventListener('pointerdown', onDown); canvas.removeEventListener('pointermove', onMove);
+    canvas.removeEventListener('pointerup', onUp); canvas.removeEventListener('pointercancel', onUp); unkeys(); setArcadeLives(null); } };
+}
+
+// --- Space Shooter: Wortwolken --------------------------------------------------
+// Oben das deutsche Wort, Wolken mit franzoesischen Woertern ziehen herab. Die
+// richtige abschiessen; falsche treffen oder die richtige verpassen kostet ein
+// Leben. Alle fuenf Treffer eine Stufe schneller, ab Stufe 3 eine Wolke mehr.
+function runShooter32(canvas, ctx){
+  const narrow = arcadeNarrow();
+  const W = narrow ? 400 : ARCADE_W, H = narrow ? 620 : ARCADE_H;
+  arcadeHiDpi(canvas, ctx, W, H);
+  const diff = gameCfg('shooter').difficulty || 1;
+  const own = arcadeVocab().filter(p => p.fr.length <= 18 && p.de.length <= 24);
+  const vocab = arcadeShuffle(own.length >= 6 ? own : own.concat(ARCADE_WORDS));
+  let vi = 0;
+  const SHIP_Y = H - (narrow ? 58 : 44), BANNER = narrow ? 66 : 54;
+  const score = a32ScoreWriter();
+  let pts = 0, lives = 3, hits = 0, level = 1, combo = 0, t = 0, over = false;
+  let shipX = W / 2, targetX = W / 2, keyL = 0, keyR = 0, cool = 0;
+  let clouds = [], shots = [], round = null, nextRoundAt = 0.4;
+  const stars = Array.from({ length: narrow ? 26 : 40 }, () => ({ x: Math.random() * W, y: Math.random() * H, v: 20 + Math.random() * 60 }));
+  setArcadeLives(lives); score(0);
+
+  function newRound(){
+    const target = vocab[vi++ % vocab.length];
+    const n = level >= 3 ? 4 : 3;
+    const pick = [target];
+    let guard = 0;
+    while(pick.length < n && guard++ < 60){
+      const w = vocab[(Math.random() * vocab.length) | 0];
+      if(!pick.some(p => p.fr === w.fr || p.de === w.de)) pick.push(w);
+    }
+    arcadeShuffle(pick);
+    const lanes = pick.length, laneW = (W - 20) / lanes;
+    const speed = (H / 9.5) * Math.pow(1.09, level - 1) * diff;
+    ctx.font = `italic 600 ${narrow ? 16 : 18}px ${ARCADE_SERIF}`;
+    clouds = pick.map((p, i) => {
+      const tw = ctx.measureText(p.fr).width;
+      const w = Math.min(laneW - 6, Math.max(86, tw + 34));
+      return { p, ok: p === target, x: 10 + laneW * (i + 0.5) + (Math.random() - 0.5) * Math.max(0, laneW - w) * 0.6,
+        y: BANNER - 30 - i % 2 * 46 - Math.random() * 30, w, h: 40, vy: speed * (0.9 + Math.random() * 0.2), ph: Math.random() * 6, gone: 0 };
+    });
+    round = { target, t0: t, done: false };
+  }
+  function endRound(delay){ round.done = true; nextRoundAt = t + delay; for(const c of clouds) if(!c.gone) c.gone = 0.001; }
+  function loseLife(x, y, text){
+    lives--; combo = 0; setArcadeLives(Math.max(0, lives));
+    A31.shake(9); A31.flash(0.26, '255,100,100');
+    A31.popup(x, y, text, { color: '#ff9a8a', size: narrow ? 16 : 18, life: 1.8 });
+    sndWrong();
+    if(lives <= 0 && !over){ over = true; setTimeout(() => finishArcadeGame('shooter', pts, { sub: `${hits} richtige Treffer · Stufe ${level}` }), 900); }
+  }
+  function fire(){
+    if(over || cool > 0) return;
+    cool = 0.22;
+    shots.push({ x: shipX, y: SHIP_Y - 22 });
+    playTone(880, 0.05, 'square', 0.02);
+  }
+  function hitCloud(c){
+    c.gone = 0.001;
+    if(c.ok){
+      hits++; combo++;
+      const height = Math.max(0, 1 - (c.y - BANNER) / (SHIP_Y - BANNER));
+      const gain = 10 + Math.round(height * 10) + Math.min(10, (combo - 1) * 2);
+      pts += gain; score(pts);
+      A31.burst(c.x, c.y, { n: 30, speed: 260, star: true });
+      A31.popup(c.x, c.y - 10, combo >= 3 ? `+${gain} · Serie ${combo}` : `+${gain}`, { size: 20 });
+      sndCorrect();
+      const nl = 1 + Math.floor(hits / 5);
+      if(nl > level){ level = nl; A31.popup(W / 2, H * 0.45, `Stufe ${level} – schneller!`, { size: 24, life: 1.6 }); A31.flash(0.15); }
+      endRound(0.7);
+    }else{
+      A31.burst(c.x, c.y, { n: 18, colors: ['#ff9ab2', '#ffd0dc', '#fff'], speed: 200 });
+      loseLife(c.x, c.y + 26, `${c.p.fr} = ${c.p.de}`);
+    }
+  }
+
+  // Ziehen bewegt die Rakete, Loslassen (oder Klick) feuert. Mit der Maus
+  // folgt sie schon beim Darueberfahren.
+  const onDown = (e) => { e.preventDefault(); targetX = arcadePoint(canvas, e, W, H).x; };
+  const onMove = (e) => { if(e.pointerType === 'mouse' || e.buttons) targetX = arcadePoint(canvas, e, W, H).x; };
+  const onUp = (e) => { e.preventDefault(); fire(); };
+  canvas.addEventListener('pointerdown', onDown);
+  canvas.addEventListener('pointermove', onMove);
+  canvas.addEventListener('pointerup', onUp);
+  const unkeys = a32Keys((e) => {
+    if(e.key === 'ArrowLeft' || e.key === 'a'){ keyL = 1; return true; }
+    if(e.key === 'ArrowRight' || e.key === 'd'){ keyR = 1; return true; }
+    if(e.code === 'Space' || e.key === 'ArrowUp'){ if(!e.repeat) fire(); return true; }
+  }, (e) => {
+    if(e.key === 'ArrowLeft' || e.key === 'a'){ keyL = 0; return true; }
+    if(e.key === 'ArrowRight' || e.key === 'd'){ keyR = 0; return true; }
+  });
+
+  function drawCloud(c){
+    const k = c.gone ? Math.max(0, 1 - c.gone * 4) : 1;
+    if(k <= 0) return;
+    ctx.save();
+    ctx.globalAlpha = k;
+    ctx.translate(c.x, c.y + Math.sin(t * 1.4 + c.ph) * 3);
+    const w = c.w, h = c.h;
+    ctx.fillStyle = 'rgba(22,28,52,.92)';
+    ctx.beginPath();
+    ctx.ellipse(0, 4, w / 2, h / 2, 0, 0, Math.PI * 2);
+    ctx.ellipse(-w * 0.2, -h * 0.22, w * 0.24, h * 0.42, 0, 0, Math.PI * 2);
+    ctx.ellipse(w * 0.16, -h * 0.28, w * 0.2, h * 0.4, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(246,195,92,.55)'; ctx.lineWidth = 1.3;
+    ctx.beginPath(); ctx.ellipse(0, 4, w / 2, h / 2, 0, Math.PI * 1.05, Math.PI * 1.95); ctx.stroke();
+    ctx.fillStyle = '#fff3d6'; ctx.textAlign = 'center';
+    ctx.font = `italic 600 ${narrow ? 16 : 18}px ${ARCADE_SERIF}`;
+    ctx.fillText(c.p.fr, 0, 10, w - 14);
+    ctx.restore();
+  }
+  function drawShip(){
+    ctx.save(); ctx.translate(shipX, SHIP_Y);
+    const fl = 8 + Math.sin(t * 40) * 3;
+    const fg = ctx.createLinearGradient(0, 14, 0, 14 + fl * 2);
+    fg.addColorStop(0, 'rgba(255,236,170,.95)'); fg.addColorStop(1, 'rgba(246,160,60,0)');
+    ctx.fillStyle = fg; ctx.beginPath(); ctx.moveTo(-6, 14); ctx.lineTo(0, 14 + fl * 2); ctx.lineTo(6, 14); ctx.fill();
+    ctx.shadowColor = 'rgba(246,195,92,.8)'; ctx.shadowBlur = 14;
+    const g = ctx.createLinearGradient(-14, 0, 14, 0);
+    g.addColorStop(0, '#c98a36'); g.addColorStop(0.5, '#fff1c9'); g.addColorStop(1, '#c98a36');
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.moveTo(0, -24); ctx.quadraticCurveTo(12, -8, 11, 14); ctx.lineTo(-11, 14); ctx.quadraticCurveTo(-12, -8, 0, -24); ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = '#b8862f';
+    ctx.beginPath(); ctx.moveTo(-11, 4); ctx.lineTo(-20, 16); ctx.lineTo(-11, 14); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(11, 4); ctx.lineTo(20, 16); ctx.lineTo(11, 14); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#16203a'; ctx.beginPath(); ctx.arc(0, -6, 4.5, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = '#fff1c9'; ctx.lineWidth = 1; ctx.stroke();
+    ctx.restore();
+  }
+  function drawBanner(){
+    ctx.fillStyle = 'rgba(5,7,14,.8)'; ctx.fillRect(0, 0, W, BANNER);
+    ctx.strokeStyle = 'rgba(246,195,92,.35)'; ctx.beginPath(); ctx.moveTo(0, BANNER); ctx.lineTo(W, BANNER); ctx.stroke();
+    ctx.textAlign = 'center';
+    ctx.font = `500 11px ${ARCADE_SANS}`; ctx.fillStyle = 'rgba(246,195,92,.9)';
+    ctx.fillText(`FINDE DIE ÜBERSETZUNG · STUFE ${level}`, W / 2, narrow ? 20 : 17);
+    if(round){ ctx.font = `italic 600 ${narrow ? 24 : 24}px ${ARCADE_SERIF}`; ctx.fillStyle = '#fff3d6'; ctx.fillText(round.target.de, W / 2, narrow ? 50 : 42); }
+    ctx.textAlign = 'left';
+  }
+
+  const stopLoop = arcadeLoop((dt) => {
+    t += dt;
+    if(cool > 0) cool -= dt;
+    if(keyL || keyR) targetX = shipX + (keyR - keyL) * 60;
+    targetX = Math.max(22, Math.min(W - 22, targetX));
+    shipX += (targetX - shipX) * Math.min(1, dt * 14);
+    if(!over && (!round || round.done) && t >= nextRoundAt) newRound();
+    for(const s of shots) s.y -= 760 * dt;
+    shots = shots.filter(s => s.y > BANNER - 10);
+    for(const c of clouds){
+      if(c.gone){ c.gone += dt; continue; }
+      c.y += c.vy * dt;
+      for(const s of shots){
+        if(!s.dead && Math.abs(s.x - c.x) < c.w / 2 && Math.abs(s.y - c.y) < c.h / 2 + 4){ s.dead = true; hitCloud(c); break; }
+      }
+      if(!c.gone && c.y > SHIP_Y - 26){
+        c.gone = 0.001;
+        if(c.ok && !round.done && !over){ loseLife(W / 2, SHIP_Y - 60, `verpasst: ${round.target.de} = ${c.p.fr}`); endRound(1.2); }
+      }
+    }
+    shots = shots.filter(s => !s.dead);
+    clouds = clouds.filter(c => !(c.gone && c.gone > 0.3));
+    if(round && !round.done && !clouds.some(c => c.ok && !c.gone)) endRound(0.6);
+
+    arcadeSky(ctx, W, H);
+    ctx.fillStyle = 'rgba(255,244,220,.7)';
+    for(const s of stars){ s.y += s.v * dt * (1 + level * 0.1); if(s.y > H) { s.y = BANNER; s.x = Math.random() * W; } ctx.fillRect(s.x, s.y, 1.2, 1.2 + s.v / 40); }
+    for(const c of clouds) drawCloud(c);
+    ctx.fillStyle = '#ffe7a8';
+    for(const s of shots){ ctx.fillRect(s.x - 1.5, s.y - 12, 3, 14); }
+    if(!over || lives > 0) drawShip();
+    drawBanner();
+  });
+  return { stop(){ stopLoop(); over = true; canvas.removeEventListener('pointerdown', onDown); canvas.removeEventListener('pointermove', onMove);
+    canvas.removeEventListener('pointerup', onUp); unkeys(); setArcadeLives(null); } };
+}
+
+// --- Breakout: Mauern in Mustern, Extras, drei Leben -----------------------------
+const A32_WALLS = [
+  ['111111111111', '222222222222', '111111111111', '111111111111', '222222222222'],
+  ['.....22.....', '.....11.....', '.....11.....', '....1111....', '....2222....', '...111111...', '..11....11..', '.111....111.', '222......222'],
+  ['..11....11..', '.1111..1111.', '111111111111', '111122221111', '.1111221111.', '..11111111..', '...111111...', '....1111....', '.....11.....'],
+  ['.33.........', '.32.........', '.22.....111.', '.22.....111.', '.22.........', '.22.........', '.2222222222.', '.3333333333.'],
+  ['3.3.3.3.3.3.', '.2.2.2.2.2.2', '111111111111', '2.2.2.2.2.2.', '.3.3.3.3.3.3', '111111111111'],
+];
+function runBreakout32(canvas, ctx){
+  const narrow = arcadeNarrow();
+  const W = narrow ? 400 : ARCADE_W, H = narrow ? 620 : ARCADE_H;
+  arcadeHiDpi(canvas, ctx, W, H);
+  const diff = gameCfg('breakout').difficulty || 1;
+  const COLS = 12, MX = narrow ? 12 : 34, GAP = 4, TOPY = narrow ? 70 : 46;
+  const BW = (W - 2 * MX - (COLS - 1) * GAP) / COLS, BH = narrow ? 17 : 18;
+  const PY = H - (narrow ? 44 : 30), BASE_PW = narrow ? 88 : 108, R = 7;
+  const score = a32ScoreWriter();
+  let pts = 0, lives = 3, level = 1, t = 0, over = false, clearing = 0;
+  let px = W / 2, ptarget = W / 2, keyL = 0, keyR = 0, pw = BASE_PW;
+  let bricks = [], balls = [], caps = [], wideT = 0, fireT = 0, slowT = 0;
+  setArcadeLives(lives); score(0);
+
+  // Steine einmal je Sorte vorzeichnen - pro Bild nur noch drawImage.
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const sprites = {};
+  function brickSprite(hp, tone){
+    const key = hp + ':' + tone;
+    if(sprites[key]) return sprites[key];
+    const c = document.createElement('canvas');
+    c.width = Math.ceil(BW * dpr); c.height = Math.ceil(BH * dpr);
+    const g = c.getContext('2d'); g.scale(dpr, dpr);
+    const cols = hp >= 3 ? ['#dfe7ff', '#8fa3e6', '#3c4c8f'] : hp === 2 ? ['#ffe1ea', '#e0869f', '#8a2f4a'] : [['#fff4c9', '#f2c24c', '#a4721c'], ['#ffecc0', '#e9a93f', '#94601a'], ['#fff8e0', '#ffd98a', '#b8862f']][tone % 3];
+    const gr = g.createLinearGradient(0, 0, 0, BH);
+    gr.addColorStop(0, cols[0]); gr.addColorStop(0.45, cols[1]); gr.addColorStop(1, cols[2]);
+    g.fillStyle = gr; arcadeRoundRect(g, 0.5, 0.5, BW - 1, BH - 1, 4); g.fill();
+    g.strokeStyle = 'rgba(255,255,255,.55)'; g.lineWidth = 1; g.beginPath(); g.moveTo(4, 2.5); g.lineTo(BW - 4, 2.5); g.stroke();
+    if(hp >= 2){ g.strokeStyle = 'rgba(20,14,6,.45)'; g.lineWidth = 1.2; arcadeRoundRect(g, 3, 3, BW - 6, BH - 6, 3); g.stroke(); }
+    sprites[key] = c;
+    return c;
+  }
+  function buildWall(){
+    const pat = A32_WALLS[(level - 1) % A32_WALLS.length];
+    const extra = Math.floor((level - 1) / A32_WALLS.length);
+    bricks = [];
+    pat.forEach((row, r) => [...row].forEach((ch, c) => {
+      if(ch === '.') return;
+      const hp = Math.min(3, parseInt(ch, 10) + extra);
+      bricks.push({ x: MX + c * (BW + GAP), y: TOPY + r * (BH + GAP), hp, max: hp, tone: r });
+    }));
+  }
+  function speed(){ return (narrow ? 400 : 370) * Math.pow(1.06, level - 1) * diff * (slowT > 0 ? 0.7 : 1); }
+  function newBall(stuck){ balls = [{ x: px, y: PY - R - 7, vx: 0, vy: 0, stuck: !!stuck }]; }
+  function launch(){
+    for(const b of balls) if(b.stuck){
+      const a = -Math.PI / 2 + (Math.random() - 0.5) * 0.6;
+      b.vx = Math.cos(a) * speed(); b.vy = Math.sin(a) * speed(); b.stuck = false;
+      playTone(520, 0.06, 'triangle', 0.04);
+    }
+  }
+  function drop(x, y){
+    const r = Math.random();
+    if(r > 0.13) return;
+    const kinds = ['wide', 'multi', 'fire', 'slow', 'wide', 'multi'];
+    const kind = Math.random() < 0.08 ? 'life' : kinds[(Math.random() * kinds.length) | 0];
+    caps.push({ x, y, kind });
+  }
+  function applyCap(c){
+    const lbl = { wide: 'Breiter Schläger', multi: 'Drei Bälle', fire: 'Feuerball', slow: 'Langsamer', life: '+1 Leben' }[c.kind];
+    A31.popup(c.x, PY - 30, lbl, { size: 18, color: c.kind === 'life' ? '#8fe0a8' : '#ffe7a8' });
+    A31.burst(c.x, PY, { n: 16, speed: 180, angle: -Math.PI / 2, spread: 2 });
+    playTone(760, 0.16, 'triangle', 0.05);
+    if(c.kind === 'wide') wideT = 12;
+    else if(c.kind === 'fire') fireT = 7;
+    else if(c.kind === 'slow'){ slowT = 8; for(const b of balls){ b.vx *= 0.7; b.vy *= 0.7; } }
+    else if(c.kind === 'life'){ if(lives < 5){ lives++; setArcadeLives(lives, Math.max(3, lives)); } }
+    else if(c.kind === 'multi'){
+      const src = balls.find(b => !b.stuck) || balls[0];
+      if(!src) return;
+      const sp = Math.hypot(src.vx, src.vy) || speed();
+      for(const da of [-0.45, 0.45]){
+        const a = Math.atan2(src.vy || -1, src.vx) + da;
+        balls.push({ x: src.x, y: src.y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, stuck: false });
+      }
+    }
+  }
+  function hitBrick(br, ball){
+    const fire = fireT > 0;
+    br.hp = fire ? 0 : br.hp - 1;
+    const cx = br.x + BW / 2, cy = br.y + BH / 2;
+    if(br.hp <= 0){
+      pts += 10 * br.max + 5;
+      A31.burst(cx, cy, { n: fire ? 16 : 10, speed: 170, life: 0.5, colors: br.max >= 3 ? ['#dfe7ff', '#8fa3e6', '#fff'] : br.max === 2 ? ['#ffe1ea', '#e0869f', '#fff'] : undefined });
+      drop(cx, cy);
+      playTone(420 + br.max * 90 + Math.random() * 40, 0.05, 'triangle', 0.035);
+    }else{ pts += 5; playTone(300, 0.04, 'square', 0.02); }
+    score(pts);
+  }
+  function loseBall(){
+    lives--; setArcadeLives(Math.max(0, lives), Math.max(3, lives));
+    A31.shake(8); A31.flash(0.24, '255,100,100'); sndWrong();
+    wideT = 0; fireT = 0; slowT = 0; caps = [];
+    if(lives <= 0){ over = true; setTimeout(() => finishArcadeGame('breakout', pts, { sub: `Mauer ${level} erreicht` }), 800); return; }
+    newBall(true);
+  }
+
+  const onDown = (e) => { e.preventDefault(); ptarget = arcadePoint(canvas, e, W, H).x; launch(); };
+  const onMove = (e) => { ptarget = arcadePoint(canvas, e, W, H).x; };
+  canvas.addEventListener('pointerdown', onDown);
+  canvas.addEventListener('pointermove', onMove);
+  const unkeys = a32Keys((e) => {
+    if(e.key === 'ArrowLeft' || e.key === 'a'){ keyL = 1; return true; }
+    if(e.key === 'ArrowRight' || e.key === 'd'){ keyR = 1; return true; }
+    if(e.code === 'Space' || e.key === 'ArrowUp'){ launch(); return true; }
+  }, (e) => {
+    if(e.key === 'ArrowLeft' || e.key === 'a'){ keyL = 0; return true; }
+    if(e.key === 'ArrowRight' || e.key === 'd'){ keyR = 0; return true; }
+  });
+
+  function stepBall(b, dt){
+    if(b.stuck){ b.x = px; b.y = PY - R - 7; return true; }
+    const steps = Math.max(1, Math.ceil(Math.hypot(b.vx, b.vy) * dt / 5));
+    const h = dt / steps;
+    for(let s = 0; s < steps; s++){
+      b.x += b.vx * h; b.y += b.vy * h;
+      if(b.x < R){ b.x = R; b.vx = Math.abs(b.vx); }
+      if(b.x > W - R){ b.x = W - R; b.vx = -Math.abs(b.vx); }
+      if(b.y < R + (narrow ? 0 : 0)){ b.y = R; b.vy = Math.abs(b.vy); }
+      // Schlaeger: Abprallwinkel je nach Trefferstelle
+      if(b.vy > 0 && b.y + R >= PY - 6 && b.y + R <= PY + 8 && Math.abs(b.x - px) <= pw / 2 + R){
+        const off = Math.max(-1, Math.min(1, (b.x - px) / (pw / 2)));
+        const sp = Math.max(speed() * 0.9, Math.hypot(b.vx, b.vy));
+        const a = -Math.PI / 2 + off * 1.05;
+        b.vx = Math.cos(a) * sp; b.vy = Math.sin(a) * sp; b.y = PY - 6 - R;
+        playTone(360, 0.04, 'sine', 0.035);
+      }
+      if(b.y > H + R) return false;
+      for(const br of bricks){
+        if(br.hp <= 0) continue;
+        const nx = Math.max(br.x, Math.min(b.x, br.x + BW)), ny = Math.max(br.y, Math.min(b.y, br.y + BH));
+        const dx = b.x - nx, dy = b.y - ny;
+        if(dx * dx + dy * dy > R * R) continue;
+        hitBrick(br, b);
+        if(fireT <= 0){
+          // Seite bestimmen: kleinere Ueberlappung entscheidet
+          const ox = Math.min(b.x + R - br.x, br.x + BW - (b.x - R));
+          const oy = Math.min(b.y + R - br.y, br.y + BH - (b.y - R));
+          if(ox < oy){ b.vx = b.x < br.x + BW / 2 ? -Math.abs(b.vx) : Math.abs(b.vx); }
+          else { b.vy = b.y < br.y + BH / 2 ? -Math.abs(b.vy) : Math.abs(b.vy); }
+        }
+        break;
+      }
+    }
+    return true;
+  }
+
+  buildWall(); newBall(true);
+  const stopLoop = arcadeLoop((dt) => {
+    t += dt;
+    if(wideT > 0) wideT -= dt; if(fireT > 0) fireT -= dt; if(slowT > 0) slowT -= dt;
+    pw += ((wideT > 0 ? BASE_PW * 1.6 : BASE_PW) - pw) * Math.min(1, dt * 8);
+    if(keyL || keyR) ptarget = px + (keyR - keyL) * 80;
+    ptarget = Math.max(pw / 2, Math.min(W - pw / 2, ptarget));
+    px += (ptarget - px) * Math.min(1, dt * 20);
+    if(!over && clearing <= 0){
+      balls = balls.filter(b => stepBall(b, dt));
+      bricks = bricks.filter(br => br.hp > 0);
+      if(!balls.length) loseBall();
+      if(!bricks.length && !over){
+        clearing = 1.4;
+        const bonus = 100 * level; pts += bonus; score(pts);
+        A31.popup(W / 2, H * 0.4, `Mauer ${level} geschafft  +${bonus}`, { size: 24, life: 1.6 });
+        A31.confetti(); sndCorrect();
+      }
+      for(const c of caps){
+        c.y += 150 * dt;
+        if(c.y >= PY - 8 && c.y <= PY + 10 && Math.abs(c.x - px) < pw / 2 + 10){ c.got = true; applyCap(c); }
+      }
+      caps = caps.filter(c => !c.got && c.y < H + 20);
+    }else if(clearing > 0){
+      clearing -= dt;
+      if(clearing <= 0){ level++; buildWall(); newBall(true); caps = []; wideT = fireT = slowT = 0;
+        A31.popup(W / 2, H * 0.5, `Mauer ${level}`, { size: 26 }); }
+    }
+
+    arcadeSky(ctx, W, H);
+    ctx.fillStyle = 'rgba(5,7,14,.45)'; ctx.fillRect(0, 0, W, H);
+    for(const br of bricks){
+      ctx.globalAlpha = br.hp < br.max ? 0.55 + 0.45 * (br.hp / br.max) : 1;
+      ctx.drawImage(brickSprite(br.max, br.tone), br.x, br.y, BW, BH);
+    }
+    ctx.globalAlpha = 1;
+    ctx.textAlign = 'center'; ctx.font = `700 12px ${ARCADE_SANS}`;
+    for(const c of caps){
+      const col = { wide: '#f6c35c', multi: '#9fb7ff', fire: '#ff9a6a', slow: '#b28cff', life: '#8fe0a8' }[c.kind];
+      ctx.fillStyle = col; arcadeRoundRect(ctx, c.x - 17, c.y - 8, 34, 16, 8); ctx.fill();
+      ctx.fillStyle = '#10131c'; ctx.fillText({ wide: '↔', multi: '•••', fire: '✦', slow: '◷', life: '♥' }[c.kind], c.x, c.y + 4);
+    }
+    ctx.textAlign = 'left';
+    // Schlaeger
+    ctx.shadowColor = 'rgba(246,195,92,.7)'; ctx.shadowBlur = 14;
+    const pg = ctx.createLinearGradient(0, PY - 6, 0, PY + 6);
+    pg.addColorStop(0, '#fff4c9'); pg.addColorStop(1, '#c98a36');
+    ctx.fillStyle = pg; arcadeRoundRect(ctx, px - pw / 2, PY - 6, pw, 12, 6); ctx.fill();
+    ctx.shadowBlur = 0;
+    // Baelle
+    for(const b of balls){
+      const fire = fireT > 0;
+      ctx.shadowColor = fire ? 'rgba(255,140,80,.95)' : 'rgba(255,240,200,.9)'; ctx.shadowBlur = fire ? 18 : 10;
+      ctx.fillStyle = fire ? '#ffd0a0' : '#fffaf0';
+      ctx.beginPath(); ctx.arc(b.x, b.y, R, 0, Math.PI * 2); ctx.fill();
+    }
+    ctx.shadowBlur = 0;
+    if(balls.some(b => b.stuck) && !over && clearing <= 0){
+      ctx.textAlign = 'center'; ctx.font = `500 13px ${ARCADE_SANS}`; ctx.fillStyle = `rgba(255,243,214,${0.55 + 0.35 * Math.sin(t * 4)})`;
+      ctx.fillText('Tippen oder Leertaste: Ball los', W / 2, PY - 44); ctx.textAlign = 'left';
+    }
+    // Laufzeit der Extras als feine Leisten
+    let bx = 10;
+    for(const [v, max, col] of [[wideT, 12, '#f6c35c'], [fireT, 7, '#ff9a6a'], [slowT, 8, '#b28cff']]){
+      if(v > 0){ ctx.fillStyle = col; ctx.fillRect(bx, H - 6, 60 * (v / max), 3); bx += 70; }
+    }
+  });
+  return { stop(){ stopLoop(); over = true; canvas.removeEventListener('pointerdown', onDown); canvas.removeEventListener('pointermove', onMove); unkeys(); setArcadeLives(null); } };
 }
 
 // --- Vokabeln fuer die Spiele ---------------------------------------------
