@@ -938,6 +938,28 @@ wurde nur die Idee. SQL: `supabase/build32.sql` (Zeitraum `day` in `lb_since`).
 - Bildzeit (reines JS je Bild, Testmaschine): alle vier um 1 ms, p95 unter 2 ms
   (Handy), Ballon Pop 0,2 ms.
 
+## Build 33: Gold-Medaillons, Spielhalle-Kacheln, Vollbild
+
+Alles an `isReleased(33)` / `data-build="33"`.
+
+- **Symbole:** `GI33` (SVG-Pfade im 64er-Raster je Spiel + `overall`),
+  `gameIcon(key, cls)` baut das Medaillon, `gIcon(key)` = Emoji vor der
+  Freigabe, Medaillon danach. Die Verlaeufe `#gi33Gold`/`#gi33Bg` stehen
+  EINMAL im Dokument (unsichtbares SVG vor der Quick-Nav) - alle Symbole
+  verweisen darauf. Neues Spiel = Eintrag in `GI33`, sonst faellt es auf den
+  Pokal zurueck. Gefuellte Teile: Klasse `gi33-fill`.
+- **Kacheln:** `renderArcadeTiles33` (aus `renderArcadeSections`), Reiter
+  `#arc33Tabs` ueber `LEARN_GAMES33`; "Neu" = `NEW_GAMES33` und noch nicht
+  gespielt (`gamePlayed33`: `store.arcade.played`, Rekord oder Runden).
+- **Vollbild** (`gameFull33()` = Gate + `PERF_TIER` nicht desktop): Klasse
+  `html.game-full33` aus `showView`. Die Spielseite wird `position:fixed`,
+  Kopfzeile/Quick-Nav/Footer weg (die Kopfzeile lag sonst darueber - eigener
+  Stapelkontext). `fitStage33` rechnet die Breite der Buehne aus Seitenver-
+  haeltnis des Canvas und freiem Platz (abzueglich `.mdj-kb`); ausgeloest per
+  MutationObserver auf Canvas-Groesse und Kinder der Seite. `.gbar33` spiegelt
+  Punkte/Leben (`setArcadeScore`, `setArcadeLives`). Modal/Toast liegen im
+  Vollbild hoeher (z 60/61).
+
 ## Testen mit Freigabe-Gate
 
 Lokal gibt es kein Supabase, also ist niemand Admin und alle Build-14-Teile

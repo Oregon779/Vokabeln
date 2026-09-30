@@ -1,6 +1,21 @@
 {
  "entries": [
   {
+   "build": 33,
+   "date": "2026-09-30",
+   "until": "2026-09-30",
+   "title": "Spielhalle neu: Gold-Medaillons, Kacheln, Vollbild auf Handy/iPad",
+   "gate": true,
+   "items": [
+    "Hinter dem Freigabe-Gate (Build 33): eigene Symbole in Goldlinien auf dunklem Medaillon fuer alle 13 Spiele und die Gesamtwertung - in den Kacheln, auf Start- und Ergebniskarte, in der Kopfzeile des Spiels und in den Ranglisten-Reitern (statt Emojis).",
+    "Hinter dem Gate: Spielhalle als kompakte Kacheln (Symbol, Name, Rekord, Preis) - Handy 2, iPad 3, Desktop 4 Spalten; Reiter Alle / Lernspiele / Geschick; 'Neu'-Band an Neon Drift, Snake, Space Shooter, Breakout, bis man das Spiel einmal gestartet hat.",
+    "Hinter dem Gate: Spielen im Vollbild auf Handy und iPad - nur schmale Leiste (X, Spiel, Herzen, Punkte) und das Spielfeld so gross wie moeglich; X fragt waehrend einer Runde nach (Weiterspielen / Runde beenden). Querformat-Spiele auf dem hochkant gehaltenen Handy zeigen 'Handy quer halten'.",
+    "Canvas-Beschriftungen in Neon Drift, Snake und Space Shooter auf dem Handy groesser (13 statt 11 px).",
+    "Vorschau-Plakette (nur Admins) liegt auf dem Handy ueber der Schnell-Navigation statt darauf.",
+    "Kein SQL noetig."
+   ]
+  },
+  {
    "build": 32,
    "date": "2026-09-30",
    "until": "2026-09-30",

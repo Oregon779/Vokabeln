@@ -3638,6 +3638,92 @@
   .flashcard-answer-row{display:flex; align-items:center; justify-content:center; gap:.7rem;}
   .flashcard-answer-row .flashcard-answer{margin:0;}
 
+
+  /* --- Build 33: Gold-Medaillons, Spielhalle-Kacheln, Vollbild ------------ */
+  .gi33{ display:block; width:100%; height:100%; filter:drop-shadow(0 4px 10px rgba(0,0,0,.45)); }
+  .gi33 .gi33-fill{ fill:url(#gi33Gold); }
+  .gi33-sm{ width:30px; height:30px; flex-shrink:0; }
+  .a31-icon .gi33{ width:74px; height:74px; margin:0 auto; }
+  .lb31-tabs .lb33-ic .gi33{ width:22px; height:22px; filter:none; }
+  .lb31-tabs .lb33-ic{ display:inline-flex; }
+  #arcadeGameTitle{ display:flex; align-items:center; gap:.55rem; }
+  .arc33-tabs{ display:flex; gap:.4rem; margin:.2rem 0 1rem; overflow-x:auto; scrollbar-width:none; }
+  .arc33-tabs::-webkit-scrollbar{ display:none; }
+  .arc33-tabs button{
+    display:inline-flex; align-items:center; gap:.45rem; border:1px solid rgba(246,195,92,.22); background:rgba(0,0,0,.25);
+    color:var(--stone); font:inherit; font-size:.84rem; padding:.5rem 1rem; border-radius:999px; cursor:pointer; white-space:nowrap;
+  }
+  .arc33-tabs button small{ font-family:var(--font-mono); font-size:.66rem; opacity:.7; }
+  .arc33-tabs button.is-on{ background:linear-gradient(180deg, #f6d58a, #d9a548); color:#1a1406; border-color:transparent; font-weight:600; }
+  .arcade-grid.arc33{ grid-template-columns:repeat(2, minmax(0, 1fr)); gap:.75rem; }
+  @media (min-width:700px){ .arcade-grid.arc33{ grid-template-columns:repeat(3, minmax(0, 1fr)); gap:1rem; } }
+  @media (min-width:1100px){ .arcade-grid.arc33{ grid-template-columns:repeat(4, minmax(0, 1fr)); } }
+  .arc33-tile{
+    position:relative; overflow:hidden; display:flex; flex-direction:column; align-items:center; gap:.55rem; text-align:center;
+    padding:1.2rem .8rem .9rem; border-radius:20px; cursor:pointer; color:inherit; font:inherit;
+    background:radial-gradient(120% 80% at 50% 0%, rgba(246,195,92,.1), transparent 60%), linear-gradient(170deg, #161b2b, #0c0f19);
+    border:1px solid rgba(246,195,92,.22); box-shadow:inset 0 1px 0 rgba(255,236,190,.06);
+    transition:transform .22s var(--ease), border-color .22s var(--ease), box-shadow .22s var(--ease);
+  }
+  .arc33-tile:hover{ transform:translateY(-3px); border-color:rgba(246,195,92,.55); box-shadow:0 16px 34px -14px rgba(0,0,0,.7), 0 0 26px -10px rgba(246,195,92,.45); }
+  .arc33-tile:active{ transform:scale(.97); }
+  .arc33-tile[disabled]{ opacity:.45; cursor:not-allowed; transform:none; }
+  .arc33-tile .gi33-tile{ width:clamp(62px, 17vw, 84px); height:clamp(62px, 17vw, 84px); transition:transform .3s var(--ease); }
+  .arc33-tile:hover .gi33-tile{ transform:scale(1.06) rotate(-3deg); }
+  .arc33-name{ font-family:var(--font-serif); font-weight:600; font-size:clamp(.98rem, 3.6vw, 1.12rem); color:#fff3d6; line-height:1.15; }
+  .arc33-meta{ display:flex; align-items:center; justify-content:center; flex-wrap:wrap; gap:.35rem .6rem; width:100%;
+    font-family:var(--font-mono); font-size:.64rem; letter-spacing:.06em; text-transform:uppercase; color:var(--stone); }
+  .arc33-rec b{ color:var(--ember-bright); font-weight:600; }
+  .arc33-price{ padding:.2rem .55rem; border-radius:999px; border:1px solid rgba(246,195,92,.4); color:#ffe7a8; background:rgba(246,195,92,.08); }
+  .arc33-price.is-short{ opacity:.5; }
+  .arc33-off{ padding:.2rem .55rem; border-radius:999px; border:1px solid var(--border-solid); }
+  .arc33-new{
+    position:absolute; top:12px; right:-30px; transform:rotate(38deg); width:110px; padding:.18rem 0; text-align:center;
+    font-family:var(--font-mono); font-size:.58rem; letter-spacing:.2em; text-transform:uppercase; font-weight:700;
+    color:#1a1406; background:linear-gradient(90deg, #f6d58a, #fff1c9, #d9a548); box-shadow:0 2px 10px rgba(246,195,92,.4);
+  }
+  .arc33-tile.is-new{ border-color:rgba(246,195,92,.5); }
+  /* Vollbild beim Spielen (Handy/iPad): nur Leiste + Spielfeld */
+  .gbar33{ display:none; }
+  .gbar33[hidden]{ display:none !important; }
+  html.game-full33, html.game-full33 body{ overflow:hidden; }
+  html.game-full33 #view-arcade-game{
+    position:fixed; inset:0; z-index:45; margin:0; max-width:none; width:auto;
+    display:flex; flex-direction:column; align-items:center; gap:8px;
+    padding:calc(env(safe-area-inset-top) + 6px) calc(env(safe-area-inset-right) + 6px) calc(env(safe-area-inset-bottom) + 8px) calc(env(safe-area-inset-left) + 6px);
+    background:radial-gradient(120% 60% at 50% 0%, #161b30, #07090f 70%);
+  }
+  html.game-full33 #view-arcade-game > #btnArcadeGameBack,
+  html.game-full33 #view-arcade-game > .game-hud,
+  html.game-full33 #view-arcade-game > .arcade-hint,
+  html.game-full33 #view-arcade-game > .page-glow{ display:none; }
+  html.game-full33 .gbar33:not([hidden]){
+    display:flex; align-items:center; gap:.6rem; width:100%; flex:0 0 auto; padding:.35rem .4rem;
+  }
+  .gbar33-x{
+    width:40px; height:40px; flex-shrink:0; border-radius:50%; display:grid; place-items:center; cursor:pointer;
+    background:rgba(255,255,255,.06); border:1px solid rgba(246,195,92,.35); color:#fff3d6;
+  }
+  .gbar33-x svg{ width:18px; height:18px; stroke:currentColor; stroke-width:2; fill:none; stroke-linecap:round; }
+  .gbar33-title{ display:flex; align-items:center; gap:.45rem; min-width:0; flex:1; font-family:var(--font-serif); font-weight:600; font-size:1.02rem; color:#fff3d6; }
+  .gbar33-title span{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .gbar33-lives:empty{ display:none; }
+  .gbar33-score{ font-family:var(--font-serif); font-size:1.6rem; color:#fff3d6; min-width:2ch; text-align:right; text-shadow:0 0 16px rgba(246,195,92,.35); }
+  html.game-full33 #view-arcade-game .arcade-stage{ margin:auto; flex:0 0 auto; max-width:100%; }
+  html.game-full33 #view-arcade-game.rot33::after{
+    content:'↻  Handy quer halten – größeres Spielfeld'; margin:0 auto auto; padding:.45rem .9rem; border-radius:999px;
+    font-family:var(--font-mono); font-size:.66rem; letter-spacing:.08em; text-transform:uppercase; color:var(--ember-bright);
+    border:1px solid rgba(246,195,92,.3); background:rgba(0,0,0,.3);
+  }
+  html.game-full33 #view-arcade-game .mdj-kb{ width:100%; max-width:560px; flex:0 0 auto; }
+  html.game-full33 .modal-backdrop{ z-index:60; }
+  html.game-full33 .toast{ z-index:61; }
+  html.game-full33 .preview-badge{ display:none; }
+  html.game-full33 .site-header, html.game-full33 .quick-nav, html.game-full33 .site-foot, html.game-full33 .update-banner{ display:none !important; }
+  /* Plakette auf dem Handy ueber der Schnell-Navigation, nicht darauf */
+  @media (max-width:640px){
+    body.quicknav-visible .preview-badge{ bottom:calc(1rem + 62px); font-size:.56rem; padding:.35rem .7rem; }
+  }
   /* --- Quick-Nav (schwebende Kurz-Navigation außerhalb der Startseite) --- */
   .quick-nav{
     position:fixed; left:50%; bottom:1.1rem; transform:translateX(-50%); z-index:40;
@@ -4088,6 +4174,12 @@
   </nav>
 </div>
 
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <linearGradient id="gi33Gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff4d0"/><stop offset=".45" stop-color="#f2c24c"/><stop offset="1" stop-color="#b8862f"/></linearGradient>
+    <radialGradient id="gi33Bg" cx=".38" cy=".3" r=".8"><stop offset="0" stop-color="#232a42"/><stop offset="1" stop-color="#0a0d18"/></radialGradient>
+  </defs>
+</svg>
 <nav class="quick-nav" id="quickNav" aria-label="Schnellzugriff" hidden>
   <button type="button" class="quick-nav-item" data-goto="home" aria-label="Lernsets" title="Lernsets">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5V5.5Z"/><path d="M4 18.5A2.5 2.5 0 0 1 6.5 16H20"/></svg>
@@ -4984,6 +5076,12 @@
   </section>
 
   <section id="view-arcade-game" class="view" hidden>
+    <div class="gbar33" data-build="33">
+      <button type="button" class="gbar33-x" id="btnGame33Close" aria-label="Spiel beenden"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+      <span class="gbar33-title" id="gbar33Title"></span>
+      <span class="a31-lives gbar33-lives" id="gbar33Lives"></span>
+      <span class="gbar33-score" id="gbar33Score">0</span>
+    </div>
     <button class="btn btn-link" id="btnArcadeGameBack">← Zu den Belohnungen</button>
     <div class="game-hud">
       <h2 style="margin:0;" id="arcadeGameTitle">Spiel</h2>
@@ -5143,6 +5241,7 @@
     </div>
 
     <h3>Spiele</h3>
+    <div class="arc33-tabs" id="arc33Tabs" role="tablist" aria-label="Spielart" data-build="33"></div>
     <div class="arcade-grid" id="arcadeGrid"></div>
 
     <div data-build-old="31">
@@ -6261,7 +6360,7 @@
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="./lumiere-gl.js?v=32" defer></script>
+<script src="./lumiere-gl.js?v=33" defer></script>
 <script>
 /* ============================================================
    WICHTIG: Bei jedem inhaltlichen Deploy hochzaehlen (wie CACHE_NAME
@@ -6272,7 +6371,7 @@
       unten) - neue, noch nicht "veroeffentlichte" Features hinter
       isReleased(N) verstecken; Admins sehen sie trotzdem sofort.
    ============================================================ */
-const APP_VERSION = 32;
+const APP_VERSION = 33;
 
 // Handy und iPad (Build 31): ein schlanker Modus fuer alle Nutzer - keine
 // Hintergrund-Weichzeichner (backdrop-filter ueber der bewegten 3D-Ebene
@@ -12111,6 +12210,8 @@ function showView(name){
   document.body.classList.toggle('wide-view-active', name === 'hub' || name === 'appDownload' || name === 'admin');
   document.body.classList.toggle('on-hub', name === 'hub');
   document.body.classList.toggle('admin-view-active', name === 'admin');
+  // Build 33: Spielen im Vollbild auf Handy und iPad.
+  document.documentElement.classList.toggle('game-full33', name === 'arcadeGame' && gameFull33());
   persistLastView(name);
   if(lastShownView && lastShownView !== name) sndPage();
   lastShownView = name;
@@ -14419,6 +14520,49 @@ function arcadeGameVisible(key){
   return !!d && (!d.build || isReleased(d.build));
 }
 function visibleGameKeys(){ return Object.keys(GAME_DEFS).filter(arcadeGameVisible); }
+
+// --- Build 33: Gold-Medaillons statt Emojis --------------------------------
+// Jedes Spiel bekommt ein Symbol in feinen Goldlinien auf einem dunklen
+// Medaillon (wie das L-Logo). Die Verlaeufe stehen einmal im Dokument
+// (#gi33Defs), alle Symbole verweisen darauf. 64er-Raster, Mitte 32/32.
+const GI33 = {
+  overall:  '<path d="M24 17h16v8c0 6-3.6 10-8 10s-8-4-8-10z"/><path d="M24 20h-5c0 5 2.4 7.6 5.6 8M40 20h5c0 5-2.4 7.6-5.6 8"/><path d="M32 35v6M26 46h12M28 41h8"/>',
+  longjump: '<path d="M13 42q16-30 34-10" stroke-dasharray="2 3.2" opacity=".6"/><circle cx="36" cy="19" r="3"/><path d="M34 23l-4 8 7 2M31 26l-6 1M30 31l-5 7-5 1M37 33l4 6"/><path d="M15 48h34"/>',
+  flappy:   '<path d="M32 13l10 14-10 16-10-16z"/><path d="M32 13v30M22 27h20"/><path d="M32 43q-4 4 0 7q4 3 0 7" /><path d="M29 49l-3-1.6M35 54l3 1.6"/>',
+  stacker:  '<rect x="19" y="37" width="26" height="10" rx="1.5"/><rect x="22" y="27" width="21" height="10" rx="1.5"/><rect x="25" y="17" width="16" height="10" rx="1.5"/><path d="M32 37v10M32.5 27v10M33 17v10" opacity=".55"/>',
+  balloon:  '<ellipse cx="32" cy="26" rx="10" ry="12"/><path d="M30 38.5l2 2 2-2"/><path d="M32 40.5q-3.5 5 0 9q3.5 4 0 8"/><path d="M26.5 21.5q1.5-3.5 5-4.5" opacity=".7"/>',
+  dart:     '<path d="M18 47q14-10 28-31"/><path d="M46 16q-17 2-22 22M46 16q-2 16-19 26"/><path d="M22 44l-4 4M19 41l-3 3" opacity=".7"/>',
+  motdujour:'<rect x="15" y="20" width="10" height="10" rx="2"/><rect x="27" y="20" width="10" height="10" rx="2" class="gi33-fill"/><rect x="39" y="20" width="10" height="10" rx="2"/><rect x="15" y="34" width="10" height="10" rx="2"/><rect x="27" y="34" width="10" height="10" rx="2"/><rect x="39" y="34" width="10" height="10" rx="2" class="gi33-fill" opacity=".55"/>',
+  tourjump: '<path d="M32 11v5M29 16h6M30.5 16l-4 19M33.5 16l4 19M24 35h16M26 35l-6 15M38 35l6 15M22.5 43h19M28 50q4-8 8 0"/>',
+  g2048:    '<rect x="17" y="17" width="13" height="13" rx="2.5"/><rect x="34" y="17" width="13" height="13" rx="2.5" class="gi33-fill"/><rect x="17" y="34" width="13" height="13" rx="2.5" class="gi33-fill" opacity=".55"/><rect x="34" y="34" width="13" height="13" rx="2.5"/><path d="M21.5 21.5q2-2 4 0t-4 5h4" /><path d="M38.5 38q0 3 3 3h1.5M42.5 37.5v7" />',
+  wordrun:  '<circle cx="37" cy="17" r="3"/><path d="M35 21l-4 11M33.5 24l5 4M33.5 24l-7 2M31 32l6 7-2 8M31 32l-6 6h-6"/><path d="M11 25h8M9 31h8M13 37h6" opacity=".6"/>',
+  neondrift:'<path d="M18 14v36M46 14v36" stroke-dasharray="3 3" opacity=".55"/><path d="M32 16l9 24-9-5-9 5z"/><path d="M29 44l-2 5M35 44l2 5M32 43v7" opacity=".6"/>',
+  snake:    '<path d="M18 46c-8-8 6-13 14-11c10 2 16-6 8-13c-4-3-8-2-9 1"/><circle cx="29" cy="21" r="3.5"/><path d="M26 21.5h.1" stroke-width="2.6"/><path d="M44 44h6M47 41l3-2.5" opacity=".7"/>',
+  shooter:  '<path d="M32 12q8 9 7.5 25h-15q-.5-16 7.5-25z"/><circle cx="32" cy="24" r="3"/><path d="M24.5 31l-6 10 6-2M39.5 31l6 10-6-2M29 41l3 8 3-8"/>',
+  breakout: '<rect x="15" y="15" width="10" height="6" rx="1"/><rect x="27" y="15" width="10" height="6" rx="1" class="gi33-fill"/><rect x="39" y="15" width="10" height="6" rx="1"/><rect x="21" y="23" width="10" height="6" rx="1"/><rect x="33" y="23" width="10" height="6" rx="1" class="gi33-fill" opacity=".55"/><circle cx="30" cy="38" r="2.4" class="gi33-fill"/><path d="M22 48h18" stroke-width="3"/>',
+};
+function gameIcon(key, cls = ''){
+  const sym = GI33[key] || GI33.overall;
+  return `<svg class="gi33 ${cls}" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+    <circle cx="32" cy="32" r="30" fill="url(#gi33Bg)"/>
+    <circle cx="32" cy="32" r="29.2" fill="none" stroke="url(#gi33Gold)" stroke-width="1.6"/>
+    <circle cx="32" cy="32" r="25.6" fill="none" stroke="url(#gi33Gold)" stroke-width=".7" opacity=".4"/>
+    <g class="gi33-sym" fill="none" stroke="url(#gi33Gold)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${sym}</g></svg>`;
+}
+// Emoji vor der Freigabe, Medaillon danach.
+function gIcon(key){
+  if(isReleased(33)) return gameIcon(key);
+  return escapeHtml(key === 'overall' ? '🏆' : (GAME_DEFS[key] ? GAME_DEFS[key].icon : ''));
+}
+// Lernspiele fuer den Reiter der Spielhalle; der Rest ist "Geschick".
+const LEARN_GAMES33 = new Set(['motdujour', 'g2048', 'wordrun', 'snake', 'shooter']);
+// "Neu" bis zum ersten Spielen (je Konto, im Lernstand).
+const NEW_GAMES33 = new Set(['neondrift', 'snake', 'shooter', 'breakout']);
+function gamePlayed33(key){
+  const st = ensureArcadeState();
+  return !!((st.played && st.played[key]) || (st.records && st.records[key] > 0) || (st.runs && st.runs[key] > 0));
+}
+let arcadeCat33 = 'all';
 const DEFAULT_GAME_SETTINGS = {
   coinsPerRound: 1,
   dailyRewardCoins: 3,
@@ -14616,7 +14760,9 @@ function renderArcadeSections(){
 
   const grid = document.getElementById('arcadeGrid');
   const cfg = arcadeSettings();
-  grid.innerHTML = visibleGameKeys().map(key => {
+  grid.classList.toggle('arc33', isReleased(33));
+  if(isReleased(33)){ renderArcadeTiles33(grid, cfg); }
+  else grid.innerHTML = visibleGameKeys().map(key => {
     const def = GAME_DEFS[key];
     const g = cfg.games[key];
     const rec = getLocalRecord(key);
@@ -14636,7 +14782,7 @@ function renderArcadeSections(){
       </div>
     </button>`;
   }).join('');
-  grid.querySelectorAll('.arcade-card[data-game]').forEach(btn => {
+  grid.querySelectorAll('.arcade-card[data-game], .arc33-tile[data-game]').forEach(btn => {
     btn.addEventListener('click', () => launchArcadeGame(btn.dataset.game));
   });
 
@@ -14658,6 +14804,37 @@ function renderArcadeSections(){
   wireSounds(document.getElementById('view-rewards'));
 }
 
+// Build 33: kompakte Kacheln (Symbol, Name, Rekord, Preis), Reiter
+// Alle / Lernspiele / Geschick, "Neu" bis zum ersten Spielen.
+function renderArcadeTiles33(grid, cfg){
+  const tabs = document.getElementById('arc33Tabs');
+  const keys = visibleGameKeys();
+  const inCat = (k) => arcadeCat33 === 'all' || (arcadeCat33 === 'learn') === LEARN_GAMES33.has(k);
+  if(tabs){
+    const n = { all: keys.length, learn: keys.filter(k => LEARN_GAMES33.has(k)).length, skill: keys.filter(k => !LEARN_GAMES33.has(k)).length };
+    tabs.innerHTML = [['all', 'Alle'], ['learn', 'Lernspiele'], ['skill', 'Geschick']].map(([c, l]) =>
+      `<button type="button" role="tab" data-cat="${c}" class="${c === arcadeCat33 ? 'is-on' : ''}" aria-selected="${c === arcadeCat33}">${l}<small>${n[c]}</small></button>`).join('');
+    tabs.querySelectorAll('[data-cat]').forEach(b => b.addEventListener('click', () => { sndTab(); arcadeCat33 = b.dataset.cat; renderArcadeTiles33(grid, arcadeSettings()); wireArcadeTiles33(grid); }));
+  }
+  grid.innerHTML = keys.filter(inCat).map(key => {
+    const def = GAME_DEFS[key], g = cfg.games[key];
+    const off = !g.enabled, fresh = NEW_GAMES33.has(key) && !gamePlayed33(key);
+    const affordable = getCoins() >= g.cost;
+    const price = g.cost > 0 ? `₵ ${g.cost}` : 'Gratis';
+    return `<button type="button" class="arc33-tile${fresh ? ' is-new' : ''}" data-game="${key}" ${off ? 'disabled' : ''} aria-label="${escapeHtml(def.name)} spielen">
+      ${fresh ? '<span class="arc33-new">Neu</span>' : ''}
+      ${gameIcon(key, 'gi33-tile')}
+      <span class="arc33-name">${escapeHtml(def.name)}</span>
+      <span class="arc33-meta">
+        <span class="arc33-rec">Rekord <b>${getLocalRecord(key)}</b></span>
+        ${off ? '<span class="arc33-off">Aus</span>' : `<span class="arc33-price${affordable ? '' : ' is-short'}">${price}</span>`}
+      </span>
+    </button>`;
+  }).join('');
+}
+function wireArcadeTiles33(grid){
+  grid.querySelectorAll('.arc33-tile[data-game]').forEach(btn => btn.addEventListener('click', () => launchArcadeGame(btn.dataset.game)));
+}
 function lbInitials(name){
   const clean = (name || '').trim();
   if(!clean) return '?';
@@ -14773,8 +14950,8 @@ function renderLb31Tabs(){
   const tabs = document.getElementById('lb31Tabs');
   const keys = visibleGameKeys();
   if(lb31.game !== 'overall' && !keys.includes(lb31.game)) lb31.game = 'overall';
-  tabs.innerHTML = [['overall', '🏆', 'Gesamt']].concat(keys.map(k => [k, GAME_DEFS[k].icon, GAME_DEFS[k].name]))
-    .map(([k, ic, n]) => `<button type="button" role="tab" data-lbg="${k}" class="${k === lb31.game ? 'is-on' : ''}" aria-selected="${k === lb31.game}"><span aria-hidden="true">${ic}</span>${escapeHtml(n)}</button>`).join('');
+  tabs.innerHTML = [['overall', 'Gesamt']].concat(keys.map(k => [k, GAME_DEFS[k].name]))
+    .map(([k, n]) => `<button type="button" role="tab" data-lbg="${k}" class="${k === lb31.game ? 'is-on' : ''}" aria-selected="${k === lb31.game}"><span aria-hidden="true" class="lb33-ic">${gIcon(k)}</span>${escapeHtml(n)}</button>`).join('');
   tabs.querySelectorAll('[data-lbg]').forEach(b => b.addEventListener('click', () => {
     sndClick(); lb31.game = b.dataset.lbg; renderLb31();
   }));
@@ -14890,8 +15067,55 @@ function showArcadeOverlay(html){
   ov.innerHTML = html;
   ov.hidden = false;
 }
-function setArcadeScore(text){ document.getElementById('arcadeGameScore').textContent = text; }
+function setArcadeScore(text){
+  document.getElementById('arcadeGameScore').textContent = text;
+  const b = document.getElementById('gbar33Score'); if(b) b.textContent = text;
+}
 
+function gameFull33(){ return isReleased(33) && PERF_TIER !== 'desktop'; }
+// Das Spielfeld so gross wie moeglich, ohne Seitenverhaeltnis und Tastatur
+// (Mot du jour) zu verlieren. Laeuft bei jeder Groessenaenderung der Buehne.
+function fitStage33(){
+  const root = document.documentElement;
+  const stage = document.getElementById('arcadeStage');
+  const canvas = document.getElementById('arcadeCanvas');
+  if(!stage || !canvas) return;
+  if(!root.classList.contains('game-full33')){ stage.style.width = ''; return; }
+  const view = document.getElementById('view-arcade-game');
+  const bar = document.querySelector('.gbar33');
+  let extra = 0;
+  view.querySelectorAll('.mdj-kb').forEach(k => { extra += k.offsetHeight + 8; });
+  const cs = getComputedStyle(view);
+  const availH = view.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom) - (bar ? bar.offsetHeight : 0) - extra - 12;
+  const availW = view.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight) - 12;
+  const ratio = canvas.width / canvas.height || 1;
+  // Querformat-Spiel auf hochkant gehaltenem Handy: Hinweis zum Drehen.
+  view.classList.toggle('rot33', ratio > 1.2 && window.innerHeight > window.innerWidth * 1.2 && PERF_TIER === 'phone');
+  stage.style.width = Math.max(200, Math.floor(Math.min(availW, availH * ratio))) + 'px';
+}
+let fitStage33Raf = 0;
+function queueFitStage33(){ cancelAnimationFrame(fitStage33Raf); fitStage33Raf = requestAnimationFrame(fitStage33); }
+(() => {
+  const view = document.getElementById('view-arcade-game');
+  const canvas = document.getElementById('arcadeCanvas');
+  if(view) new MutationObserver(queueFitStage33).observe(view, { childList: true });
+  if(canvas) new MutationObserver(queueFitStage33).observe(canvas, { attributes: true, attributeFilter: ['width', 'height'] });
+  window.addEventListener('resize', queueFitStage33);
+  window.addEventListener('lumiere:viewchange', queueFitStage33);
+  const close = document.getElementById('btnGame33Close');
+  if(close) close.addEventListener('click', async () => {
+    const running = activeArcadeGame && arcadeOverlay().hidden;
+    if(running){
+      const cancelBtn = document.getElementById('modalCancel');
+      const prevCancel = cancelBtn.textContent;
+      cancelBtn.textContent = 'Weiterspielen';
+      const ok = await customConfirm('Runde abbrechen?', 'Die Coins für diese Runde sind schon bezahlt.', 'Runde beenden');
+      cancelBtn.textContent = prevCancel;
+      if(!ok) return;
+    }
+    sndClick(); renderRewards();
+  });
+})();
 function launchArcadeGame(key, opts = {}){
   sndClick();
   const def = GAME_DEFS[key];
@@ -14902,11 +15126,16 @@ function launchArcadeGame(key, opts = {}){
     return;
   }
   if(!spendCoins(cfg.cost)){ showToast('Nicht genug Coins.', true); return; }
+  { const st = ensureArcadeState(); st.played = st.played || {}; if(!st.played[key]){ st.played[key] = 1; saveData(store); } }
 
   if(key === 'balloon' && !arc31()){ startBalloonGame(); return; }
 
   showView('arcadeGame'); currentNavId = 'rewards'; updateNavActiveStates();
-  document.getElementById('arcadeGameTitle').textContent = `${def.icon} ${def.name}`;
+  if(isReleased(33)){
+    document.getElementById('arcadeGameTitle').innerHTML = `${gameIcon(key, 'gi33-sm')}<span>${escapeHtml(def.name)}</span>`;
+    const bt = document.getElementById('gbar33Title');
+    if(bt) bt.innerHTML = `${gameIcon(key, 'gi33-sm')}<span>${escapeHtml(def.name)}</span>`;
+  }else document.getElementById('arcadeGameTitle').textContent = `${def.icon} ${def.name}`;
   document.getElementById('arcadeGameHint').textContent = arcadeHint(key);
   setArcadeLives(null);
   document.getElementById('arcadeGameRecord').innerHTML = `Rekord <strong>${getLocalRecord(opts.mode === 'daily' ? 'neondaily' : key)}</strong>`;
@@ -14973,7 +15202,7 @@ async function finishArcadeGame(key, score, opts = {}){
     setArcadeLives(null);
     showArcadeOverlay(`<div class="a31-card a31-over${isRecord ? ' is-record' : ''}">
         <p class="a31-kicker">${isRecord ? 'Neuer Rekord!' : 'Runde vorbei'}${opts.mode === 'daily' ? ' · Tages-Challenge' : ''}</p>
-        <span class="a31-icon" aria-hidden="true">${isRecord ? '🏆' : def.icon}</span>
+        <span class="a31-icon" aria-hidden="true">${gIcon(isRecord ? 'overall' : key)}</span>
         <div class="a31-score"><strong>${score}</strong><span>${escapeHtml(def.unit)}</span></div>
         ${opts.sub ? `<p class="a31-desc">${escapeHtml(opts.sub)}</p>` : ''}
         <div class="a31-stats">
@@ -16065,7 +16294,7 @@ function arcadeStartScreen(key, onPlay){
   const rec = getLocalRecord(key);
   const hint = (arcadeHint(key) || '').split('·').map(t => t.trim()).filter(Boolean);
   showArcadeOverlay(`<div class="a31-card a31-start">
-      <span class="a31-icon" aria-hidden="true">${def.icon}</span>
+      <span class="a31-icon" aria-hidden="true">${gIcon(key)}</span>
       <p class="a31-kicker">Spielhalle</p>
       <h3>${escapeHtml(def.name)}</h3>
       <p class="a31-desc">${escapeHtml(arcadeDesc(key))}</p>
@@ -16109,9 +16338,11 @@ function arcadeHint(key){ return (arc31() && GAME31_TEXT[key]) ? GAME31_TEXT[key
 function setArcadeLives(n, max = 3){
   const el = document.getElementById('arcadeGameLives');
   if(!el) return;
-  if(n == null){ el.hidden = true; return; }
+  const bl = document.getElementById('gbar33Lives');
+  if(n == null){ el.hidden = true; if(bl) bl.innerHTML = ''; return; }
   el.hidden = false;
   el.innerHTML = Array.from({ length: max }, (_, i) => `<i class="${i < n ? 'on' : ''}" aria-hidden="true"></i>`).join('') + `<span class="sr-only">${n} Leben</span>`;
+  if(bl) bl.innerHTML = el.innerHTML;
 }
 
 // --- Ballon-Pop (Build 31): endlos, drei Leben, immer schneller ------------
@@ -16439,7 +16670,7 @@ function runNeonDrift(canvas, ctx, mode){
       ctx.fillStyle = '#f6c35c'; ctx.fillRect(cx - 42, y0 + 8, 84 * ((combo % 5) / 5), 4);
     }
     if(daily){
-      ctx.font = `500 11px ${ARCADE_SANS}`; ctx.fillStyle = 'rgba(246,195,92,.85)';
+      ctx.font = `500 ${narrow ? 13 : 11}px ${ARCADE_SANS}`; ctx.fillStyle = 'rgba(246,195,92,.85)';
       ctx.fillText('TAGES-CHALLENGE', cx, y0 + 28);
     }
     if(slow > 0){ ctx.fillStyle = '#b28cff'; ctx.fillRect(RX, 0, ROAD * (slow / 4), 3); }
@@ -16653,7 +16884,7 @@ function runSnake32(canvas, ctx){
     ctx.fillRect(0, 0, W, TOP - 6);
     ctx.strokeStyle = 'rgba(246,195,92,.35)'; ctx.beginPath(); ctx.moveTo(0, TOP - 6); ctx.lineTo(W, TOP - 6); ctx.stroke();
     ctx.textAlign = 'center';
-    ctx.font = `500 11px ${ARCADE_SANS}`; ctx.fillStyle = 'rgba(246,195,92,.9)';
+    ctx.font = `500 ${narrow ? 13 : 11}px ${ARCADE_SANS}`; ctx.fillStyle = 'rgba(246,195,92,.9)';
     ctx.fillText('BUCHSTABIERE AUF FRANZÖSISCH', W / 2, narrow ? 18 : 15);
     ctx.font = `italic 600 ${narrow ? 20 : 19}px ${ARCADE_SERIF}`; ctx.fillStyle = '#fff3d6';
     ctx.fillText(word.de, W / 2, narrow ? 42 : 38);
@@ -16872,7 +17103,7 @@ function runShooter32(canvas, ctx){
     ctx.fillStyle = 'rgba(5,7,14,.8)'; ctx.fillRect(0, 0, W, BANNER);
     ctx.strokeStyle = 'rgba(246,195,92,.35)'; ctx.beginPath(); ctx.moveTo(0, BANNER); ctx.lineTo(W, BANNER); ctx.stroke();
     ctx.textAlign = 'center';
-    ctx.font = `500 11px ${ARCADE_SANS}`; ctx.fillStyle = 'rgba(246,195,92,.9)';
+    ctx.font = `500 ${narrow ? 13 : 11}px ${ARCADE_SANS}`; ctx.fillStyle = 'rgba(246,195,92,.9)';
     ctx.fillText(`FINDE DIE ÜBERSETZUNG · STUFE ${level}`, W / 2, narrow ? 20 : 17);
     if(round){ ctx.font = `italic 600 ${narrow ? 24 : 24}px ${ARCADE_SERIF}`; ctx.fillStyle = '#fff3d6'; ctx.fillText(round.target.de, W / 2, narrow ? 50 : 42); }
     ctx.textAlign = 'left';
