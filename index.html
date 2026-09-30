@@ -3640,6 +3640,109 @@
 
 
 
+
+  /* --- Build 35: Unterrichtsmodus, PDF, Klassen ------------------------- */
+  .lesson35-badge{
+    display:inline-flex; align-items:center; gap:.45rem; margin-right:.4rem; padding:.42rem .8rem; border-radius:999px; cursor:pointer;
+    font-family:var(--font-mono); font-size:.62rem; letter-spacing:.16em; text-transform:uppercase;
+    color:#dff5e8; background:rgba(40,120,80,.22); border:1px solid rgba(134,217,164,.55);
+  }
+  .lesson35-badge[hidden]{ display:none; }
+  .lesson35-dot{ width:7px; height:7px; border-radius:50%; background:#86d9a4; box-shadow:0 0 8px rgba(134,217,164,.9); }
+  html.lesson35 [data-goto="rewards"], html.lesson35 .res34-reward, html.lesson35 .reward-banner, html.lesson35 .cine-music,
+  html.lesson35 .page-glow, html.lesson35 .page-motifs, html.lesson35 .coin-chip{ display:none !important; }
+  html.lesson35 *, html.lesson35 *::before, html.lesson35 *::after{
+    animation-duration:.001s !important; animation-iteration-count:1 !important; animation-delay:0s !important;
+    transition-duration:.001s !important; transition-delay:0s !important; scroll-behavior:auto !important;
+  }
+  @media (max-width:640px){ .lesson35-badge{ padding:.38rem .6rem; font-size:.56rem; letter-spacing:.1em; } }
+  @media (max-width:480px){ .lesson35-badge{ padding:.5rem; gap:0; } .lesson35-txt{ display:none; } }
+  /* PDF fertig */
+  .pdf35-sheet{ position:fixed; inset:0; z-index:130; display:grid; place-items:end center; padding:1rem; background:rgba(4,4,10,.62); }
+  @media (min-width:700px){ .pdf35-sheet{ place-items:center; } }
+  .pdf35-card{
+    width:min(420px, 100%); display:flex; flex-direction:column; gap:.6rem; padding:1.4rem; border-radius:22px; text-align:center;
+    background:linear-gradient(170deg, #161b2b, #0c0f19); border:1px solid rgba(246,195,92,.35); box-shadow:0 30px 70px rgba(0,0,0,.6);
+  }
+  .pdf35-kicker{ margin:0; font-family:var(--font-mono); font-size:.64rem; letter-spacing:.28em; text-transform:uppercase; color:var(--ember-bright); }
+  .pdf35-name{ margin:0 0 .4rem; font-family:var(--font-serif); font-style:italic; color:#fff3d6; overflow-wrap:anywhere; }
+  .pdf35-tip{ margin:.2rem 0 0; font-size:.78rem; color:var(--stone); }
+  /* Lernsets: Klassen-Sets */
+  .set-card-class35{ color:#bfe6cd !important; border-color:rgba(134,217,164,.4) !important; background:rgba(40,120,80,.14) !important; }
+  #cls35JoinMsg:empty{ display:none; }
+  .set-card-class35{ max-width:58%; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:inline-block !important; }
+  .cls35-banner:not([hidden]){ display:flex; }
+  .cls35-banner{ flex-wrap:wrap; align-items:center; justify-content:space-between; gap:.4rem 1rem; margin:.4rem 0 .8rem; padding:.7rem .95rem;
+    border-radius:14px; border:1px solid rgba(134,217,164,.35); background:rgba(40,120,80,.1); font-size:.86rem; color:var(--stone-light, #d2c5b1); }
+  .cls35-banner p{ margin:0; }
+  .cls35-banner strong{ color:#bfe6cd; }
+  #view-set.is-class35 #btnRenameSet, #view-set.is-class35 #btnDeleteSet, #view-set.is-class35 #formAddPair,
+  #view-set.is-class35 .set34-b > .box, #view-set.is-class35 [data-delete], #view-set.is-class35 #emptyPairsAction{ display:none !important; }
+  #view-set.is-class35 td.editable{ cursor:default; }
+  /* Seite Klassen */
+  .cls35-view{ max-width:860px; margin:0 auto; }
+  .cls35-card{
+    margin:1rem 0; padding:1.2rem 1.25rem; border-radius:20px; border:1px solid rgba(246,195,92,.24);
+    background:radial-gradient(120% 70% at 50% 0%, rgba(246,195,92,.07), transparent 60%), linear-gradient(170deg, #151a29, #0c0f19);
+  }
+  .cls35-card[hidden]{ display:none; }
+  .cls35-guest{ display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:.8rem; }
+  .cls35-guest p{ margin:0; color:var(--stone-light, #d2c5b1); }
+  .cls35-h{ margin:1.6rem 0 .6rem; font-family:var(--font-serif); font-size:1.2rem; color:#fff3d6; text-transform:none; letter-spacing:0; border:0; padding:0; }
+  .cls35-card > .cls35-h:first-child{ margin-top:0; }
+  .cls35-join{ display:flex; gap:.6rem; flex-wrap:wrap; }
+  .cls35-join input{ flex:1 1 180px; min-width:0; }
+  .cls35-code-input{
+    font-family:var(--font-mono); font-size:1.5rem; letter-spacing:.42em; text-transform:uppercase; text-align:center;
+    padding:.6rem .8rem; border-radius:14px; border:1px solid rgba(246,195,92,.45); background:rgba(0,0,0,.35); color:#ffe7a8;
+  }
+  .cls35-code-input::placeholder{ color:rgba(246,195,92,.3); }
+  .cls35-note{ margin:.8rem 0 0; font-size:.82rem; color:var(--stone); line-height:1.5; }
+  .cls35-class-head{ display:flex; flex-wrap:wrap; align-items:flex-start; justify-content:space-between; gap:.6rem 1rem; }
+  .cls35-class-name{ margin:0; font-family:var(--font-serif); font-size:1.25rem; color:#fff3d6; }
+  .cls35-class-meta{ margin:.15rem 0 0; font-size:.8rem; color:var(--stone); }
+  .cls35-sets{ list-style:none; margin:.8rem 0 0; padding:0; display:flex; flex-direction:column; gap:.45rem; }
+  .cls35-sets li{ display:flex; align-items:center; justify-content:space-between; gap:.8rem; padding:.6rem .8rem; border-radius:12px; background:rgba(0,0,0,.25); border:1px solid rgba(246,195,92,.12); }
+  .cls35-sets strong{ display:block; color:#fff3d6; font-weight:600; }
+  .cls35-sets small{ color:var(--stone); font-size:.76rem; }
+  .cls35-code-wrap{ display:flex; align-items:center; gap:.6rem; }
+  .cls35-code{ font-family:var(--font-mono); font-size:1.3rem; letter-spacing:.3em; padding:.35rem .7rem .35rem .95rem; border-radius:12px;
+    color:#1a1406; background:linear-gradient(180deg, #f6d58a, #d9a548); box-shadow:0 6px 18px rgba(246,195,92,.25); }
+  .cls35-sub{ margin:1.1rem 0 .3rem; font-family:var(--font-mono); font-size:.64rem; letter-spacing:.18em; text-transform:uppercase; color:var(--ember-bright); }
+  .cls35-sub small{ text-transform:none; letter-spacing:0; font-family:var(--font-sans, inherit); color:var(--stone); }
+  .cls35-add{ display:flex; gap:.5rem; margin-top:.6rem; flex-wrap:wrap; }
+  .cls35-add select{ flex:1 1 200px; min-width:0; padding:.5rem .7rem; border-radius:10px; background:rgba(0,0,0,.35); color:var(--text); border:1px solid rgba(246,195,92,.3); font:inherit; }
+  .cls35-table{ display:flex; flex-direction:column; border-radius:12px; overflow:hidden; border:1px solid rgba(246,195,92,.14); }
+  .cls35-tr{ display:grid; grid-template-columns:minmax(0, 2fr) 1fr 1fr 1.2fr; gap:.5rem; padding:.5rem .8rem; font-size:.86rem; background:rgba(0,0,0,.2); }
+  .cls35-tr:nth-child(odd){ background:rgba(0,0,0,.32); }
+  .cls35-tr span:first-child{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:#fff3d6; }
+  .cls35-th{ font-family:var(--font-mono); font-size:.62rem; letter-spacing:.12em; text-transform:uppercase; color:var(--stone); }
+  .cls35-foot{ margin-top:1rem; text-align:right; }
+  .cls35-danger{ color:#ff9a8a !important; }
+  .cls35-teacher-hint{ margin:1.6rem 0 0; font-size:.86rem; color:var(--stone); }
+  .cls35-teacher-hint[hidden]{ display:none; }
+  /* QR-Code gross fuer die Tafel */
+  .cls35-qr{ position:fixed; inset:0; z-index:130; display:grid; place-items:center; padding:1rem; background:rgba(4,4,10,.78); }
+  .cls35-qr-card{ width:min(460px, 100%); display:flex; flex-direction:column; align-items:center; gap:.5rem; padding:1.6rem; border-radius:24px; text-align:center;
+    background:#fbf7ee; color:#211c14; box-shadow:0 30px 80px rgba(0,0,0,.6); border:2px solid #d9a548; }
+  .cls35-qr-kicker{ margin:0; font-family:var(--font-mono); font-size:.66rem; letter-spacing:.28em; text-transform:uppercase; color:#b8862f; }
+  .cls35-qr-name{ margin:0; font-family:var(--font-serif); font-style:italic; font-size:1.4rem; }
+  .cls35-qr-img{ width:min(300px, 72vw); aspect-ratio:1; }
+  .cls35-qr-img svg{ width:100%; height:100%; display:block; }
+  .cls35-qr-code{ margin:.2rem 0 0; font-family:var(--font-mono); font-size:2rem; letter-spacing:.4em; font-weight:700; }
+  .cls35-qr-url{ margin:0 0 .6rem; font-size:.82rem; color:#6f6450; }
+  /* Mein Konto / Admin */
+  .t35-form{ display:flex; flex-direction:column; gap:.2rem; margin-top:.6rem; }
+  .t35-form .modal-input{ margin-bottom:.6rem; }
+  .t35-l{ font-size:.78rem; color:var(--stone); }
+  .t35-no{ color:#ffb3a8 !important; }
+  .t35-row{ display:grid; grid-template-columns:minmax(0, 1fr) auto; grid-template-areas:"who acts" "info info"; gap:.4rem 1rem; align-items:center; padding:.9rem 0; border-bottom:1px solid var(--border-solid); }
+  .t35-who{ grid-area:who; min-width:0; } .t35-info{ grid-area:info; } .t35-acts{ grid-area:acts; }
+  .t35-who small{ display:block; color:var(--stone); font-size:.76rem; overflow-wrap:anywhere; }
+  .t35-info{ font-size:.86rem; color:var(--stone-light, #d2c5b1); }
+  .t35-info p{ margin:.3rem 0 0; font-style:italic; color:var(--stone); }
+  .t35-acts{ display:flex; gap:.4rem; flex-wrap:wrap; justify-content:flex-end; }
+  @media (max-width:640px){ .t35-row{ grid-template-columns:1fr; grid-template-areas:"who" "info" "acts"; } .t35-acts{ justify-content:flex-start; } .cls35-tr{ grid-template-columns:minmax(0, 1.6fr) .8fr .9fr 1fr; font-size:.8rem; padding:.5rem .6rem; } .cls35-tr.cls35-th{ font-size:.54rem; letter-spacing:.04em; } #cls35NewForm input{ flex-basis:100%; } #cls35NewForm .btn{ flex:1 1 100%; } }
   /* --- Build 34: Symbole, Uebung, Ergebnis, Desktop, Grammatik ----------- */
   .ico34w{ display:inline-flex; vertical-align:-.16em; line-height:0; }
   .ico34{ width:1.1em; height:1.1em; fill:none; stroke:currentColor; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round; }
@@ -4219,6 +4322,7 @@
   <nav class="header-nav" aria-label="Hauptnavigation">
     <button type="button" class="header-nav-item" data-goto="hub">Startseite</button>
     <button type="button" class="header-nav-item" data-goto="home">Lernsets</button>
+    <button type="button" class="header-nav-item" data-goto="classes" data-build="35">Klassen</button>
     <button type="button" class="header-nav-item" data-goto="listen">Aussprache</button>
     <button type="button" class="header-nav-item" data-goto="grammar">Grammatik</button>
     <button type="button" class="header-nav-item" data-goto="rewards">Belohnungen</button>
@@ -4232,6 +4336,7 @@
       <button type="button" class="lang-opt is-active" id="langDe" data-lang="de">DE</button>
       <button type="button" class="lang-opt" id="langEn" data-lang="en">EN</button>
     </div>
+    <span class="lesson35-wrap" data-build="35"><button type="button" class="lesson35-badge" id="lesson35Badge" hidden title="Unterrichtsmodus beenden" aria-label="Unterrichtsmodus an – antippen zum Beenden"><span class="lesson35-dot" aria-hidden="true"></span><span class="lesson35-txt">Unterricht</span></button></span>
     <button class="account-btn" id="btnAccount" type="button" aria-label="Konto &amp; Cloud-Sync">
       <span class="account-dot" id="accountDot" aria-hidden="true"></span>
       <svg class="account-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
@@ -4262,6 +4367,7 @@
       <li><button class="nav-overlay-item" data-goto="appDownload"><span class="idx">08</span><span class="label">App</span><span class="hint">Als App installieren</span></button></li>
       <li><button class="nav-overlay-item" data-goto="about"><span class="idx">09</span><span class="label">Über uns</span><span class="hint">Zweck, Rechte &amp; Schutz</span></button></li>
       <li><button class="nav-overlay-item" data-goto="account"><span class="idx">10</span><span class="label">Mein Konto</span><span class="hint">Profil, Tarif &amp; Passwort</span></button></li>
+      <li data-build="35"><button class="nav-overlay-item" data-goto="classes"><span class="idx">11</span><span class="label">Klassen</span><span class="hint">Gemeinsam im Unterricht lernen</span></button></li>
     </ul>
   </nav>
 </div>
@@ -4961,6 +5067,7 @@
         <button id="btnRenameSet" class="btn btn-secondary btn-small">Umbenennen</button>
         <button id="btnExportSet" class="btn btn-secondary btn-small">Teilen</button>
         <button id="btnCsvExport" class="btn btn-secondary btn-small">⬇ CSV</button>
+        <button id="btnPdf35" class="btn btn-secondary btn-small" data-build="35">Für GoodNotes</button>
         <button id="btnDeleteSet" class="btn btn-danger btn-small">Löschen</button>
       </div>
     </div>
@@ -4972,6 +5079,10 @@
       <button id="btnCopyExport" class="btn btn-secondary btn-small" style="margin-top:.5rem;">Kopieren</button>
     </div>
 
+    <div class="cls35-banner" id="cls35SetBanner" hidden>
+      <p><strong id="cls35SetClass">Klasse</strong> · Dieses Set pflegt deine Lehrkraft – Änderungen kommen automatisch an.</p>
+      <button type="button" class="pic-link" id="cls35CopyBtn">Als eigene Kopie speichern</button>
+    </div>
     <div class="srs-row" id="srsRow"></div>
 
     <div class="btn-group">
@@ -5574,6 +5685,21 @@
       </div>
     </div>
 
+    <div class="settings-cluster" data-build="35">
+      <div class="settings-cluster-head"><span class="rubrik">Unterricht</span><h2>Lernen in der Schule</h2></div>
+      <div class="settings-card">
+        <div class="settings-card-head">
+          <span class="settings-card-icon"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9.5 12 5l9 4.5-9 4.5z"/><path d="M7 11.5v4.2c1.4 1.3 3.1 2 5 2s3.6-.7 5-2v-4.2M21 9.5v5"/></svg></span>
+          <p class="settings-title">Unterrichtsmodus</p>
+        </div>
+        <p class="settings-desc">Blendet Spielhalle und Coins, Musik und Klänge, die 3D-Startseite und Animationen aus – Lumière zeigt nur noch Lernsets, Übungen und Klassen. Oben steht dann „Unterricht“. Gilt für dieses Gerät.</p>
+        <label class="settings-toggle-row" for="lesson35Toggle">
+          <span>Unterrichtsmodus</span>
+          <input type="checkbox" id="lesson35Toggle" class="settings-switch">
+        </label>
+      </div>
+    </div>
+
     <div class="settings-cluster">
       <div class="settings-cluster-head"><span class="rubrik">Rubrik V</span><h2>Daten &amp; Zugriff</h2></div>
       <div class="settings-grid cols-8-4">
@@ -5972,6 +6098,36 @@
        der Profil-, Status- und Sync-Elemente sind die alten; die Logik dazu
        (updateAccountUI, refreshAccountStatus, updateSyncStatusUI) laeuft so
        unveraendert weiter. -->
+  <section id="view-classes" class="view cls35-view" hidden>
+    <div class="page-glow" style="width:300px; height:300px; top:-3rem; right:-5rem;" aria-hidden="true"></div>
+    <div class="page-eyebrow-row"><span class="eyebrow-dot" aria-hidden="true"></span><p class="page-eyebrow">Klassen · 11</p></div>
+    <h2 class="page-title">Gemeinsam <em class="gold-shimmer" style="font-style:italic;">lernen</em></h2>
+    <p class="page-sub">Tritt mit dem Code deiner Lehrkraft einer Klasse bei – die Klassen-Sets stehen dann bei deinen Lernsets, und du übst sie wie gewohnt.</p>
+    <div class="cls35-card cls35-guest" id="cls35Guest" hidden>
+      <p>Für Klassen brauchst du ein kostenloses Konto – damit deine Lehrkraft weiß, wer übt.</p>
+      <button type="button" class="btn btn-primary" id="cls35Login">Anmelden oder registrieren</button>
+    </div>
+    <section class="cls35-card" id="cls35JoinCard">
+      <h3 class="cls35-h">Klasse beitreten</h3>
+      <form id="cls35JoinForm" class="cls35-join">
+        <input id="cls35Code" class="cls35-code-input" maxlength="6" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="CODE" aria-label="Klassen-Code">
+        <button type="submit" class="btn btn-primary">Beitreten</button>
+      </form>
+      <p class="cls35-note">Gut zu wissen: Deine Lehrkraft sieht, ob und wie viel du die Klassen-Sets übst – Runden und Trefferquote. Deine eigenen Lernsets sieht sie nicht. Den QR-Code von der Tafel kannst du einfach mit der Kamera scannen.</p>
+      <p class="msg" id="cls35JoinMsg"></p>
+    </section>
+    <div id="cls35Mine"></div>
+    <section id="cls35Teach" hidden>
+      <h3 class="cls35-h">Deine Klassen als Lehrkraft</h3>
+      <form id="cls35NewForm" class="cls35-join">
+        <input id="cls35NewName" class="modal-input" maxlength="60" placeholder="Name, z. B. Französisch 9b" aria-label="Name der neuen Klasse">
+        <button type="submit" class="btn btn-primary">Klasse anlegen</button>
+      </form>
+      <div id="cls35TeachList"></div>
+    </section>
+    <p class="cls35-teacher-hint" id="cls35TeacherHint" hidden>Du unterrichtest? Unter <button type="button" class="pic-link" id="cls35GoAccount">Mein Konto</button> kannst du dich als Lehrkraft freischalten lassen.</p>
+  </section>
+
   <section id="view-account" class="view acc-view" hidden>
     <div class="acc-wrap">
       <header class="acc-hero">
@@ -6105,6 +6261,11 @@
         <button type="button" class="btn btn-secondary acc-btn-wide" id="authSignOutBtn">Abmelden</button>
       </section>
 
+      <section class="acc-card" id="accTeach35" data-build="35" aria-labelledby="accTeach35Title">
+        <div class="acc-card-head"><h2 class="acc-card-title" id="accTeach35Title">Lehrkraft</h2></div>
+        <div id="accTeach35Body"></div>
+      </section>
+
       <section class="acc-card" id="accMsgCard" data-build="26" aria-labelledby="accMsgTitle">
         <div class="acc-card-head">
           <h2 class="acc-card-title" id="accMsgTitle">Nachrichten <span class="acc-msg-count" id="accMsgCount" hidden></span></h2>
@@ -6179,6 +6340,11 @@
               <button type="button" class="admin-nav-item" data-admin-tab="email">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="m3.5 7 8.5 6 8.5-6"/></svg>
                 Test-E-Mails
+              </button>
+              <button type="button" class="admin-nav-item" data-admin-tab="teachers" data-build="35">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9.5 12 5l9 4.5-9 4.5z"/><path d="M7 11.5v4.2c1.4 1.3 3.1 2 5 2s3.6-.7 5-2v-4.2"/></svg>
+                Lehrkräfte
+                <span class="admin-nav-badge" id="adminNavBadgeTeach" hidden>0</span>
               </button>
               <button type="button" class="admin-nav-item" data-admin-tab="changelog" data-build="31">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3.5h9l3.5 3.5v13.5H6Z"/><path d="M14.5 3.5V7.5h4"/><path d="M9 11h6M9 14.5h6M9 18h3.5"/></svg>
@@ -6482,6 +6648,17 @@
               </div>
             </div>
 
+            <div class="admin-tab-panel" data-admin-panel="teachers" hidden>
+              <div class="settings-card">
+                <p class="settings-title">Anfragen von Lehrkräften</p>
+                <p class="settings-desc">Freigeschaltete Lehrkräfte können Klassen anlegen, Lernsets verteilen und den Fortschritt ihrer Klasse sehen. Die Person bekommt eine Nachricht.</p>
+                <div id="adm35Req"></div>
+              </div>
+              <div class="settings-card">
+                <p class="settings-title">Freigeschaltete Lehrkräfte</p>
+                <div id="adm35Teachers"></div>
+              </div>
+            </div>
             <div class="admin-tab-panel" data-admin-panel="version" hidden>
               <div class="settings-card">
                 <p class="settings-title">🕰️ Version &amp; Vorschau</p>
@@ -6531,6 +6708,7 @@
       <nav class="cine-colophon-links" aria-label="Weitere Seiten">
         <button type="button" data-goto="hub">Startseite</button>
         <button type="button" data-goto="home">Lernsets</button>
+        <button type="button" data-goto="classes" data-build="35">Klassen</button>
         <button type="button" data-goto="listen">Aussprache</button>
         <button type="button" data-goto="grammar">Grammatik</button>
         <button type="button" data-goto="rewards">Belohnungen</button>
@@ -6557,7 +6735,7 @@
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="./lumiere-gl.js?v=34" defer></script>
+<script src="./lumiere-gl.js?v=35" defer></script>
 <script>
 /* ============================================================
    WICHTIG: Bei jedem inhaltlichen Deploy hochzaehlen (wie CACHE_NAME
@@ -6568,7 +6746,7 @@
       unten) - neue, noch nicht "veroeffentlichte" Features hinter
       isReleased(N) verstecken; Admins sehen sie trotzdem sofort.
    ============================================================ */
-const APP_VERSION = 34;
+const APP_VERSION = 35;
 
 // Handy und iPad (Build 31): ein schlanker Modus fuer alle Nutzer - keine
 // Hintergrund-Weichzeichner (backdrop-filter ueber der bewegten 3D-Ebene
@@ -6617,6 +6795,7 @@ function isReleased(buildVersion){
    reinen Huell-Container mit dem Attribut versehen. */
 function applyReleaseGate(){
   try{ applyIcons34(); }catch(e){}
+  try{ applyLesson35(); }catch(e){}
   for(const el of document.querySelectorAll('[data-build]')){
     const n = parseInt(el.dataset.build, 10);
     if(n) el.hidden = !isReleased(n);
@@ -6960,6 +7139,7 @@ function sndGate(key, gap){
   return true;
 }
 function sndOk(key, gap){
+  if(lessonOn35()) return null;
   const c = sfxCtx(); if(!c) return null;
   if(key && !sndGate(key, gap)) return null;
   const now = performance.now();
@@ -7413,7 +7593,7 @@ function musicArm(){
   music.timer = setTimeout(musicNext, Math.max(0, left * 1000));
 }
 function musicStart(){
-  if(music.playing || !audioUnlocked) return;
+  if(music.playing || !audioUnlocked || lessonOn35()) return;
   const ctx = ensureAudioCtx(); if(!ctx) return;
   if(ctx.state === 'suspended') ctx.resume();
   clearTimeout(music.stopT);
@@ -8169,7 +8349,7 @@ function writeStoreToDisk(data){
   try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); return true; }
   catch(e){ return false; }
 }
-function saveData(data){ writeStoreToDisk(data); scheduleCloudSync(); }
+function saveData(data){ writeStoreToDisk(data); scheduleCloudSync(); scheduleClassPublish35(); }
 // WICHTIG: crypto.randomUUID() gibt es erst ab Safari/iPadOS 15.4 - und generell
 // nur in sicheren Kontexten (HTTPS). Auf aelteren iPads warf jeder Aufruf sonst
 // einen TypeError, wodurch Lernset anlegen, Vokabel hinzufuegen, Kalendereintrag
@@ -8543,6 +8723,7 @@ function switchAdminTab(tabKey){
   if(crumb && label) crumb.textContent = label;
   persistLastView('admin', tabKey);
   if(tabKey === 'abos') loadAdminAbos();
+  if(tabKey === 'teachers') loadTeachers35();
   if(tabKey === 'photos'){ loadPicReviews(); loadPicGallery(); }
   if(tabKey === 'changelog') loadChangelog();
 }
@@ -11815,7 +11996,7 @@ store.sets.forEach(s => s.pairs.forEach(ensurePairStats));
 
 function getSet(id){ return store.sets.find(s => s.id === id); }
 function reducedMotionActive(){
-  return window.matchMedia('(prefers-reduced-motion: reduce)').matches || !!store.settings.reducedMotion;
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches || !!store.settings.reducedMotion || lessonOn35();
 }
 
 // --- Curtain-Loader: kurzer Gold-Vorhang beim allerersten Laden -----------
@@ -12370,6 +12551,7 @@ const views = {
   about: document.getElementById('view-about'), admin: document.getElementById('view-admin'),
   arcadeGame: document.getElementById('view-arcade-game'),
   account: document.getElementById('view-account'),
+  classes: document.getElementById('view-classes'),
 };
 let currentSetId = null;
 let currentNavId = 'hub';
@@ -12389,6 +12571,8 @@ function persistLastView(name, adminTab){
 }
 let lastShownView = null;
 function showView(name){
+  // Build 35: im Unterrichtsmodus keine Startseite und keine Spiele.
+  if(name !== 'home' && lessonBlocked35(name)){ renderHome(); return; }
   // Soundbug: Aussprache-Wiedergabe lief bisher im Hintergrund weiter, wenn man
   // waehrend des Vorlesens auf eine andere Seite wechselte - die Stimme redete
   // dann ueber Seiten, die gar nichts mehr damit zu tun hatten. Bei jedem
@@ -12432,7 +12616,7 @@ function restoreLastView(){
     if(unlocked){ openAdminPanel(); switchAdminTab(saved.adminTab || 'overview'); }
     return;
   }
-  const destinations = { home: renderHome, rewards: renderRewards, grammar: openGrammar, listen: openGlobalListen, calendar: renderCalendar, settingsPage: openSettingsPage, appDownload: openAppDownload, about: openAbout, account: () => { if(currentUser) openAccountPage(); } };
+  const destinations = { home: renderHome, rewards: renderRewards, grammar: openGrammar, listen: openGlobalListen, calendar: renderCalendar, settingsPage: openSettingsPage, appDownload: openAppDownload, about: openAbout, account: () => { if(currentUser) openAccountPage(); }, classes: () => openClasses35() };
   const fn = destinations[saved.view];
   if(fn) fn();
 }
@@ -12507,6 +12691,7 @@ function goToDestination(target){
   else if(target === 'appDownload') openAppDownload();
   else if(target === 'about') openAbout();
   else if(target === 'account') openAccountPage();
+  else if(target === 'classes') openClasses35();
 }
 navOverlay.querySelectorAll('.nav-overlay-item').forEach(item => {
   item.addEventListener('click', () => {
@@ -13419,6 +13604,7 @@ const CINE_PAIRS = [
 
 
 function renderHub(){
+  if(lessonOn35()){ renderHome(); return; }
   showView('hub');
   currentNavId = 'hub';
   updateNavActiveStates();
@@ -13493,6 +13679,7 @@ function computeCurrentStreak(){
   return streak;
 }
 function renderRewards(){
+  if(lessonOn35()){ renderHome(); return; }
   if(requireAccountFor('rewards', 'Belohnungen')) return;
   if(!requireFeatureAvailable('rewards', 'Belohnungen')) return;
   showView('rewards');
@@ -13601,7 +13788,8 @@ function renderHome(){
   }
   const dueIcon = '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l2.5 2.5M12 3a9 9 0 100 18 9 9 0 000-18Z"/></svg>';
   const openIcon = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M13 6l6 6-6 6"/></svg>';
-  store.sets.forEach(set => {
+  maybeSyncClassSets35();
+  [...store.sets].sort((a, b) => (b.classSetId ? 1 : 0) - (a.classSetId ? 1 : 0)).forEach(set => {
     const progress = computeSetProgress(set);
     const card = document.createElement('div');
     card.className = 'set-card';
@@ -13613,7 +13801,7 @@ function renderHome(){
     card.innerHTML = `
       <div>
         <div class="set-card-top">
-          <span class="set-card-langs">DE <span class="arrow">⇄</span> FR</span>
+          ${set.classSetId ? `<span class="set-card-langs set-card-class35">Klasse · ${escapeHtml(set.className || '')}</span>` : '<span class="set-card-langs">DE <span class="arrow">⇄</span> FR</span>'}
           ${statusHtml}
         </div>
         <h3>${escapeHtml(set.name)}</h3>
@@ -13686,6 +13874,9 @@ function renderSetDetail(setId){
   showView('set'); currentNavId = 'home'; updateNavActiveStates();
   const set = getSet(setId);
   document.getElementById('setTitle').textContent = set.name;
+  document.getElementById('view-set').classList.toggle('is-class35', !!set.readOnly);
+  document.getElementById('cls35SetBanner').hidden = !set.readOnly;
+  if(set.readOnly) document.getElementById('cls35SetClass').textContent = 'Klasse ' + (set.className || '');
   document.getElementById('pairCount').textContent = set.pairs.length;
   document.getElementById('exportBox').hidden = true;
   renderSrsRow(set);
@@ -13702,7 +13893,7 @@ function renderSetDetail(setId){
       <td class="editable" data-field="de">${escapeHtml(pair.de)}</td>
       <td class="editable" data-field="fr">${escapeHtml(pair.fr)}</td>
       <td><button class="btn btn-danger btn-small" data-delete="${pair.id}">✕</button></td>`;
-    tr.querySelectorAll('.editable').forEach(cell => cell.addEventListener('click', () => editPairCell(cell, pair, set)));
+    if(!set.readOnly) tr.querySelectorAll('.editable').forEach(cell => cell.addEventListener('click', () => editPairCell(cell, pair, set)));
     tr.querySelector('[data-delete]').addEventListener('click', async () => {
       const ok = await customConfirm('Vokabel löschen?', `"${pair.de}" ↔ "${pair.fr}" wird endgültig entfernt.`);
       if(!ok) return;
@@ -14539,6 +14730,7 @@ function showResults(){
   document.getElementById('resultsPct').textContent = pct + ' % richtig';
   document.getElementById('resultsEmoji').textContent = pct >= 90 ? '🏆' : pct >= 70 ? '🎉' : pct >= 40 ? '💪' : '📚';
   renderResults34(score.correct, score.wrong, pct);
+  logClassRun35();
   if(pct >= 70) burstConfetti();
   sndComplete();
   wireSounds();
@@ -15016,7 +15208,7 @@ function awardRoundCoins(){
   const parts = [];
   if(earned > 0) parts.push(`+${earned} Coin${earned === 1 ? '' : 's'}`);
   if(bonus > 0) parts.push(`+${bonus} Streak-Bonus`);
-  if(parts.length) showToast('🪙 ' + parts.join(' · '));
+  if(parts.length && !lessonOn35()) showToast('🪙 ' + parts.join(' · '));
 }
 function checkStreakBonus(){
   const cfg = arcadeSettings();
@@ -19033,7 +19225,597 @@ renderHub();
   document.querySelectorAll('[data-foot-version]').forEach(x => { x.textContent = 'Version ' + APP_VERSION; });
 })();
 applyReleaseGate();   // vor Supabase: noch nicht freigegebene Teile bleiben aus
-initAuth().then(() => { restoreLastView(); sendSessionHeartbeat(); });
+
+// --- Build 35: Unterrichtsmodus, PDF fuer GoodNotes, Klassen ------------------
+// Alles haengt an isReleased(35). Zustand in var-Objekten (keine let/const
+// auf oberster Ebene): saveData() und showView() rufen hier hinein und koennen
+// schon vor diesem Block laufen - mit let waere das ein Fehler (TDZ).
+var CLS35 = { isTeacher: false, mine: [], teach: [], teachSets: [], syncedAt: 0, publishT: 0 };
+var scriptCache35 = {};
+var KLASSE_PARAM35 = (() => {
+  try{ return (new URLSearchParams(location.search).get('klasse') || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6); }catch(e){ return ''; }
+})();
+function loadScript35(src){
+  if(!scriptCache35[src]){
+    scriptCache35[src] = new Promise((res, rej) => {
+      const s = document.createElement('script');
+      s.src = src + '?v=' + APP_VERSION;
+      s.onload = res;
+      s.onerror = () => { delete scriptCache35[src]; rej(new Error('Laden fehlgeschlagen')); };
+      document.head.appendChild(s);
+    });
+  }
+  return scriptCache35[src];
+}
+
+// ---- Unterrichtsmodus (je Geraet) ----
+function lessonOn35(){
+  try{ return isReleased(35) && localStorage.getItem('lumiere_lesson') === '1'; }catch(e){ return false; }
+}
+function lessonBlocked35(name){
+  return lessonOn35() && (name === 'hub' || name === 'rewards' || name === 'arcadeGame' || name === 'game');
+}
+function applyLesson35(){
+  const on = lessonOn35();
+  document.documentElement.classList.toggle('lesson35', on);
+  const badge = document.getElementById('lesson35Badge');
+  if(badge) badge.hidden = !on;
+  const sw = document.getElementById('lesson35Toggle');
+  if(sw) sw.checked = on;
+  if(!on) return;
+  try{ musicStop(); }catch(e){}
+  try{
+    const cur = Object.keys(views).find(k => views[k] && !views[k].hidden);
+    if(cur && lessonBlocked35(cur)) renderHome();
+  }catch(e){}
+}
+function setLesson35(on){
+  try{ localStorage.setItem('lumiere_lesson', on ? '1' : '0'); }catch(e){}
+  applyLesson35();
+  showToast(on ? 'Unterrichtsmodus an – nur Lernsets und Übungen, keine Spiele, kein Ton.' : 'Unterrichtsmodus aus.');
+}
+(() => {
+  const sw = document.getElementById('lesson35Toggle');
+  if(sw) sw.addEventListener('change', () => setLesson35(sw.checked));
+  const badge = document.getElementById('lesson35Badge');
+  if(badge) badge.addEventListener('click', async () => {
+    const ok = await customConfirm('Unterrichtsmodus beenden?', 'Spielhalle, Musik, Klänge und Animationen sind danach wieder da.', 'Beenden');
+    if(ok) setLesson35(false);
+  });
+})();
+
+// ---- PDF fuer GoodNotes ----
+// Vokabelliste zum Abdecken: cremeweisses Papier, Gold, Serifenschrift.
+// jsPDF liegt lokal in vendor/ und wird erst beim ersten Export geholt.
+function pdfText35(s){
+  // Die Standardschriften von jsPDF kennen nur Latin-1.
+  return String(s == null ? '' : s)
+    .replace(/œ/g, 'oe').replace(/Œ/g, 'OE').replace(/æ/g, 'ae').replace(/Æ/g, 'AE')
+    .replace(/[‘’‚′]/g, "'").replace(/[“”„″]/g, '"').replace(/[–—]/g, '-').replace(/…/g, '...')
+    .replace(/[^\x00-\xFF]/g, '');
+}
+async function buildSetPdf35(set){
+  await loadScript35('vendor/jspdf.umd.min.js');
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+  const T = pdfText35;
+  const GOLD = [184, 134, 47], INK = [33, 28, 20], STONE = [122, 110, 92], LINE = [228, 214, 186], PAPER = [251, 247, 238], BAND = [246, 238, 219];
+  const W = 210, H = 297, M = 20;
+  const colDe = M + 9, colFr = W / 2 + 3, colChk = W - M - 6.5, wordW = W / 2 - M - 14;
+  const date = new Date().toLocaleDateString('de-DE');
+  const paper = () => {
+    doc.setFillColor(...PAPER); doc.rect(0, 0, W, H, 'F');
+    doc.setDrawColor(...GOLD); doc.setLineWidth(0.45); doc.rect(9, 9, W - 18, H - 18);
+    doc.setLineWidth(0.15); doc.rect(10.6, 10.6, W - 21.2, H - 21.2);
+  };
+  const head = (first) => {
+    paper();
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5); doc.setTextColor(...GOLD);
+    doc.text('LUMIÈRE  ·  VOKABELLISTE', M, 21, { charSpace: 0.8 });
+    let y;
+    if(first){
+      doc.setFont('times', 'bolditalic'); doc.setFontSize(25); doc.setTextColor(...INK);
+      const lines = doc.splitTextToSize(T(set.name), W - 2 * M);
+      doc.text(lines, M, 33);
+      y = 33 + (lines.length - 1) * 9.5;
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(...STONE);
+      doc.text(T(`${set.pairs.length} Vokabeln  ·  Deutsch – Französisch  ·  Stand ${date}`), M, y + 8);
+      doc.setFont('times', 'italic'); doc.setFontSize(10.5);
+      doc.text(T('So lernst du: eine Spalte abdecken, Wort nennen, aufdecken – und abhaken, was sitzt.'), M, y + 14);
+      y += 21;
+    }else{
+      doc.setFont('times', 'italic'); doc.setFontSize(11); doc.setTextColor(...INK);
+      doc.text(T(set.name), W - M, 21, { align: 'right' });
+      y = 28;
+    }
+    doc.setDrawColor(...GOLD); doc.setLineWidth(0.5); doc.line(M, y, W - M, y);
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5); doc.setTextColor(...GOLD);
+    doc.text('DEUTSCH', colDe, y + 5.6, { charSpace: 0.6 });
+    doc.text('FRANÇAIS', colFr, y + 5.6, { charSpace: 0.6 });
+    doc.setLineWidth(0.3); doc.roundedRect(colChk, y + 2.4, 4, 4, 0.7, 0.7);
+    doc.line(colChk + 0.9, y + 4.5, colChk + 1.8, y + 5.5); doc.line(colChk + 1.8, y + 5.5, colChk + 3.3, y + 3.3);
+    return y + 9;
+  };
+  let y = head(true);
+  set.pairs.forEach((p, i) => {
+    doc.setFont('times', 'normal'); doc.setFontSize(12.5);
+    const de = doc.splitTextToSize(T(p.de), wordW);
+    doc.setFont('times', 'italic');
+    const fr = doc.splitTextToSize(T(p.fr), wordW);
+    const rows = Math.max(de.length, fr.length);
+    const h = Math.max(10.5, rows * 5.4 + 5);
+    if(y + h > H - 24){ doc.addPage(); y = head(false); }
+    if(i % 2 === 0){ doc.setFillColor(...BAND); doc.rect(M, y, W - 2 * M, h, 'F'); }
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5); doc.setTextColor(...STONE);
+    doc.text(String(i + 1), M + 2, y + 7);
+    doc.setFont('times', 'normal'); doc.setFontSize(12.5); doc.setTextColor(...INK);
+    doc.text(de, colDe, y + 7, { lineHeightFactor: 1.2 });
+    doc.setFont('times', 'italic');
+    doc.text(fr, colFr, y + 7, { lineHeightFactor: 1.2 });
+    doc.setDrawColor(...GOLD); doc.setLineWidth(0.2); doc.setLineDashPattern([0.8, 1.3], 0);
+    doc.line(W / 2 - 1.5, y, W / 2 - 1.5, y + h); doc.setLineDashPattern([], 0);
+    doc.setLineWidth(0.3); doc.roundedRect(colChk, y + h / 2 - 2.2, 4.4, 4.4, 0.8, 0.8);
+    doc.setDrawColor(...LINE); doc.setLineWidth(0.2); doc.line(M, y + h, W - M, y + h);
+    y += h;
+  });
+  const n = doc.getNumberOfPages();
+  for(let i = 1; i <= n; i++){
+    doc.setPage(i);
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5); doc.setTextColor(...STONE);
+    doc.text('Lumière  ·  vokabeln.stoneuniverse.de', M, H - 14);
+    doc.text(`Seite ${i} / ${n}`, W - M, H - 14, { align: 'right' });
+  }
+  return doc;
+}
+async function exportPdf35(set){
+  if(!set || !set.pairs.length){ showToast('Dieses Set hat noch keine Vokabeln.', true); return; }
+  let doc;
+  try{ showToast('PDF wird erstellt …'); doc = await buildSetPdf35(set); }
+  catch(e){ console.error(e); showToast('Das PDF konnte nicht erstellt werden – bist du online?', true); return; }
+  const safe = set.name.replace(/[\\/:*?"<>|]+/g, '').trim().slice(0, 60) || 'Lernset';
+  const fname = `Lumiere – ${safe}.pdf`;
+  const blob = doc.output('blob');
+  const download = () => {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = fname;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 5000);
+  };
+  let file = null;
+  try{ file = new File([blob], fname, { type: 'application/pdf' }); }catch(e){}
+  const canShare = file && PERF_TIER !== 'desktop' && navigator.canShare && navigator.canShare({ files: [file] });
+  if(!canShare){ download(); showToast('PDF gespeichert – in GoodNotes über „Importieren“ öffnen.'); return; }
+  // Teilen braucht einen frischen Fingertipp (das Erstellen dauerte zu lange
+  // fuer den ersten) - deshalb ein kleines Blatt mit dem eigentlichen Knopf.
+  const sheet = document.createElement('div');
+  sheet.className = 'pdf35-sheet';
+  sheet.innerHTML = `<div class="pdf35-card" role="dialog" aria-label="PDF ist fertig">
+      <p class="pdf35-kicker">PDF ist fertig</p>
+      <p class="pdf35-name">${escapeHtml(fname)}</p>
+      <button type="button" class="btn btn-primary" data-act="share">In GoodNotes öffnen / Teilen</button>
+      <button type="button" class="btn btn-secondary" data-act="dl">Herunterladen</button>
+      <button type="button" class="pic-link" data-act="close">Schließen</button>
+      <p class="pdf35-tip">Im Teilen-Menü „GoodNotes“ antippen – das PDF landet dort als neues Dokument.</p>
+    </div>`;
+  document.body.appendChild(sheet);
+  const close = () => sheet.remove();
+  sheet.addEventListener('click', async (e) => {
+    const act = e.target.closest('[data-act]');
+    if(e.target === sheet){ close(); return; }
+    if(!act) return;
+    if(act.dataset.act === 'share'){
+      try{ await navigator.share({ files: [file], title: set.name }); close(); }
+      catch(err){ if(!err || err.name !== 'AbortError'){ download(); close(); } }
+    }else if(act.dataset.act === 'dl'){ download(); close(); }
+    else close();
+  });
+}
+(() => {
+  const btn = document.getElementById('btnPdf35');
+  if(btn) btn.addEventListener('click', () => { sndClick(); exportPdf35(getSet(currentSetId)); });
+})();
+
+// ---- Klassen: Status, Mitglied-Sets, Veroeffentlichen ----
+function clsReady35(){ return !!(sb && currentUser && isReleased(35)); }
+async function loadTeacher35(){
+  CLS35.isTeacher = false;
+  if(!clsReady35()) return false;
+  if(currentProfile && currentProfile.is_admin){ CLS35.isTeacher = true; return true; }
+  const { data } = await sb.from('teachers').select('user_id').eq('user_id', currentUser.id).maybeSingle();
+  CLS35.isTeacher = !!data;
+  return CLS35.isTeacher;
+}
+// Klassen-Sets der eigenen Klassen als (schreibgeschuetzte) Lernsets spiegeln.
+// Die Leitner-Statistik je Wort bleibt erhalten (Abgleich ueber die Wort-ID).
+async function syncClassSets35(){
+  if(!clsReady35()) return false;
+  const { data: cls, error } = await sb.rpc('my_classes');
+  if(error) return false;
+  CLS35.mine = cls || [];
+  const ids = CLS35.mine.map(c => c.class_id);
+  let sets = [];
+  if(ids.length){
+    const r = await sb.from('class_sets').select('id, class_id, name, pairs, updated_at').in('class_id', ids);
+    if(r.error) return false;
+    sets = r.data || [];
+  }
+  const byId = new Map(sets.map(s => [s.id, s]));
+  let changed = false;
+  const before = store.sets.length;
+  store.sets = store.sets.filter(s => !s.classSetId || byId.has(s.classSetId));
+  if(store.sets.length !== before) changed = true;
+  for(const cs of sets){
+    const cname = (CLS35.mine.find(c => c.class_id === cs.class_id) || {}).name || 'Klasse';
+    let local = store.sets.find(s => s.classSetId === cs.id);
+    if(!local){
+      local = { id: uid(), name: cs.name, classSetId: cs.id, classId: cs.class_id, className: cname, readOnly: true, pairs: [] };
+      store.sets.unshift(local); changed = true;
+    }
+    if(local.name !== cs.name || local.className !== cname){ local.name = cs.name; local.className = cname; changed = true; }
+    const old = new Map(local.pairs.map(p => [p.id, p]));
+    const remote = (Array.isArray(cs.pairs) ? cs.pairs : []).filter(p => p && p.de && p.fr);
+    const next = remote.map(p => {
+      const o = p.id && old.get(p.id);
+      if(o){ if(o.de !== p.de || o.fr !== p.fr){ o.de = p.de; o.fr = p.fr; changed = true; } return o; }
+      changed = true;
+      return { id: p.id || uid(), de: p.de, fr: p.fr, stats: defaultPairStats() };
+    });
+    if(next.length !== local.pairs.length) changed = true;
+    local.pairs = next;
+  }
+  CLS35.syncedAt = Date.now();
+  if(changed) saveData(store);
+  return changed;
+}
+function maybeSyncClassSets35(){
+  if(!clsReady35() || Date.now() - CLS35.syncedAt < 60000) return;
+  CLS35.syncedAt = Date.now();
+  syncClassSets35().then(ch => { if(ch && !views.home.hidden) renderHome(); }).catch(() => {});
+}
+function pairsJson35(set){ return set.pairs.map(p => ({ id: p.id, de: p.de, fr: p.fr })); }
+// Lehrkraft: aendert sie ein Lernset, das in einer Klasse liegt, geht die
+// neue Fassung automatisch an die Klasse (wenige Sekunden verzoegert).
+function scheduleClassPublish35(){
+  if(!CLS35 || !CLS35.teachSets || !CLS35.teachSets.length) return;
+  clearTimeout(CLS35.publishT);
+  CLS35.publishT = setTimeout(publishClassSets35, 3000);
+}
+async function publishClassSets35(){
+  if(!clsReady35()) return;
+  for(const cs of CLS35.teachSets){
+    const local = store.sets.find(s => s.id === cs.source_id);
+    if(!local) continue;
+    const pairs = pairsJson35(local);
+    const key = JSON.stringify([local.name, pairs]);
+    if(key === cs._key) continue;
+    const { error } = await sb.from('class_sets').update({ name: local.name.slice(0, 80), pairs, updated_at: new Date().toISOString() }).eq('id', cs.id);
+    if(!error) cs._key = key;
+  }
+}
+async function loadTeachClasses35(){
+  CLS35.teach = []; CLS35.teachSets = [];
+  if(!CLS35.isTeacher) return;
+  const { data: cls } = await sb.from('classes').select('*').eq('teacher_id', currentUser.id).order('created_at');
+  CLS35.teach = cls || [];
+  if(!CLS35.teach.length) return;
+  const { data: sets } = await sb.from('class_sets').select('id, class_id, source_id, name, pairs, updated_at').in('class_id', CLS35.teach.map(c => c.id));
+  CLS35.teachSets = (sets || []).map(s => Object.assign(s, { _key: JSON.stringify([s.name, s.pairs]) }));
+}
+function logClassRun35(){
+  try{
+    const set = getSet(currentSetId);
+    if(!set || !set.classSetId || !clsReady35()) return;
+    sb.rpc('class_log_run', { p_set: set.classSetId, p_correct: score.correct, p_wrong: score.wrong }).then(() => {}, () => {});
+  }catch(e){}
+}
+async function initClasses35(){
+  if(!clsReady35()) return;
+  try{
+    await loadTeacher35();
+    await Promise.all([syncClassSets35(), loadTeachClasses35()]);
+    if(!views.home.hidden) renderHome();
+  }catch(e){ console.warn('Klassen:', e.message); }
+  if(KLASSE_PARAM35){
+    const code = KLASSE_PARAM35; KLASSE_PARAM35 = '';
+    try{ history.replaceState(null, '', location.pathname + location.hash); }catch(e){}
+    openClasses35({ code });
+  }
+}
+
+// ---- Seite "Klassen" ----
+function openClasses35(opts = {}){
+  if(!isReleased(35)) return;
+  showView('classes'); currentNavId = 'classes'; updateNavActiveStates();
+  if(opts.code) document.getElementById('cls35Code').value = opts.code;
+  renderClasses35();
+}
+function fmtDate35(ts){ return ts ? new Date(ts).toLocaleDateString('de-DE', { day: 'numeric', month: 'short' }) : '–'; }
+async function renderClasses35(){
+  const guest = !clsReady35();
+  document.getElementById('cls35Guest').hidden = !guest;
+  document.getElementById('cls35JoinCard').hidden = guest;
+  const mine = document.getElementById('cls35Mine');
+  const teach = document.getElementById('cls35Teach');
+  const hint = document.getElementById('cls35TeacherHint');
+  if(guest){ mine.innerHTML = ''; teach.hidden = true; hint.hidden = true; return; }
+  mine.innerHTML = '<p class="hint">Lädt …</p>';
+  try{
+    await loadTeacher35();
+    await Promise.all([syncClassSets35(), loadTeachClasses35()]);
+  }catch(e){}
+  // Als Schueler
+  if(!CLS35.mine.length){
+    mine.innerHTML = '';
+  }else{
+    mine.innerHTML = '<h3 class="cls35-h">Deine Klassen</h3>' + CLS35.mine.map(c => {
+      const sets = store.sets.filter(s => s.classId === c.class_id);
+      return `<article class="cls35-card cls35-class">
+        <div class="cls35-class-head">
+          <div><p class="cls35-class-name">${escapeHtml(c.name)}</p><p class="cls35-class-meta">bei ${escapeHtml(c.teacher_name)} · seit ${fmtDate35(c.joined_at)}</p></div>
+          <button type="button" class="pic-link" data-leave="${c.class_id}">Verlassen</button>
+        </div>
+        ${sets.length ? `<ul class="cls35-sets">${sets.map(s => `<li><span><strong>${escapeHtml(s.name)}</strong><small>${s.pairs.length} Vokabeln</small></span>
+            <button type="button" class="btn btn-primary btn-small" data-open-set="${s.id}">Üben</button></li>`).join('')}</ul>`
+          : '<p class="hint">Deine Lehrkraft hat noch keine Lernsets verteilt.</p>'}
+      </article>`;
+    }).join('');
+  }
+  // Als Lehrkraft
+  hint.hidden = CLS35.isTeacher;
+  teach.hidden = !CLS35.isTeacher;
+  if(CLS35.isTeacher) renderTeach35();
+}
+async function renderTeach35(){
+  const list = document.getElementById('cls35TeachList');
+  if(!CLS35.teach.length){ list.innerHTML = '<p class="hint">Noch keine Klasse – leg oben die erste an.</p>'; return; }
+  const own = store.sets.filter(s => !s.readOnly && s.pairs.length);
+  const overviews = await Promise.all(CLS35.teach.map(c => sb.rpc('class_overview', { p_class: c.id }).then(r => r.data || [], () => [])));
+  list.innerHTML = CLS35.teach.map((c, ci) => {
+    const sets = CLS35.teachSets.filter(s => s.class_id === c.id);
+    const rows = overviews[ci];
+    const members = new Map();
+    rows.forEach(r => {
+      const m = members.get(r.user_id) || { name: r.display_name, joined: r.joined_at, runs: 0, ok: 0, no: 0, last: null };
+      m.runs += r.runs || 0; m.ok += r.correct || 0; m.no += r.wrong || 0;
+      if(r.last_at && (!m.last || r.last_at > m.last)) m.last = r.last_at;
+      members.set(r.user_id, m);
+    });
+    const inClass = new Set(sets.map(s => s.source_id));
+    const addable = own.filter(s => !inClass.has(s.id));
+    return `<article class="cls35-card cls35-teach">
+      <div class="cls35-class-head">
+        <div><p class="cls35-class-name">${escapeHtml(c.name)}</p><p class="cls35-class-meta">${members.size} Mitglied${members.size === 1 ? '' : 'er'} · angelegt ${fmtDate35(c.created_at)}</p></div>
+        <div class="cls35-code-wrap">
+          <span class="cls35-code" aria-label="Klassen-Code">${escapeHtml(c.code)}</span>
+          <button type="button" class="btn btn-secondary btn-small" data-qr="${c.id}">QR-Code</button>
+        </div>
+      </div>
+      <p class="cls35-sub">Lernsets der Klasse <small>– Änderungen an deinem Set gehen automatisch an alle</small></p>
+      ${sets.length ? `<ul class="cls35-sets">${sets.map(s => `<li><span><strong>${escapeHtml(s.name)}</strong><small>${(s.pairs || []).length} Vokabeln</small></span>
+          <button type="button" class="pic-link" data-unshare="${s.id}">Entfernen</button></li>`).join('')}</ul>` : '<p class="hint">Noch keine Lernsets verteilt.</p>'}
+      ${addable.length ? `<div class="cls35-add"><select data-add-sel="${c.id}" aria-label="Lernset auswählen">${addable.map(s => `<option value="${s.id}">${escapeHtml(s.name)} (${s.pairs.length})</option>`).join('')}</select>
+          <button type="button" class="btn btn-primary btn-small" data-add="${c.id}">Verteilen</button></div>`
+        : (own.length ? '' : '<p class="hint">Leg unter „Lernsets“ ein Set mit Vokabeln an, um es zu verteilen.</p>')}
+      <p class="cls35-sub">Fortschritt</p>
+      ${members.size ? `<div class="cls35-table" role="table">
+          <div class="cls35-tr cls35-th" role="row"><span>Name</span><span>Runden</span><span>Treffer</span><span>Zuletzt</span></div>
+          ${[...members.values()].map(m => {
+            const tot = m.ok + m.no;
+            return `<div class="cls35-tr" role="row"><span>${escapeHtml(m.name)}</span><span>${m.runs}</span><span>${tot ? Math.round(m.ok / tot * 100) + ' %' : '–'}</span><span>${m.last ? fmtDate35(m.last) : 'noch nicht'}</span></div>`;
+          }).join('')}
+        </div>` : '<p class="hint">Noch niemand beigetreten. Zeig der Klasse den Code oder den QR-Code.</p>'}
+      <div class="cls35-foot"><button type="button" class="pic-link cls35-danger" data-del-class="${c.id}">Klasse löschen</button></div>
+    </article>`;
+  }).join('');
+}
+async function showQr35(cls){
+  const url = location.origin + location.pathname + '?klasse=' + cls.code;
+  let svg = '';
+  try{
+    await loadScript35('vendor/qrcode.min.js');
+    const q = window.qrcode(0, 'M'); q.addData(url); q.make();
+    svg = q.createSvgTag({ cellSize: 8, margin: 2, scalable: true });
+  }catch(e){ svg = '<p class="hint">QR-Code konnte nicht geladen werden.</p>'; }
+  const ov = document.createElement('div');
+  ov.className = 'cls35-qr';
+  ov.innerHTML = `<div class="cls35-qr-card" role="dialog" aria-label="QR-Code der Klasse">
+      <p class="cls35-qr-kicker">Klasse beitreten</p>
+      <p class="cls35-qr-name">${escapeHtml(cls.name)}</p>
+      <div class="cls35-qr-img">${svg}</div>
+      <p class="cls35-qr-code">${escapeHtml(cls.code)}</p>
+      <p class="cls35-qr-url">Mit der Kamera scannen oder unter „Klassen“ den Code eingeben</p>
+      <button type="button" class="btn btn-secondary">Schließen</button>
+    </div>`;
+  document.body.appendChild(ov);
+  ov.addEventListener('click', (e) => { if(e.target === ov || e.target.closest('button')) ov.remove(); });
+}
+(() => {
+  const view = document.getElementById('view-classes');
+  if(!view) return;
+  document.getElementById('cls35Login').addEventListener('click', () => { sndClick(); openAccountModal(); });
+  document.getElementById('cls35GoAccount').addEventListener('click', () => { sndClick(); openAccountPage(); });
+  const code = document.getElementById('cls35Code');
+  code.addEventListener('input', () => { code.value = code.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6); });
+  document.getElementById('cls35JoinForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const msg = document.getElementById('cls35JoinMsg');
+    msg.className = 'msg'; msg.textContent = '';
+    if(code.value.length !== 6){ msg.textContent = 'Der Code hat 6 Zeichen.'; msg.classList.add('msg-error'); return; }
+    const { data, error } = await sb.rpc('join_class', { p_code: code.value });
+    if(error){ msg.textContent = error.message; msg.classList.add('msg-error'); return; }
+    const row = Array.isArray(data) ? data[0] : data;
+    msg.textContent = `Willkommen in „${row ? row.name : 'der Klasse'}“! Die Klassen-Sets stehen jetzt bei deinen Lernsets.`;
+    msg.classList.add('msg-success'); code.value = '';
+    sndCorrect(); CLS35.syncedAt = 0;
+    renderClasses35();
+  });
+  document.getElementById('cls35NewForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const inp = document.getElementById('cls35NewName');
+    const name = inp.value.trim();
+    if(!name) return;
+    const { error } = await sb.rpc('create_class', { p_name: name });
+    if(error){ showToast(error.message, true); return; }
+    inp.value = ''; showToast('Klasse angelegt – zeig ihr den Code oder den QR-Code.');
+    renderClasses35();
+  });
+  view.addEventListener('click', async (e) => {
+    const t = e.target.closest('button');
+    if(!t) return;
+    if(t.dataset.openSet){ renderSetDetail(t.dataset.openSet); return; }
+    if(t.dataset.leave){
+      const ok = await customConfirm('Klasse verlassen?', 'Die Klassen-Sets verschwinden aus deinen Lernsets. Deine Lehrkraft sieht deinen Fortschritt dann nicht mehr.', 'Verlassen');
+      if(!ok) return;
+      await sb.from('class_members').delete().eq('class_id', t.dataset.leave).eq('user_id', currentUser.id);
+      CLS35.syncedAt = 0; renderClasses35(); return;
+    }
+    if(t.dataset.qr){ const c = CLS35.teach.find(x => x.id === t.dataset.qr); if(c) showQr35(c); return; }
+    if(t.dataset.add){
+      const sel = view.querySelector(`[data-add-sel="${t.dataset.add}"]`);
+      const set = sel && getSet(sel.value);
+      if(!set) return;
+      const { error } = await sb.from('class_sets').upsert({ class_id: t.dataset.add, source_id: set.id, name: set.name.slice(0, 80), pairs: pairsJson35(set), updated_at: new Date().toISOString() }, { onConflict: 'class_id,source_id' });
+      if(error){ showToast(error.message, true); return; }
+      showToast(`„${set.name}“ ist jetzt in der Klasse.`); renderClasses35(); return;
+    }
+    if(t.dataset.unshare){
+      const ok = await customConfirm('Lernset aus der Klasse nehmen?', 'Es verschwindet bei allen Schülerinnen und Schülern. Dein eigenes Set bleibt.', 'Entfernen');
+      if(!ok) return;
+      await sb.from('class_sets').delete().eq('id', t.dataset.unshare);
+      renderClasses35(); return;
+    }
+    if(t.dataset.delClass){
+      const ok = await customConfirm('Klasse löschen?', 'Alle Mitglieder, verteilten Lernsets und der Fortschritt dieser Klasse werden gelöscht.', 'Löschen');
+      if(!ok) return;
+      await sb.from('classes').delete().eq('id', t.dataset.delClass);
+      renderClasses35();
+    }
+  });
+  window.addEventListener('lumiere:viewchange', (e) => {
+    const v = e.detail && e.detail.view;
+    if(v === 'account') renderTeacherCard35();
+  });
+})();
+
+// ---- Lehrkraft werden (Mein Konto) ----
+async function renderTeacherCard35(){
+  const body = document.getElementById('accTeach35Body');
+  if(!body || !isReleased(35)) return;
+  if(!clsReady35()){ body.innerHTML = '<p class="acc-hint">Melde dich an, um dich als Lehrkraft freischalten zu lassen.</p>'; return; }
+  body.innerHTML = '<p class="acc-hint">Lädt …</p>';
+  const [t, r] = await Promise.all([
+    sb.from('teachers').select('user_id, school, subject').eq('user_id', currentUser.id).maybeSingle(),
+    sb.from('teacher_requests').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false }).limit(1),
+  ]);
+  if(t.error && /relation|schema cache/i.test(t.error.message || '')){ body.innerHTML = '<p class="acc-hint">Die Klassen-Funktion wird gerade eingerichtet.</p>'; return; }
+  if(t.data || (currentProfile && currentProfile.is_admin)){
+    body.innerHTML = `<p class="acc-hint">Du bist als Lehrkraft freigeschaltet${t.data && t.data.school ? ' – ' + escapeHtml(t.data.school) : ''}. Unter „Klassen“ legst du Klassen an und verteilst Lernsets.</p>
+      <button type="button" class="btn btn-primary btn-small" id="accTeach35Go">Zu den Klassen</button>`;
+    document.getElementById('accTeach35Go').addEventListener('click', () => openClasses35());
+    return;
+  }
+  const last = r.data && r.data[0];
+  if(last && last.status === 'pending'){
+    body.innerHTML = `<p class="acc-hint">Deine Anfrage (${escapeHtml(last.school)}) wird geprüft. Du bekommst eine Nachricht, sobald sie entschieden ist.</p>`;
+    return;
+  }
+  body.innerHTML = (last && last.status === 'rejected' ? `<p class="acc-hint t35-no">Deine letzte Anfrage wurde abgelehnt${last.reason ? ': ' + escapeHtml(last.reason) : ''}. Du kannst eine neue stellen.</p>` : '') +
+    `<p class="acc-hint">Du unterrichtest? Dann kannst du Klassen anlegen, Lernsets an deine Klasse verteilen und sehen, wer übt. Jede Anfrage wird von Hand geprüft.</p>
+    <form class="t35-form" id="t35Form">
+      <label class="t35-l" for="t35School">Schule</label>
+      <input class="modal-input" id="t35School" required maxlength="120" placeholder="z. B. Goethe-Gymnasium Berlin">
+      <label class="t35-l" for="t35Subject">Fach</label>
+      <input class="modal-input" id="t35Subject" maxlength="80" placeholder="z. B. Französisch">
+      <label class="t35-l" for="t35Text">Nachricht (optional)</label>
+      <textarea class="modal-input" id="t35Text" maxlength="600" rows="3" placeholder="Wofür möchtest du Lumière im Unterricht nutzen?"></textarea>
+      <button type="submit" class="btn btn-primary">Als Lehrkraft anfragen</button>
+      <p class="msg" id="t35Msg"></p>
+    </form>`;
+  document.getElementById('t35Form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const msg = document.getElementById('t35Msg');
+    const school = document.getElementById('t35School').value.trim();
+    if(school.length < 2){ msg.textContent = 'Bitte die Schule angeben.'; msg.className = 'msg msg-error'; return; }
+    const { error } = await sb.from('teacher_requests').insert({
+      user_id: currentUser.id, school,
+      subject: document.getElementById('t35Subject').value.trim() || null,
+      message: document.getElementById('t35Text').value.trim() || null,
+    });
+    if(error){ msg.textContent = /duplicate|unique/i.test(error.message) ? 'Du hast schon eine offene Anfrage.' : error.message; msg.className = 'msg msg-error'; return; }
+    sndSubmit(); renderTeacherCard35();
+  });
+}
+
+// ---- Admin: Lehrkraefte freischalten ----
+async function loadTeachers35(){
+  const reqBox = document.getElementById('adm35Req');
+  const tBox = document.getElementById('adm35Teachers');
+  if(!reqBox || !sb) return;
+  reqBox.innerHTML = '<p class="hint">Lädt …</p>';
+  const [rq, tc] = await Promise.all([
+    sb.from('teacher_requests').select('*').order('created_at', { ascending: false }).limit(200),
+    sb.from('teachers').select('*').order('approved_at', { ascending: false }),
+  ]);
+  if(rq.error){ reqBox.innerHTML = `<p class="hint">Noch nicht eingerichtet – supabase/build35.sql ausführen. (${escapeHtml(rq.error.message)})</p>`; tBox.innerHTML = ''; return; }
+  const ids = [...new Set([...(rq.data || []).map(r => r.user_id), ...(tc.data || []).map(t => t.user_id)])];
+  const { data: profs } = ids.length ? await sb.from('profiles').select('user_id, display_name, email').in('user_id', ids) : { data: [] };
+  const who = (id) => { const p = (profs || []).find(x => x.user_id === id); return p ? `${escapeHtml(p.display_name || 'Ohne Namen')} <small>${escapeHtml(p.email || '')}</small>` : '<small>unbekannt</small>'; };
+  const open = (rq.data || []).filter(r => r.status === 'pending');
+  const badge = document.getElementById('adminNavBadgeTeach');
+  if(badge){ badge.hidden = !open.length; badge.textContent = open.length; }
+  reqBox.innerHTML = open.length ? open.map(r => `<div class="t35-row">
+      <div class="t35-who">${who(r.user_id)}</div>
+      <div class="t35-info"><strong>${escapeHtml(r.school)}</strong>${r.subject ? ' · ' + escapeHtml(r.subject) : ''} · ${fmtDate35(r.created_at)}${r.message ? `<p>${escapeHtml(r.message)}</p>` : ''}</div>
+      <div class="t35-acts"><button type="button" class="btn btn-primary btn-small" data-t35-ok="${r.id}">Freischalten</button>
+        <button type="button" class="btn btn-secondary btn-small" data-t35-no="${r.id}">Ablehnen</button></div>
+    </div>`).join('') : '<p class="hint">Keine offenen Anfragen.</p>';
+  tBox.innerHTML = (tc.data || []).length ? tc.data.map(t => `<div class="t35-row">
+      <div class="t35-who">${who(t.user_id)}</div>
+      <div class="t35-info">${escapeHtml(t.school || '–')}${t.subject ? ' · ' + escapeHtml(t.subject) : ''} · seit ${fmtDate35(t.approved_at)}</div>
+      <div class="t35-acts"><button type="button" class="btn btn-secondary btn-small" data-t35-revoke="${t.user_id}">Entziehen</button></div>
+    </div>`).join('') : '<p class="hint">Noch keine Lehrkräfte.</p>';
+  const all = rq.data || [];
+  const panel = reqBox.closest('.admin-tab-panel');
+  panel.onclick = async (e) => {
+    const b = e.target.closest('button'); if(!b) return;
+    const now = new Date().toISOString();
+    if(b.dataset.t35Ok){
+      const r = all.find(x => x.id === b.dataset.t35Ok); if(!r) return;
+      const a = await sb.from('teachers').upsert({ user_id: r.user_id, school: r.school, subject: r.subject, approved_by: currentUser.id, approved_at: now });
+      if(a.error){ showToast(a.error.message, true); return; }
+      await sb.from('teacher_requests').update({ status: 'approved', decided_at: now, decided_by: currentUser.id }).eq('id', r.id);
+      sendUserMessage(r.user_id, 'admin', 'ok', 'Du bist als Lehrkraft freigeschaltet',
+        'Unter „Klassen“ kannst du jetzt Klassen anlegen, Lernsets an deine Klasse verteilen und sehen, wer übt.');
+      showToast('Freigeschaltet.'); loadTeachers35();
+    }else if(b.dataset.t35No){
+      const r = all.find(x => x.id === b.dataset.t35No); if(!r) return;
+      const ok = await customConfirm('Anfrage ablehnen?', 'Die Person bekommt eine Nachricht. Gleich kannst du noch einen Grund angeben (optional).', 'Ablehnen');
+      if(!ok) return;
+      const reason = await customPrompt('Grund für die Ablehnung (optional)', '');
+      await sb.from('teacher_requests').update({ status: 'rejected', reason: reason || null, decided_at: now, decided_by: currentUser.id }).eq('id', r.id);
+      sendUserMessage(r.user_id, 'admin', 'no', 'Deine Anfrage als Lehrkraft wurde abgelehnt',
+        reason || 'Wir konnten deine Angaben nicht bestätigen. Du kannst unter „Mein Konto“ eine neue Anfrage stellen.');
+      showToast('Abgelehnt.'); loadTeachers35();
+    }else if(b.dataset.t35Revoke){
+      const ok = await customConfirm('Lehrkraft-Rechte entziehen?', 'Bestehende Klassen bleiben, neue kann die Person nicht mehr anlegen.', 'Entziehen');
+      if(!ok) return;
+      await sb.from('teachers').delete().eq('user_id', b.dataset.t35Revoke);
+      sendUserMessage(b.dataset.t35Revoke, 'admin', 'info', 'Deine Lehrkraft-Freischaltung wurde beendet', 'Bei Fragen melde dich gern.');
+      loadTeachers35();
+    }
+  };
+}
+
+document.getElementById('cls35CopyBtn').addEventListener('click', () => {
+  const set = getSet(currentSetId);
+  if(!set) return;
+  const copy = { id: uid(), name: set.name + ' (Kopie)', pairs: set.pairs.map(p => makePair(p.de, p.fr)) };
+  store.sets.unshift(copy); saveData(store);
+  showToast('Als eigenes Set gespeichert – das kannst du frei bearbeiten.');
+  renderSetDetail(copy.id);
+});
+
+initAuth().then(() => { restoreLastView(); sendSessionHeartbeat(); try{ applyLesson35(); initClasses35(); }catch(e){ console.warn(e); } });
 loadSiteSettings();
 setInterval(() => {
   sendSessionHeartbeat();

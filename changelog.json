@@ -1,6 +1,25 @@
 {
  "entries": [
   {
+   "build": 35,
+   "date": "2026-09-30",
+   "until": "2026-09-30",
+   "title": "Lernen im Unterricht: Unterrichtsmodus, Klassen mit Code und QR, PDF für GoodNotes",
+   "gate": true,
+   "items": [
+    "Hinter dem Freigabe-Gate (Build 35): Unterrichtsmodus in den Einstellungen (Rubrik 'Unterricht'). Blendet Spielhalle, Belohnungen und Coins aus, schaltet Musik und Klaenge stumm, uebergeht die 3D-Startseite (fuehrt direkt zu den Lernsets) und stellt Animationen ab. Gilt pro Geraet (localStorage 'lumiere_lesson').",
+    "Hinter dem Gate: gruenes Abzeichen 'Unterricht' oben in der Kopfleiste, solange der Modus an ist (auf dem Handy nur der Punkt); Antippen fragt, ob er beendet werden soll.",
+    "Hinter dem Gate: Knopf 'Fuer GoodNotes' im Lernset - PDF-Vokabelliste zum Abdecken (A4, hell mit Gold, Deutsch | Franzoesisch mit Faltlinie, Haekchen-Kaestchen, Seitenzahlen). Desktop: Download. iPad/iPhone: Blatt 'PDF ist fertig' mit 'In GoodNotes oeffnen / Teilen' (Teilen-Menue) und 'Herunterladen'.",
+    "Hinter dem Gate: neue Seite 'Klassen' (Kopfleiste, Menue Nr. 11, Footer). Schueler treten mit 6-stelligem Code oder QR-Code (Link ?klasse=CODE) bei, sehen ihre Klassen und koennen sie verlassen.",
+    "Hinter dem Gate: Klassen-Sets stehen oben in 'Meine Lernsets' mit gruener Plakette 'Klasse · Name'. Sie sind schreibgeschuetzt und live verknuepft - aendert die Lehrkraft ihr Set, kommt die neue Fassung automatisch an (Leitner-Stand je Wort bleibt). 'Als eigene Kopie speichern' legt ein normales Set an.",
+    "Hinter dem Gate: Lehrkraefte legen Klassen an, sehen Code + QR-Code zum Zeigen an der Tafel, verteilen eigene Lernsets, nehmen sie wieder heraus und sehen den Fortschritt (Runden, Trefferquote, zuletzt geuebt) - angekuendigt auf der Seite, eigene Sets der Schueler sieht niemand.",
+    "Hinter dem Gate: Mein Konto -> Karte 'Lehrkraft': Anfrage mit Schule, Fach und Nachricht; Status 'wird geprueft' bzw. Ablehnungsgrund.",
+    "Admin: neuer Reiter 'Lehrkraefte' mit offenen Anfragen (Freischalten / Ablehnen mit optionalem Grund) und Liste der freigeschalteten Lehrkraefte (Entziehen). Jede Entscheidung schickt eine Nachricht an die Person. Admins gelten automatisch als Lehrkraft.",
+    "jsPDF 2.5.2 und qrcode-generator 1.4.4 (beide MIT) liegen lokal unter vendor/ (mit Lizenztexten) und werden erst beim ersten PDF bzw. QR-Code geladen.",
+    "SQL noetig: supabase/build35.sql (Tabellen teachers, teacher_requests, classes, class_members, class_sets, class_progress mit RLS; RPCs create_class, join_class, my_classes, class_log_run, class_overview). Ohne SQL zeigt der Admin-Reiter einen Hinweis, die Klassen-Seite bleibt leer."
+   ]
+  },
+  {
    "build": 34,
    "date": "2026-09-30",
    "until": "2026-09-30",

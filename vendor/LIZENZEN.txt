@@ -1,0 +1,15 @@
+Fremdbibliotheken, die Lumière nur bei Bedarf lädt (nichts davon beim Seitenstart):
+
+jspdf.umd.min.js – jsPDF 2.5.2, MIT-Lizenz
+  Copyright (c) 2010-2021 James Hall, yWorks GmbH, Lukas Holländer u. a.
+  https://github.com/parallax/jsPDF
+  Verwendet für: Lernset als PDF für GoodNotes (Build 35).
+
+qrcode.min.js – qrcode-generator 1.4.4, MIT-Lizenz
+  Copyright (c) 2009 Kazuhiko Arase
+  https://github.com/kazuhikoarase/qrcode-generator
+  Verwendet für: QR-Code des Klassen-Codes (Build 35).
+
+Beide unverändert aus npm übernommen (qrcode nur verkleinert). MIT erlaubt
+Nutzung und Weitergabe, solange der Lizenzhinweis erhalten bleibt – er steht
+jeweils am Anfang der Datei.

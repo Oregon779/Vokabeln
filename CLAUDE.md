@@ -1038,3 +1038,42 @@ Screenshots vom Ergebnis, keine Behauptungen.
 
 Serverseitiges (Supabase-SQL, Brevo, nginx) kann hier nicht ausgeführt
 werden: als fertigen Schnipsel mitliefern.
+
+## Build 35: Unterrichtsmodus, Klassen, PDF fuer GoodNotes
+
+Alles an `isReleased(35)` / `data-build="35"`. SQL: `supabase/build35.sql`.
+Hintergrund: an der Schule des Nutzers sind WLAN/Apps eingeschraenkt. Diese
+Funktionen umgehen **nichts** - sie sind der Weg, damit eine Lehrkraft die
+Seite offiziell freigeben/nutzen kann (Tarnung vor Apple Classroom bleibt
+abgelehnt, siehe Build 31).
+
+- **Zustand als `var`** (`CLS35`, `scriptCache35`, `KLASSE_PARAM35`):
+  `saveData`, `showView` und `applyReleaseGate` rufen schon vor dem Block in
+  Build-35-Code - mit `let`/`const` gaebe das einen TDZ-Fehler.
+- **Unterrichtsmodus** (`lessonOn35()` = Gate + localStorage `lumiere_lesson`,
+  `setLesson35`, `applyLesson35` aus `applyReleaseGate`): `html.lesson35`
+  blendet Belohnungen/Spielhalle/Coins aus und setzt alle Animationen auf
+  0,001 s; `showView` leitet `lessonBlocked35` (hub, rewards, arcadeGame,
+  game) auf die Lernsets um; `sndOk` und `musicStart` schweigen,
+  `reducedMotionActive` ist an. Abzeichen `#lesson35Badge` in der Kopfleiste
+  (unter 480 px nur der Punkt).
+- **PDF** (`buildSetPdf35`, `exportPdf35`): jsPDF aus `vendor/` per
+  `loadScript35` erst bei Bedarf. Standardschriften koennen nur Latin-1 -
+  `pdfText35` macht aus oe-Ligatur "oe", aus Anfuehrungszeichen/Strichen ASCII.
+  Teilen braucht einen FRISCHEN Fingertipp (das Erstellen dauert zu lange),
+  deshalb auf Handy/iPad erst das Blatt `.pdf35-sheet`, dann `navigator.share`.
+- **Klassen:** Lehrkraft = Zeile in `teachers` (Admin immer). Klassen-Sets
+  werden in `store.sets` gespiegelt (`classSetId`, `classId`, `className`,
+  `readOnly`) - Uebung/Leitner laufen unveraendert, Statistik je Wort bleibt
+  ueber die Wort-ID. Abgleich `syncClassSets35` (beim Start, Seite Klassen,
+  `renderHome` hoechstens jede Minute). Die Lehrkraft veroeffentlicht
+  automatisch: `saveData` -> `scheduleClassPublish35` (3 s) ->
+  `publishClassSets35` (nur Sets, die in einer ihrer Klassen liegen).
+  Fortschritt: `showResults` -> `logClassRun35` -> RPC `class_log_run`.
+  Beitritt per Code (`join_class`) oder Link `?klasse=CODE` (QR, `showQr35`,
+  vendor/qrcode.min.js). `#view-set.is-class35` versteckt Bearbeiten/Loeschen.
+- **Anfrage/Freigabe:** `renderTeacherCard35` (Mein Konto, bei
+  `lumiere:viewchange` 'account'), Admin-Reiter "Lehrkraefte"
+  (`loadTeachers35`), jede Entscheidung per `sendUserMessage`.
+- RLS-Rekursion vermeiden: `is_class_teacher`/`is_class_member` sind
+  security definer; Beitreten/Klasse anlegen/Fortschritt nur ueber RPCs.
