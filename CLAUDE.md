@@ -960,6 +960,30 @@ Alles an `isReleased(33)` / `data-build="33"`.
   Punkte/Leben (`setArcadeScore`, `setArcadeLives`). Modal/Toast liegen im
   Vollbild hoeher (z 60/61).
 
+## Build 34: Gold-Symbole, Uebung/Ergebnis, Desktop, ehrliches Ueber uns
+
+- **Emoji -> Symbol** (`ICO34`, `EMO34`, `iconize34`): ein MutationObserver
+  auf `body` ersetzt bekannte Emojis in Textknoten durch `<span class="ico34w"
+  data-emo>` mit Linien-SVG (currentColor). Canvas, Eingabefelder, Optionen und
+  die Startseite (`#view-hub`) bleiben aussen vor. Nur bei `isReleased(34)`;
+  `applyIcons34()` in `applyReleaseGate` stellt sonst die Emojis zurueck. Neues
+  Emoji in der App = Eintrag in `EMO34` (+ Symbol in `ICO34`), nicht im Markup
+  basteln. Achtung: wer `textContent` eines solchen Elements LIEST, bekommt das
+  Emoji nicht mehr zurueck.
+- **Uebung/Ergebnis:** `sessionWrong` sammelt falsch beantwortete Paare
+  (`finalizeAnswer`), `renderResults34` fuellt das neue Ergebnis (`.res34`,
+  altes `.results-card` mit `data-build-old="34"`), `practiceWrong34` startet
+  "Nur die Falschen" (Zuordnen -> gemischt). Tasten 1-4 / Enter nur ab 34.
+- **Desktop:** Lernset in zwei Huellen `.set34-a/.set34-b` - bis zur Freigabe
+  `display:contents` (sieht aus wie vorher), ab 1100 px zweispaltig.
+  `body.wide34` (aus `showView`) macht `#app` 1240 px breit.
+- **Ueber uns:** alter Block `data-build-old="34"`, neuer `.info-honest34`.
+  Nur belegbare Angaben: Supabase-Region per MCP geprueft (eu-central-1),
+  Server-Standort Deutschland laut Nutzer, Cloudflare-Details unbekannt - also
+  nur "HTTPS + Missbrauchsschutz". Nie wieder erfundene Live-Werte.
+- Sofort fuer alle: Handy-Umbruch im Lernset-Kopf und bei den Grammatik-
+  Beispielen, Konfetti endet beim Verlassen des Ergebnisses.
+
 ## Testen mit Freigabe-Gate
 
 Lokal gibt es kein Supabase, also ist niemand Admin und alle Build-14-Teile

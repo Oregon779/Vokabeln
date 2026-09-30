@@ -3639,6 +3639,98 @@
   .flashcard-answer-row .flashcard-answer{margin:0;}
 
 
+
+  /* --- Build 34: Symbole, Uebung, Ergebnis, Desktop, Grammatik ----------- */
+  .ico34w{ display:inline-flex; vertical-align:-.16em; line-height:0; }
+  .ico34{ width:1.1em; height:1.1em; fill:none; stroke:currentColor; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round; }
+  .ico34-ok{ color:#86d9a4; } .ico34-no{ color:#ff8f80; }
+  .btn-primary .ico34, .chip.selected .ico34{ color:inherit; }
+  h3 .ico34, .settings-title .ico34, .srs-badge .ico34, .hint .ico34, .agenda-plan .ico34, .reward-banner .ico34, .res34-reward .ico34{ color:var(--ember-bright); }
+  .results-emoji .ico34{ width:3.4rem; height:3.4rem; color:var(--ember-bright); stroke-width:1.3; }
+  /* Uebung */
+  html.build-34-live .progress-track{ height:6px; background:rgba(246,195,92,.1); border-radius:999px; overflow:hidden; }
+  html.build-34-live .progress-fill{ background:linear-gradient(90deg, #b8862f, #f6c35c, #fff1c9); box-shadow:0 0 14px rgba(246,195,92,.55); border-radius:999px; }
+  html.build-34-live .practice-card{
+    border:1px solid rgba(246,195,92,.32);
+    background:radial-gradient(120% 70% at 50% 0%, rgba(246,195,92,.1), transparent 60%), linear-gradient(170deg, #161b2b, #0c0f19);
+    box-shadow:0 26px 60px -24px rgba(0,0,0,.7), inset 0 1px 0 rgba(255,236,190,.08);
+  }
+  html.build-34-live .practice-word{ font-family:var(--font-serif); font-style:italic; }
+  html.build-34-live .practice-options{ counter-reset:opt; display:grid; grid-template-columns:1fr; gap:.6rem; }
+  @media (min-width:640px){ html.build-34-live .practice-options{ grid-template-columns:1fr 1fr; } }
+  html.build-34-live .btn-option{
+    counter-increment:opt; position:relative; display:flex; align-items:center; gap:.8rem; text-align:left;
+    padding:.9rem 1rem; border-radius:14px; border:1px solid rgba(246,195,92,.28); background:rgba(0,0,0,.28);
+    font-family:var(--font-serif); font-size:1.08rem; color:#fff3d6; transition:transform .15s var(--ease), border-color .2s var(--ease), background .2s var(--ease);
+  }
+  html.build-34-live .btn-option::before{
+    content:counter(opt); flex:0 0 auto; width:1.7rem; height:1.7rem; border-radius:50%; display:grid; place-items:center;
+    font-family:var(--font-mono); font-size:.72rem; color:var(--ember-bright); border:1px solid rgba(246,195,92,.45);
+  }
+  html.build-34-live .btn-option:hover:not(:disabled){ transform:translateY(-2px); border-color:rgba(246,195,92,.65); background:rgba(246,195,92,.07); }
+  html.build-34-live .btn-option.option-correct{ border-color:#86d9a4; background:rgba(134,217,164,.12); }
+  html.build-34-live .btn-option.option-correct::before{ content:'✓'; color:#86d9a4; border-color:#86d9a4; }
+  html.build-34-live .btn-option.option-wrong{ border-color:#ff8f80; background:rgba(255,143,128,.1); }
+  /* Ergebnis */
+  .res34:not([hidden]){ display:flex; }
+  .res34{
+    flex-direction:column; align-items:center; text-align:center; gap:.4rem; max-width:560px; margin:0 auto; padding:2rem 1.4rem 1.6rem;
+    border-radius:26px; border:1px solid rgba(246,195,92,.32);
+    background:radial-gradient(120% 70% at 50% 0%, rgba(246,195,92,.13), transparent 60%), linear-gradient(170deg, #161b2b, #0b0e17);
+    box-shadow:0 30px 70px -26px rgba(0,0,0,.75), inset 0 1px 0 rgba(255,236,190,.08);
+  }
+  .res34-ring{ position:relative; width:150px; height:150px; margin-bottom:.4rem; }
+  .res34-ring svg{ width:100%; height:100%; transform:rotate(-90deg); }
+  .res34-ring circle{ fill:none; stroke-width:7; stroke-linecap:round; }
+  .res34-track{ stroke:rgba(246,195,92,.12); }
+  .res34-arc{ stroke:url(#gi33Gold); transition:stroke-dashoffset 1.2s var(--ease-premium); filter:drop-shadow(0 0 6px rgba(246,195,92,.5)); }
+  .res34-ring-txt{ position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+  .res34-ring-txt strong{ font-family:var(--font-serif); font-size:2.1rem; color:#fff3d6; line-height:1; }
+  .res34-ring-txt span{ font-family:var(--font-mono); font-size:.62rem; letter-spacing:.2em; text-transform:uppercase; color:var(--stone); margin-top:.3rem; }
+  .res34-kicker{ margin:0; font-family:var(--font-mono); font-size:.66rem; letter-spacing:.3em; text-transform:uppercase; color:var(--ember-bright); }
+  .res34-title{ margin:0; font-family:var(--font-serif); font-style:italic; font-size:clamp(1.7rem, 5vw, 2.2rem); color:#fff3d6; }
+  .res34-stats{ display:grid; grid-template-columns:repeat(3, 1fr); gap:.5rem; width:100%; margin:.8rem 0 .4rem; }
+  .res34-stats div{ padding:.7rem .4rem; border-radius:14px; background:rgba(0,0,0,.28); border:1px solid rgba(246,195,92,.16); }
+  .res34-stats span{ display:block; font-family:var(--font-mono); font-size:.6rem; letter-spacing:.14em; text-transform:uppercase; color:var(--stone); }
+  .res34-stats strong{ font-family:var(--font-serif); font-size:1.5rem; color:#fff3d6; }
+  .res34-wrong:not([hidden]){ display:flex; }
+  .res34-wrong{ flex-direction:column; gap:.6rem; width:100%; margin-top:.6rem; padding:1rem; border-radius:16px; border:1px solid rgba(255,143,128,.25); background:rgba(255,143,128,.05); text-align:left; }
+  .res34-wrong-h{ margin:0; font-family:var(--font-mono); font-size:.64rem; letter-spacing:.16em; text-transform:uppercase; color:#ffb3a8; }
+  .res34-wrong-list{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:.35rem; max-height:220px; overflow:auto; }
+  .res34-wrong-list li{ display:flex; justify-content:space-between; gap:1rem; padding:.45rem .6rem; border-radius:10px; background:rgba(0,0,0,.25); font-size:.92rem; }
+  .res34-wrong-list .de{ color:var(--stone-light, #d2c5b1); } .res34-wrong-list .fr{ font-family:var(--font-serif); font-style:italic; color:#ffe7a8; text-align:right; }
+  .res34-actions{ display:flex; flex-wrap:wrap; justify-content:center; gap:.5rem; margin-top:.8rem; }
+  .res34-reward{ display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:.6rem; margin-top:1rem; padding-top:1rem; border-top:1px solid rgba(246,195,92,.14); width:100%; color:#ffe7a8; font-size:.9rem; }
+  /* Desktop: breitere Seiten, Lernset zweispaltig, Einrichten im Raster */
+  .set34-a, .set34-b{ display:contents; }
+  @media (min-width:1100px){
+    html.build-34-live body.wide34 #app{ max-width:1240px; }
+    html.build-34-live #view-set:not([hidden]){ display:grid; grid-template-columns:minmax(320px, 400px) minmax(0, 1fr); gap:0 2.6rem; align-items:start; }
+    html.build-34-live .set34-a{ display:block; position:sticky; top:6.2rem; }
+    html.build-34-live .set34-b{ display:block; }
+    html.build-34-live .set34-a #btnGoListen{ width:100%; margin-top:.6rem; }
+    html.build-34-live #view-session-setup:not([hidden]){ display:grid; grid-template-columns:1fr 1fr; gap:.2rem 2.6rem; max-width:1000px; margin:0 auto; }
+    html.build-34-live #view-session-setup > :not(.config-group){ grid-column:1 / -1; }
+    html.build-34-live #view-practice, html.build-34-live #view-results{ max-width:900px; margin-left:auto; margin-right:auto; }
+  }
+  /* Grammatik-Startseite */
+  .gram34:not([hidden]){ display:flex; }
+  .gram34{ flex-direction:column; align-items:center; gap:.9rem; text-align:center; padding:1.4rem 0; }
+  .gram34 .gram34-medal{ width:92px; height:92px; animation:grammarFloat 5s ease-in-out infinite; }
+  .gram34-lead{ margin:0; color:var(--stone-light, #d2c5b1); font-size:1rem; }
+  .gram34-cards{ display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:.6rem; width:100%; max-width:640px; }
+  .gram34-cards div{ padding:.9rem .7rem; border-radius:16px; border:1px solid rgba(246,195,92,.2); background:linear-gradient(170deg, #161b2b, #0c0f19); display:flex; flex-direction:column; gap:.25rem; }
+  .gram34-cards strong{ font-family:var(--font-serif); font-size:1rem; color:#fff3d6; }
+  .gram34-cards span{ font-size:.78rem; color:var(--stone); line-height:1.35; }
+  @media (max-width:520px){ .gram34-cards{ grid-template-columns:1fr; } .gram34-cards div{ flex-direction:row; justify-content:space-between; align-items:baseline; text-align:left; } }
+  @media (prefers-reduced-motion: reduce){ .gram34-medal{ animation:none; } .res34-arc{ transition:none; } }
+  /* Sofort-Fixes (Handy): nichts mehr abgeschnitten */
+  @media (max-width:640px){
+    #view-set .row-between > .btn-group{ display:flex; flex-wrap:wrap; gap:.4rem; }
+    #view-set .row-between > .btn-group > .btn{ flex:1 1 auto; min-width:max-content; }
+    .grammar-examples{ -webkit-mask-image:none; mask-image:none; overflow:visible; }
+    .grammar-examples .chip{ white-space:normal; overflow:visible; text-overflow:clip; text-align:center; line-height:1.3; height:auto; min-height:2.4rem; }
+  }
   /* --- Build 33: Gold-Medaillons, Spielhalle-Kacheln, Vollbild ------------ */
   .gi33{ display:block; width:100%; height:100%; filter:drop-shadow(0 4px 10px rgba(0,0,0,.45)); }
   .gi33 .gi33-fill{ fill:url(#gi33Gold); }
@@ -4861,6 +4953,7 @@
 
   <section id="view-set" class="view" hidden>
     <div class="page-glow" style="width:280px; height:280px; top:-3rem; right:-5rem;" aria-hidden="true"></div>
+    <div class="set34-a">
     <button class="btn btn-link" data-nav="home">← Zurück zu allen Sets</button>
     <div class="row-between">
       <h2 id="setTitle">Set</h2>
@@ -4887,6 +4980,8 @@
     <button id="btnGoListen" class="btn btn-secondary btn-large">🔊 Aussprache üben</button>
 
     <div class="box stats-box" id="setStatsBox"></div>
+    </div>
+    <div class="set34-b">
 
     <h3>Vokabeln (<span id="pairCount">0</span>)</h3>
     <table class="pairs-table">
@@ -4940,6 +5035,7 @@
         </button>
       </form>
       <p id="aiGenerateMsg" class="msg"></p>
+    </div>
     </div>
   </section>
 
@@ -5047,7 +5143,33 @@
   </section>
 
   <section id="view-results" class="view" hidden>
-    <div class="results-card">
+    <div class="res34" data-build="34">
+      <div class="res34-ring" aria-hidden="true">
+        <svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="52" class="res34-track"/><circle cx="60" cy="60" r="52" class="res34-arc" id="res34Arc"/></svg>
+        <div class="res34-ring-txt"><strong id="res34Pct">0 %</strong><span>richtig</span></div>
+      </div>
+      <p class="res34-kicker">Runde geschafft</p>
+      <h2 class="res34-title" id="res34Title">Stark!</h2>
+      <div class="res34-stats">
+        <div><span>Richtig</span><strong id="res34Ok">0</strong></div>
+        <div><span>Falsch</span><strong id="res34No">0</strong></div>
+        <div><span>Gefragt</span><strong id="res34Total">0</strong></div>
+      </div>
+      <div class="res34-wrong" id="res34Wrong" hidden>
+        <p class="res34-wrong-h">Diese Wörter noch einmal ansehen</p>
+        <ul class="res34-wrong-list" id="res34WrongList"></ul>
+        <button type="button" class="btn btn-primary" id="btnPracticeWrong">Nur die Falschen üben</button>
+      </div>
+      <div class="res34-actions">
+        <button type="button" class="btn btn-secondary" id="btnRes34Again">↻ Nochmal üben</button>
+        <button type="button" class="btn btn-secondary" id="btnRes34Set">Zurück zum Set</button>
+      </div>
+      <div class="res34-reward">
+        <span class="res34-reward-txt">🎁 Belohnung freigeschaltet</span>
+        <button type="button" class="btn btn-primary btn-small" id="btnRes34Game">Bonus-Spiel spielen</button>
+      </div>
+    </div>
+    <div class="results-card" data-build-old="34">
       <div class="results-emoji" id="resultsEmoji">🎉</div>
       <h2 style="margin-top:0;">Runde geschafft!</h2>
       <div class="results-score"><span id="resultsCorrect">0</span><span class="of"> / </span><span id="resultsTotal">0</span></div>
@@ -5159,6 +5281,24 @@
     </div>
     <div id="grammarResult" class="grammar-result">
       <div class="grammar-empty" id="grammarEmpty" aria-hidden="true">
+        <div class="gram34" data-build="34">
+          <svg class="gi33 gram34-medal" viewBox="0 0 64 64" aria-hidden="true">
+            <circle cx="32" cy="32" r="30" fill="url(#gi33Bg)"/>
+            <circle cx="32" cy="32" r="29.2" fill="none" stroke="url(#gi33Gold)" stroke-width="1.6"/>
+            <circle cx="32" cy="32" r="25.6" fill="none" stroke="url(#gi33Gold)" stroke-width=".7" opacity=".4"/>
+            <g fill="none" stroke="url(#gi33Gold)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M16 21c4-2 10-2 16 1.5 6-3.5 12-3.5 16-1.5v22c-4-2-10-2-16 1.5-6-3.5-12-3.5-16-1.5z"/><path d="M32 22.5v22"/>
+              <path d="M20 28h7M20 33h7M37 28h7M37 33h5" opacity=".6"/>
+            </g>
+          </svg>
+          <p class="gram34-lead">Stell eine Frage oder tipp oben ein Beispiel an.</p>
+          <div class="gram34-cards">
+            <div><strong>Die Regel</strong><span>kurz und klar erklärt</span></div>
+            <div><strong>Beispiele</strong><span>Französisch mit Übersetzung</span></div>
+            <div><strong>Ausnahmen</strong><span>worauf du achten musst</span></div>
+          </div>
+        </div>
+        <div class="gram34-old" data-build-old="34">
         <svg viewBox="0 0 120 120" width="88" height="88" class="grammar-empty-icon" aria-hidden="true">
           <circle cx="60" cy="60" r="46" fill="none" stroke="url(#grammarRing)" stroke-width="1.4" stroke-dasharray="3 7"/>
           <circle cx="60" cy="60" r="30" fill="none" stroke="var(--ember-dim)" stroke-width="1"/>
@@ -5170,6 +5310,7 @@
           </linearGradient></defs>
         </svg>
         <p>Stell eine Frage oder wähl ein Beispiel oben — die KI erklärt dir Regeln, Beispiele und Ausnahmen verständlich.</p>
+        </div>
       </div>
     </div>
   </section>
@@ -5659,7 +5800,63 @@
 
     <hr class="info-hairline">
 
-    <section class="info-security-section">
+    <section class="info-security-section info-honest34" data-build="34">
+      <div class="info-security-intro">
+        <div class="page-eyebrow-row" style="justify-content:center;"><span class="eyebrow-dot" aria-hidden="true"></span><p class="page-eyebrow" style="margin:0;">Technik &amp; Datenschutz</p></div>
+        <p>So läuft Lumière – ohne Schönfärberei. Was wo liegt und wer was sieht.</p>
+      </div>
+      <div class="info-security-panel">
+        <div class="info-panel-rows">
+          <div class="info-panel-row">
+            <div class="info-panel-row-left">
+              <span class="info-panel-row-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="7" rx="1.5"/><rect x="4" y="13" width="16" height="7" rx="1.5"/><path d="M8 7.5h.01M8 16.5h.01"/></svg></span>
+              <div><p class="info-panel-row-title">Server in Deutschland, Cloudflare davor</p><p class="info-panel-row-desc">Die Seite liegt auf einem eigenen Server in Deutschland. Davor sitzt Cloudflare: Verbindungen laufen verschlüsselt über HTTPS, und Cloudflare hält groben Missbrauch fern.</p></div>
+            </div>
+            <div class="info-panel-row-right"><span class="info-panel-tag">Deutschland · HTTPS</span></div>
+          </div>
+          <div class="info-panel-row">
+            <div class="info-panel-row-left">
+              <span class="info-panel-row-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="12" cy="6" rx="7" ry="2.5"/><path d="M5 6v12c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5V6M5 12c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5"/></svg></span>
+              <div><p class="info-panel-row-title">Deine Lerndaten in Frankfurt</p><p class="info-panel-row-desc">Konto, Lernsets und Fortschritt liegen bei Supabase in Frankfurt am Main. Zugriffsregeln direkt in der Datenbank sorgen dafür, dass andere Konten deine Daten nicht lesen können.</p></div>
+            </div>
+            <div class="info-panel-row-right"><span class="info-panel-tag">EU · Frankfurt</span></div>
+          </div>
+          <div class="info-panel-row">
+            <div class="info-panel-row-left">
+              <span class="info-panel-row-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span>
+              <div><p class="info-panel-row-title">Passwörter nur als Hash</p><p class="info-panel-row-desc">Supabase speichert dein Passwort nur verschlüsselt (gehasht) – niemand kann es dort im Klartext lesen. Damit du es unter „Mein Konto“ ansehen kannst, merkt sich dein Browser es auf diesem Gerät; beim Abmelden wird es gelöscht.</p></div>
+            </div>
+            <div class="info-panel-row-right"><span class="info-panel-tag">gehasht</span></div>
+          </div>
+          <div class="info-panel-row">
+            <div class="info-panel-row-left">
+              <span class="info-panel-row-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.5l1.9 5.6 5.6 1.9-5.6 1.9L12 18.5l-1.9-5.6L4.5 11l5.6-1.9z"/></svg></span>
+              <div><p class="info-panel-row-title">KI-Fragen</p><p class="info-panel-row-desc">Grammatik-Fragen, Übersetzungen und Vorschläge schickt dein Browser an Google Gemini – antwortet Gemini nicht, an Anthropic Claude. Mitgeschickt wird nur der Text der Anfrage, nicht dein Name oder deine E-Mail.</p></div>
+            </div>
+            <div class="info-panel-row-right"><span class="info-panel-tag">Gemini · Claude</span></div>
+          </div>
+          <div class="info-panel-row">
+            <div class="info-panel-row-left">
+              <span class="info-panel-row-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.5 2.6 3.5 5.4 3.5 8.5s-1 5.9-3.5 8.5c-2.5-2.6-3.5-5.4-3.5-8.5S9.5 6.1 12 3.5z"/></svg></span>
+              <div><p class="info-panel-row-title">IP-Adresse für die Sitzungsübersicht</p><p class="info-panel-row-desc">Damit Missbrauch auffällt, wird bei jedem Besuch deine IP-Adresse über den Dienst ipify ermittelt und mit dem Gerätetyp in der Übersicht der aktiven Sitzungen gespeichert.</p></div>
+            </div>
+            <div class="info-panel-row-right"><span class="info-panel-tag">ipify</span></div>
+          </div>
+          <div class="info-panel-row">
+            <div class="info-panel-row-left">
+              <span class="info-panel-row-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M6 6l12 12"/></svg></span>
+              <div><p class="info-panel-row-title">Keine Werbung, kein Tracking</p><p class="info-panel-row-desc">Keine Analyse-Werkzeuge, keine Werbe- oder Tracking-Cookies. Schriften kommen von Google Fonts und eine Programmbibliothek von jsDelivr – diese Dienste sehen dabei deine IP-Adresse. Mails zu Tarifen verschickt Brevo, Anmelde-Mails Supabase.</p></div>
+            </div>
+            <div class="info-panel-row-right"><span class="info-panel-tag">kein Tracking</span></div>
+          </div>
+        </div>
+        <div class="info-panel-foot">
+          <div class="info-panel-foot-metrics"><span>Stand: 30. September 2026</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="info-security-section" data-build-old="34">
       <div class="info-security-intro">
         <div class="page-eyebrow-row" style="justify-content:center;"><span class="eyebrow-dot" aria-hidden="true"></span><p class="page-eyebrow" style="margin:0;">Security Operations</p></div>
         <p>Diese Website wird aktiv durch Cloudflare und einen zusätzlichen Angriffsschutz gegen Missbrauch abgesichert.</p>
@@ -6360,7 +6557,7 @@
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="./lumiere-gl.js?v=33" defer></script>
+<script src="./lumiere-gl.js?v=34" defer></script>
 <script>
 /* ============================================================
    WICHTIG: Bei jedem inhaltlichen Deploy hochzaehlen (wie CACHE_NAME
@@ -6371,7 +6568,7 @@
       unten) - neue, noch nicht "veroeffentlichte" Features hinter
       isReleased(N) verstecken; Admins sehen sie trotzdem sofort.
    ============================================================ */
-const APP_VERSION = 33;
+const APP_VERSION = 34;
 
 // Handy und iPad (Build 31): ein schlanker Modus fuer alle Nutzer - keine
 // Hintergrund-Weichzeichner (backdrop-filter ueber der bewegten 3D-Ebene
@@ -6419,6 +6616,7 @@ function isReleased(buildVersion){
    umschalten - sonst streiten sich zwei Stellen darum. Im Zweifel einen
    reinen Huell-Container mit dem Attribut versehen. */
 function applyReleaseGate(){
+  try{ applyIcons34(); }catch(e){}
   for(const el of document.querySelectorAll('[data-build]')){
     const n = parseInt(el.dataset.build, 10);
     if(n) el.hidden = !isReleased(n);
@@ -12201,6 +12399,8 @@ function showView(name){
   // beenden - sonst laufen requestAnimationFrame-Schleifen und Intervalle im
   // Hintergrund weiter und der Ballon-Timer spielt Toene auf fremden Seiten.
   stopAllGames();
+  // Konfetti vom Ergebnis faellt sonst auf der naechsten Seite weiter.
+  if(lastShownView === 'results' && name !== 'results') document.querySelectorAll('.confetti-piece').forEach(el => el.remove());
   Object.values(views).forEach(v => v.hidden = true);
   views[name].hidden = false;
   const qn = document.getElementById('quickNav');
@@ -12209,6 +12409,7 @@ function showView(name){
   document.body.classList.toggle('quicknav-visible', visible);
   document.body.classList.toggle('wide-view-active', name === 'hub' || name === 'appDownload' || name === 'admin');
   document.body.classList.toggle('on-hub', name === 'hub');
+  document.body.classList.toggle('wide34', isReleased(34) && ['set', 'sessionSetup', 'practice', 'results'].includes(name));
   document.body.classList.toggle('admin-view-active', name === 'admin');
   // Build 33: Spielen im Vollbild auf Handy und iPad.
   document.documentElement.classList.toggle('game-full33', name === 'arcadeGame' && gameFull33());
@@ -13898,6 +14099,7 @@ document.getElementById('btnStartSession').addEventListener('click', () => {
   const set = getSet(currentSetId);
   document.getElementById('practiceSetName').textContent = set.name;
   sessionPairPool = getSessionPairs(set);
+  sessionWrong = [];
   sessionConfig.length = Math.min(sessionConfig.length, sessionPairPool.length);
   if(sessionConfig.mode === 'match'){
     startMatchRound();
@@ -13913,6 +14115,8 @@ document.getElementById('btnStartSession').addEventListener('click', () => {
 
 // --- Zufalls-Beutel (verhindert Wiederholungen kurz hintereinander) -------
 let sessionPairPool = [];
+// Build 34: in der Runde falsch beantwortete Paare (Ergebnis + "Nur die Falschen").
+let sessionWrong = [];
 let pairBag = [];
 function refillBag(pairs){
   pairBag = pairs.map((_, i) => i);
@@ -14131,6 +14335,7 @@ function finalizeAnswer(isCorrect, correctAnswer, clickedBtn, feedbackText){
   if(questionAnswered) return;
   questionAnswered = true;
   if(currentPair) recordPairResult(currentPair, isCorrect);
+  if(!isCorrect && currentPair && !sessionWrong.includes(currentPair)) sessionWrong.push(currentPair);
   recordDailyProgress();
   const feedback = document.getElementById('practiceFeedback');
   const card = document.getElementById('practiceCard');
@@ -14275,6 +14480,54 @@ function burstConfetti(count = 26){
 }
 
 // --- ERGEBNIS ---------------------------------------------------------
+// Build 34: Ergebnis mit Ring, Auswertung und den falschen Woertern.
+function renderResults34(ok, no, pct){
+  const total = ok + no;
+  const arc = document.getElementById('res34Arc');
+  if(!arc) return;
+  const C = 2 * Math.PI * 52;
+  arc.style.strokeDasharray = C;
+  arc.style.strokeDashoffset = C;
+  requestAnimationFrame(() => requestAnimationFrame(() => { arc.style.strokeDashoffset = C * (1 - pct / 100); }));
+  document.getElementById('res34Pct').textContent = pct + ' %';
+  document.getElementById('res34Title').textContent = pct >= 90 ? 'Meisterhaft!' : pct >= 70 ? 'Stark!' : pct >= 40 ? 'Gut dabei!' : 'Weiter üben – das wird!';
+  document.getElementById('res34Ok').textContent = ok;
+  document.getElementById('res34No').textContent = no;
+  document.getElementById('res34Total').textContent = total;
+  const wrongBox = document.getElementById('res34Wrong');
+  const list = document.getElementById('res34WrongList');
+  wrongBox.hidden = sessionWrong.length === 0;
+  list.innerHTML = sessionWrong.map(p => `<li><span class="de">${escapeHtml(p.de)}</span><span class="fr">${escapeHtml(p.fr)}</span></li>`).join('');
+}
+function practiceWrong34(){
+  if(!sessionWrong.length) return;
+  sessionPairPool = sessionWrong.slice();
+  sessionWrong = [];
+  if(sessionConfig.mode === 'match') sessionConfig.mode = 'mixed';
+  sessionConfig.length = sessionPairPool.length;
+  score = { correct: 0, wrong: 0 }; questionIndex = 0;
+  refillBag(sessionPairPool);
+  updateScoreBadge();
+  showView('practice');
+  loadNextQuestion();
+}
+document.getElementById('btnPracticeWrong').addEventListener('click', () => { sndClick(); practiceWrong34(); });
+document.getElementById('btnRes34Again').addEventListener('click', () => document.getElementById('btnPracticeAgain').click());
+document.getElementById('btnRes34Set').addEventListener('click', () => document.getElementById('btnBackToSet').click());
+document.getElementById('btnRes34Game').addEventListener('click', () => document.getElementById('btnPlayGame').click());
+// Zifferntasten 1-4 waehlen eine Antwort, Enter geht weiter (Build 34).
+window.addEventListener('keydown', (e) => {
+  if(!isReleased(34) || views.practice.hidden) return;
+  if(e.target && /INPUT|TEXTAREA/.test(e.target.tagName)) return;
+  if(/^[1-4]$/.test(e.key)){
+    const opts = document.querySelectorAll('#practiceOptions .btn-option:not(:disabled)');
+    const b = opts[+e.key - 1];
+    if(b){ e.preventDefault(); b.click(); }
+  }else if(e.key === 'Enter'){
+    const next = document.getElementById('btnNextQuestion');
+    if(next && !next.hidden){ e.preventDefault(); next.click(); }
+  }
+});
 function showResults(){
   showView('results');
   recordStreakActivity();
@@ -14285,6 +14538,7 @@ function showResults(){
   document.getElementById('resultsTotal').textContent = total;
   document.getElementById('resultsPct').textContent = pct + ' % richtig';
   document.getElementById('resultsEmoji').textContent = pct >= 90 ? '🏆' : pct >= 70 ? '🎉' : pct >= 40 ? '💪' : '📚';
+  renderResults34(score.correct, score.wrong, pct);
   if(pct >= 70) burstConfetti();
   sndComplete();
   wireSounds();
@@ -14292,6 +14546,7 @@ function showResults(){
 document.getElementById('btnPracticeAgain').addEventListener('click', () => {
   const set = getSet(currentSetId);
   sessionPairPool = getSessionPairs(set);
+  sessionWrong = [];
   sessionConfig.length = Math.min(sessionConfig.length, sessionPairPool.length) || sessionPairPool.length;
   if(sessionConfig.mode === 'match'){ startMatchRound(); return; }
   score = { correct: 0, wrong: 0 }; questionIndex = 0;
@@ -14554,6 +14809,120 @@ function gIcon(key){
   if(isReleased(33)) return gameIcon(key);
   return escapeHtml(key === 'overall' ? '🏆' : (GAME_DEFS[key] ? GAME_DEFS[key].icon : ''));
 }
+
+// --- Build 34: Gold-Symbole statt Emojis in der Lern-App --------------------
+// Ein Ersetzer wandelt bekannte Emojis in Textknoten in feine Linien-Symbole
+// (24er-Raster, currentColor). Laeuft ueber einen MutationObserver, damit auch
+// alles, was JS spaeter schreibt (Rueckmeldungen, Toasts, Listen), erfasst
+// wird. Canvas, Eingabefelder und die Startseite bleiben unberuehrt. Vor der
+// Freigabe passiert nichts; wird das Gate wieder zu, stellt unIconize34()
+// die Emojis zurueck (data-emo).
+const ICO34 = {
+  speaker: '<path d="M4 9.5h3.5L12 6v12l-4.5-3.5H4z"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/>',
+  down: '<path d="M12 4v11M7.5 10.5 12 15l4.5-4.5M5 19.5h14"/>',
+  up: '<path d="M12 15V4M7.5 8.5 12 4l4.5 4.5M5 19.5h14"/>',
+  clip: '<rect x="5" y="4.5" width="14" height="16.5" rx="2"/><path d="M9 4.5V3h6v1.5M8.5 10h7M8.5 14h7M8.5 18h4"/>',
+  spark: '<path d="M12 3.5l1.9 5.6 5.6 1.9-5.6 1.9L12 18.5l-1.9-5.6L4.5 11l5.6-1.9z"/><path d="M19 3v3M17.5 4.5h3"/>',
+  ok: '<circle cx="12" cy="12" r="8.5"/><path d="M8 12.3l2.7 2.7L16.2 9.5"/>',
+  no: '<circle cx="12" cy="12" r="8.5"/><path d="M9 9l6 6M15 9l-6 6"/>',
+  ask: '<circle cx="12" cy="12" r="8.5"/><path d="M9.6 9.4a2.5 2.5 0 1 1 3.4 2.3c-.7.3-1 .8-1 1.5v.6M12 16.8h.01"/>',
+  bulb: '<path d="M9 17.5h6M10 20.5h4M12 3.5a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2V17h5v-.6c0-.8.4-1.5 1-2A6 6 0 0 0 12 3.5z"/>',
+  brain: '<path d="M9 5a3 3 0 0 0-3 3 3 3 0 0 0-1.5 5.3A3 3 0 0 0 9 18.5zM15 5a3 3 0 0 1 3 3 3 3 0 0 1 1.5 5.3A3 3 0 0 1 15 18.5zM9 5a3 3 0 0 1 6 0"/>',
+  shuffle: '<path d="M4 7h3.5c3 0 4 10 7 10H20M4 17h3.5c1.4 0 2.3-2 3.1-4.2M13.5 11c.8-2.1 1.6-4 3-4H20M17.5 4.5 20 7l-2.5 2.5M17.5 14.5 20 17l-2.5 2.5"/>',
+  box: '<rect x="4.5" y="4.5" width="15" height="15" rx="3"/><path d="M8.5 12.2l2.4 2.4 4.6-4.8"/>',
+  pen: '<path d="M4.5 19.5l1-4L15 6l3 3-9.5 9.5zM13 8l3 3"/>',
+  link: '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7L11.5 7M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1.5-1.5"/>',
+  gift: '<rect x="4" y="9" width="16" height="11" rx="1.5"/><path d="M3.5 6h17v3h-17zM12 6v14M12 6c-1-2.5-4.5-3-4.5-.8S11 6 12 6zm0 0c1-2.5 4.5-3 4.5-.8S13 6 12 6z"/>',
+  balloon: '<ellipse cx="12" cy="9.5" rx="5.5" ry="6.5"/><path d="M11 16.3l1 1.2 1-1.2M12 17.5c-1.5 1.5 1.5 2.5 0 4"/>',
+  chart: '<path d="M4.5 19.5h15"/><rect x="6" y="11" width="3" height="6" rx=".6"/><rect x="10.5" y="7" width="3" height="10" rx=".6"/><rect x="15" y="13" width="3" height="4" rx=".6"/>',
+  book: '<path d="M4 5.5C6 4.5 9 4.5 12 6c3-1.5 6-1.5 8-.5v13c-2-1-5-1-8 .5-3-1.5-6-1.5-8-.5zM12 6v13"/>',
+  trophy: '<path d="M8 4.5h8v4.5a4 4 0 0 1-8 0zM8 6H5c0 2.8 1.5 4.3 3.3 4.6M16 6h3c0 2.8-1.5 4.3-3.3 4.6M12 13v3.5M8.5 20h7M9.5 16.5h5"/>',
+  party: '<path d="M4.5 19.5 9 8l7 7zM13 4.5l.5 2M17.5 6.5 16 8M19.5 11l-2 .5"/>',
+  bolt: '<path d="M13 3 5.5 13.5h5.5L10 21l8-10.5h-5.5z"/>',
+  flame: '<path d="M12 21c-3.6 0-6-2.4-6-5.6 0-3.4 3-5.3 3.4-8.9 2.4 1.6 3.3 3.6 3.2 5.5 1-.7 1.6-1.8 1.8-3.1 2 1.7 3.6 4 3.6 6.5 0 3.2-2.4 5.6-6 5.6z"/>',
+  slow: '<path d="M4.5 16a7.5 7.5 0 0 1 15 0M12 16l-3.5-3.5"/>',
+  fast: '<path d="M4.5 16a7.5 7.5 0 0 1 15 0M12 16l3.8-3.8"/>',
+  coin: '<circle cx="12" cy="12" r="8.5"/><path d="M14.5 9.2a3.2 3.2 0 1 0 0 5.6"/>',
+  lock: '<rect x="5.5" y="11" width="13" height="9" rx="2"/><path d="M8.5 11V8a3.5 3.5 0 0 1 7 0v3"/>',
+  unlock: '<rect x="5.5" y="11" width="13" height="9" rx="2"/><path d="M8.5 11V8a3.5 3.5 0 0 1 6.8-1.2"/>',
+  tools: '<path d="M14.5 5.5a4 4 0 0 0-5 5L4.5 15.5a2 2 0 0 0 3 3l5-5a4 4 0 0 0 5-5l-2.3 2.3-2.2-.8-.8-2.2z"/>',
+  cal: '<rect x="4" y="5.5" width="16" height="14.5" rx="2"/><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4"/>',
+  signal: '<path d="M5 19a9.5 9.5 0 0 1 0-13.5M19 19a9.5 9.5 0 0 0 0-13.5M8 16a5 5 0 0 1 0-7.5M16 16a5 5 0 0 0 0-7.5"/><circle cx="12" cy="12.2" r="1.3"/>',
+  image: '<rect x="4" y="5" width="16" height="14" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="M4.5 17l5-4.5 3.5 3 2.5-2 4 3.5"/>',
+  folder: '<path d="M4 7.5V18a1.5 1.5 0 0 0 1.5 1.5h13A1.5 1.5 0 0 0 20 18V9.5A1.5 1.5 0 0 0 18.5 8H12l-2-2.5H5.5A1.5 1.5 0 0 0 4 7z"/>',
+  mail: '<rect x="3.5" y="6" width="17" height="12.5" rx="2"/><path d="M4 7l8 6.5L20 7"/>',
+  card: '<rect x="3.5" y="6" width="17" height="12" rx="2"/><path d="M3.5 10h17M7 15h4"/>',
+  trend: '<path d="M4 19.5h16M5 15.5l4.5-4.5 3 3 6.5-6.5M15 7.5h4v4"/>',
+  users: '<circle cx="9" cy="9" r="3"/><path d="M3.5 19c.5-3 2.7-4.8 5.5-4.8S14 16 14.5 19M15 6.2a3 3 0 0 1 0 5.6M16.5 14.4c2 .5 3.5 2 4 4.6"/>',
+  pad: '<path d="M7 8h10a4 4 0 0 1 3.9 4.9l-.8 3.6a2 2 0 0 1-3.5.8L14.5 15h-5l-2.1 2.3a2 2 0 0 1-3.5-.8l-.8-3.6A4 4 0 0 1 7 8zM8 11v3M6.5 12.5h3M15.5 12h.01M17.5 13.5h.01"/>',
+  scroll: '<path d="M7 4.5h10.5V17a2.5 2.5 0 0 1-2.5 2.5H6A2.5 2.5 0 0 1 3.5 17v-1.5H14V17a2.5 2.5 0 0 0 2.5 2.5M9.5 8.5h5M9.5 12h5"/>',
+  clock: '<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>',
+  tower: '<path d="M12 3v3M10.5 6h3M11 6l-2.2 9M13 6l2.2 9M7.5 15h9M8.5 15l-2.5 5.5M15.5 15l2.5 5.5M10 20.5c.6-2.2 3.4-2.2 4 0"/>',
+};
+const EMO34 = {
+  '🔊': 'speaker', '⬇': 'down', '⬆': 'up', '📋': 'clip', '✨': 'spark', '✅': 'ok', '❌': 'no', '🤷': 'ask',
+  '💡': 'bulb', '💭': 'bulb', '🧠': 'brain', '🔀': 'shuffle', '☑': 'box', '✍': 'pen', '🔗': 'link', '🎁': 'gift',
+  '🎈': 'balloon', '📊': 'chart', '📘': 'book', '📚': 'book', '🏆': 'trophy', '🎉': 'party', '💪': 'bolt', '🔥': 'flame',
+  '🐢': 'slow', '🐇': 'fast', '🪙': 'coin', '🔒': 'lock', '🔓': 'unlock', '🛠': 'tools', '🚧': 'tools', '📅': 'cal',
+  '📡': 'signal', '🖼': 'image', '🗂': 'folder', '📨': 'mail', '✉': 'mail', '💳': 'card', '📈': 'trend', '👥': 'users',
+  '🎮': 'pad', '📜': 'scroll', '🕰': 'clock', '🗼': 'tower',
+};
+const EMO34_SRC = '(' + Object.keys(EMO34).sort((a, b) => b.length - a.length).map(k => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|') + ')️?';
+const EMO34_TEST = new RegExp(EMO34_SRC, 'u');
+const SKIP34 = new Set(['SCRIPT', 'STYLE', 'TEXTAREA', 'INPUT', 'OPTION', 'SELECT', 'CANVAS', 'TITLE', 'svg']);
+function ico34(name){ return `<svg class="ico34 ico34-${name}" viewBox="0 0 24 24" aria-hidden="true" focusable="false">${ICO34[name] || ''}</svg>`; }
+function iconize34(root){
+  if(!root || !isReleased(34)) return;
+  if(root.nodeType === 3) root = root.parentNode;
+  if(!root || root.nodeType !== 1) return;
+  for(let p = root; p; p = p.parentNode){
+    if(p.nodeType === 1 && (SKIP34.has(p.nodeName) || p.id === 'view-hub' || p.classList.contains('ico34w'))) return;
+  }
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+    acceptNode(n){
+      if(!EMO34_TEST.test(n.nodeValue)) return NodeFilter.FILTER_REJECT;
+      for(let p = n.parentNode; p && p !== root; p = p.parentNode){
+        if(SKIP34.has(p.nodeName) || p.id === 'view-hub' || (p.classList && p.classList.contains('ico34w'))) return NodeFilter.FILTER_REJECT;
+      }
+      return NodeFilter.FILTER_ACCEPT;
+    },
+  });
+  const nodes = [];
+  while(walker.nextNode()) nodes.push(walker.currentNode);
+  for(const n of nodes){
+    const text = n.nodeValue, frag = document.createDocumentFragment();
+    let last = 0;
+    for(const m of text.matchAll(new RegExp(EMO34_SRC, 'gu'))){
+      if(m.index > last) frag.appendChild(document.createTextNode(text.slice(last, m.index)));
+      const w = document.createElement('span');
+      w.className = 'ico34w';
+      w.dataset.emo = m[0];
+      w.innerHTML = ico34(EMO34[m[1]]);
+      frag.appendChild(w);
+      last = m.index + m[0].length;
+    }
+    if(last < text.length) frag.appendChild(document.createTextNode(text.slice(last)));
+    n.parentNode.replaceChild(frag, n);
+  }
+}
+function unIconize34(){
+  document.querySelectorAll('.ico34w').forEach(w => w.replaceWith(document.createTextNode(w.dataset.emo || '')));
+}
+let ico34Pending = new Set(), ico34Raf = 0;
+const ico34Observer = new MutationObserver((muts) => {
+  if(!isReleased(34)) return;
+  for(const m of muts){
+    if(m.type === 'characterData') ico34Pending.add(m.target.parentNode);
+    else m.addedNodes.forEach(n => ico34Pending.add(n.nodeType === 3 ? n.parentNode : n));
+  }
+  if(!ico34Raf) ico34Raf = requestAnimationFrame(() => {
+    ico34Raf = 0;
+    const list = [...ico34Pending]; ico34Pending = new Set();
+    list.forEach(el => { if(el && el.isConnected) iconize34(el); });
+  });
+});
+ico34Observer.observe(document.body, { childList: true, subtree: true, characterData: true });
+function applyIcons34(){ if(isReleased(34)) iconize34(document.body); else unIconize34(); }
 // Lernspiele fuer den Reiter der Spielhalle; der Rest ist "Geschick".
 const LEARN_GAMES33 = new Set(['motdujour', 'g2048', 'wordrun', 'snake', 'shooter']);
 // "Neu" bis zum ersten Spielen (je Konto, im Lernstand).

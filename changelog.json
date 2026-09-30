@@ -1,6 +1,24 @@
 {
  "entries": [
   {
+   "build": 34,
+   "date": "2026-09-30",
+   "until": "2026-09-30",
+   "title": "Lern-App in Gold: Symbole, Übung und Ergebnis, Desktop-Layout, ehrliches Über uns",
+   "gate": true,
+   "items": [
+    "Fehlerbehebung (sofort fuer alle): auf dem Handy waren im Lernset die Knoepfe (Umbenennen …) und in der Grammatik die Beispielfragen abgeschnitten - jetzt umbrechend und vollstaendig.",
+    "Fehlerbehebung (sofort fuer alle): Konfetti vom Ergebnis fiel auf der naechsten Seite weiter - endet jetzt beim Seitenwechsel.",
+    "Hinter dem Freigabe-Gate (Build 34): Emojis in der Lern-App (Uebungsmodi, Rueckmeldungen, Ergebnis, Statistik, Kalender, Belohnung, Toasts, Admin-Ueberschriften) werden durch feine Linien-Symbole in Gold ersetzt; Richtig gruen, Falsch rot.",
+    "Hinter dem Gate: Uebung mit Goldkante, Goldfortschritt und nummerierten Antwortkarten (Tasten 1-4 waehlen, Enter geht weiter).",
+    "Hinter dem Gate: Ergebnis neu - Ring mit Prozent, Richtig/Falsch/Gefragt, Liste der falsch beantworteten Woerter mit Loesung und Knopf 'Nur die Falschen ueben'.",
+    "Hinter dem Gate: Desktop nutzt die Breite - Lernset zweispaltig (links Start und Statistik, rechts Vokabeln), 'Uebung einrichten' im Raster, Uebung und Ergebnis breiter.",
+    "Hinter dem Gate: Grammatik-Startseite mit Gold-Medaillon und drei Karten (Regel, Beispiele, Ausnahmen) statt der zwei Kreise.",
+    "Hinter dem Gate: 'Ueber uns' ohne erfundene Live-Werte (Uptime, Scan, Shield-ID) - stattdessen ehrliche Angaben: Server in Deutschland mit Cloudflare, Lerndaten bei Supabase in Frankfurt, Passwoerter nur als Hash (plus Hinweis auf 'Passwort ansehen' auf dem Geraet), KI-Fragen an Google Gemini/Claude, IP ueber ipify fuer die Sitzungsuebersicht, kein Tracking, Google Fonts/jsDelivr/Brevo genannt.",
+    "Kein SQL noetig."
+   ]
+  },
+  {
    "build": 33,
    "date": "2026-09-30",
    "until": "2026-09-30",
