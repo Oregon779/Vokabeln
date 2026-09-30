@@ -1519,7 +1519,7 @@ function makeHall(lite){
   // Wasserflaeche darueber: dunkel, halb durchsichtig, mit wandernden
   // Lichtwellen - so wirkt die Spiegelung wie auf nassem Stein.
   const floor = new Mesh(new CircleGeometry(40, 64), new ShaderMaterial({
-    uniforms: { uTime: { value: 0 }, uOpacity: { value: 0 }, uLight: hallLight, uDrops: { value: 0 }, uN: { value: lite ? 5 : 9 } },
+    uniforms: { uTime: { value: 0 }, uOpacity: { value: 0 }, uLight: hallLight, uDrops: { value: 0 }, uN: { value: tier === 'desktop' ? 9 : 5 } },
     vertexShader: 'varying vec3 vW; void main(){ vec4 w = modelMatrix * vec4(position, 1.0); vW = w.xyz; gl_Position = projectionMatrix * viewMatrix * w; }',
     fragmentShader: `
       uniform float uTime, uOpacity, uLight, uDrops, uN;
@@ -2540,7 +2540,7 @@ function makeNave(){
       }`,
     transparent: true, depthWrite: false, blending: AdditiveBlending,
   });
-  const layers = lite ? 1 : 2;
+  const layers = tier === 'desktop' ? 2 : 0;
   for(let i = 0; i < layers; i++){
     const m = new Mesh(new PlaneGeometry(34, 7), hazeMat);
     m.position.set(0, 2.6, -8 - i * 7);
@@ -2559,15 +2559,21 @@ function setFeatures(f){
   fx30 = on;
   if(on && ready){ ensureFx30(); prewarm(); }
 }
+// Build 31: auf Handy und iPad nur die guenstigen Wirkungen (Lichtblitz,
+// Turm-Nachtlicht, Funkeln, Lichtschweife, Gewoelbe ohne Nebel, das L im
+// Wirbel). Himmel, Strahlen, Bokeh, Goldsturm, Fokus-Zieher und
+// Lichtsaeulen fuellen den ganzen Schirm und fallen dort weg.
+const fxFull = () => tier === 'desktop';
 function ensureFx30(){
   if(!fx30 || !ready) return;
-  if(!fx.hero){ fx.hero = makeHeroFx(); scene.add(fx.hero); }
-  if(!fx.bokeh){ fx.bokeh = makeBokeh(); scene.add(fx.bokeh); registerDensity(fx.bokeh); }
-  if(!fx.storm){ fx.storm = makeStorm(); scene.add(fx.storm); registerDensity(fx.storm); }
-  if(!fx.sky){ fx.sky = makeSky(); scene.add(fx.sky); }
+  const full = fxFull();
+  if(full && !fx.hero){ fx.hero = makeHeroFx(); scene.add(fx.hero); }
+  if(full && !fx.bokeh){ fx.bokeh = makeBokeh(); scene.add(fx.bokeh); registerDensity(fx.bokeh); }
+  if(full && !fx.storm){ fx.storm = makeStorm(); scene.add(fx.storm); registerDensity(fx.storm); }
+  if(full && !fx.sky){ fx.sky = makeSky(); scene.add(fx.sky); }
   if(tower && !fx.trails){ fx.trails = makeTrails(); tower.add(fx.trails); }
-  if(hall && !fx.columns){
-    fx.columns = makeColumns(); hall.add(fx.columns);
+  if(hall && !fx.nave){
+    if(full){ fx.columns = makeColumns(); hall.add(fx.columns); }
     fx.nave = makeNave(); hall.add(fx.nave);
   }
 }
@@ -2663,7 +2669,7 @@ function updateFx30(t, dtRaw, dt){
   if(grade){
     const gu = grade.uniforms;
     const turnMid = (b < 0.1) ? Math.sin(Math.PI * (turnShown - Math.floor(turnShown))) * 0.22 * (1 - hv) : 0;
-    gu.uBlur.value = level < 5 ? Math.min(1, Math.max(fly * 0.75, sink * 0.7, fx.flash * 0.6, turnMid)) : 0;
+    gu.uBlur.value = (level < 5 && fxFull()) ? Math.min(1, Math.max(fly * 0.75, sink * 0.7, fx.flash * 0.6, turnMid)) : 0;
     gu.uFlash.value = fx.flash;
     gu.uFlare.value.copy(fx.flashAt);
   }
@@ -2707,7 +2713,7 @@ function updateFx30(t, dtRaw, dt){
   if(hall){
     const hv2 = smoothstep(clamp01((hallShown - 0.25) / 0.6));
     const hu = hall.userData;
-    hu.floor.material.uniforms.uDrops.value = 1;
+    hu.floor.material.uniforms.uDrops.value = tier === 'phone' ? 0 : 1;
     const gu = hu.glitter.material.uniforms;
     gu.uSwirl.value = 1;
     const asm = 0.3 * smoothstep(clamp01((hallShown - 0.35) / 0.65)) + 0.7 * smoothstep(clamp01((hallPShown - 0.05) / 0.65));
@@ -3450,6 +3456,13 @@ function qualityLevels(){
     L.push({ pr: 0.85, bloom: false, bs: 0.5, d: 0.4, ms: 0, simple: true });
     L.forEach(l => { if(l.ms > 2) l.ms = 2; });
   }
+  // Build 31: Handy und iPad rechnen hoechstens mit 1,5- bzw. 1,6-facher
+  // Aufloesung. Die volle Retina-Aufloesung (2-3) kostete dort das
+  // Doppelte, ohne dass man es auf dem kleinen Schirm sieht.
+  if(tier !== 'desktop'){
+    const cap = tier === 'phone' ? 1.5 : 1.6;
+    L.forEach(l => { l.pr = Math.min(l.pr, cap); });
+  }
   return L;
 }
 let levels = null, level = 0, levelCeil = 0;
@@ -3487,7 +3500,9 @@ function governor(dtRaw){
   if(!gov.on || dtRaw > 0.25) return;      // Tabwechsel, Ruckler beim Laden
   if(gov.cool > 0){ gov.cool--; return; }  // nach jeder Aenderung kurz warten
   gov.acc += dtRaw; gov.n++;
-  if(gov.n < 40) return;
+  // Handy/iPad reagieren schneller (Build 31): dort ruckelte es sonst
+  // sekundenlang, bevor die Regelung Stufe fuer Stufe herunterkam.
+  if(gov.n < (tier === 'desktop' ? 40 : 20)) return;
   const avg = gov.acc / gov.n;
   gov.acc = 0; gov.n = 0;
   if(avg > 1 / 54){
@@ -3498,7 +3513,7 @@ function governor(dtRaw){
       gov.calm = 0;
       applyLevel(level + 1);
     }
-    gov.cool = 20;
+    gov.cool = tier === 'desktop' ? 20 : 8;
   }else if(avg < 1 / 58.5){
     // Drei gute Messungen in Folge: eine Stufe hinauf - bis zur Grenze.
     // Nach langer ruhiger Zeit (~20 s) darf die Grenze wieder eine Stufe

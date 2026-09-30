@@ -23,6 +23,13 @@ Gilt für jede Aufgabe, ohne dass der Nutzer es neu sagen muss:
    keine Dauer-Animationen auf unsichtbaren Seiten, Bilder/Videos klein
    halten, teure Effekte an die Qualitaetsregelung (`governor()`) haengen.
    Bei neuen Effekten die Bildzeit messen und im Ergebnis nennen.
+5. **Changelog im Admin-Panel pflegen.** Jede Aenderung - jede neue
+   Funktion, jede Umgestaltung, jede Fehlerbehebung - bekommt einen Eintrag
+   in `changelog.json` (Reiter "Changelog" im Admin-Panel, nur Admins).
+   Pro Build ein Eintrag mit Datum, Titel und ALLEN Punkten (was, wo, ob
+   hinter dem Gate, ggf. SQL/Edge Function noetig). Alte Eintraege bleiben
+   stehen - dort ist die Geschichte aller Versionen gespeichert. Ohne
+   Changelog-Eintrag kein Commit.
 
 ## Deployment
 
@@ -840,6 +847,61 @@ sofort fuer alle.
 - Bildzeit (Software-Renderer der Testmaschine, nur relativ): Startbild und
   Turm etwa gleich wie Build 29, Halle rund +30 %, Flug zum Turm ohnehin
   guenstig.
+
+## Build 31: Handy/iPad fluessig, Spielhalle, Rangliste, Coins, Mails
+
+Fehlerbehebungen gelten sofort fuer alle (Entscheidung des Nutzers), alles
+Neue haengt an `isReleased(31)` / `data-build="31"` / `html.build-31-live`.
+SQL: `supabase/build31.sql`. Edge Function `lumiere-mail` neu bereitstellen.
+
+- **Leistung Handy/iPad:** `PERF_TIER` (phone/tablet/desktop, gleiche Regel
+  wie `tier` der 3D-Ebene) setzt `html.perf-lite` + `perf-phone`/
+  `perf-tablet`. Darunter: kein `backdrop-filter` (der groesste Posten -
+  jede Milchglasflaeche ueber dem WebGL-Canvas wird jedes Bild neu
+  weichgezeichnet), kein `filter:blur` auf Szenentext, Balken-/Titel-
+  Animationen aus, Kometen-Canvas auf dem Handy aus (iPad 7), DPR 1.
+  In der 3D-Ebene: `fxFull()` = nur Desktop - Strahlen, Bokeh, Goldsturm,
+  Nachthimmel, Lichtsaeulen, Gewoelbe-Dunst, Fokus-Zieher fallen mobil weg;
+  Aufloesung hoechstens 1,5 (Handy) / 1,6 (iPad); `governor()` mobil mit
+  20 Bildern Fenster. Neue teure Effekte also an `fxFull()` haengen.
+- **Karten auf dem Handy:** Querformat in voller Breite (`min(92vw,26rem)`),
+  nur Standbild (`cardVideo.update` prueft `PERF_TIER`), iPad mit Video.
+- **Changelog** (`changelog.json`, Admin-Reiter "Changelog",
+  `loadChangelog`/`renderChangelog`): `{entries:[{build, date, until, title,
+  gate, items[]}]}`, neuester oben. Builds 0-30 aus der Git-Geschichte
+  nachgetragen. Pro Build ein Eintrag - siehe Regel 5 oben.
+- **Coins:** liegen im Lernstand des Nutzers (`user_data.data.coins`), den
+  nur er schreibt. Der Admin legt deshalb eine Buchung in `coin_grants` an;
+  `applyCoinGrants()` (nach dem Cloud-Abgleich und alle 2 min) bucht offene
+  ein und setzt `applied_at` (Nutzer duerfen nur diese Spalte aendern).
+  Anzeige: RPC `admin_coins` (Stand + noch offene Buchungen), Spalte in der
+  Nutzerliste, Dialog `admOpen('coins', p)` mit Grund, Nachricht (abschaltbar)
+  und Verlauf.
+- **Rangliste** (`.lb31`, `renderLb31`): RPCs `lb_game(game, period, limit)`
+  und `lb_overall(games[], period, limit)`; Zeitraum `lb_since` nach
+  deutscher Zeit. Jede Runde landet in `game_runs` (`logGameRun` am Anfang
+  von `submitRecord`) - Woche/Monat und "Runden" zaehlen erst ab Build 31,
+  Allzeit nimmt die alten `game_records` mit. Gesamt = Platzpunkte (Platz 1
+  = 10 ... Platz 10 = 1) ueber die sichtbaren Spiele. Gesperrte fehlen, die
+  eigene Zeile kommt immer mit (`is_me`). Ohne SQL: Rueckfall auf
+  `game_records` mit Hinweis.
+- **Spielhalle** (`arc31()`, gemeinsame Schicht `A31`): ein Effekt-Canvas
+  `.a31-fx` ueber der Buehne (Partikel `burst`, `popup`, `shake` per CSS-
+  Transform, `flash`, `confetti`), vorgerenderter Himmel `A31.sky` (Mond
+  oben LINKS - rechts stoerte er Zielscheibe und Wortgitter). Jeder Start
+  ueber `arcadeStartScreen` -> `runArcadeKey`; Ende ueber die Karte in
+  `finishArcadeGame`. Texte in `GAME31_TEXT`, Herzen `setArcadeLives`.
+  Ballon Pop: `runBalloon31` (endlos, 3 Leben, Bomben ab 12 s,
+  Sternballons). Mot du jour: Joker/Serie; Turmsprung: Schild/Fluegel;
+  2048: einmal Rueckgaengig (Z), Kombo-Bonus; Wort-Laeufer: Kombo x1-x3.
+- **Mails:** `layout()` in `lumiere-mail` = Nachtblau mit Gold-Medaillon.
+  Die Supabase-Auth-Mails liegen als fertige Vorlagen in
+  `supabase/templates/` (erzeugt von `tools/mail-templates.mjs`, Vorschau
+  `tools/mail-preview.html`) und muessen von Hand in Supabase unter Auth ->
+  Email Templates eingefuegt werden.
+- **Abgelehnt:** eine Tarnung vor Apple Classroom ("GoodNotes anzeigen") -
+  technisch nicht moeglich und Taeuschung der Schule. Nicht wieder anbieten;
+  der richtige Weg ist eine Freigabe der Domain durch die Schule.
 
 ## Testen mit Freigabe-Gate
 

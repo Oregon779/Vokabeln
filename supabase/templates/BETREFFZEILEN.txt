@@ -1,0 +1,6 @@
+confirmation: Bestätige deine E-Mail für Lumière
+invite: Du bist zu Lumière eingeladen
+magic_link: Dein Anmelde-Link für Lumière
+email_change: Bestätige deine neue E-Mail-Adresse
+recovery: Neues Passwort für Lumière
+reauthentication: Dein Bestätigungscode für Lumière

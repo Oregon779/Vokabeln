@@ -52,30 +52,50 @@ const date = (iso: string) =>
   new Date(iso).toLocaleDateString("de-DE", { day: "2-digit", month: "long", year: "numeric", timeZone: "Europe/Berlin" });
 const euro = (cents: number) => (cents / 100).toFixed(2).replace(".", ",") + " €";
 
-// Dunkel/Gold wie die Seite. Tabellen + Inline-Styles, damit es auch in
-// Outlook und Gmail steht.
-function layout(title: string, intro: string, rows: [string, string][], note: string, cta: string) {
+// Nacht und Gold wie die Seite (Build 31): Medaillon mit dem L, goldene
+// Wortmarke, Zierlinie, Karte mit feinem Goldrand, goldener Knopf. Nur
+// Tabellen und Inline-Styles, damit es in Gmail, Outlook und Apple Mail
+// gleich aussieht. color-scheme "dark" verhindert, dass Mail-Apps die
+// Farben selbst umdrehen. Dieselbe Hülle steckt in tools/mail-templates.mjs
+// (Supabase-Vorlagen) - bei Änderungen beide anpassen.
+type Opts = { kicker?: string; url?: string };
+function layout(title: string, intro: string, rows: [string, string][], note: string, cta: string, opts: Opts = {}) {
+  const url = opts.url || SITE;
   const table = rows.length
-    ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:22px 0 6px;border:1px solid #3a3222;border-radius:12px;background:#11151d;">
-        ${rows.map(([k, v], i) => `<tr><td style="padding:12px 16px;${i ? "border-top:1px solid #262a33;" : ""}font:12px/1.4 Menlo,Consolas,monospace;letter-spacing:.08em;text-transform:uppercase;color:#a79c88;">${esc(k)}</td><td align="right" style="padding:12px 16px;${i ? "border-top:1px solid #262a33;" : ""}font:600 15px/1.4 Helvetica,Arial,sans-serif;color:#f6f2e9;">${esc(v)}</td></tr>`).join("")}
+    ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:24px 0 4px;border:1px solid #4a3d22;border-radius:14px;background:#0f131c;">
+        ${rows.map(([k, v], i) => `<tr><td style="padding:13px 18px;${i ? "border-top:1px solid #232834;" : ""}font:11px/1.4 Menlo,Consolas,monospace;letter-spacing:.14em;text-transform:uppercase;color:#a79c88;">${esc(k)}</td><td align="right" style="padding:13px 18px;${i ? "border-top:1px solid #232834;" : ""}font:600 15px/1.4 Georgia,'Times New Roman',serif;color:#f6e7c1;">${esc(v)}</td></tr>`).join("")}
       </table>`
     : "";
-  return `<!doctype html><html lang="de"><body style="margin:0;padding:0;background:#0b0e14;">
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#0b0e14;padding:32px 12px;"><tr><td align="center">
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#141922;border:1px solid #2c2618;border-radius:20px;">
-      <tr><td style="padding:30px 30px 0;text-align:center;font:italic 600 26px Georgia,'Times New Roman',serif;color:#f6c35c;">Lumière</td></tr>
-      <tr><td style="padding:6px 30px 0;text-align:center;"><div style="display:inline-block;width:5px;height:5px;border-radius:50%;background:#f6c35c;"></div></td></tr>
-      <tr><td style="padding:22px 30px 30px;">
-        <h1 style="margin:0 0 12px;font:600 24px/1.25 Georgia,'Times New Roman',serif;color:#f6f2e9;">${esc(title)}</h1>
-        <p style="margin:0;font:15px/1.6 Helvetica,Arial,sans-serif;color:#d9d3c7;">${intro}</p>
+  return `<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark"><meta name="supported-color-schemes" content="dark"><title>${esc(title)}</title></head>
+<body style="margin:0;padding:0;background:#07090e;">
+  <div style="display:none;max-height:0;overflow:hidden;opacity:0;">${esc(title)}</div>
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#07090e;background-image:radial-gradient(ellipse at top,#1a1830 0%,#07090e 60%);padding:36px 12px;"><tr><td align="center">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:540px;">
+      <tr><td align="center" style="padding:0 0 18px;">
+        <table role="presentation" cellpadding="0" cellspacing="0"><tr><td align="center" width="58" height="58" style="width:58px;height:58px;border-radius:50%;background:#d9a548;background-image:linear-gradient(135deg,#ffe3a1,#d69a45 55%,#8a5a1c);border:1px solid #f6d58a;box-shadow:0 0 24px rgba(246,195,92,.45);font:italic 600 28px/58px Georgia,'Times New Roman',serif;color:#1c1207;">L</td></tr></table>
+        <div style="margin:12px 0 0;font:italic 600 30px/1 Georgia,'Times New Roman',serif;color:#f2c878;letter-spacing:-.01em;">Lumière</div>
+        <table role="presentation" cellpadding="0" cellspacing="0" style="margin:12px auto 0;"><tr>
+          <td width="70" style="border-top:1px solid #7a6030;font-size:0;line-height:0;">&nbsp;</td>
+          <td style="padding:0 10px;font:10px/1 Georgia,serif;color:#f2c878;">&#9670;</td>
+          <td width="70" style="border-top:1px solid #7a6030;font-size:0;line-height:0;">&nbsp;</td>
+        </tr></table>
+      </td></tr>
+      <tr><td style="background:#121722;background-image:linear-gradient(180deg,#171d2b 0%,#10141d 100%);border:1px solid #3d321c;border-radius:22px;padding:34px 32px 34px;">
+        ${opts.kicker ? `<p style="margin:0 0 10px;font:11px/1.4 Menlo,Consolas,monospace;letter-spacing:.3em;text-transform:uppercase;color:#f2c878;">${esc(opts.kicker)}</p>` : ""}
+        <h1 style="margin:0 0 14px;font:italic 600 27px/1.2 Georgia,'Times New Roman',serif;color:#fbf3e1;">${esc(title)}</h1>
+        <p style="margin:0;font:15px/1.7 Helvetica,Arial,sans-serif;color:#ddd4c3;">${intro}</p>
         ${table}
-        ${note ? `<p style="margin:16px 0 0;font:14px/1.6 Helvetica,Arial,sans-serif;color:#a79c88;">${note}</p>` : ""}
-        <table role="presentation" cellpadding="0" cellspacing="0" style="margin:26px 0 0;"><tr><td style="border-radius:999px;background:#f0c469;">
-          <a href="${SITE}" style="display:inline-block;padding:13px 26px;font:700 13px Helvetica,Arial,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#1a1406;text-decoration:none;">${esc(cta)}</a>
+        ${note ? `<p style="margin:18px 0 0;font:13.5px/1.65 Helvetica,Arial,sans-serif;color:#a79c88;">${note}</p>` : ""}
+        <table role="presentation" cellpadding="0" cellspacing="0" style="margin:28px 0 0;"><tr><td style="border-radius:999px;background:#f0c469;background-image:linear-gradient(180deg,#ffe0a0,#e2a94c);box-shadow:0 6px 22px rgba(240,196,105,.35);">
+          <a href="${url}" style="display:inline-block;padding:14px 30px;font:700 12.5px Helvetica,Arial,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#1a1406;text-decoration:none;">${esc(cta)}</a>
         </td></tr></table>
       </td></tr>
+      <tr><td align="center" style="padding:22px 10px 0;">
+        <p style="margin:0;font:11px/1.7 Menlo,Consolas,monospace;letter-spacing:.14em;text-transform:uppercase;color:#6d6555;">Lumière · Deutsch ↔ Französisch</p>
+        <p style="margin:6px 0 0;font:12px/1.6 Helvetica,Arial,sans-serif;color:#5d5648;">Du bekommst diese Mail, weil du ein Konto bei <a href="${SITE}" style="color:#a0874f;text-decoration:none;">vokabeln.stoneuniverse.de</a> hast.</p>
+      </td></tr>
     </table>
-    <p style="margin:18px 0 0;font:11px/1.6 Menlo,Consolas,monospace;letter-spacing:.1em;text-transform:uppercase;color:#6d6555;">Lumière · Deutsch ↔ Französisch</p>
   </td></tr></table></body></html>`;
 }
 
@@ -124,6 +144,7 @@ async function decisionMail(requestId: string) {
       rows,
       "Kurz vor Ablauf erinnern wir dich per E-Mail. Danach gilt automatisch wieder der Gratis-Tarif – nichts verlängert sich ohne deine Zustimmung.",
       "Zu Lumière",
+      { kicker: "Tarif freigeschaltet" },
     );
     const text = `${plan.name} ist freigeschaltet.\n${plan.limit} KI-Anfragen pro Tag, gültig bis ${until}.\n${SITE}`;
     await send(to, r.display_name, `Dein Tarif ${plan.name} ist freigeschaltet`, html, text);
@@ -135,6 +156,7 @@ async function decisionMail(requestId: string) {
       [],
       esc(reason).replace(/\n/g, "<br>"),
       "Zu Lumière",
+      { kicker: "Deine Anfrage" },
     );
     await send(to, r.display_name, `Deine Anfrage für ${plan.name}`, html, `${reason}\n${SITE}`);
   } else {
@@ -161,10 +183,11 @@ async function reminders() {
     const until = date(p.plan_until);
     const html = layout(
       `${plan.name} läuft bald ab`,
-      `${p.display_name ? `Hallo ${esc(p.display_name)}` : "Hallo"}, dein Tarif ${plan.name} gilt noch bis <strong style="color:#f6c35c;">${until}</strong>. Danach gilt automatisch wieder der Gratis-Tarif.`,
+      `${p.display_name ? `Hallo ${esc(p.display_name)}` : "Hallo"}, dein Tarif ${plan.name} gilt noch bis <strong style="color:#f2c878;">${until}</strong>. Danach gilt automatisch wieder der Gratis-Tarif.`,
       [["Tarif", plan.name], ["Gültig bis", until]],
       "Möchtest du verlängern? Frag in „Mein Konto“ einfach erneut an – wir melden uns.",
       "Zu Mein Konto",
+      { kicker: "Erinnerung" },
     );
     try {
       await send(p.email, p.display_name, `Dein Tarif ${plan.name} läuft am ${until} ab`, html, `${plan.name} gilt noch bis ${until}.\n${SITE}`);
@@ -207,18 +230,18 @@ async function testMails(to: string, redirect: string) {
   await step("Tarif freigeschaltet (Brevo)", async () => {
     const html = layout("Plus ist freigeschaltet", "Hallo, deine Anfrage ist durch – ab sofort hast du mehr KI-Anfragen für Beispielsätze, Erklärungen und die Grammatik-Hilfe.",
       [["Tarif", "Plus"], ["KI-Anfragen", "200 pro Tag"], ["Laufzeit", "1 Monat"], ["Gültig bis", until], ["Betrag", euro(299)]],
-      "Kurz vor Ablauf erinnern wir dich per E-Mail. Danach gilt automatisch wieder der Gratis-Tarif – nichts verlängert sich ohne deine Zustimmung.", "Zu Lumière");
+      "Kurz vor Ablauf erinnern wir dich per E-Mail. Danach gilt automatisch wieder der Gratis-Tarif – nichts verlängert sich ohne deine Zustimmung.", "Zu Lumière", { kicker: "Tarif freigeschaltet" });
     await send(to, null, "[Test] Dein Tarif Plus ist freigeschaltet", html, `Plus ist freigeschaltet (Test).\n${SITE}`);
     return to;
   });
   await step("Tarif abgelehnt (Brevo)", async () => {
-    const html = layout("Deine Anfrage für Plus", "Hallo, danke für dein Interesse an Plus.", [], esc(DEFAULT_REJECT), "Zu Lumière");
+    const html = layout("Deine Anfrage für Plus", "Hallo, danke für dein Interesse an Plus.", [], esc(DEFAULT_REJECT), "Zu Lumière", { kicker: "Deine Anfrage" });
     await send(to, null, "[Test] Deine Anfrage für Plus", html, `${DEFAULT_REJECT}\n${SITE}`);
     return to;
   });
   await step("Tarif läuft bald ab (Brevo)", async () => {
-    const html = layout("Plus läuft bald ab", `Hallo, dein Tarif Plus gilt noch bis <strong style="color:#f6c35c;">${until}</strong>. Danach gilt automatisch wieder der Gratis-Tarif.`,
-      [["Tarif", "Plus"], ["Gültig bis", until]], "Möchtest du verlängern? Frag in „Mein Konto“ einfach erneut an – wir melden uns.", "Zu Mein Konto");
+    const html = layout("Plus läuft bald ab", `Hallo, dein Tarif Plus gilt noch bis <strong style="color:#f2c878;">${until}</strong>. Danach gilt automatisch wieder der Gratis-Tarif.`,
+      [["Tarif", "Plus"], ["Gültig bis", until]], "Möchtest du verlängern? Frag in „Mein Konto“ einfach erneut an – wir melden uns.", "Zu Mein Konto", { kicker: "Erinnerung" });
     await send(to, null, `[Test] Dein Tarif Plus läuft am ${until} ab`, html, `Plus gilt noch bis ${until} (Test).\n${SITE}`);
     return to;
   });

@@ -1,0 +1,973 @@
+{
+ "entries": [
+  {
+   "build": 31,
+   "date": "2026-09-30",
+   "until": "2026-09-30",
+   "title": "Handy/iPad fluessig, neue Spielhalle, neue Rangliste, Coins im Admin, schoene Mails",
+   "gate": true,
+   "items": [
+    "Fehlerbehebung (sofort fuer alle): Handy und iPad ruckelten stark. Unter html.perf-lite kein backdrop-filter mehr ueber der 3D-Ebene, kein Weichzeichner auf Szenentext, Kometen-Canvas auf dem Handy aus, auf dem iPad weniger Kometen, Aufloesung 1x statt Retina, Build-30-Vollbildeffekte (Strahlen, Bokeh, Goldsturm, Nachthimmel, Lichtsaeulen, Gewoelbe-Dunst, Fokus-Zieher) nur noch am Desktop, Qualitaetsregelung reagiert auf Mobilgeraeten schneller.",
+    "Fehlerbehebung (sofort fuer alle): Turm-Karten auf dem Handy waren abgeschnitten - jetzt Querformat in voller Breite; auf dem Handy nur Standbild statt Video, auf dem iPad weiter Video.",
+    "Admin: neuer Reiter \"Changelog\" im Admin-Panel mit allen Versionen seit Build 0 (changelog.json), Suche und Anzeige, ob ein Build schon freigegeben ist.",
+    "Admin: Coins je Nutzer in der Nutzerliste, \"Coins aendern\" mit Betrag, Schnellwahl, Grund, Nachricht an den Nutzer (abschaltbar) und Verlauf. Gebucht wird ueber coin_grants, die App des Nutzers bucht beim naechsten Laden ein.",
+    "Hinter dem Freigabe-Gate (Build 31): neue Rangliste im Stil der Vorlage - Reiter je Spiel plus Gesamt (Platzpunkte 10..1 je Spiel), Zeitraum Woche/Monat/Allzeit, Pokale fuer Platz 1-3, Profilbild, Bestleistung, gespielte Runden, Coins, Online-Status, eigene Zeile hervorgehoben.",
+    "Hinter dem Freigabe-Gate: Spielhalle im Lumiere-Nachtlook in Gold - gemeinsamer Himmel mit Mond und Paris, Startkarte je Spiel, Partikel, Punkte-Einblendungen, Wackeln, Konfetti, neue Ergebniskarte (Nochmal / Rangliste / Spielhalle), Herzen in der Kopfzeile.",
+    "Hinter dem Freigabe-Gate: Ballon Pop endlos mit 3 Leben, wird immer schneller, Bomben ab 12 s, Sternballons (+3 und ein Leben), Kombos, Level-Banner.",
+    "Hinter dem Freigabe-Gate: Weitsprung, Hoehenflug, Paket-Stapler, Federwurf neu gezeichnet und mit Rueckmeldung (Landung, Perfekt-Stapel mit Wachstum, Meilensteine).",
+    "Hinter dem Freigabe-Gate: Mot du jour mit Serienbonus und Joker (Buchstabe aufdecken), Turmsprung mit Schild und Fluegeln und Level, 2048 mit Rueckgaengig und Kombo-Bonus, Wort-Laeufer mit Kombo-Multiplikator und Levels.",
+    "Mails: alle Brevo-Mails (Tarif, Ablehnung, Erinnerung, Test) im Nachtlook mit Gold - Edge Function lumiere-mail NEU BEREITSTELLEN. Neue Vorlagen fuer die Supabase-Mails in supabase/templates/ (in Supabase unter Auth -> Email Templates einfuegen, Betreffzeilen in BETREFFZEILEN.txt). Der Test-Mail-Knopf aus Build 29 verschickt die neuen Designs.",
+    "SQL noetig: supabase/build31.sql (coin_grants, admin_coins, game_runs, lb_game, lb_overall). Ohne SQL faellt die Rangliste auf die alten Rekorde zurueck.",
+    "CLAUDE.md: Regel 5 - jede Aenderung bekommt einen Changelog-Eintrag."
+   ]
+  },
+  {
+   "build": 30,
+   "date": "2026-09-24",
+   "until": "2026-09-24",
+   "title": "Schwarzbild-Fix, Karten-Videos, Trailer-Musik, Startseite krasser",
+   "gate": true,
+   "items": [
+    "Schwarzer Schirm am Turm behoben: NaN/Inf im HalfFloat-Bild wird im Bloom-Hochpass und im Grade-Pass gereinigt (gilt sofort fuer alle).",
+    "Shader-Vorwaermen repariert: versteckte Objekte und Composer-Ziel werden mit uebersetzt, auf der Reise entsteht kein neuer Shader mehr.",
+    "Hinter dem Freigabe-Gate (Build 30): DE/EN-Umschalter weg, Karten mit Video der Bedienung hinter Milchglas, Titel ohne Zeichensalat, neue Musik \"Ouverture\" (Kino-Trailer), Strahlen/Puls/Bokeh im Startbild, Lichtblitz mit Linsenschweif, Fokus-Zieher und Goldsturm an den Uebergaengen, Nachthimmel mit Mond, Turm-Nachtlicht, Funkeln zur vollen Stunde, Lichtschweife, naehere Kamera, Halle mit Lichtsaeulen, Gewoelbe im Dunst, Regenringen und einem L, das sich aus einem Wirbel aufbaut; gestaffelter Text-Auftritt und Glanz im Titel."
+   ],
+   "commits": [
+    "f6dca4a"
+   ]
+  },
+  {
+   "build": 29,
+   "date": "2026-09-24",
+   "until": "2026-09-24",
+   "title": "Footer überall, rundes Icon, Sperr-Bildschirm, Admin-Werkzeuge",
+   "gate": true,
+   "items": [
+    "Footer (Menue + Namensnennungen) auf allen Seiten ausser der Startseite",
+    "Icon ohne schwarzes Viereck: freigestellter Kreis im Tab, Kreis auf Nachthimmel fuer Home-Bildschirm/Android",
+    "Sperre mit Grund und Dauer, eigener Sperr-Bildschirm, laeuft automatisch ab",
+    "Admin: Namen aendern (mit Sperre fuer Selbst-Aendern, Ranglisten ziehen mit), neues Passwort setzen oder Reset-Link schicken, Nachricht an Nutzer",
+    "Test-Mails: alle Brevo- und Supabase-Vorlagen auf einen Klick",
+    "KI-Limit: Tag nach deutscher Zeit, Anzeige von gestern zaehlt als 0, stuendlicher Reset in der Datenbank, \"KI-Anfragen heute auf 0\" im Admin",
+    "Name aus dem Profil ist massgeblich (Umbenennung ueberlebt das Anmelden)",
+    "Handy: Seite war durch Lichtschein 431 statt 390 px breit (Kopfleiste angeschnitten) - behoben",
+    "Alles Neue hinter Build 29 (Freigabe-Gate), SQL in supabase/build29.sql"
+   ],
+   "commits": [
+    "d202bad"
+   ]
+  },
+  {
+   "build": 28,
+   "date": "2026-09-24",
+   "until": "2026-09-24",
+   "title": "Gold-Glas-Turm, Milchglas-Karten, die Halle, Musik",
+   "gate": false,
+   "items": [
+    "Weisser Schirm/zaeh am Turm behoben: Uhr laeuft beim Neustart weiter, kein CSS-Weichzeichner mehr auf den Karten, Shader von Turm und Halle werden nach dem Laden vorab uebersetzt, Turm deckend sobald ganz da",
+    "Bildqualitaet: MSAA, Geraeteklassen, Regelung senkt erst Bloom, Dichte, MSAA und Materialaufwand, die Aufloesung zuletzt",
+    "Turm aus schillerndem Gold mit Lichtkante, Bluetenwolken, Lichtkette; Farbe je Karte faerbt Hintergrund, Turmkante und Blueten",
+    "Karten aus Milchglas mit fliessendem Bild, Glitch-Titel, Stichpunkten; Stapel rastet um jede Karte ein (nichts mehr halb aus dem Bild)",
+    "Lichtregen statt Feuerwerk, Abstieg in die goldene Halle",
+    "Musik \"Soir a Paris\" (Kino + Jazz, eigenes Stueck, nahtlose Schleife)",
+    "Klaenge aus echten Instrumenten (FluidR3, MIT), Drossel gegen Klangsalat, Scroll-Teppich, vier besondere Momente, neue Klaenge fuer Menue, Fenster, Schalter, Regler, Tippen, Belohnungen und Hinweise",
+    "tools/: Skripte fuer Klangbibliothek, Musik und Test-Server mit Range"
+   ],
+   "commits": [
+    "0525e72"
+   ]
+  },
+  {
+   "build": 27,
+   "date": "2026-09-23",
+   "until": "2026-09-23",
+   "title": "Neue Startseite nach Referenzbild, Klangwelt",
+   "gate": false,
+   "items": [
+    "Startbild: Emblem kleiner oben mit 3D-Lorbeerkranz, dunkler Marmor mit Goldadern und Linienboegen (prozedural erzeugt), Goldwellen aus Staub, goldene Wortmarke mit Zierlinie, groesserer Text, Knoepfe \"Entdecken\" und \"Jetzt lernen\"; Schlaufe duenner und hinter der Schrift gedaempft",
+    "Turm: Funken blitzen einzeln, aufsteigende Glut und Glitter, Lichtfaden um den Turm, Feuerwerk an der letzten Karte und ueber der Spitze",
+    "Karten zeigen echte App-Seiten in goldgerahmtem Fenster (120 KB statt 930 KB Fotos), fliegen aus der Tiefe ein, Parallaxe im Fenster",
+    "Schluss: \"Kostenlos starten\" (Registrieren/Anmelden) bzw. \"Weiter lernen\", schmale Schlusszeile mit Links und CC-BY-Namensnennung statt Footer",
+    "Klaenge komplett neu (WebAudio, Hall, Glocke/Harfe/Wusch), Musik \"Pariser Abend\" auf der Startseite, Schalter und Regler in den Einstellungen"
+   ],
+   "commits": [
+    "d529b2c"
+   ]
+  },
+  {
+   "build": 26,
+   "date": "2026-09-23",
+   "until": "2026-09-23",
+   "title": "Nachrichten, Profilbild-Sperren, Admin-Großansicht",
+   "gate": false,
+   "items": [
+    "Mein Konto: Nachrichten-Karte vor der Gefahrenzone (Foto freigegeben/ abgelehnt, Tarif, Erinnerungen, Admin-Nachrichten), Zahl am Personen-Symbol, Hinweis nach dem Anmelden, einzeln oder alle loeschen",
+    "Admin: Profilbild eines Kontos gross ansehen (Pruefliste, Nutzerliste, neue Uebersicht aller Profilbilder), Avatar/Foto loeschen, Baukasten und Foto-Upload je Konto getrennt sperren (Vorhandenes wird entfernt), Nachricht an ein Konto oder an alle, optionaler Grund sonst Standardtext",
+    "supabase/build26.sql: Sperr-Spalten, user_messages mit RLS, send_message_to_all, taeglicher Job fuer Ablauf-Erinnerungen"
+   ],
+   "commits": [
+    "af195c0"
+   ]
+  },
+  {
+   "build": 25,
+   "date": "2026-09-23",
+   "until": "2026-09-23",
+   "title": "Profilbilder: Avatar-Baukasten und eigenes Foto",
+   "gate": false,
+   "items": [
+    "Baukasten im Lumiere-Stil (Gold-Linien auf Medaillon): 10 Kopfformen, 10 Augen, 10 Brauen, 6 Hauttoene, 8 Hintergruende, feste Nase und Mund, \"Ueberrasch mich\", Download als PNG. Gespeichert wird nur der Bauplan; neue Kategorien lassen sich ueber AV_CATEGORIES/AV_LAYERS anhaengen.",
+    "Eigenes Foto: Zuschnitt im runden Rahmen (ziehen, zoomen, zwei Finger), 512er WebP, wartet im privaten Speicher auf Freigabe.",
+    "Admin-Reiter \"Profilfotos\": Freigeben / Ablehnen mit Grund oder Standardtext; Hinweis dazu in Mein Konto.",
+    "Anzeige in Mein Konto, Kopfleiste, Ranglisten und Admin-Nutzerliste; andere sehen nur freigegebene Fotos (RPC public_avatars).",
+    "SQL: supabase/build25.sql. Hinter dem Freigabe-Gate (Build 25)."
+   ],
+   "commits": [
+    "951aea8"
+   ]
+  },
+  {
+   "build": 24,
+   "date": "2026-09-23",
+   "until": "2026-09-23",
+   "title": "Passwort zuverlässig gemerkt, alte Abos mit Laufzeit",
+   "gate": false,
+   "items": [
+    "Passwort wird beim Anmelden zuverlaessig gemerkt, alte Abos mit Laufzeit (Build 24)",
+    "Beim Anmelden war das Profil noch nicht geladen, dadurch galt Build 23 als nicht freigegeben und das Passwort wurde nicht gemerkt - auch fuer Admins. Jetzt erst im Speicher, abgelegt sobald das Profil da ist.",
+    "Fehlt das Passwort auf einem Geraet: in Mein Konto einmal eingeben (wird geprueft), danach ist es sichtbar.",
+    "Freischaltungen aus Build 22 (ohne Laufzeit) erscheinen unter \"Laufende Abos\" mit \"Laufzeit festlegen\" oder \"Beenden\".",
+    "CLAUDE.md: feste Arbeitsregeln des Nutzers (\"Immer so arbeiten\")"
+   ],
+   "commits": [
+    "8411707",
+    "2f25796"
+   ]
+  },
+  {
+   "build": 23,
+   "date": "2026-09-23",
+   "until": "2026-09-23",
+   "title": "Anfragen & Abos, Mails über Brevo, Passwort ansehen",
+   "gate": false,
+   "items": [
+    "Neue Admin-Seite \"Anfragen & Abos\": offene Anfragen mit Laufzeit 1/3/12 Monate freischalten oder mit Grund/Standardtext ablehnen, laufende Abos verlaengern/wechseln/beenden, Einnahmen je Monat, Verlauf mit Mail-Status und \"Mail senden\".",
+    "Tarif mit Enddatum (profiles.plan/plan_until): danach rechnet der Server automatisch wieder mit dem Gratis-Limit.",
+    "Edge Function lumiere-mail: Mails \"freigeschaltet\"/\"abgelehnt\" und Erinnerung 3 Tage vor Ablauf (pg_cron), im Lumiere-Stil ueber Brevo.",
+    "Mein Konto: Tarif \"bis Datum\", Hinweis auf die letzte Entscheidung, \"Dein Passwort\" auf diesem Geraet ansehen (Freigabe-Gate Build 23)."
+   ],
+   "commits": [
+    "6c2363a"
+   ]
+  },
+  {
+   "build": 22,
+   "date": "2026-09-23",
+   "until": "2026-09-23",
+   "title": "Mein Konto als eigene Seite, Passwort-Link, Tarife",
+   "gate": false,
+   "items": [
+    "Link aus der Passwort-Mail: PASSWORD_RECOVERY wurde verpasst, weil der Listener erst nach mehreren Netzabfragen hing. Jetzt Anhang vor dem Client lesen, sofort mithoeren, eigene Seite \"Neues Passwort festlegen\"; abgelaufener Link -> \"Neuen Link schicken\".",
+    "Seite \"Mein Konto\" (Personen-Symbol, Menuepunkt 10): Profil, KI-Kontingent, Tarife Gratis/Plus/Pro, Passwort aendern (aktuelles + neues zweimal), Synchronisation, Gefahrenzone. Website-Kapazitaet nur fuer Admins.",
+    "Tarif-Anfragen landen in upgrade_requests, Admin schaltet unter Nutzer mit einem Klick frei (setzt ai_limit_override).",
+    "Anmelde-Fenster deckend, ohne GENEVE und ohne falsches \"Ende-zu-Ende verschluesselt\", Auge an jedem Passwortfeld.",
+    "Startseite auf dem Handy nicht mehr breiter als der Bildschirm (overflow-x:clip an der Turm-Szene)."
+   ],
+   "commits": [
+    "3d06f4a"
+   ]
+  },
+  {
+   "build": 21,
+   "date": "2026-09-23",
+   "until": "2026-09-23",
+   "title": "Louvre statt Brücke, Videos auf iPhone/iPad sicherer",
+   "gate": false,
+   "items": [
+    "seine.mp4/webm neu aus Pexels 14997474 (Louvre an der Seine bei Nacht), Ping-Pong-Schleife, 222/145 KB",
+    "Video-Elemente haengen unsichtbar im Dokument - Safari dekodiert losgeloeste Videos teils nicht"
+   ],
+   "commits": [
+    "cca1630"
+   ]
+  },
+  {
+   "build": 20,
+   "date": "2026-09-23",
+   "until": "2026-09-23",
+   "title": "Vier neue Spiele: Mot du jour, Turmsprung, 2048, Wort-Läufer",
+   "gate": false,
+   "items": [
+    "eigene Umsetzungen (kein Code aus dem Games-Pack - der ist ohne Lizenz)",
+    "Mot du jour: Wortraten mit Woertern aus den eigenen Lernsets, HTML- Tastatur, Hinweis ab dem 3. Versuch, Serie bis zum ersten Fehlversuch",
+    "Turmsprung: den Eiffelturm hinauf, Etagen-Marken, morsche Traeger, Federn",
+    "2048 mit franzoesischen Zahlwoertern auf jeder Kachel",
+    "Wort-Laeufer: Paris bei Nacht, Hindernisse, Wort-Tore mit Uebersetzung",
+    "scharf in Geraeteaufloesung, hochkant eigene Buehne fuer drei Spiele",
+    "hinter dem Freigabe-Gate (build 20), Coins/Rangliste/Admin wie bisher"
+   ],
+   "commits": [
+    "ef5f9c1"
+   ]
+  },
+  {
+   "build": 19,
+   "date": "2026-09-23",
+   "until": "2026-09-23",
+   "title": "Video hinter den Punkten, Qualitätsregelung für 60 fps",
+   "gate": false,
+   "items": [
+    "hinter jedem Punktvorhang das Video selbst: weich, leicht golden, mit steiler Tonwertkurve und ausgeblendeten Raendern; die Punkte davor",
+    "Qualitaetsregelung misst die Bildzeit und senkt erst Aufloesung, dann Bloom, dann weiter die Aufloesung - und dreht wieder hoch, wenn Luft ist",
+    "Bloom jetzt auch auf Handys (die Regelung nimmt ihn bei Bedarf weg)"
+   ],
+   "commits": [
+    "88a1e90"
+   ]
+  },
+  {
+   "build": 18,
+   "date": "2026-09-23",
+   "until": "2026-09-23",
+   "title": "Punkt-Videos (Seine, Straßenbahn)",
+   "gate": false,
+   "items": [
+    "zwei Pexels-Schleifen (320x180, ohne Ton) als MP4 und WebM: seine (Ping- Pong, 342 KB) und tram (Ueberblendung Ende->Anfang, 129 KB)",
+    "gemeinsamer Punktvorhang makeVideoSheet; Seine ersetzt das gerenderte Paris (bleibt als Ersatz, wenn das Video nicht laeuft), Strassenbahn ganz schwach und in Gold zwischen Das Wort und Methode",
+    "Videos erst bei Bedarf geladen, nur sichtbar abgespielt; sw.js laesst Videos durch (Range-Anfragen)",
+    "auf schwachen Geraeten groessere, kraeftigere Punkte"
+   ],
+   "commits": [
+    "cce2b14"
+   ]
+  },
+  {
+   "build": 17,
+   "date": "2026-09-23",
+   "until": "2026-09-23",
+   "title": "Staub an den Strängen, Paris aus Punkten",
+   "gate": false,
+   "items": [
+    "Punktfeld ueber den ganzen Hintergrund entfernt; stattdessen Staubwolke um die Straenge, die vom wandernden Glanzlicht beleuchtet wird",
+    "Paris bei Nacht als Punkt-Video: kleine Nachtszene (Stadtlichter, Seine, Verkehr, Turm mit Funkeln, Scheinwerfer) wird in eine Textur gerendert, ein Punktvorhang hinter dem Turm liest daraus Farbe und Helligkeit; sichtbar nur auf dem Flug hin und zurueck",
+    "Zeichen steht in allen Szenen mittig und sinkt sanft ab; eine halbe Drehung pro Szene (Kante zwischen den Szenen), das L bleibt lesbar",
+    "Text weicht auf breiten Schirmen zur Seite (build-17-live); hochkant weicht das Zeichen im Atelier nach oben aus"
+   ],
+   "commits": [
+    "2e23fe8"
+   ]
+  },
+  {
+   "build": 16,
+   "date": "2026-09-23",
+   "until": "2026-09-23",
+   "title": "Lichtpunkte, die Kamera fliegt zum Turm",
+   "gate": false,
+   "items": [
+    "Bokeh-Feld (1700 Punkte, lite 700) in Gold/Champagner mit echter Unschaerfe: Scheiben mit hellerem Rand, Schaerfe auf Zeichen bzw. Turm",
+    "Turm steht weit hinter dem Zeichen in derselben Welt; die Kamera fliegt am Scroll entlang hin und nach den Karten wieder zurueck",
+    "ganze statt halbe Umrundung, Blickrichtung statt Blickpunkt ueberblendet, kaum noch Nachlaufen (kein Einrasten)",
+    "hochkant schrumpfen die Hoehen der Turmfahrt mit"
+   ],
+   "commits": [
+    "2159ba1"
+   ]
+  },
+  {
+   "build": 15,
+   "date": "2026-09-22",
+   "until": "2026-09-22",
+   "title": "Das Zeichen hat die Bühne",
+   "gate": false,
+   "items": [
+    "Zeichen in allen Szenen so gross wie im Startbild; Startbild tiefer, damit die Kopfleiste den Reif nicht anschneidet",
+    "Straenge poliertes Gold mit harter Lichtkante und einem Glanzlicht, das langsam hinunterlaeuft",
+    "warmer Lichthof hinter dem Reif",
+    "Lichtbogen halbiert, deutlich dunkler, nur noch hinter dem Zeichen",
+    "Kometen (Build 15, gated): halb so viele, matter, ohne Lichtschleier"
+   ],
+   "commits": [
+    "352ec78"
+   ]
+  },
+  {
+   "build": 14,
+   "date": "2026-09-22",
+   "until": "2026-09-22",
+   "title": "Spirale wie in der Referenz, Drehung am Scroll, keine Maus-Effekte mehr",
+   "gate": false,
+   "items": [
+    "Spirale wie in der Referenz, Drehung am Scroll, Licht an den Karten, keine Maus mehr"
+   ],
+   "commits": [
+    "1431dae"
+   ]
+  },
+  {
+   "build": 13,
+   "date": "2026-09-22",
+   "until": "2026-09-22",
+   "title": "Doppelhelix unter dem Zeichen",
+   "gate": false,
+   "items": [
+    "Doppelhelix, Dauerdrehung, doppelte Groesse - und die Kometen stossen ab"
+   ],
+   "commits": [
+    "48de66a"
+   ]
+  },
+  {
+   "build": 12,
+   "date": "2026-09-22",
+   "until": "2026-09-22",
+   "title": "Drei Ringebenen, driftende Kamera, Korn",
+   "gate": false,
+   "items": [
+    "Drei Ringebenen, driftende Kamera, Korn - und ein Fehler in den Ueberblendungen"
+   ],
+   "commits": [
+    "9b01f74"
+   ]
+  },
+  {
+   "build": 11,
+   "date": "2026-09-22",
+   "until": "2026-09-22",
+   "title": "Lichtschlieren, Nachglühen, das echte Fraunces-L",
+   "gate": false,
+   "items": [
+    "Lichtschlieren, Nachgluehen und das echte Fraunces-L"
+   ],
+   "commits": [
+    "a3e7e4e"
+   ]
+  },
+  {
+   "build": 10,
+   "date": "2026-09-22",
+   "until": "2026-09-22",
+   "title": "Updates laden sich selbst, Ruhe während der Wartung",
+   "gate": false,
+   "items": [
+    "Update sich selbst holen, und waehrend der Wartung schweigen"
+   ],
+   "commits": [
+    "0fdf55c"
+   ]
+  },
+  {
+   "build": 9,
+   "date": "2026-09-22",
+   "until": "2026-09-22",
+   "title": "Das Zeichen bekommt einen Körper und begleitet die Reise",
+   "gate": false,
+   "items": [
+    "Give the mark a body, and let it travel the whole way"
+   ],
+   "commits": [
+    "cb94482"
+   ]
+  },
+  {
+   "build": 8,
+   "date": "2026-09-22",
+   "until": "2026-09-22",
+   "title": "Dunkler Grund, Kometen statt Funken",
+   "gate": false,
+   "items": [
+    "Plain dark ground, comets instead of sparks, and the emblem out of the way"
+   ],
+   "commits": [
+    "92b3243"
+   ]
+  },
+  {
+   "build": 7,
+   "date": "2026-09-22",
+   "until": "2026-09-22",
+   "title": "Blauer Grund, helleres Gold, Kartenring",
+   "gate": false,
+   "items": [
+    "Blue ground, brighter gold, a real ring of cards, and sparks at the cursor"
+   ],
+   "commits": [
+    "ffd4eac"
+   ]
+  },
+  {
+   "build": 6,
+   "date": "2026-09-22",
+   "until": "2026-09-22",
+   "title": "Karten auf einer Wendel, kein veraltetes 3D-Bündel mehr",
+   "gate": false,
+   "items": [
+    "the cards needed transform-origin 0 0. With the default centre the world's rotation and the card's own rotation do not cancel, and the front card drifted sideways — up to 370px off by the last one.",
+    "the spacing was keyed off `lite`, which is about how expensive we may render, not about screen width. On a wide screen with few CPU cores that gave the narrow phone layout."
+   ],
+   "commits": [
+    "0f7da9a"
+   ]
+  },
+  {
+   "build": 5,
+   "date": "2026-09-22",
+   "until": "2026-09-22",
+   "title": "Kamerafahrt um einen echten Eiffelturm",
+   "gate": false,
+   "items": [
+    "Fly the camera around a real Eiffel tower, and warm the whole page up"
+   ],
+   "commits": [
+    "89ec052"
+   ]
+  },
+  {
+   "build": 4,
+   "date": "2026-09-22",
+   "until": "2026-09-22",
+   "title": "Eiffelturm-Bühne, das L im Ring, kräftigere Farben",
+   "gate": false,
+   "items": [
+    "overflow-x on <body> forces overflow-y to auto, which makes <body> the scroll container and stops position:sticky from ever sticking. The lock now sits on <html> alone.",
+    "the perspective container sits at z=0 in front of every card behind it and swallowed all clicks and hovers; it no longer takes pointer events.",
+    "the leading card was 85% opaque, so the tower showed through it."
+   ],
+   "commits": [
+    "291f8fc"
+   ]
+  },
+  {
+   "build": 3,
+   "date": "2026-09-21",
+   "until": "2026-09-21",
+   "title": "3D-Glasring, vom Scrollen gesteuert",
+   "gate": false,
+   "items": [
+    "Rebuild the homepage around a 3D glass ring driven by scroll",
+    "lumiere-gl.js: a WebGL torus in gold-tinted glass, built with three.js and bundled with esbuild down to what it actually uses (530 KB raw, 136 KB gzipped, instead of the full 2.1 MB). The environment it refracts is drawn on a canvas at runtime, so nothing is fetched.",
+    "its path is a keyframe table, not trigonometry, so a single scene can be adjusted without bending the whole curve",
+    "scenes now alternate left, right and centre and enter from the side they come from, instead of all being centred",
+    "the ring turns translucent where it crosses type, and fades out once the footer arrives, so nothing it passes behind becomes unreadable",
+    "light streaks at the cursor are longer and vary in temperature across the gold palette, from amber to champagne",
+    "lower-powered devices get the same staging more cheaply: polished metal instead of refracting glass, fewer motes, half the pixel ratio, and a smaller ring on portrait screens",
+    "no WebGL at all falls back to a CSS emblem; reduced motion holds the ring still and redraws it once per scroll",
+    "Document how the ring bundle is rebuilt"
+   ],
+   "commits": [
+    "29108b2",
+    "1d8e4cb"
+   ]
+  },
+  {
+   "build": 2,
+   "date": "2026-09-21",
+   "until": "2026-09-21",
+   "title": "Startseite als Folge von Kino-Szenen",
+   "gate": false,
+   "items": [
+    "Rebuild homepage as a sequence of cinematic full-screen scenes",
+    "new .cine-* system: no cards, no grid, tiny mono text links instead of buttons, huge italic serif wordmark, conic-gradient emblem ring",
+    "scroll scrubber feeds each scene a --enter value that drives opacity, blur and offset; no pinning",
+    "live German/French word pair cycles in the hero",
+    "own sound palette for the homepage (deep sine pad on entry, soft tone on scene change and word change, light hover tone) instead of the shared UI click",
+    "full-bleed breakout so the scenes ignore the app's content column",
+    "reduced-motion: field loop, ring spin, word cycling and scene reveals all stand still",
+    "Make the release gate declarative so any change can be held back",
+    "Write down the deploy command and the release-gate workflow"
+   ],
+   "commits": [
+    "026b885",
+    "bb33319",
+    "1c0eb5e"
+   ]
+  },
+  {
+   "build": 1,
+   "date": "2026-09-21",
+   "until": "2026-09-21",
+   "title": "Update-Hinweis, persönliche Begrüßung, Freigabe-Gate",
+   "gate": false,
+   "items": [
+    "Add version-check banner, personalized welcome, and admin release gate",
+    "Personalized greeting on the hub page for logged-in users (time-of-day + streak-aware), guests keep the existing marketing copy.",
+    "isReleased(buildVersion) gate + new admin \"Version\" tab: admins (real is_admin flag) always preview whatever is deployed on the server; other users only see it once an admin clicks \"Veröffentlichen\" (writes site_settings.live_build). No gated feature uses this yet — it's the mechanism for future releases per the user's request.",
+    "Hub hero: bigger headline + animated idiom ticker",
+    "Restructure hub homepage as a dossier cover page",
+    "Hero becomes a cover-page composition: asymmetric title-page layout with a giant outline \"01\" folio numeral, colophon-style stat row (no boxy cards), and the hero photo as a small rotated inset plate instead of a half-width column.",
+    "Feature carousel section reframed with a \"§ 02 — Sommaire\" heading; the carousel interaction itself (coverflow stack + detail panel) is unchanged since it was never the complaint and is non-trivial JS.",
+    "\"In drei Schritten\" grid replaced with a vertical annotated timeline (marginalia-style numbered markers along a connecting line) instead of three equal boxes."
+   ],
+   "commits": [
+    "f6ec4ac",
+    "0c01470",
+    "5e50613"
+   ]
+  },
+  {
+   "build": 0,
+   "date": "2026-09-08",
+   "until": "2026-09-21",
+   "title": "Die Grundlage: Vokabeltrainer, Konten, Admin-Panel, Spielhalle (vor dem Versionszähler)",
+   "gate": false,
+   "items": [
+    "Install UI/UX Pro Max Claude skill",
+    "Remove committed __pycache__ artifacts, add .gitignore",
+    "Add Vokabeltrainer app and polish visual design",
+    "Unified elevation via shared --shadow-sm/md/lg/glow tokens across cards (sets, practice, results, rewards, settings)",
+    "Added visible :focus-visible rings on all interactive elements for keyboard accessibility (WCAG focus-states)",
+    "Refined the primary button with a gradient + hover sheen",
+    "Replaced the icon-only mute/unmute emoji with an accessible inline SVG speaker icon that toggles state",
+    "Added SVG accent icons to the hub stats and streak counter",
+    "Turned the empty states (no sets / no vocab pairs) into proper empty-state cards with icon + message",
+    "Added a subtle gradient accent bar to the practice card",
+    "Redesign Vokabeltrainer with new violet-amber palette and animations",
+    "New \"Riviera Aurora\" color system: violet/iris primary + warm amber gold accent (was blue/terracotta), consistent DE=amber / FR=violet language coding throughout (listen list, map)",
+    "Animated mesh-gradient background (5 aurora blobs + slow hue drift)",
+    "Gradient text on headlines, gradient primary button with hover sheen",
+    "Richer view-transition (fade+scale+blur) and staggered entrance animation for repeated cards/chips/rows",
+    "New micro-interactions: shimmer on the progress bar, animated flame icon on the streak counter, count-up animation for stat numbers, confetti burst on strong practice results, ambient glow behind the active practice card",
+    "Removed ~40 lines of dead CSS left over from a prior design pass (.topbar/.icon-btn/.settings-panel/.app-header/.lang-badge were not referenced anywhere in the markup)",
+    "Replace hero map with a real, accurate Europe map",
+    "Match reference design: azure-blue/rose palette, France-highlighted map",
+    "primary blue #4693f1, accent rose/red #ed4952, ink-navy background",
+    "same approach applied consistently across every component via the existing CSS custom properties (no per-component rewrites needed)",
+    "Only France is highlighted (blue fill + glow), Germany renders as a plain neutral country like its neighbors, matching the reference's Geography styling exactly",
+    "Paris/Lyon/Marseille marked in blue, Berlin in the rose accent",
+    "Added subtle pulsing halos on every city marker (reference's twinkle effect), without animating the label text itself",
+    "Removed the now-unused germanyFill gradient and .euro-de highlight",
+    "Shift palette to turquoise-blue gradient, upgrade map visuals",
+    "Country shapes now fill with a subtle navy-teal gradient (was flat grey) and get a soft glowing turquoise border on hover",
+    "Added a faint graticule (lat/long) overlay for a \"data map\" feel",
+    "Paris/Berlin markers now have an animated radar-ping (expanding ring) instead of a static halo; fixed marker fill colors so Paris/ Lyon/Marseille stay legible against France's now much brighter turquoise highlight (they were blending into it)",
+    "Connecting line uses a turquoise-to-amber gradient stroke",
+    "Added a slow diagonal light-scan sweep and a stronger glow/border around the map card frame",
+    "Go fully blue/turquoise: drop amber accent, fix map contrast",
+    "Replaced the --gold/--gold-bright accent tokens with a royal-blue family (#2563eb / #60a5fa) instead of amber — every element that referenced them (Berlin marker, streak flame, progress bar, badges, chip highlights, connecting line) now stays in the blue/turquoise range instead of introducing a competing warm hue",
+    "Brightened the map's country fill gradient and border opacity/width substantially so countries read clearly against the dark background instead of nearly disappearing into it",
+    "Warmed the map background radial slightly with a teal tone so the glow layers have something to play against",
+    "Make hero map more realistic: drop the circular glow gimmick",
+    "The spinning conic-gradient ring and blurred radial \"glow\" blobs behind the map (the visible circular halo/spotlight effect)",
+    "The twinkling star field scattered across the landmasses",
+    "The lat/long graticule grid overlay",
+    "The diagonal light-scan sweep animation",
+    "The per-country glow drop-shadow filter",
+    "Upgrade hero map to high-resolution real coastline data",
+    "Switch numbers to mono font, simplify map markers, drop route line",
+    "All standalone number displays (hub stats, streak counter, results score, session length picker, rewards total days, balloon-game score) now use the monospace font instead of the decorative serif — the serif's oldstyle figures looked odd for stat numbers. Word/text displays (the practice word, flashcard answer) still use the serif as before.",
+    "Replaced the pulsing radar-ping city markers with plain, classic map-pin icons (teardrop shape with a grounding drop shadow) for Paris and Berlin — no more animated rings, just a clean static pin like a real map app. Lyon/Marseille are now simple static dots.",
+    "Removed the animated dashed \"beam\" connecting Paris and Berlin entirely, along with its now-unused gradient definition and the markerPulse/radarPing keyframes.",
+    "Remove Lyon/Marseille dots, add a refined flight-path route line",
+    "Dropped the two small unlabeled France dots (Lyon/Marseille)",
+    "Replaced the old straight dashed line between Paris and Berlin with a gently curved \"flight path\" arc (gradient stroke, light dotting) plus a small glowing dot that travels along it and fades in/out on a loop — reads as a refined route indicator rather than a static beam or busy marching-ants line",
+    "Escalate visual design: bolder typography, bento stats, cursor spotlight glow",
+    "Bold SaaS/tech look: bigger/bolder hero title (700 weight), hub-stats reworked from a flat row into hoverable bento-grid cards, punchier animated-gradient CTA buttons.",
+    "More motion & depth: page-wide cursor-following spotlight glow, per-card spotlight-hover tracking (set-card, rewards-card, streak-hero, hub-stat) reusing the existing mousemove-guard infrastructure, subtle glow-pulse on the primary button.",
+    "Bolder colors & contrast: new pink/violet \"pop\" accent layered into the hero gradient text, CTA gradient, eyebrow dot and aurora background bands, on top of the existing blue/turquoise palette.",
+    "New shadow-glow-lg token and saturated/bigger aurora bands for a stronger, more contrasty background atmosphere.",
+    "Add premium micro-interactions: 3D flashcard flip, audio orbit, gradient borders",
+    "New --ease-premium (cubic-bezier(.16,1,.3,1)) token, applied to view transitions, modal, and nav-overlay items for a snappier, more \"Vercel/Linear\"-style deceleration curve.",
+    "Flashcard mode: real 3D flip-with-damping reveal (rotateX overshoot keyframes + perspective on .practice-card) instead of a flat fade.",
+    "Pronunciation trainer: speak() now accepts the triggering button and toggles a \"speaking\" class while the utterance plays, driving a pulsing double-ring \"audio orbit\" on circular speak buttons and a soft glow pulse on the pill-shaped free-text speak buttons.",
+    "Correct/wrong practice feedback: neon shimmer box-shadow burst on correct, a quick damped shake on wrong.",
+    "Streak bar: the most recently extended day gets a gradient sweep + pop-in animation instead of a flat highlight.",
+    "Gradient-border glassmorphism (background-origin trick) on the results card and the streak hero card for extra depth.",
+    "Added active:scale press feedback to chips, session options, set cards and match chips for consistent tactile click feedback.",
+    "All new animations respect prefers-reduced-motion.",
+    "Redesign hub (Startseite) with feature preview cards and map reflection",
+    "New \"Entdecke die App\" feature-preview section below the hero: 4 interactive cards (Lernsets, Aussprache, Belohnungen, Grammatik), each with a colored icon, gradient-border glassmorphism, cursor- spotlight hover (reusing the existing --sx/--sy tracking infrastructure) and a connector-line accent under the icon. Cards call the exact same functions the nav overlay already uses (renderHome/openGlobalListen/renderRewards/openGrammar) — no new navigation logic, just additional entry points into it.",
+    "True adaptive responsiveness per device tier instead of one breakpoint: >=1080px shows a 4-column grid (desktop/ultrawide), 640-1079px (tablets, incl. iPad portrait/landscape) a 2-column grid, and <640px a thumb-friendly horizontal snap-scroll rail with a peeking next-card as a scroll affordance.",
+    "Europe map now sits in a .map-frame wrapper with a CSS reflection (-webkit-box-reflect) below it on tablet/desktop for extra depth, disabled on mobile where the map is already full-bleed.",
+    "Wired the new cards into the existing sound (wireSounds) and staggered-entrance (itemIn) systems so they feel consistent with every other card grid in the app.",
+    "Remove map reflection effect",
+    "Add expanded Settings and a full Klausuren-Kalender (exam calendar) feature",
+    "Daily vocab goal (10/20/50) with a live progress bar, tracked via a new recordDailyProgress() hook fired from every answer-finalization path (MC/write/flashcard finalizeAnswer, and match-mode correct pick).",
+    "Speech-output volume + speed (slow/normal/fast, doubling as the requested \"pronunciation trainer sensitivity\") wired into speak(), plus an auto-play-answer-on-flashcard-flip toggle.",
+    "Reminder lead-time chips (7/3/1 days), an in-site-banner toggle and a browser-notifications toggle (Notification.requestPermission()).",
+    "Visual controls: a glow-intensity slider that rescales the shared --shadow-glow/--shadow-glow-lg tokens app-wide, a manual reduced- motion override (html.reduce-motion collapses all animation/ transition durations, on top of the existing OS-level check — both now flow through one reducedMotionActive() helper), and a font- scale control (small/normal/large) that rescales the whole rem-based UI via the root font-size.",
+    "Data management: full JSON export (download) / import (file picker, with a confirmation and reload), and a progress-only reset (streak + daily progress, sets/settings/calendar untouched).",
+    "Month and week grid views with today/other-month styling and colored per-event-type dot badges, plus an agenda list below.",
+    "Add/edit modal: type (LK/Klassenarbeit/Vokabeltest/Mündliche Prüfung), title, date/time, topics, notes, a checklist, and checkboxes to link existing Lernsets.",
+    "Automatic study-plan calculation (days until the exam, total words in linked sets, words/day needed), shown live in the form and in the agenda.",
+    "Reminders: a dismissible-per-visit banner on the hub for events whose lead time matches the configured reminder days, and a Notification-API check on load / on permission grant (clearly scoped to \"while this tab is open\" — there's no backend/service worker here, so true closed-tab push isn't possible for a static file, and the settings copy says so).",
+    "Fix sound-effects volume not persisting, add live glow preview",
+    "Turn the hero map into a rising background globe",
+    "Wrapped the existing map SVG + background in a new .globe-sphere layer: a true circle (border-radius:50%), sized larger than its container and positioned low so only the upper portion peeks into view, with a soft teal glow/vignette box-shadow standing in for atmosphere.",
+    "Added a decorative latitude/longitude graticule (a second small SVG of curved paths) and a spherical-shading radial gradient overlaying the surface, so it reads as a lit sphere rather than a flat map.",
+    "Moved the \"DE · FR — 1.240 km\" badge from the bottom (where it now collided with the Paris label) to the empty space above the globe's horizon.",
+    "Kept every bit of the existing map: the real country-boundary paths, the France/Germany highlight styling, city pins, the animated Paris-Berlin flight path, and the cursor-tilt interaction — all untouched, just re-housed.",
+    "Turn hero globe into an Earth-from-space scene with a sun and elevated flight beam",
+    "Bigger globe: max-width 560px -> 720px, and reduced the sphere's size relative to its window (150%/130% -> 112%) so more of its true curvature (top AND sides) is visible instead of a near-flat zoomed-in surface — reads much more like an actual sphere/planet now.",
+    "Added a starfield layer (a couple dozen small radial-gradient dots, gentle twinkle animation) and a sun-glow layer (warm radial gradient orb, top-right, subtle pulse) in the empty space above the globe's horizon; realigned the globe's own spherical-shading highlight to the same top-right direction so the lighting is consistent with where the \"sun\" is.",
+    "Berlin-Paris route: raised the arc's control point substantially, switched it to a solid glowing stroke (SVG feGaussianBlur+feMerge filter) instead of the flat dashed line, and added a faint dashed \"ground track\" straight between the two cities plus short vertical ticks at each end — the elevated glowing arc now visually reads as hovering above that ground line rather than sitting on the map.",
+    "Both new ambient layers respect prefers-reduced-motion.",
+    "Redesign hero globe as full-viewport space scene with realistic Earth limb",
+    "Widen .europe-visual to a viewport-wide (100vw) absolute layer and give .hub-grid a min-height so there's headroom for both the \"sky\" above the globe and the globe body below it.",
+    "Rebuild .globe-sphere as a wide ellipse (not a circle) sized in vw/vh so the horizon-arc geometry stays correct across both narrow-tall (mobile) and wide-short (desktop) aspect ratios; switch the map SVG to preserveAspectRatio=\"meet\" so Berlin and Paris are never cropped regardless of viewport shape.",
+    "Add a colorful nebula layer, a bright atmosphere-rim glow along the visible horizon, a richer deep-blue globe surface, brighter/more defined country outlines, and scattered twinkling \"city light\" dots across the landmass for a more realistic, recognizable Europe.",
+    "Beautify the Berlin-Paris beam with a layered soft-glow + gradient + white-hot core stroke and a brighter traveling spark.",
+    "Add a scroll-linked --globe-zoom effect so the globe zooms in as the user scrolls past the hero (gated behind prefers-reduced-motion), replacing the old cursor-tilt interaction which no longer applied to the full-bleed layout.",
+    "Fix a stacking-context bug where the hero copy (title/buttons/stats) rendered underneath the new background layer, and hide the DE·FR distance badge on mobile where it collided with the language pill.",
+    "Refine hero: flag badge, DE|EN toggle, single-row stats+actions",
+    "Badge now shows flag emojis (🇩🇪 Deutsch – Français 🇫🇷).",
+    "Add a DE|EN interface-language toggle to the header (visual only for now — clicking EN shows a toast explaining the English UI isn't built yet, it doesn't silently do nothing).",
+    "Merge the stats pills and the two CTA buttons into a single .hub-interact row (stats left, buttons right) instead of two stacked rows, matching the reference layout more closely.",
+    "Move the hub-copy width constraint off the whole column and onto the paragraph specifically, so the wider interact row isn't squeezed into the narrow reading column; switch hub-copy back to top-aligned content now that it's shorter, avoiding a collision with the map's Paris marker that appeared when the block re-centered.",
+    "Prevent the eyebrow badge from stretching full-width now that its parent isn't width-constrained.",
+    "Recolor the app around a warm gold (FR) / sapphire blue (DE) duotone",
+    "Rebuild hero into a dark-and-gold Earth scene with landmarks and black holes",
+    "Small Eiffel Tower and Brandenburg Gate landmark glyphs standing above the Paris/Berlin pins, each with a themed glow (gold/sapphire).",
+    "Two CSS-only \"black holes\" (radial core + spinning conic-gradient accretion disk, masked into a ring) in the space layer above the globe, hidden on mobile for performance.",
+    "Beam between the capitals gets a ground shadow, a flowing dashed overlay, a second staggered traveling spark, and a gold-to-sapphire gradient to visually connect the two cities.",
+    "Fixed a pre-existing layout collision where the hub stats/actions row could stretch far enough right to sit on top of the Paris marker; stats now wrap to two rows on tablet/desktop so the map stays clear.",
+    "Purify the palette to strict black-and-gold, no other hues",
+    "Replace the hero's line-art country map with a real night-lights texture",
+    "Generated ~1,550 small light-point circles clustered around ~20 real city locations (Paris, Berlin, London, Amsterdam, Milan, Madrid, etc.) with distance-based size/brightness falloff, plus a sparse uniform layer for general coastline texture.",
+    "Clipped that whole field to the actual country outlines via an SVG clipPath that <use>-references the existing (already geographically accurate) country paths, so every dot lands on real landmass with no per-point geometry math needed.",
+    "Nearly removed the visible country border stroke (was a solid 55%-opacity outline, now a barely-there 14%) and darkened every landmass fill toward near-black, including France/Germany's fill (their highlight now comes from the existing outer glow + denser light cluster, not a solid gold block) — so the shape reads from the city-light pattern the way a satellite photo does, not from drawn borders.",
+    "Widen the hero map crop and make the black holes more dramatic",
+    "Let the hero map continue behind the feature-card row, zoom out further",
+    "Square off the map corners and widen the crop further, keep DE/FR centered",
+    "Make the map actually fill the space instead of ~64% width",
+    "Make the hero map's fill-and-zoom consistent across every device",
+    "Shift the desktop map up so Paris/France is visible without scrolling",
+    "Add animated touches to the secondary pages, not just the hero",
+    "Grammatik: clickable example-question chips (fills the input and submits) plus a floating decorative icon + copy for the empty state, replacing a large blank area.",
+    "Kalender: today's cell now pulses its glow, and day cells stagger in on load instead of appearing all at once.",
+    "Belohnungen: small embers rise and fade around the streak flame icon, echoing the \"Lumière\" light motif used in the hero.",
+    "Give every secondary page its own floating-icon motif + glow, like the hero",
+    "Make the twinkling starfield global instead of hero-only",
+    "Switch Gemini model to 3.5 Flash Lite for higher rate limits",
+    "Add spaced repetition, TTS in practice, CSV import/export, stats, quick-nav",
+    "Per-pair Leitner spaced-repetition tracking (box/due/correct/wrong), with a \"Fällige zuerst\" session selection mode and a due-count badge on the set detail page.",
+    "Speaker buttons in Multiple-Choice/Schreiben/Denken practice cards, reusing the existing speechSynthesis-based speak() function.",
+    "Bulk paste-in and CSV file import for adding many vocab pairs at once, plus a CSV export button per set.",
+    "Per-set statistics panel: review count, accuracy, and hardest words.",
+    "Question counter (\"3 / 10\") next to the practice score badge.",
+    "Floating quick-nav bar for fast access to Sets/Kalender/Belohnungen/ Grammatik/Menü on every page except the hub and focused practice flows, so the homepage hero is untouched.",
+    "Fix session-length chips showing options bigger than the pool",
+    "Add Claude API as automatic fallback when Gemini is unavailable",
+    "Add PWA support (offline + installable) and a demo starter set",
+    "manifest.json + sw.js (stale-while-revalidate) make the app installable and usable offline; icons generated to match the existing gold \"L\" brand mark exactly.",
+    "Gemini/Claude requests and cross-origin resources are explicitly excluded from caching so AI calls always go live.",
+    "New visitors (empty localStorage) now get a small 22-pair example set (\"Grundwortschatz (Beispiel)\") instead of an empty Lernsets page; persisted immediately so it survives a reload, and never re-seeded once a real save has happened.",
+    "Fix ReferenceError breaking every button when notifications are pre-granted",
+    "Cinematic scroll-zoom camera + gold hover system for the hero + controls",
+    "Delta-time-compensated lerp (current += (target-current) * timeNormalizedFactor) drives --globe-zoom, --hero-fade and --hero-drift every frame, so the camera eases toward the scroll target instead of snapping, and converges at the same real-world speed regardless of the page's actual achieved frame rate. (Caught via Playwright: a naive per-frame lerp factor made the camera nearly freeze on this heavy hero scene when rAF only fired ~6-7 times/sec instead of 60 - the delta-time fix makes it converge correctly either way.)",
+    "Foreground (.hub-copy) fades + scales up slightly as you scroll past it; midground (.hub-features cards) gets a subtle counter-drift; both desktop-only (hover:hover + pointer:fine) so touch devices only get the lighter map zoom.",
+    "Removed the old CSS `transition:transform .1s linear` on .globe-sphere - it was fighting the JS-driven per-frame updates. All smoothing now lives in one place (the lerp), animating only transform/opacity.",
+    "will-change is scoped to a `html.hero-animating` class toggled on scroll start and removed ~200ms after scroll settles, instead of being permanent.",
+    "Cached hero section height once (re-read only on resize, debounced) instead of on every scroll tick, avoiding a repeated layout read in the hot loop.",
+    "Cursor-follow radial gold glow on .btn-secondary/.chip/.session-opt.",
+    "Diagonal metallic sweep on hover for .btn-secondary/.chip (same technique already used on .btn-primary, now extended consistently).",
+    "Micro-lift on hover upgraded to translate3d(...) + scale for explicit GPU layer promotion; disabled under prefers-reduced-motion and on touch.",
+    "No new colors - everything reuses the existing --ember/--gold tokens.",
+    "Add a second full-viewport quote section + liquid-glass texture, polish nav",
+    "New .hub-quote section after the feature-card row: an italic Fraunces quote (\"Eine neue Sprache zu lernen heißt, eine neue Seele zu gewinnen.\" — Tschechisches Sprichwort) in a liquid-glass panel, with two gold nebula wisps that glide in from the sides as the section scrolls into view. Same time-normalized lerp technique as the hero map zoom (desktop-only, its own independent progress/rAF loop).",
+    "New .liquid-glass utility (thin gradient-masked border + faint blur), reusable elsewhere later.",
+    "Staggered entrance delay (45ms steps) on the full-screen nav menu items when opening, reset to instant on close.",
+    "Add word-by-word blur reveal to the hero quote",
+    "Major perf fix, remove quote section, Berlin->Paris camera pan, gold trail",
+    ".bg-aurora ran a filter:hue-rotate animation forever on every page - animating filter forces a full repaint every frame, the single most expensive thing that was running. Removed; kept the color variation baked into the gradients instead.",
+    "Cut aurora blobs from 5 to 3 and blur radius from 85px to 52px (blur cost scales roughly with radius squared).",
+    ".bg-grid animated background-position forever site-wide (not GPU compositable). Replaced with a transform:translate3d loop (oversized element + will-change) that produces the same visual scroll.",
+    "Berlin/Paris labels could get clipped by .globe-sphere's overflow:hidden at high zoom. Fixed as part of the camera redesign below - verified via Playwright bounding-box checks against the container that both labels stay fully inside it through the whole scroll range.",
+    ".globe-sphere now pans its transform-origin from Berlin's measured screen position (60.9%, 44.3%) to Paris's (39.1%, 60.3%) as scroll progress increases, alongside the existing zoom - the camera travels from Berlin to Paris instead of just zooming in place. Positions taken from a live Playwright measurement, not guessed.",
+    "Feature cards now reveal on scroll (IntersectionObserver, staggered blur/opacity/translateY) instead of animating in at page load long before they're visible - reused the itemIn stagger removal + a new setupCardReveal() helper (shares the setupBlurReveal pattern).",
+    "Fix scroll overlap: Paris pin colliding with stat boxes, Berlin edge-clipping",
+    "Giving hub-grid more height so features start below the fold",
+    "Fading Berlin out (instead of letting it get hard-clipped by overflow:hidden)",
+    "Fading Paris in only as the camera actually arrives there",
+    "Delaying the zoom/pan onset until the hero copy has mostly faded",
+    "Capping max zoom lower (1.8x -> 1.45x) so less gets pushed off-screen",
+    "Rebuild hero with a realistic 3D map card, header nav, and header cleanup",
+    "Tighten hero fidelity to the Stitch reference design",
+    "Match hero button shape and background glow to the Stitch reference",
+    "Match feature-card section 1:1 to the Stitch reference design",
+    "Re-add the manifest/quote section with the Stitch reference photo",
+    "Fix desktop centering bug, add gold-to-dark section transition, refine hover glow",
+    "Replace hand-drawn hero map with the user's real satellite-style photo",
+    "Fix ~1000px phantom scroll space, add particle hover effect, darken map",
+    "Added a genuine particle/spark hover effect (small drifting gold motes spawned on pointermove, throttled + capped) layered on top of the existing glow-trail, on the same set of hoverable elements.",
+    "Darkened the map photo (brightness 1.08 -> .78) and confirmed the Paris<->Berlin beam's travelling-comet animation is present and correctly gated behind prefers-reduced-motion.",
+    "Made the manifest/quote section notably bigger and higher-contrast on desktop (460px min-height, larger quote type, more padding) - genuinely different from the compact mobile layout rather than a uniform scale-down - and eased its media crop/fade to look less overly dark.",
+    "Remove the hard gold-to-dark background seam, add a visible flight dot",
+    "Switch sitewide background to a single flat dark navy (#0f131c)",
+    "Add Supabase login/registration with cross-device cloud sync",
+    "Gate premium features behind login, add password reset, fix mobile scroll bug",
+    "Add App-installieren page: PWA install hero, guide tabs, handoff card",
+    "Add premium mouse-trail effect and the Über-uns/Website-Info page",
+    "Rebuild Über-uns page as an editorial \"Dossier\" instead of card grid",
+    "Add display names, reorder nav, cross-link App/Über-uns, rework trail",
+    "Anzeigename: optional field on signup, editable while logged in (Supabase user_metadata.display_name), shown wherever the header or account modal previously fell back to the email prefix.",
+    "Nav: header-nav and the hamburger menu now share one consistent order (Startseite, Lernsets, Aussprache, Grammatik, Belohnungen, Kalender, Einstellungen, App, Über uns) instead of two different orderings; App and Über uns are now also in the desktop header-nav.",
+    "App-Download and Über-uns pages: their cards/steps/plaques now use the same cursor-spotlight + spark-particle hover system as the homepage feature-cards (added to the shared spotlightSelector).",
+    "Hub: two new feature-cards link to App-Download and Über-uns so they're discoverable from the homepage, not just the menu.",
+    "Mouse trail: reworked for a noticeably richer look - additive ('lighter') blending so overlapping glow points brighten like real light instead of flat alpha stacking, velocity-based comet stretch oriented along movement direction, and per-point size jitter. It now also pauses over any button/card/input (a broad selector) so it only shows on open background, never fighting the existing card-hover effects.",
+    "App-Download page: added an amber warning note above the install button - installing as a PWA isn't recommended yet since updates may not reliably reach an installed copy.",
+    "Add account status, AI usage limits, maintenance mode, and admin panel",
+    "Redesign auth modal, fix reload/mobile-menu bugs, expand admin panel",
+    "Restyle login/register modal to match the gold/navy Stitch mockup: icon-prefixed inputs, pill tab switcher, password show/hide toggle, status callout, free-vs-account explainer, footer encryption note.",
+    "Fix bug: reloading the page now restores the last visited view instead of always dropping back to the hub.",
+    "Fix bug: the mobile/iPad nav overlay can now be scrolled all the way to the bottom (added overflow scrolling + body scroll lock).",
+    "Split the admin panel into sub-tabs (Übersicht/Sitzungen/Nutzer/ Wartung & Zugriff).",
+    "Add a logged-in/guest filter to the admin sessions table.",
+    "Make which features require an account admin-configurable (site_settings.guest_locked_features) instead of hardcoded.",
+    "Add a \"send test email to myself\" button in the admin panel to preview the password-reset/verification email template.",
+    "Make admins immune to bans, add verification-email test button",
+    "Admin accounts can no longer be banned (by anyone, including themselves) — the ban button is replaced with a non-interactive \"immune\" badge, plus a defensive check in toggleUserBan().",
+    "Add a second admin test-email button that previews the signup/ verification email a new user receives, via supabase auth.resend().",
+    "Fix: banned-admin self-lockout at login",
+    "Redesign Kontoübersicht, fix nav/focus/calendar bugs, add loading feedback",
+    "Build the logged-in \"Kontoübersicht\" modal from the provided Stitch design: avatar monogram, admin badge, gradient status meters with captions, cloud-sync note, danger-styled sign-out.",
+    "Fix bug: admin accounts couldn't send themselves a working verification-email preview (Supabase only resends to unconfirmed addresses) — now signs up a \"+\"-alias test account so the real template actually gets sent and lands in the same inbox.",
+    "Add a client-side cooldown to both admin test-email buttons so repeated clicks can't burn through Supabase's low email-sending quota and temporarily throttle normal login for the whole project; clearer German copy for the resulting rate-limit error.",
+    "Make admin accounts immune to being banned (UI badge instead of a ban button, plus a defensive check in toggleUserBan and in the login-time banned check, since the latter would otherwise still lock an admin out even after being marked immune in the UI).",
+    "Fix bug: clicking \"Lernsets\" in the header nav never got the active state (renderHome/renderSetDetail never set currentNavId).",
+    "Fix bug: focus outline on pill-shaped buttons (menu, chips, tabs) forced border-radius:8px onto the element itself, squaring off its corners while focused - removed, modern browsers already round the outline to match the element's own shape automatically.",
+    "Fix bug: unselected chip buttons had no explicit text color and relied on the browser's default (dark) button text, making labels hard to read against the dark background.",
+    "Admin panel: remembering the unlocked code now survives a browser restart (localStorage), skips the code prompt on repeat visits, and reload now restores the exact sub-tab (Sitzungen/Nutzer/...) you were on instead of resetting to \"Übersicht\".",
+    "Calendar: month-grid days now show truncated event titles as colored pills instead of unlabeled dots, so what's happening on a given day is recognizable at a glance.",
+    "Add a loading spinner while multiple-choice practice questions wait on AI-generated answer options (previously blank with no feedback).",
+    "Rework the sound system: every tone now runs through a gentle low-pass filter and warmer waveforms/registers instead of the brighter beepy tones, and the wrong-answer sound is a soft descending thud instead of a harsh sawtooth buzz.",
+    "Hub: the manifest quote now rotates between four quotes every 30s (blur transition) instead of showing a single fixed one.",
+    "Mobile account icon, animated auth tabs, fix session detection, add account deletion",
+    "Show a person icon (not just a bare dot) for the account button on mobile, so it's recognizable as the login entry point.",
+    "Add a sliding pill indicator + collapsible field animation when switching between the Anmelden/Registrieren tabs in the auth modal.",
+    "Fix bug: the first session heartbeat fired before initAuth() resolved, so freshly-loaded logged-in users briefly showed as \"Gast\" in the admin panel's active-sessions list. Heartbeat now waits for auth to resolve, and also fires immediately on sign-in/sign-out. Session-load errors in the admin panel are now surfaced instead of failing silently.",
+    "Add self-service account deletion (Kontoübersicht → \"Konto endgültig löschen\"), gated behind a confirm dialog + typed \"LÖSCHEN\" prompt, calling a new delete_own_account() Postgres RPC.",
+    "Fix stale service worker cache trapping installed PWAs on old versions",
+    "Replace mouse trail with a new ember/firefly particle effect",
+    "Fix Safari/iPad rendering gaps: webkit-prefixed blur + unlock orientation",
+    "22 of 35 backdrop-filter declarations were missing the -webkit- prefix Safari needs to actually render the blur (auth modal, chips, tables, cards, nav pills, ...). Without it those surfaces silently lose their frosted-glass blur on Safari/iPadOS - not a crash, but a real and fully fixable rendering gap unique to WebKit.",
+    "manifest.json locked \"orientation\": \"portrait-primary\" for the installed/home-screen PWA, fighting the app's own landscape-ready layout (which already has min-width breakpoints for exactly that). iPad is used in landscape far more than iPhone, so this could visibly misbehave for anyone who installed the app - removed the lock.",
+    "Fix app being non-functional on older iPads/Safari",
+    "inset: shorthand is ignored entirely by Safari < 14.1, which collapses .modal-backdrop - login, confirm/prompt dialogs and the admin code entry would not display correctly. All 38 inset declarations now carry top/right/bottom/left longhands alongside (box-shadow:inset untouched).",
+    "localStorage/sessionStorage writes in saveData(), the cloud-pull path and the test-email cooldown were unguarded; they throw in Safari private mode. The cooldown one runs at top level, so it would have killed the rest of the script outright. All guarded now.",
+    "Added an early error banner in <head>: a script error no longer leaves a silently dead page but shows the actual message, so a report is actionable. Verified it stays hidden for failing images/fonts.",
+    "Add site footer, orb feature icons and hero shader; widen Safari support",
+    "Site footer (the site had none at all). Follows the supplied footer anatomy: centred glow above the top border, bordered column grid with dividers, a large jump card with arrow per column plus a group of small links, and a centred copyright bar. Links point only at destinations that actually exist and reuse goToDestination(), so the existing lock badges appear automatically via updateGatedNavUI(). Stacks to one column on phones.",
+    "Feature card icons redrawn as the orb from the cards prompt: round body, dashed ring, offset outline and a soft glow that fades in behind the icon on hover (glow sits below the icon so it never obscures it).",
+    "Hero shader from the hero prompt, as an ambient backdrop behind the existing Berlin-Paris map rather than replacing it - that map is custom work and a generic library visual would be a downgrade. Deliberately defensive: pointer devices with WebGL2 only, off under reduced motion and on touch, masked out towards the bottom at 50% opacity so the headline stays readable, height capped to the hero (.hub-hero-bg spans the whole hub, so an uncapped canvas would shade the entire page), resolution capped at 1.5x, and the loop pauses when the hub is hidden or the tab is in the background. Added a lumiere:viewchange event for that pausing.",
+    "Replaced all optional chaining (?.) and nullish coalescing (??). Both need Safari 13.1+, and these are parse-time features: on an older iPad the whole script would fail to parse, not just the affected line. Now parses back to roughly iOS 11.",
+    "Fix tab indicator never animating, longer card texts, map image fallback",
+    "The login/register tab indicator never actually animated. It moved with translateX(calc(100% + .25rem)), and transform percentages resolve against the element's OWN width - which here is itself a percentage of the parent. Until that resolved, 100% was simply 0, so the pill sat on \"Anmelden\" for about half a second and then jumped across. getAnimations() returned an empty array: no transition was running at all, reproducibly across runs. Now driven by `left`, whose percentages resolve against the parent and are stable. Verified: a real 400ms CSSTransition on `left` now runs on each switch, in both directions.",
+    "Feature card descriptions rewritten from one short clause into a full sentence each, as requested. Checked at 1500/1280/834/390px: nothing is clipped and cards stay aligned within each row.",
+    "The hero map photo now hides itself if it fails to load instead of sprawling its alt text across the map. This is what showed up when index.html was opened on its own without the image files next to it; the SVG map underneath carries the card fine on its own. On the deployed site the image serves normally (verified: HTTP 200, valid 1408x768 JPEG).",
+    "Add empty states with actions, typed toasts and magnetic buttons",
+    "Empty states (interactive-empty-state): the \"no sets\" and \"no vocab\" states were an icon plus one line of text with no way forward. Now they follow the supplied anatomy - three tiles fanning apart on hover, a title, an explanation, and a button that performs the actual action (opens the new-set dialog / focuses the vocab field). A dead end with no next step was the weakest spot on the site.",
+    "Toasts: showToast() rendered plain text, so nothing distinguished success from failure but the border colour. Now each has an icon and a type (success / error / info). The old boolean second argument still works, so no call site needed changing.",
+    "Magnetic buttons (Magnetic): primary buttons, the footer cards and the empty-state actions drift toward the pointer within range and spring back. One global pointermove handler rather than a listener per button. Off on touch and under reduced motion.",
+    "Add click feedback, custom cursor and the activity chart",
+    "One series, so no legend - the heading names it.",
+    "Bar colour is --gold (#b8862f). Of the brand golds it is the only one that passes the lightness band, chroma floor and contrast checks against the dark surface; --ember-bright (#f6c35c) fails the band at L 0.84, so it is reserved for the hovered bar instead of the fill.",
+    "Only the best day carries a permanent label; every other value appears on hover, so the chart is not littered with numbers.",
+    "Empty days keep a visible background track, so a gap reads as \"no practice\" rather than a missing day.",
+    "Startseite: Feature-Karten als Spotlight-Karussell, Sternenhintergrund und magnetische Buttons entfernt, Versionsnummer im Footer",
+    "Feature-Karten-Grid durch Karussell ersetzt: eine hervorgehobene Karte, links/rechts-Pfeile plus Punkte-Navigation blaettern im Kreis durch alle Karten (Klick und Touch-Wisch)",
+    ".bg-stars (Sternenhintergrund) komplett entfernt",
+    "initMagneticButtons() und zugehoerige CSS entfernt",
+    "Footer zeigt jetzt \"Version 2\" neben Copyright/Sprachen/Staedten",
+    "Sternenhintergrund wiederhergestellt, Hero-Lichtschleier abgeschaltet",
+    ".bg-stars (Sternenhimmel) zurueckgeholt - war zuletzt entfernt worden, soll aber ueberall bleiben",
+    "initHeroShader() (WebGL2-Wolken/Lichtschleier hinter dem Hero-Titel) deaktiviert: erzeugte die stoerenden Leuchtstreifen ueber den Stat-Karten",
+    "Lernsets-Karussell als Faecher-Stapel nachgebaut (nach Referenz-Video)",
+    "Feature-Karten sind jetzt absolut in einem Stapel positioniert statt in einer 100%-Slide-Reihe: aktive Karte vorne gross, bis zu zwei Nachbarn je Seite schimmern versetzt/verkleinert/abgedunkelt dahinter durch (--tx/--ty/--scale/--op/--z/--card-blur je Karte, siehe initFeatureCarousel)",
+    "Grosse Nummer + \"von 07\"-Zaehler unter dem Stapel, Punkte-Navigation mit laenglichem aktivem Punkt (Pille), Pfeile darunter zentriert",
+    "Klick auf eine schimmernde Nachbar-Karte holt sie nur nach vorne, statt sofort zur jeweiligen Seite zu navigieren - erst ein Klick auf die bereits aktive Karte navigiert wirklich (Klick-Interception in der Capture-Phase auf dem Stack)",
+    "Pro-Karte-Nummer-Badges entfernt (uebernimmt jetzt der grosse Zaehler), Eyebrow-Label als Pill-Badge gestylt",
+    "Scroll-Reveal sitzt jetzt auf dem ganzen .feature-carousel statt auf jeder einzelnen Karte, da die Karten ihre eigene Opacity/Position ueber den Stapel bekommen",
+    "Touch-Wischen und Pfeiltasten-Navigation (Links/Rechts) weiterhin moeglich",
+    "Admin-Panel als Konsole neu gebaut (Seitenleiste, Tabelle, Pills, Dialog)",
+    "Seitenleisten-Layout (SidebarNav): gruppierte Navigation mit Symbolen, Zaehler-Badges fuer Sitzungen/Nutzer, ein-/ausklappbar, Kopfzeile mit Brotkrume; auf schmalen Screens eine kompakte, seitlich scrollbare Leiste",
+    "Stat-Karten (StatsCard): Symbol, grosse Zahl und erklaerende Zeile statt nackter Zahlen",
+    "Daten-Tabelle: Suchfeld, Status-Filter als Dropdown, Zeilen-Hover, Aktions-Menue je Zeile (E-Mail kopieren, Limit zuruecksetzen, sperren)",
+    "Status-Pills mit Indikator-Punkt statt Text/Buttons in den Tabellen",
+    "Bestaetigungs-Dialog vor dem Sperren/Entsperren eines Kontos",
+    "Pagination unter beiden Tabellen (8 Zeilen je Seite)",
+    "Skeleton-Platzhalter, solange die Admin-Daten geladen werden",
+    "Tooltips ([data-tip]) und Feder-Animation fuer die Schalter sitewide",
+    "Test-E-Mails in einen eigenen Bereich ausgelagert; Admin-Ansicht nutzt jetzt die breite Layout-Variante",
+    "Admin-Konsole auf grossen Bildschirmen hochskalieren",
+    "Sound-System fuer echte Audiodateien vorbereiten",
+    "Geladen wird erst bei der ersten Interaktion (davor ist der AudioContext auf iOS ohnehin blockiert und ungenutzte Dateien kosten nur Ladezeit)",
+    "Abspielen laeuft ueber den bestehenden AudioContext, damit Lautstaerke- Regler und Ton-aus-Schalter unveraendert greifen; je Sound zusaetzlich ein eigener Pegel, um einzelne Dateien nachzujustieren",
+    "Der Service Worker cached die Dateien automatisch ueber die bestehende stale-while-revalidate-Regel, sie muessen nicht ins APP_SHELL (ein fehlender Eintrag dort wuerde die ganze SW-Installation scheitern lassen)",
+    "Erste drei echte Sound-Dateien hinzufuegen (hover, click, correct)",
+    "Letzte drei echte Sound-Dateien hinzufuegen (wrong, retry, complete)",
+    "hover/click/correct zurueck auf synthetischen Ton, wrong/retry/complete bleiben",
+    "Auch wrong/retry/complete zurueck auf synthetischen Ton",
+    "Anmelde-/Registrieren-Maske aufgewertet (Orb-Icon, Passwort-Staerke, Spinner)",
+    "Explainer-Icon bekommt einen dauerhaft langsam rotierenden gestrichelten Ring (Signature-Orb-Look statt statischer Kreis)",
+    "Dezenter Gold-Glow hinter der Modal-Ueberschrift",
+    "Passwort-Staerke-Anzeige (3 Segmente + Label Schwach/Mittel/Stark) beim Registrieren, rein visuelles Feedback ohne das Absenden zu blockieren",
+    "Absenden-Button zeigt waehrend der echten Supabase-Anfrage einen drehenden Spinner statt nur disabled zu sein, Label wechselt auf \"Authentifiziere …\"/\"Erstelle Konto …\"",
+    "Kontouebersicht aufgewertet: Schliessen-Kreuz, zwei Status-Karten, Sync-Zeile",
+    "Ein Schliessen-Kreuz oben rechts im Auth-Modal (wirkt fuer alle drei Unteransichten - Anmelden/Registrieren, eingeloggt, Passwort-Reset)",
+    "Avatar bekommt einen gestrichelten Rahmen-Ring (Orb-Stil), Admin-Abzeichen mit Gold-Verlauf statt reiner Flaeche",
+    "\"Mitglied seit [Monat Jahr]\" unter der E-Mail, aus dem echten currentUser.created_at von Supabase",
+    "Anzeigename-Speichern zeigt kurz eine \"Gespeichert\"-Bestaetigung mit Haekchen statt nur den Toast",
+    "Die beiden Meter (KI-Anfragen, Website-Kapazitaet) sind jetzt zwei eigenstaendige Karten nebeneinander mit Icon + Prozent-Badge, statt einer Liste aus Balken",
+    "Der Erklaertext ist jetzt eine umrahmte Karte mit einer zweiten Zeile \"Zuletzt synchronisiert vor X\" - echte Daten aus dem updated_at der letzten Cloud-Synchronisation (kein erfundener Geraete-Zaehler, da wir dafuer clientseitig keine zuverlaessige Datenquelle haben)",
+    "Claude-Fallback von Opus 5 auf Haiku 4.5 umgestellt",
+    "Konto-Modal auf neues Premium-Design umgestellt (Wortmarke, Passepartout)",
+    "Gold-Ton im Konto-Modal abgeschwächt, Kontostatus-Layout entzerrt",
+    "Lernsets, Aussprache und Footer auf neues Editorial-Design umgestellt",
+    "Lernsets-Uebersicht: Eyebrow+Titel im Seiten-Header-Muster, dynamische Unterzeile mit echter Set-Anzahl, Karten zeigen jetzt echten Leitner- Fortschritt (6-stufiger Balken, Prozent, Faellig-Badge/Status, zuletzt geuebt) statt nur Name+Wortanzahl. Neue \"+\"-Kachel am Grid-Ende nutzt denselben Neues-Set-Flow. Dafuer bekommt pair.stats ein echtes lastSeen- Feld (computeSetProgress/formatStudyTime leiten alles direkt aus den vorhandenen Karteikarten-Daten ab, nichts wird fingiert).",
+    "Aussprache-Seite: gleiches Header-Muster, Eigenes-Wort-Box neu gestaltet, Vokabelzeilen mit Serif-Akzent fuers franzoesische Wort und Lautsprecher- Buttons, die im \"spricht gerade\"-Zustand zu einer kleinen Equalizer- Animation wechseln (an die bestehende .speaking-Klasse gekoppelt).",
+    "Footer: Rubriken-Label jetzt ueber statt unter dem Spaltentitel, Index- Kennung je Spalte, echte Haarlinien-Trenner statt harter Rahmen, neue Kolophon-Zeile mit Lumière-Wortmarke ueber der bestehenden Copyright-Leile.",
+    "Grammatik, Über uns, App-installieren und Einstellungen neu gestaltet",
+    "Grammatik: Eyebrow+Titel-Header, neu gestaltete Frage-Eingabe mit Absenden-Button, Themen-Chips mit aktivem Zustand, KI-Antwort jetzt als drei klar unterscheidbare Abschnitte (Regeln nummeriert, Beispiele als zweispaltiges Karten-Raster FR/DE, Ausnahmen als Zeilen) statt schlichter Aufzaehlungslisten - alles weiterhin direkt aus generateGrammarExplanation().",
+    "Über uns: komplett neues \"Security Operations\"-Panel statt Siegel-/ Stempel-Grafiken - Terminal-Status-Header, vier technische Konfigurations- zeilen mit ENABLED-Badges, Telemetrie-Fusszeile; drei gleich grosse Rechtliches-Karten (eine mit Passepartout-Akzent); ruhiger Epilog-Zitat- Block. Roemische Ziffer I nur noch als sehr dezentes Hintergrund-Wasser- zeichen. Alte .info-chapter/.info-pillar/.info-seal-Klassen entfernt, Spotlight-Hover-Selektoren auf die neuen Kartenklassen umgestellt.",
+    "App installieren: Meisterschafts-Fortschrittsbalken im Telefon-Mockup ergaenzt, \"Direktzugang\"-Akzent-Badge auf der dritten Vorzuege-Karte fuer mehr visuelle Varianz - der Rest der Seite war strukturell schon nah am Entwurf und blieb bestehen.",
+    "Einstellungen: alle acht Karten jetzt in fuenf benannten Rubriken (Konto & Lernen, Ton & Sprache, Erinnerungen, Darstellung, Daten & Zugriff) gruppiert, jede Karte mit rundem Icon-Badge statt Emoji-Praefix, Regler zeigen jetzt eine gefuellte Gold-Spur (--val CSS-Var, per JS gesetzt) statt eines flachen Balkens, Abschluss-Signaturzeile. Falsches \"Türkis\"- Label bei der Glow-Einstellung auf \"Gold-Akzente\" korrigiert. Admin-Panel- Nutzung von .settings-card bewusst unangetastet gelassen.",
+    "Performance- und Bugfix-Runde: Blur auf Touch-Geraeten aus, TTS-Stop bei Seitenwechsel, tote Sound-Datei-Infrastruktur entfernt",
+    "backdrop-filter sitzt hinter @media(pointer:coarse) global aus: auf iPad/Handy-GPUs ist der Weichzeichner ueber alle ~80 Glas-Karten hinweg der groesste Performance-Fresser, auf Maus/Trackpad-Geraeten faellt er nicht auf. Kartenhintergruende bleiben (halbtransparente Farbtoene), nur der teure Blur faellt weg.",
+    "speechSynthesis.cancel() jetzt zentral in showView(): Aussprache-Wiedergabe lief bisher im Hintergrund weiter, wenn man waehrend des Vorlesens die Seite wechselte.",
+    "SOUND_FILES/preloadSounds()/playSample() entfernt: das System versuchte bei jeder ersten Interaktion 6 mp3-Dateien zu laden, die schon vorher komplett aus dem Repo entfernt wurden (nur noch synthetische Toene). sndRetry()/sndComplete() haetten dadurch beim Aufruf einen ReferenceError geworfen.",
+    "KI-Eingabeboxen mit wanderndem Gold-Beam-Rand (inspiriert von 21st.dev AI Chat Box)",
+    "Grammatik: abgeschnittene Beispiel-Chips durch Fade-Kante ersetzt",
+    "Spielhalle: Coin-System, drei Spiele, Rangliste und Admin-Steuerung",
+    "+1 Coin pro abgeschlossener Übungsrunde (in showResults)",
+    "Tagesbelohnung, einmal pro Tag abholbar",
+    "Streak-Bonus alle N Tage, pro Streak-Länge nur einmal",
+    "Katapult-Weitsprung: Winkel antippen, Kraft halten, bis zu 3 Luftschübe, Landung mit Eis-/Sand-Untergrund unterschiedlicher Rutschweite",
+    "Höhenflug: Auftrieb per Tap, Hindernisse mit enger werdender Lücke",
+    "Paket-Stapler: Schneide-Mechanik, Turm wird mit jedem Versatz schmaler",
+    "Belohnungen und Spiele auf eine Seite, realistischerer Weitsprung, neue Rangliste",
+    "Anlaufphase, der Absprung passiert immer exakt am Balken (faire Messung)",
+    "Luftwiderstand und seitlicher Wind (sichtbare Anzeige) statt reiner Parabel",
+    "Strichfigur mit Gliedmassen und phasenabhaengiger Pose: Laufen, angezogene Beine im Flug, gestreckte Landung - dazu Rotation und Abrollen",
+    "Schatten, der mit der Flughoehe schrumpft, Flugspur, Parallax-Huegel",
+    "Steiler Aufprall kostet mehr Schwung als ein flacher",
+    "Ergebnis auf eine Nachkommastelle genau",
+    "Reibung nachgezogen: auf Eis trudelte man vorher fast zehn Sekunden aus",
+    "Redesign Startseite hero and Bereiche section per approved Stitch mockup",
+    "Replace the Paris-Berlin animated map hero with an editorial photo hero (corner brackets, floating caption card, ken-burns hover)",
+    "Enlarge the feature-card carousel and add a detail panel below it that shows a real photo + description for the active card, crossfading on change; reuses the existing fan-out carousel/gating/keyboard logic instead of duplicating it",
+    "Add 7 real editorial photos (one per Bereich) as local files",
+    "Add Newsreader font for panel/caption headings, thin custom scrollbar",
+    "Extend the cursor-ember suppression list to cover the new photo areas",
+    "Add missing Ablauf and final-CTA sections to Startseite",
+    "Add curtain-loader for the app's first paint",
+    "Precision pass: match Stitch source values exactly",
+    "Warm translucent gold borders (rgba(140,107,46,.4) etc.) instead of the app's much paler default --border-solid on the new photo frame, caption, panel and CTA box",
+    "Aligned ken-burns hover transform/filter/duration to the exact values",
+    "Added the missing radial glow behind the CTA box, its \"§ 04\" eyebrow, and the \"§ 03 — Ablauf\" eyebrow + ghost \"III\" numeral",
+    "Swapped the hero eyebrow/subline/archive-id note to the exact copy from the approved file (was still the older pre-Stitch hero copy)",
+    "Add Federwurf dart game, modernize arcade/leaderboard design, expand admin game settings",
+    "New arcade game \"Federwurf\": a feather orbits a dartboard with two overlaid sine waves, tap/space throws at its current position; a fixed per-round wind drift and 5 throws summed give the final score. Reuses the existing GAME_DEFS/DEFAULT_GAME_SETTINGS/launchArcadeGame plumbing, so it appears in the arcade grid and leaderboard tabs automatically.",
+    "Brought arcade-card and leaderboard (podium/rows) borders and hover states in line with the gold-bordered \"Édition Atelier\" look used elsewhere (corner brackets, translucent gold borders, hover lift).",
+    "Admin panel: each game now also exposes a difficulty multiplier and a bonus-coins-on-new-record amount, wired into all five games' speed/ physics constants and into finishArcadeGame's coin payout.",
+    "Add scroll-locked video hero to hub page opening",
+    "Revert \"Add scroll-locked video hero to hub page opening\""
+   ],
+   "commits": [
+    "8e305ff",
+    "5aecac7",
+    "f048326",
+    "6d92053",
+    "c540081",
+    "cf21fae",
+    "8979570",
+    "873be6b",
+    "fefafb2",
+    "a667c25",
+    "210b4ad",
+    "efea56a",
+    "44142cf",
+    "8267433",
+    "8d2a861",
+    "f5dc4a2",
+    "1d16287",
+    "117744b",
+    "df6a56d",
+    "9e6fc68",
+    "8992852",
+    "2ba0bf5",
+    "f1921e8",
+    "67dbd72",
+    "bfc0c10",
+    "b741bc1",
+    "6540d8f",
+    "4c62f4a",
+    "f385118",
+    "048c2d8",
+    "5a6330d",
+    "1e829ba",
+    "8bb62fd",
+    "babb832",
+    "b928d33",
+    "3c5d526",
+    "8dedd2a",
+    "7bd5012",
+    "0a859aa",
+    "94d8869",
+    "874b379",
+    "d1825f9",
+    "5809101",
+    "fa74cbd",
+    "38a2a75",
+    "dba85bd",
+    "96096fe",
+    "95a75b8",
+    "a7e944b",
+    "9f24a7e",
+    "66322ae",
+    "a6bf396",
+    "841a14e",
+    "9a6d618",
+    "54f0fb5",
+    "a3c745a",
+    "37b20e2",
+    "6393b71",
+    "13237e6",
+    "683af97",
+    "6fec7a6",
+    "54327bc",
+    "3fb9de1",
+    "40c1e17",
+    "b9591b2",
+    "4ed2643",
+    "7957586",
+    "eb20117",
+    "c85f87d",
+    "e22fcdb",
+    "0ffec16",
+    "c6809c5",
+    "c90e917",
+    "21bfb10",
+    "48b274d",
+    "e108d0d",
+    "b05e10f",
+    "60277e2",
+    "941adaa",
+    "2b52e7e",
+    "44a2d30",
+    "475538b",
+    "007de1b",
+    "76e5569",
+    "9ee334e",
+    "169fe40",
+    "81e5844",
+    "1e83f07",
+    "8cb3668",
+    "be4bfd8",
+    "f701909",
+    "6a832ee",
+    "e9df6ed",
+    "6b3b20c",
+    "fa44949",
+    "504732b",
+    "8394faf",
+    "263c3fe",
+    "1b308b8",
+    "87e053f",
+    "f57bfaa",
+    "96890d4",
+    "0e6eec4",
+    "f2151f6",
+    "f5293cc"
+   ]
+  }
+ ]
+}
