@@ -3641,6 +3641,63 @@
 
 
 
+  /* --- Build 36: Spiele normal oder mit Vokabeln ----------------------- */
+  .a36-start{ gap:.45rem; padding-top:1.1rem; }
+  .arcade-overlay.is-36{ justify-content:flex-start; overflow-y:auto; overscroll-behavior:contain; }
+  .arcade-overlay.is-36 > .a31-card{ margin:auto 0; flex:none; }
+  .arcade-overlay.is-36fix{ position:fixed; inset:0; z-index:64; padding:1rem; }
+  .a36-start .a31-icon{ transform:scale(.78); margin:-.5rem 0 -.6rem; }
+  .a36-start h3{ font-size:clamp(1.45rem, 3.4vw, 1.9rem); }
+  .a36-start .a31-desc{ max-width:44ch; font-size:.82rem; line-height:1.5; }
+  .a36-start .a31-ctrl{ margin:0; }
+  .a36-start .a31-play{ margin-top:.15rem; }
+  .a31-over .a36-chip{ margin:-.2rem 0 0; }
+  .a36-rec{ margin:0; font-size:.74rem; color:var(--stone); }
+  .a36-rec b{ font-family:var(--font-serif); font-size:1rem; color:#fff3d6; }
+  .a36-mode{ display:flex; padding:.25rem; gap:.2rem; border-radius:999px; background:rgba(0,0,0,.4); border:1px solid rgba(246,195,92,.3); margin:.15rem 0 .1rem; }
+  .a36-mode button{ border:0; background:none; color:#d9cfbd; font:inherit; font-size:.86rem; font-weight:600; padding:.55rem 1.05rem; border-radius:999px; cursor:pointer; min-height:40px; }
+  .a36-mode button.is-on{ color:#1a1406; background:linear-gradient(180deg, #ffe7ad, #e2a94c); box-shadow:0 4px 14px rgba(226,169,76,.35); }
+  .a36-mode button[data-m="vocab"].is-on{ background:linear-gradient(180deg, #e6ecff, #9fb0ee); box-shadow:0 4px 14px rgba(159,176,238,.35); }
+  .a36-mode button:focus-visible{ outline:2px solid var(--gold-bright); outline-offset:2px; }
+  .a36-set{ display:flex; align-items:center; gap:.5rem; font-size:.78rem; color:var(--stone); max-width:100%; }
+  .a36-set span{ font-family:var(--font-mono); font-size:.62rem; letter-spacing:.14em; text-transform:uppercase; }
+  .a36-set select{ min-width:0; max-width:15rem; font:inherit; font-size:.86rem; color:#f3ead8; background:rgba(0,0,0,.45); border:1px solid rgba(159,183,255,.45); border-radius:10px; padding:.42rem .6rem; }
+  .a36-few{ margin:0; font-size:.76rem; color:#cfd8ff; max-width:32ch; }
+  .a36-chip{ display:inline-block; margin-left:.5rem; padding:.18rem .55rem; border-radius:999px; font-family:var(--font-mono); font-size:.58rem; letter-spacing:.14em; text-transform:uppercase; font-weight:600;
+    color:#ffe7a8; border:1px solid rgba(246,195,92,.45); background:rgba(246,195,92,.1); vertical-align:middle; white-space:nowrap; }
+  .a36-chip.is-voc{ color:#dfe6ff; border-color:rgba(159,183,255,.55); background:rgba(159,183,255,.12); }
+  .gbar33-title .a36-chip{ margin-left:.35rem; font-size:.52rem; padding:.14rem .45rem; }
+  .a36-recs{ display:flex; gap:.6rem; justify-content:center; flex-basis:100%; }
+  .a36-recs span{ white-space:nowrap; }
+  .v36-ask, .v36-sol{ position:absolute; left:50%; transform:translateX(-50%); z-index:2; pointer-events:none; max-width:calc(100% - 24px);
+    display:flex; align-items:baseline; gap:.5rem; padding:.42rem .95rem; border-radius:999px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .v36-ask[hidden], .v36-sol[hidden]{ display:none; }
+  .v36-ask{ background:rgba(10,12,28,.88); border:1px solid rgba(159,183,255,.6); box-shadow:0 8px 24px rgba(0,0,0,.45), 0 0 24px -6px rgba(159,183,255,.55); }
+  .v36-ask span{ font-family:var(--font-mono); font-size:.6rem; letter-spacing:.2em; text-transform:uppercase; color:#aebcf0; }
+  .v36-ask b{ font-family:var(--font-serif); font-style:italic; font-weight:600; font-size:clamp(1rem, 2.6vw, 1.25rem); color:#fff6e0; }
+  .v36-sol{ background:rgba(60,14,26,.9); border:1px solid rgba(255,140,160,.6); color:#ffe1e6; font-size:.95rem; opacity:0; }
+  .v36-sol.is-ok{ background:rgba(16,22,40,.9); border-color:rgba(159,183,255,.55); color:#e6ecff; }
+  .v36-sol b{ font-family:var(--font-serif); font-style:italic; font-weight:600; color:#fff; }
+  .v36-sol span{ opacity:.7; }
+  .v36-sol.show{ animation:v36sol 2.4s ease both; }
+  @keyframes v36sol{ 0%{ opacity:0; transform:translate(-50%, -6px); } 10%, 82%{ opacity:1; transform:translate(-50%, 0); } 100%{ opacity:0; } }
+  .v36-quiz{ position:fixed; inset:0; z-index:65; display:grid; place-items:center; padding:1rem; background:rgba(6,7,14,.74); }
+  .v36-qcard{ width:min(30rem, 100%); padding:1.1rem 1.1rem 1rem; border-radius:20px; text-align:center;
+    background:linear-gradient(180deg, rgba(24,28,52,.96), rgba(12,13,24,.97)); border:1px solid rgba(159,183,255,.5);
+    box-shadow:0 22px 60px rgba(0,0,0,.55), 0 0 50px -20px rgba(159,183,255,.6); animation:a31in .35s cubic-bezier(.2,.9,.3,1.2) both; }
+  .v36-qk{ margin:0; font-family:var(--font-mono); font-size:.62rem; letter-spacing:.22em; text-transform:uppercase; color:#aebcf0; }
+  .v36-qde{ margin:.35rem 0 .8rem; font-family:var(--font-serif); font-style:italic; font-weight:600; font-size:clamp(1.4rem, 4.5vw, 1.9rem); color:#fff3d6; }
+  .v36-qopts{ display:grid; grid-template-columns:1fr 1fr; gap:.5rem; }
+  .v36-qopts button{ display:flex; align-items:center; gap:.5rem; min-height:48px; padding:.55rem .7rem; border-radius:12px; cursor:pointer; text-align:left;
+    font:inherit; font-size:.95rem; color:#f3ead8; background:rgba(255,255,255,.05); border:1px solid rgba(246,195,92,.3); min-width:0; overflow-wrap:anywhere; }
+  .v36-qopts button i{ font-style:normal; font-family:var(--font-mono); font-size:.66rem; color:var(--stone); flex:none; }
+  .v36-qopts button:hover{ border-color:rgba(246,195,92,.6); }
+  .v36-qopts button.is-ok{ background:rgba(60,160,100,.28); border-color:#8fe0a8; color:#eafff1; }
+  .v36-qopts button.is-no{ background:rgba(200,70,90,.3); border-color:#ff9ab2; color:#ffe1e6; }
+  .v36-qopts button:disabled{ cursor:default; }
+  .v36-qnote{ margin:.7rem 0 0; font-size:.76rem; color:var(--stone); }
+  @media (max-width:480px){ .v36-qopts{ grid-template-columns:1fr; } .a36-mode button{ padding:.5rem .8rem; font-size:.82rem; } }
+  @media (prefers-reduced-motion: reduce){ .v36-sol.show{ animation:none; opacity:1; } .v36-qcard{ animation:none; } }
   /* --- Build 35: Unterrichtsmodus, PDF, Klassen ------------------------- */
   .lesson35-badge{
     display:inline-flex; align-items:center; gap:.45rem; margin-right:.4rem; padding:.42rem .8rem; border-radius:999px; cursor:pointer;
@@ -5519,6 +5576,10 @@
           <button type="button" role="tab" data-lbp="all" class="is-on" aria-selected="true">Allzeit</button>
         </div>
       </div>
+      <div class="lb32-mode lb36-mode" id="lb36Mode" data-build="36" role="tablist" aria-label="Spielmodus">
+        <button type="button" role="tab" data-lbm="normal" class="is-on" aria-selected="true">Normal</button>
+        <button type="button" role="tab" data-lbm="vocab" aria-selected="false">Mit Vokabeln</button>
+      </div>
       <div class="lb31-tabs" id="lb31Tabs" role="tablist" aria-label="Spiel"></div>
       <div class="lb32-mode" id="lb32Mode" role="tablist" aria-label="Neon Drift Modus" hidden>
         <button type="button" role="tab" data-lbnd="endless" class="is-on" aria-selected="true">Endlos</button>
@@ -6735,7 +6796,7 @@
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="./lumiere-gl.js?v=35" defer></script>
+<script src="./lumiere-gl.js?v=36" defer></script>
 <script>
 /* ============================================================
    WICHTIG: Bei jedem inhaltlichen Deploy hochzaehlen (wie CACHE_NAME
@@ -6746,7 +6807,7 @@
       unten) - neue, noch nicht "veroeffentlichte" Features hinter
       isReleased(N) verstecken; Admins sehen sie trotzdem sofort.
    ============================================================ */
-const APP_VERSION = 35;
+const APP_VERSION = 36;
 
 // Handy und iPad (Build 31): ein schlanker Modus fuer alle Nutzer - keine
 // Hintergrund-Weichzeichner (backdrop-filter ueber der bewegten 3D-Ebene
@@ -15387,7 +15448,8 @@ function renderArcadeTiles33(grid, cfg){
       ${gameIcon(key, 'gi33-tile')}
       <span class="arc33-name">${escapeHtml(def.name)}</span>
       <span class="arc33-meta">
-        <span class="arc33-rec">Rekord <b>${getLocalRecord(key)}</b></span>
+        ${isReleased(36) ? `<span class="arc33-rec a36-recs"><span>Normal <b>${getLocalRecord(recKey36(key, 'normal'))}</b></span><span>Vokabeln <b>${getLocalRecord(recKey36(key, 'vocab'))}</b></span></span>`
+          : `<span class="arc33-rec">Rekord <b>${getLocalRecord(key)}</b></span>`}
         ${off ? '<span class="arc33-off">Aus</span>' : `<span class="arc33-price${affordable ? '' : ' is-short'}">${price}</span>`}
       </span>
     </button>`;
@@ -15491,7 +15553,7 @@ async function renderLeaderboard(key){
 // Reiter "Gesamt" + je Spiel, Zeitraum Woche/Monat/Allzeit. Daten aus den RPCs
 // lb_game / lb_overall (build31.sql). Fehlen sie noch, faellt es auf die
 // alte Tabelle game_records zurueck (nur Allzeit-Bestwerte).
-const lb31 = { game: 'overall', period: 'all', seq: 0, nd: 'endless' };
+const lb31 = { game: 'overall', period: 'all', seq: 0, nd: 'endless', m36: 'normal' };
 function lbTrophy(place){
   const c = place === 1 ? ['#fff4c9', '#f2c24c', '#a4721c'] : place === 2 ? ['#ffffff', '#c9d2e0', '#7b8699'] : ['#ffd9bf', '#d88a57', '#8a4a24'];
   return `<svg class="lb31-trophy" viewBox="0 0 40 44" aria-hidden="true"><defs>
@@ -15522,9 +15584,15 @@ function syncLbPeriodButtons(){
   if(lb31.period === 'day' && !isReleased(32)) lb31.period = 'all';
   document.querySelectorAll('[data-lbp]').forEach(x => { const on = x.dataset.lbp === lb31.period; x.classList.toggle('is-on', on); x.setAttribute('aria-selected', on); });
   document.querySelectorAll('[data-lbnd]').forEach(x => { const on = x.dataset.lbnd === lb31.nd; x.classList.toggle('is-on', on); x.setAttribute('aria-selected', on); });
+  document.querySelectorAll('[data-lbm]').forEach(x => { const on = x.dataset.lbm === lb31.m36; x.classList.toggle('is-on', on); x.setAttribute('aria-selected', on); });
 }
 document.querySelectorAll('[data-lbp]').forEach(b => b.addEventListener('click', () => {
   sndClick(); lb31.period = b.dataset.lbp;
+  renderLb31();
+}));
+// Build 36: Normal / Mit Vokabeln - gilt fuer die Spiel-Reiter und "Gesamt".
+document.querySelectorAll('[data-lbm]').forEach(b => b.addEventListener('click', () => {
+  sndClick(); lb31.m36 = b.dataset.lbm;
   renderLb31();
 }));
 document.querySelectorAll('[data-lbnd]').forEach(b => b.addEventListener('click', () => {
@@ -15540,16 +15608,19 @@ async function renderLb31(){
   const seq = ++lb31.seq;
   const overall = lb31.game === 'overall';
   const def = overall ? null : GAME_DEFS[lb31.game];
+  // Build 36: Modus waehlt den Schluessel (recKey36). Die Tages-Challenge
+  // von Neon Drift gibt es nur im normalen Modus.
+  const m36 = isReleased(36) ? lb31.m36 : null;
   // Neon Drift: Endlos oder Tages-Challenge (eigener Schluessel).
-  const ndDaily = lb31.game === 'neondrift' && lb31.nd === 'daily';
-  const gameKey = ndDaily ? 'neondaily' : lb31.game;
-  document.getElementById('lb32Mode').hidden = lb31.game !== 'neondrift';
+  const ndDaily = lb31.game === 'neondrift' && lb31.nd === 'daily' && m36 !== 'vocab';
+  const gameKey = ndDaily ? 'neondaily' : (m36 ? recKey36(lb31.game, m36) : lb31.game);
+  document.getElementById('lb32Mode').hidden = lb31.game !== 'neondrift' || m36 === 'vocab';
   table.innerHTML = '<div class="lb31-loading"><span></span><span></span><span></span></div>';
   if(!sb){ table.innerHTML = lbEmptyState('Nicht verfügbar', 'Die Rangliste braucht eine Verbindung zum Konto-Dienst.'); return; }
   let rows = null, fallback = false;
   try{
     const { data, error } = overall
-      ? await sb.rpc('lb_overall', { p_games: visibleGameKeys(), p_period: lb31.period, p_limit: 50 })
+      ? await sb.rpc('lb_overall', { p_games: m36 ? visibleGameKeys().map(k => recKey36(k, m36)) : visibleGameKeys(), p_period: lb31.period, p_limit: 50 })
       : await sb.rpc('lb_game', { p_game: gameKey, p_period: lb31.period, p_limit: 50 });
     if(error) throw error;
     rows = data || [];
@@ -15569,8 +15640,8 @@ async function renderLb31(){
   const periodTxt = { day: 'heute', week: 'diese Woche', month: 'diesen Monat', all: 'aller Zeiten' }[lb31.period];
   note.textContent = fallback
     ? 'Zeitraum, Runden und Coins erscheinen, sobald die neue Rangliste eingerichtet ist (build31.sql).'
-    : overall ? `Gesamtwertung ${periodTxt}: Platz 1 in einem Spiel bringt 10 Punkte, Platz 2 bringt 9 … bis Platz 10.`
-              : `${def.name}${ndDaily ? ' · Tages-Challenge' : ''} – beste Runde ${periodTxt}.` + (ndDaily && lb31.period === 'day' ? ' Heute fahren alle dieselbe Strecke.' : '') + (currentUser ? '' : ' Melde dich an, um mitzuspielen.');
+    : overall ? `Gesamtwertung ${periodTxt}${m36 ? ' · ' + modeLabel36(m36) : ''}: Platz 1 in einem Spiel bringt 10 Punkte, Platz 2 bringt 9 … bis Platz 10.`
+              : `${def.name}${ndDaily ? ' · Tages-Challenge' : ''}${m36 ? ' · ' + modeLabel36(m36) : ''} – beste Runde ${periodTxt}.` + (ndDaily && lb31.period === 'day' ? ' Heute fahren alle dieselbe Strecke.' : '') + (currentUser ? '' : ' Melde dich an, um mitzuspielen.');
   if(!rows.length){
     table.innerHTML = lbEmptyState('Noch keine Einträge', lb31.period === 'all' ? 'Sei der Erste in dieser Wertung.' : `In diesem Zeitraum hat noch niemand gespielt – ${periodTxt} gehört der Platz dir.`);
     return;
@@ -15620,9 +15691,10 @@ function stopAllGames(){
   }
   clearInterval(gameTimerInterval);
   clearInterval(gameSpawnInterval);
+  try{ cleanup36(); }catch(e){}
 }
 function arcadeOverlay(){ return document.getElementById('arcadeOverlay'); }
-function hideArcadeOverlay(){ arcadeOverlay().hidden = true; }
+function hideArcadeOverlay(){ const ov = arcadeOverlay(); ov.hidden = true; ov.classList.remove('is-36fix'); }
 function showArcadeOverlay(html){
   const ov = arcadeOverlay();
   ov.innerHTML = html;
@@ -15687,6 +15759,9 @@ function launchArcadeGame(key, opts = {}){
     return;
   }
   if(!spendCoins(cfg.cost)){ showToast('Nicht genug Coins.', true); return; }
+  // Build 36: Modus gilt je Spiel; der Startbildschirm setzt ihn neu.
+  if(ARC36.key !== key){ ARC36.key = key; ARC36.cur = null; }
+  ARC36.ok = 0; ARC36.bad = 0;
   { const st = ensureArcadeState(); st.played = st.played || {}; if(!st.played[key]){ st.played[key] = 1; saveData(store); } }
 
   if(key === 'balloon' && !arc31()){ startBalloonGame(); return; }
@@ -15721,7 +15796,7 @@ function launchArcadeGame(key, opts = {}){
     document.getElementById('view-arcade-game').dataset.game = key;
     A31.sky(ctx, SW, SH);
     // "Nochmal" mit festem Modus (Neon Drift) ueberspringt den Startbildschirm.
-    if(opts.mode){ runArcadeKey(key, canvas, ctx, opts.mode); return; }
+    if(opts.mode){ if(arc36()) applyModeChrome36(key, opts.mode); runArcadeKey(key, canvas, ctx, opts.mode); return; }
     arcadeStartScreen(key, (mode) => runArcadeKey(key, canvas, ctx, mode));
     return;
   }
@@ -15745,13 +15820,19 @@ function runArcadeKey(key, canvas, ctx, mode){
 }
 
 async function finishArcadeGame(key, score, opts = {}){
+  // Verspaetete Abpfiffe (setTimeout nach Absturz) eines Spiels, das schon
+  // durch ein anderes ersetzt wurde, nicht mehr ueber das neue legen.
+  if(ARC36.key && ARC36.key !== key) return;
   // Spielinstanz sauber beenden: sonst bleiben Tastatur-/Zeiger-Listener nach
   // dem Abpfiff gebunden und die Leertaste loest weiter Spielgeraeusche aus.
   stopAllGames();
   const def = GAME_DEFS[key];
   const cfg = gameCfg(key);
   // Build 32: Neon Drift Tages-Challenge zaehlt unter "neondaily".
-  const recKey = opts.recKey || key;
+  const recKey = opts.recKey || recKey36(key);
+  const mode36 = arc36() ? playMode36(key) : null;
+  const vocN36 = ARC36.ok + ARC36.bad;
+  flush36();
   const isRecord = await submitRecord(recKey, score);
   document.getElementById('arcadeGameRecord').innerHTML = `Rekord <strong>${getLocalRecord(recKey)}</strong>`;
   // Bonus-Coins nur bei einem echten neuen Rekord - Trostrunden geben keine extra Coins,
@@ -15763,6 +15844,7 @@ async function finishArcadeGame(key, score, opts = {}){
     setArcadeLives(null);
     showArcadeOverlay(`<div class="a31-card a31-over${isRecord ? ' is-record' : ''}">
         <p class="a31-kicker">${isRecord ? 'Neuer Rekord!' : 'Runde vorbei'}${opts.mode === 'daily' ? ' · Tages-Challenge' : ''}</p>
+        ${mode36 ? `<span class="a36-chip${mode36 === 'vocab' ? ' is-voc' : ''}">${modeLabel36(mode36)}</span>` : ''}
         <span class="a31-icon" aria-hidden="true">${gIcon(isRecord ? 'overall' : key)}</span>
         <div class="a31-score"><strong>${score}</strong><span>${escapeHtml(def.unit)}</span></div>
         ${opts.sub ? `<p class="a31-desc">${escapeHtml(opts.sub)}</p>` : ''}
@@ -15770,6 +15852,7 @@ async function finishArcadeGame(key, score, opts = {}){
           <div><span>Rekord</span><strong>${getLocalRecord(recKey)}</strong></div>
           <div><span>Coins</span><strong>₵ ${getCoins()}</strong></div>
           ${recordBonus > 0 ? `<div class="up"><span>Bonus</span><strong>+${recordBonus} ₵</strong></div>` : ''}
+          ${mode36 === 'vocab' && vocN36 > 0 ? `<div><span>Vokabeln</span><strong>${ARC36.ok}/${vocN36}</strong></div>` : ''}
         </div>
         <div class="a31-actions">
           <button type="button" class="a31-play" id="btnArcadeAgain" ${canAfford ? '' : 'disabled'}><span>↻ Nochmal${cfg.cost > 0 ? ` · ${cfg.cost} ₵` : ''}</span></button>
@@ -15779,11 +15862,13 @@ async function finishArcadeGame(key, score, opts = {}){
         ${canAfford ? '' : '<p class="a31-desc">Nicht genug Coins – übe eine Runde, um neue zu verdienen.</p>'}
       </div>`);
     arcadeOverlay().classList.add('is-31');
+    if(arc36()){ arcadeOverlay().classList.add('is-36'); fitOverlay36(); }
     if(isRecord){ sndRecord(); A31.confetti(); } else sndComplete();
     document.getElementById('btnArcadeAgain').addEventListener('click', () => launchArcadeGame(key, { mode: opts.mode }));
     document.getElementById('btnArcadeExit').addEventListener('click', () => { sndClick(); renderRewards(); });
     document.getElementById('btnArcadeLb').addEventListener('click', () => {
       sndClick(); lb31.game = key;
+      if(mode36) lb31.m36 = mode36;
       if(key === 'neondrift'){ lb31.nd = opts.mode === 'daily' ? 'daily' : 'endless'; if(lb31.nd === 'daily') lb31.period = 'day'; }
       renderRewards();
       setTimeout(() => { const el = document.querySelector('.lb31'); if(el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 250);
@@ -15904,7 +15989,11 @@ function runLongJump(canvas, ctx){
   let phase = 'runup';                     // runup -> angle -> power -> flight -> land
   let angle = 42, angleDir = 1;
   let power = 0, powerDir = 1;
-  let x = 0, y = GROUND_Y, vx = 0, vy = 0, boosts = 3;
+  let x = 0, y = GROUND_Y, vx = 0, vy = 0, boosts = 3, maxBoosts = 3;
+  // Build 36: "Mit Vokabeln" - vor dem Sprung drei Fragen; jede richtige
+  // Antwort ist ein Luftschub (1 + richtige, also bis zu 4).
+  const VOC = vocOn36('longjump');
+  let quizOn = VOC;
   let rot = 0, spin = 0, elapsed = 0;
   let camX = 0, raf = null, last = performance.now(), running = true;
   const wind = (Math.random() * 2 - 1) * 55 * difficulty;   // px/s², seitlicher Wind
@@ -15927,6 +16016,7 @@ function runLongJump(canvas, ctx){
   function frictionFor(type){ return type === 'ice' ? 0.8 : type === 'sand' ? 5.5 : 2.2; }
 
   const unbind = bindArcadeInput(canvas, () => {
+    if(quizOn) return;
     if(phase === 'runup'){ phase = 'angle'; sndClick(); }
     else if(phase === 'angle'){ phase = 'power'; power = 0; powerDir = 1; sndClick(); }
     else if(phase === 'flight' && boosts > 0){
@@ -15936,6 +16026,7 @@ function runLongJump(canvas, ctx){
       sndCorrect();
     }
   }, () => {
+    if(quizOn) return;
     if(phase === 'power'){
       phase = 'flight';
       const rad = angle * Math.PI / 180;
@@ -16149,12 +16240,20 @@ function runLongJump(canvas, ctx){
     } else if(phase === 'flight'){
       ctx.fillStyle = ARCADE_STONE;
       ctx.font = '12px monospace';
-      ctx.fillText('LUFTSCHÜBE: ' + '●'.repeat(boosts) + '○'.repeat(3 - boosts), 30, 34);
+      ctx.fillText('LUFTSCHÜBE: ' + '●'.repeat(boosts) + '○'.repeat(Math.max(0, maxBoosts - boosts)), 30, 34);
     }
   }
 
   draw();
-  raf = requestAnimationFrame(step);
+  if(VOC){
+    quiz36(3, { title: 'Vor dem Sprung', note: 'Jede richtige Antwort = ein Luftschub mehr' }).then((right) => {
+      if(!running) return;
+      boosts = maxBoosts = 1 + right; quizOn = false;
+      A31.popup(ARCADE_W / 2, 120, `${boosts} Luftschub${boosts === 1 ? '' : 'e'}`, { size: 26, color: '#ffe7a8' });
+      last = performance.now();
+      raf = requestAnimationFrame(step);
+    });
+  }else raf = requestAnimationFrame(step);
   return { stop(){ running = false; cancelAnimationFrame(raf); unbind(); } };
 }
 
@@ -16166,6 +16265,35 @@ function runFlappy(canvas, ctx){
   let speed = 190 * difficulty, gap = Math.max(110, 170 / difficulty), spawnGap = 300;
   let pipes = [{ x: ARCADE_W + 100, gapY: ARCADE_H / 2, passed: false }];
   let raf = null, last = performance.now(), running = true, started = false;
+  // Build 36: "Mit Vokabeln" - jede vierte Saeule hat zwei Luecken mit je
+  // einem Wort. Die richtige Uebersetzung gibt +3 und einen Schild, der den
+  // naechsten Zusammenstoss abfaengt; die falsche kostet nichts ausser dem Bonus.
+  const VOC = vocOn36('flappy');
+  const deck = VOC ? deck36(14, 26) : null;
+  let spawned = 1, shield = false, inv = 0;
+  function newPipe(){
+    spawned++;
+    if(VOC && (ARC36.fast || spawned >= 3 && spawned % 4 === 3)){
+      const item = deck.next(), other = deck.wrong(item, 1)[0] || ARCADE_WORDS[0];
+      const m = 22, mid = 46, A = Math.max(0, ARCADE_H - 2 * m - 2 * gap - mid);
+      const g1 = m + gap / 2 + Math.random() * A * 0.5;
+      const g2 = g1 + gap + mid + Math.random() * A * 0.5;
+      const upOk = Math.random() < 0.5;
+      return { x: ARCADE_W + 40, passed: false, item, gaps: [{ y: g1, w: upOk ? item : other, ok: upOk }, { y: g2, w: upOk ? other : item, ok: !upOk }] };
+    }
+    return { x: ARCADE_W + 40, gapY: 90 + Math.random() * (ARCADE_H - 180), passed: false };
+  }
+  function crashOrShield(){
+    if(inv > 0) return false;
+    if(shield){
+      shield = false; inv = 1.1; vy = FLAP * 0.8;
+      A31.burst(BIRD_X, y, { n: 26, colors: ['#cfe3ff', '#8fc8ff', '#fff'], speed: 240 }); A31.flash(0.2, '150,200,255');
+      A31.popup(BIRD_X + 30, y - 30, 'Schild!', { color: '#cfe3ff', size: 20 });
+      playTone(700, 0.2, 'triangle', 0.05);
+      return false;
+    }
+    return true;
+  }
 
   const unbind = bindArcadeInput(canvas, () => {
     started = true;
@@ -16193,13 +16321,38 @@ function runFlappy(canvas, ctx){
       speed = Math.min(360, speed + 4 * dt);
       gap = Math.max(112, gap - 3.2 * dt);
 
+      if(inv > 0) inv -= dt;
       pipes.forEach(p => { p.x -= speed * dt; });
       if(pipes.length === 0 || pipes[pipes.length - 1].x < ARCADE_W - spawnGap){
-        pipes.push({ x: ARCADE_W + 40, gapY: 90 + Math.random() * (ARCADE_H - 180), passed: false });
+        const np = newPipe();
+        pipes.push(np);
+        if(np.gaps) vocabAsk36(np.item.de);
       }
       pipes = pipes.filter(p => p.x > -80);
 
       for(const p of pipes){
+        if(p.gaps){
+          const withinXw = BIRD_X + 14 > p.x && BIRD_X - 14 < p.x + 56;
+          const inGap = p.gaps.find(g => Math.abs(y - g.y) < gap / 2 - 14);
+          if(withinXw && !inGap && crashOrShield()){ draw(); endRun(); return; }
+          if(!p.passed && p.x + 30 < BIRD_X){
+            p.passed = true;
+            const g = p.gaps.find(q => Math.abs(y - q.y) < gap / 2);
+            const ok = !!(g && g.ok);
+            p.chosen = g || null;
+            vocabMark36(p.item, ok);
+            vocabAskHide36();
+            if(ok){
+              score += 3; shield = true; sndCorrect(); setArcadeScore(score);
+              A31.burst(BIRD_X, y, { n: 28, star: true, speed: 250 });
+              A31.popup(BIRD_X + 30, y - 28, '✓ +3 · Schild', { size: 20, color: '#ffe7a8' });
+            }else{
+              sndWrong(); vocabFlash36(p.item);
+              A31.popup(BIRD_X + 30, y - 28, 'Falsche Lücke', { size: 18, color: '#ff9a8a' });
+            }
+          }
+          continue;
+        }
         if(!p.passed && p.x + 30 < BIRD_X){
           p.passed = true; score++; sndCorrect(); setArcadeScore(score);
           A31.popup(BIRD_X + 20, y - 26, '+1', { size: 18 });
@@ -16207,9 +16360,12 @@ function runFlappy(canvas, ctx){
         }
         const withinX = BIRD_X + 14 > p.x && BIRD_X - 14 < p.x + 56;
         const outsideGap = y - 14 < p.gapY - gap / 2 || y + 14 > p.gapY + gap / 2;
-        if(withinX && outsideGap){ draw(); endRun(); return; }
+        if(withinX && outsideGap && (!VOC || crashOrShield())){ draw(); endRun(); return; }
       }
-      if(y > ARCADE_H - 14 || y < 14){ draw(); endRun(); return; }
+      if(y > ARCADE_H - 14 || y < 14){
+        if(VOC && !crashOrShield()){ if(y < 14) vy = 160; y = Math.max(20, Math.min(ARCADE_H - 20, y)); }
+        else { draw(); endRun(); return; }
+      }
     }
 
     draw();
@@ -16265,6 +16421,26 @@ function runFlappy(canvas, ctx){
   }
   function drawFlappy31(){
     pipes.forEach(p => {
+      if(p.gaps){
+        const [a, b] = p.gaps;
+        column(p.x, -10, a.y - gap / 2, true);
+        column(p.x, a.y + gap / 2, b.y - gap / 2, false);
+        column(p.x, b.y + gap / 2, ARCADE_H + 10, false);
+        ctx.font = `italic 600 15px ${ARCADE_SERIF}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        for(const g of p.gaps){
+          const tw = ctx.measureText(g.w.fr).width + 18, cx = p.x + 28;
+          const res = p.passed ? (g.ok ? 'ok' : p.chosen === g ? 'bad' : 'off') : null;
+          ctx.globalAlpha = res === 'off' ? 0.3 : 1;
+          ctx.fillStyle = res === 'ok' ? 'rgba(246,195,92,.92)' : res === 'bad' ? 'rgba(220,80,110,.85)' : 'rgba(14,17,34,.88)';
+          arcadeRoundRect(ctx, cx - tw / 2, g.y - 13, tw, 26, 13); ctx.fill();
+          ctx.strokeStyle = res ? 'transparent' : 'rgba(159,183,255,.85)'; ctx.lineWidth = 1.3; ctx.stroke();
+          ctx.fillStyle = res === 'ok' ? '#1a1406' : '#f1f0ff';
+          ctx.fillText(g.w.fr, cx, g.y + 1);
+          ctx.globalAlpha = 1;
+        }
+        ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+        return;
+      }
       column(p.x, -10, p.gapY - gap / 2, true);
       column(p.x, p.gapY + gap / 2, ARCADE_H + 10, false);
     });
@@ -16282,6 +16458,10 @@ function runFlappy(canvas, ctx){
     ctx.beginPath(); ctx.moveTo(0, -18); ctx.lineTo(0, 18); ctx.moveTo(-12, 0); ctx.lineTo(15, 0); ctx.stroke();
     ctx.restore();
     ctx.fillStyle = 'rgba(246,195,92,.18)'; ctx.beginPath(); ctx.arc(BIRD_X, y, 26, 0, Math.PI * 2); ctx.fill();
+    if(shield || inv > 0){
+      ctx.strokeStyle = `rgba(160,200,255,${inv > 0 ? 0.4 : 0.55 + 0.3 * Math.sin(performance.now() / 120)})`; ctx.lineWidth = 2.5;
+      ctx.beginPath(); ctx.arc(BIRD_X, y, 30, 0, Math.PI * 2); ctx.stroke();
+    }
     if(!started){
       ctx.fillStyle = '#fff1c9'; ctx.font = `600 20px ${ARCADE_SERIF}`; ctx.textAlign = 'center';
       ctx.fillText('Tippen, um abzuheben', ARCADE_W / 2, ARCADE_H / 2 - 64); ctx.textAlign = 'left';
@@ -16301,6 +16481,24 @@ function runStacker(canvas, ctx){
   let cur = { x: 0, w: BASE_W, dir: 1, speed: 190 * difficulty };
   let falling = [];            // abgeschnittene Stuecke, die herunterfallen
   let score = 0, camY = 0, raf = null, last = performance.now(), running = true, perfect = 0;
+  // Build 36: "Mit Vokabeln" - nach jedem fuenften Paket eine Frage. Richtig =
+  // das naechste Paket wird wieder breiter. Waehrend der Frage steht alles still.
+  const VOC = vocOn36('stacker');
+  let quizOn = false;
+  const deck = VOC ? deck36(24, 30) : null;
+  function maybeQuiz(){
+    if(!VOC || score % (ARC36.fast ? 1 : 5) !== 0) return;
+    quizOn = true;
+    quiz36(1, { deck, title: `Paket ${score} · Vokabel-Frage`, note: 'Richtig = das nächste Paket wird breiter' }).then((right) => {
+      if(!running) return;
+      quizOn = false; last = performance.now();
+      if(right){
+        const grow = Math.min(BASE_W - cur.w, 40);
+        if(grow > 0){ cur.w += grow; cur.x = Math.max(0, Math.min(ARCADE_W - cur.w, cur.x - grow / 2)); }
+        A31.popup(ARCADE_W / 2, 90, grow > 0 ? `breiter! +${Math.round(grow)}` : 'schon ganz breit!', { size: 22, color: '#8fe0a8' });
+      }
+    });
+  }
 
   function towerTopY(){ return ARCADE_H - 40 - tower.length * BLOCK_H; }
   // Build 31: Pakete mit Band und Schleife.
@@ -16314,7 +16512,7 @@ function runStacker(canvas, ctx){
   }
 
   const unbind = bindArcadeInput(canvas, () => {
-    if(!running) return;
+    if(!running || quizOn) return;
     const top = tower[tower.length - 1];
     const left = Math.max(cur.x, top.x);
     const right = Math.min(cur.x + cur.w, top.x + top.w);
@@ -16340,6 +16538,7 @@ function runStacker(canvas, ctx){
       A31.popup(top.x + top.w / 2, yy - 10, perfect >= 2 ? `Perfekt ×${perfect}` : 'Perfekt!', { size: 22 });
       if(grow) A31.popup(top.x + top.w / 2, yy - 44, 'breiter!', { size: 16, color: '#8fe0a8' });
       cur = { x: 0, w: top.w + grow, dir: 1, speed: Math.min(430, cur.speed + 12) };
+      maybeQuiz();
       return;
     }
     perfect = 0;
@@ -16353,6 +16552,7 @@ function runStacker(canvas, ctx){
     sndCorrect();
     { const yy = towerTopY() + camY; A31.burst(left + overlap / 2, yy + BLOCK_H, { n: 10, angle: -Math.PI / 2, spread: 2.6, speed: 150, colors: ['#e8d3a8', '#b8862f'] }); A31.popup(left + overlap / 2, yy, '+1', { size: 16 }); }
     cur = { x: 0, w: overlap, dir: 1, speed: Math.min(430, cur.speed + 12) };
+    maybeQuiz();
   });
 
   function step(now){
@@ -16360,7 +16560,7 @@ function runStacker(canvas, ctx){
     const dt = Math.min(0.033, (now - last) / 1000);
     last = now;
 
-    cur.x += cur.dir * cur.speed * dt;
+    if(!quizOn) cur.x += cur.dir * cur.speed * dt;
     if(cur.x + cur.w > ARCADE_W){ cur.x = ARCADE_W - cur.w; cur.dir = -1; }
     if(cur.x < 0){ cur.x = 0; cur.dir = 1; }
 
@@ -16439,6 +16639,20 @@ function runDart(canvas, ctx){
   const holes = [];                         // vorherige Einschlaege, zur Orientierung
   let popup = null;                         // { x, y, text, born }
   let raf = null, last = performance.now(), running = true;
+  // Build 36: "Mit Vokabeln" - vor jedem Wurf drei Wort-Medaillen auf der
+  // Bahn der Feder. Richtige getroffen = Wurf zaehlt doppelt, falsche = halb.
+  const VOC = vocOn36('dart');
+  const deck = VOC ? deck36(14, 26) : null;
+  let medals = null, askItem = null;
+  const MEDAL_POS = [[-64, -34], [66, -22], [-4, 54]];
+  function newMedals(){
+    askItem = deck.next();
+    const opts = arcadeShuffle([askItem].concat(deck.wrong(askItem, 2)));
+    const pos = arcadeShuffle(MEDAL_POS.slice());
+    medals = opts.map((w, i) => ({ x: BX + pos[i][0], y: BY + pos[i][1], w, ok: w === askItem }));
+    vocabAsk36(askItem.de);
+  }
+  if(VOC) newMedals();
 
   function reticlePos(now){
     const freqX = 1.5 * difficulty, freqY = 2.05 * difficulty;
@@ -16470,7 +16684,18 @@ function runDart(canvas, ctx){
 
   function land(){
     const dx = flightTo.x - BX, dy = flightTo.y - BY;
-    const pts = ringPoints(dx, dy);
+    let pts = ringPoints(dx, dy);
+    if(VOC && medals){
+      const m = medals.find(q => Math.hypot(flightTo.x - q.x, flightTo.y - q.y) < 22);
+      if(m && m.ok){
+        pts = Math.max(20, pts * 2); vocabMark36(askItem, true);
+        A31.popup(m.x, m.y - 30, `✓ ${m.w.fr} · ×2`, { size: 20, color: '#ffe7a8' });
+      }else if(m){
+        pts = Math.floor(pts / 2); vocabMark36(askItem, false); vocabFlash36(askItem);
+        A31.popup(m.x, m.y - 30, 'Falsche Medaille · ½', { size: 18, color: '#ff9a8a' });
+      }else vocabFlash36(askItem, { ok: true, ms: 1600 });
+      medals = null; vocabAskHide36();
+    }
     totalScore += pts;
     throwIndex++;
     holes.push({ x: flightTo.x, y: flightTo.y, pts });
@@ -16502,7 +16727,7 @@ function runDart(canvas, ctx){
       const progress = Math.min(1, (now - flightStart) / FLIGHT_MS);
       if(progress >= 1) land();
     } else if(state === 'pause'){
-      if(now >= pauseUntil) state = 'orbit';
+      if(now >= pauseUntil){ state = 'orbit'; if(VOC && running) newMedals(); }
     }
 
     draw();
@@ -16535,6 +16760,20 @@ function runDart(canvas, ctx){
     ctx.textAlign = 'left';
     ctx.fillText(`WIND ${wind >= 0 ? '→' : '←'} ${Math.abs(wind).toFixed(0)}`, 24, 34);
 
+    if(medals){
+      ctx.font = `italic 600 14px ${ARCADE_SERIF}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      for(const m of medals){
+        const pulse = 1 + Math.sin(t * 4 + m.x) * 0.06;
+        ctx.fillStyle = 'rgba(20,24,48,.92)'; ctx.beginPath(); ctx.arc(m.x, m.y, 15 * pulse, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = '#9fb7ff'; ctx.lineWidth = 2; ctx.stroke();
+        ctx.fillStyle = '#dfe7ff'; ctx.beginPath(); ctx.arc(m.x, m.y, 4, 0, Math.PI * 2); ctx.fill();
+        const tw = ctx.measureText(m.w.fr).width + 16;
+        ctx.fillStyle = 'rgba(12,15,30,.9)'; arcadeRoundRect(ctx, m.x - tw / 2, m.y + 19, tw, 22, 11); ctx.fill();
+        ctx.strokeStyle = 'rgba(160,180,255,.7)'; ctx.lineWidth = 1; ctx.stroke();
+        ctx.fillStyle = '#f1f0ff'; ctx.fillText(m.w.fr, m.x, m.y + 30.5);
+      }
+      ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+    }
     // Vorherige Einschlaege
     holes.forEach(h => {
       ctx.beginPath();
@@ -16849,8 +17088,287 @@ const A31 = (() => {
   return { ensure, size, burst, popup, shake, flash, confetti, clear, sky };
 })();
 
+// =============================================================================
+// Build 36: Jedes Spiel in zwei Modi - "Normal" und "Mit Vokabeln".
+// Gewaehlt wird im Startbildschirm, gemerkt je Spiel (store.arcade.mode36).
+// Rekorde und Ranglisten sind je Modus getrennt: der Modus, in dem ein Spiel
+// bisher lief, behaelt seinen Schluessel (alte Rekorde bleiben gueltig), der
+// neue bekommt "_v" (Vokabeln) bzw. "_n" (normal) angehaengt - recKey36().
+// Zustand als var: finishArcadeGame/stopAllGames koennen vor diesem Block laufen.
+// =============================================================================
+var ARC36 = { key: null, cur: null, ok: 0, bad: 0, saveT: 0, fast: false };   // fast: nur fuer Testaufnahmen (Wort-Elemente sofort)
+function arc36(){ return isReleased(36) && arc31(); }
+function baseMode36(key){ return LEARN_GAMES33.has(key) ? 'vocab' : 'normal'; }
+function savedMode36(key){
+  const st = ensureArcadeState();
+  const m = st.mode36 && st.mode36[key];
+  return m === 'vocab' || m === 'normal' ? m : baseMode36(key);
+}
+function playMode36(key){ return arc36() && ARC36.key === key && ARC36.cur ? ARC36.cur : baseMode36(key); }
+function vocOn36(key){ return playMode36(key) === 'vocab'; }
+function recKey36(key, mode){
+  mode = mode || playMode36(key);
+  if(!isReleased(36) || mode === baseMode36(key)) return key;
+  return key + (mode === 'vocab' ? '_v' : '_n');
+}
+function modeLabel36(mode){ return mode === 'vocab' ? 'Mit Vokabeln' : 'Normal'; }
+// Gewaehltes Lernset ("all" oder eine Set-ID); verschwundene Sets fallen auf "all".
+function set36(){
+  const st = ensureArcadeState();
+  const id = st.set36 || 'all';
+  return id === 'all' || (store.sets || []).some(s => s.id === id && (s.pairs || []).length) ? id : 'all';
+}
+
+// Ein Stapel Vokabeln fuer die Geschicklichkeitsspiele: eigene Woerter (aus
+// dem gewaehlten Set), bei weniger als 8 aufgefuellt mit dem Grundwortschatz.
+// next() = naechstes gesuchtes Wort, wrong(item, n) = n falsche Antworten.
+function deck36(maxFr = 22, maxDe = 28){
+  const fits = (p) => p.fr.length <= maxFr && p.de.length <= maxDe;
+  const own = arcadeVocab().filter(fits);
+  const pool = arcadeShuffle(own.length >= 8 ? own : own.concat(ARCADE_WORDS.filter(fits)));
+  const extra = ARCADE_WORDS.filter(fits);
+  let i = 0;
+  return {
+    size: pool.length,
+    next(){ if(i >= pool.length){ arcadeShuffle(pool); i = 0; } return pool[i++]; },
+    wrong(item, n){
+      const out = [], seen = new Set([item.fr.toLowerCase()]);
+      const src = pool.length > n + 2 ? pool : pool.concat(extra);
+      for(let g = 0; g < 80 && out.length < n; g++){
+        const w = src[(Math.random() * src.length) | 0];
+        const k = w.fr.toLowerCase();
+        if(seen.has(k) || w.de === item.de) continue;
+        seen.add(k); out.push(w);
+      }
+      return out;
+    },
+  };
+}
+// Antwort zaehlen: in der Runde (fuer die Endkarte) und - nur bei eigenen
+// Woertern - in der Statistik des Sets (Trefferquote, schwierigste Woerter).
+// Die Leitner-Stufe bleibt unberuehrt (Entscheidung des Nutzers).
+function vocabMark36(item, ok){
+  if(!item || !arc36()) return;
+  if(ok) ARC36.ok++; else ARC36.bad++;
+  const p = item.ref;
+  if(!p) return;
+  const s = ensurePairStats(p);
+  s.seen = (s.seen || 0) + 1;
+  if(ok) s.correct = (s.correct || 0) + 1; else s.wrong = (s.wrong || 0) + 1;
+  clearTimeout(ARC36.saveT);
+  ARC36.saveT = setTimeout(() => { ARC36.saveT = 0; saveData(store); }, 2000);
+}
+function flush36(){ if(ARC36.saveT){ clearTimeout(ARC36.saveT); ARC36.saveT = 0; saveData(store); } }
+
+// Kleine Schilder ueber der Buehne (HTML statt Canvas: scharf und gut lesbar).
+function stageEl36(cls){
+  const stage = document.getElementById('arcadeStage');
+  if(!stage) return null;
+  let el = stage.querySelector('.' + cls);
+  if(!el){ el = document.createElement('div'); el.className = cls; el.hidden = true; stage.appendChild(el); }
+  return el;
+}
+// Gesuchtes Wort: "FINDE  das Brot". top = Abstand von oben in Prozent.
+function vocabAsk36(de, o = {}){
+  if(!arc36()) return;
+  const el = stageEl36('v36-ask');
+  if(!el) return;
+  el.innerHTML = `<span>${escapeHtml(o.label || 'Finde')}</span><b>${escapeHtml(de)}</b>`;
+  el.style.top = (o.top != null ? o.top : 2.5) + '%';
+  el.hidden = false;
+}
+function vocabAskHide36(){ const el = document.querySelector('#arcadeStage .v36-ask'); if(el) el.hidden = true; }
+// Nach einem Fehler kurz die Loesung: "le pain = das Brot".
+function vocabFlash36(item, o = {}){
+  if(!item || !arc36()) return;
+  const el = stageEl36('v36-sol');
+  if(!el) return;
+  el.innerHTML = `<b>${escapeHtml(item.fr)}</b><span>=</span>${escapeHtml(item.de)}`;
+  el.classList.toggle('is-ok', !!o.ok);
+  el.style.top = (o.top != null ? o.top : 14) + '%';
+  el.hidden = false;
+  el.classList.remove('show'); void el.offsetWidth; el.classList.add('show');
+  clearTimeout(el._t); el._t = setTimeout(() => { el.classList.remove('show'); el.hidden = true; }, o.ms || 2400);
+}
+// Querformat-Spiele auf dem Handy hochkant: die Buehne ist dann nur gut 200 px
+// hoch - Start- und Endkarte kommen deshalb als Fenster ueber den Bildschirm.
+function fitOverlay36(){
+  const st = document.getElementById('arcadeStage'), ov = arcadeOverlay();
+  if(!st || !ov) return;
+  ov.classList.toggle('is-36fix', st.getBoundingClientRect().height < 400);
+}
+function cleanup36(){
+  document.querySelectorAll('#arcadeStage .v36-ask, #arcadeStage .v36-sol').forEach(el => { el.hidden = true; clearTimeout(el._t); });
+  document.querySelectorAll('.v36-quiz').forEach(el => { if(el._close) el._close(); el.remove(); });
+}
+
+// Vokabel-Fragen zwischendurch (Weitsprung, Paket-Stapler): n Fragen mit je
+// vier Antworten; liefert die Zahl der richtigen. Tasten 1-4 gehen auch.
+function quiz36(n, o = {}){
+  return new Promise((resolve) => {
+    // Als Fenster ueber dem ganzen Bildschirm: in der kleinen Querformat-
+    // Buehne auf dem Handy haetten die vier Antworten keinen Platz.
+    const deck = o.deck || deck36(24, 30);
+    const box = document.createElement('div');
+    box.className = 'v36-quiz';
+    document.body.appendChild(box);
+    let qi = 0, right = 0, busy = false, item = null, opts = [];
+    const onKey = (e) => {
+      const k = parseInt(e.key, 10);
+      if(k >= 1 && k <= opts.length){ e.preventDefault(); e.stopPropagation(); pick(k - 1); }
+    };
+    window.addEventListener('keydown', onKey, true);
+    function done(){
+      window.removeEventListener('keydown', onKey, true);
+      box.remove();
+      resolve(right);
+    }
+    box._close = () => { window.removeEventListener('keydown', onKey, true); resolve(right); };
+    function show(){
+      item = deck.next();
+      opts = arcadeShuffle([item].concat(deck.wrong(item, 3)));
+      busy = false;
+      box.innerHTML = `<div class="v36-qcard" role="dialog" aria-label="Vokabel-Frage">
+          <p class="v36-qk">${escapeHtml(o.title || 'Vokabel-Frage')}${n > 1 ? ` · ${qi + 1} von ${n}` : ''}</p>
+          <p class="v36-qde">${escapeHtml(item.de)}</p>
+          <div class="v36-qopts">${opts.map((p, i) => `<button type="button" data-i="${i}"><i>${i + 1}</i>${escapeHtml(p.fr)}</button>`).join('')}</div>
+          ${o.note ? `<p class="v36-qnote">${escapeHtml(o.note)}</p>` : ''}
+        </div>`;
+      box.querySelectorAll('button[data-i]').forEach(b => b.addEventListener('click', (e) => { e.stopPropagation(); pick(+b.dataset.i); }));
+    }
+    function pick(i){
+      if(busy) return;
+      busy = true;
+      const ok = opts[i] === item;
+      const btns = box.querySelectorAll('button[data-i]');
+      btns.forEach((b, j) => { if(opts[j] === item) b.classList.add('is-ok'); else if(j === i) b.classList.add('is-no'); b.disabled = true; });
+      vocabMark36(item, ok);
+      if(ok){ right++; sndCorrect(); } else { sndWrong(); vocabFlash36(item, { top: 6 }); }
+      setTimeout(() => { qi++; if(qi >= n) done(); else show(); }, ok ? 650 : 1500);
+    }
+    show();
+  });
+}
+
+// Texte fuer den jeweils "anderen" Modus eines Spiels (der bisherige Modus
+// behaelt GAME31_TEXT / GAME_DEFS).
+const GAME36_TEXT = {
+  motdujour:{ normal: { desc: 'Klassisches Wörterraten auf Deutsch: ein Wort in sechs Versuchen, ganz ohne Vokabeln. Ab dem dritten Versuch verrät der Hinweis die Kategorie.',
+                        hint: 'Tippen oder Tastatur · Gold = richtig · Kupfer = kommt vor · Joker deckt einen Buchstaben auf' } },
+  g2048:    { normal: { desc: 'Das Original: gleiche Kacheln verschmelzen, bis die 2048 steht. Combos geben Extrapunkte, einmal pro Spiel darfst du zurück.',
+                        hint: 'Wischen oder Pfeiltasten · Z oder Knopf: einen Zug zurück' } },
+  wordrun:  { normal: { desc: 'Ein Lauf durch Paris bei Nacht mit drei Leben: spring über Hindernisse und sammle Goldsterne. Sterne in Folge vervielfachen die Punkte.',
+                        hint: 'Tippen: springen · Halten: höher · Sterne einsammeln' } },
+  snake:    { normal: { desc: 'Klassisches Snake: friss die goldenen Äpfel, werde länger und schneller. Wand oder eigener Schwanz kosten ein Leben, Sterne bringen Bonuspunkte.',
+                        hint: 'Wischen oder Pfeiltasten · 3 Leben · Sterne verschwinden nach ein paar Sekunden' } },
+  shooter:  { normal: { desc: 'Welle um Welle ziehen Schattenflieger über Paris. Schieß sie ab, bevor sie unten ankommen, und weich ihren Schüssen aus. Jede Welle wird schneller.',
+                        hint: 'Ziehen: Rakete bewegen · Halten: Dauerfeuer · Pfeiltasten + Leertaste' } },
+  balloon:  { vocab: { desc: 'Oben steht ein deutsches Wort. Lass den Ballon mit der richtigen französischen Übersetzung platzen – ein falscher kostet ein Leben. Normale Ballons zählen weiter.',
+                        hint: 'Ballons antippen · richtige Übersetzung = +5 · Bomben meiden' } },
+  neondrift:{ vocab: { desc: 'Endlos über drei Spuren. Immer wieder kommt ein Wort-Tor: fahr durch die Spur mit der richtigen Übersetzung – das bringt Punkte und Kombo. Die Tages-Challenge gibt es nur im normalen Modus.',
+                        hint: 'Linke oder rechte Hälfte antippen · Pfeiltasten · richtige Spur = Bonus' } },
+  flappy:   { vocab: { desc: 'Manche Säulen haben zwei Lücken mit je einem Wort. Flieg durch die richtige Übersetzung: das gibt +3 und einen Schutzschild für den nächsten Fehlflug.',
+                        hint: 'Tippen oder Leertaste: Auftrieb · richtige Lücke = Schild' } },
+  tourjump: { vocab: { desc: 'Auf dem Weg nach oben kommen Wort-Etagen aus drei Trägern. Spring auf die richtige Übersetzung – sie schleudert dich hoch. Die falschen sind morsch.',
+                        hint: 'Linke oder rechte Hälfte halten · Pfeiltasten · richtiger Träger = Sprungfeder' } },
+  dart:     { vocab: { desc: 'Vor jedem Wurf steht ein deutsches Wort, um die Scheibe schweben drei Medaillen. Triffst du die richtige Übersetzung, zählt der Wurf doppelt – die falsche halbiert ihn.',
+                        hint: 'Tippen oder Leertaste: werfen · 5 Würfe · richtige Medaille = ×2' } },
+  breakout: { vocab: { desc: 'Ab und zu fallen drei Wort-Kapseln. Fang die richtige Übersetzung: sie bringt ein Extra. Eine falsche macht den Schläger kurz schmaler.',
+                        hint: 'Schläger mit Finger oder Maus · Tippen: Ball los · richtige Kapsel fangen' } },
+  longjump: { vocab: { desc: 'Vor dem Sprung drei Vokabel-Fragen: jede richtige Antwort bringt einen Luftschub mehr (bis zu vier). Danach Anlauf, Winkel, Kraft wie gewohnt.',
+                        hint: 'Erst 3 Fragen · Tippen: Absprung · Halten: Kraft · In der Luft: Schübe' } },
+  stacker:  { vocab: { desc: 'Nach jedem fünften Paket eine Vokabel-Frage. Richtig beantwortet, wird das nächste Paket wieder breiter.',
+                        hint: 'Tippen oder Leertaste: Paket fallen lassen · alle 5 Pakete eine Frage' } },
+};
+function modeText36(key, mode){
+  const t = GAME36_TEXT[key] && GAME36_TEXT[key][mode];
+  return t || { desc: arcadeDesc(key), hint: arcadeHint(key) };
+}
+
+// Startbildschirm mit Moduswahl (ersetzt den aus Build 31, sobald 36 frei ist).
+function arcadeStartScreen36(key, onPlay){
+  const def = GAME_DEFS[key];
+  let mode = savedMode36(key);
+  const st = ensureArcadeState();
+  const sets = (store.sets || []).filter(s => (s.pairs || []).length);
+  function render(){
+    const tx = modeText36(key, mode);
+    const hint = (tx.hint || '').split('·').map(s => s.trim()).filter(Boolean);
+    const rec = getLocalRecord(recKey36(key, mode));
+    const sel = set36();
+    const nWords = arcadeVocab().length;
+    const few = mode === 'vocab' && nWords < 8;
+    const nd = key === 'neondrift';
+    showArcadeOverlay(`<div class="a31-card a31-start a36-start">
+        <span class="a31-icon" aria-hidden="true">${gIcon(key)}</span>
+        <h3>${escapeHtml(def.name)}</h3>
+        <div class="a36-mode" role="radiogroup" aria-label="Spielmodus">
+          <button type="button" role="radio" data-m="normal" aria-checked="${mode === 'normal'}" class="${mode === 'normal' ? 'is-on' : ''}">Normal</button>
+          <button type="button" role="radio" data-m="vocab" aria-checked="${mode === 'vocab'}" class="${mode === 'vocab' ? 'is-on' : ''}">Mit Vokabeln</button>
+        </div>
+        <p class="a31-desc">${escapeHtml(tx.desc)}</p>
+        <div class="a31-ctrl">${hint.map(t => `<span>${escapeHtml(t)}</span>`).join('')}</div>
+        ${mode === 'vocab' ? `<label class="a36-set"><span>Lernset</span>
+            <select id="a36Set" aria-label="Lernset für die Vokabeln">
+              <option value="all"${sel === 'all' ? ' selected' : ''}>Alle Lernsets</option>
+              ${sets.map(s => `<option value="${escapeHtml(s.id)}"${sel === s.id ? ' selected' : ''}>${escapeHtml(s.classSetId ? 'Klasse · ' + s.name : s.name)} (${s.pairs.length})</option>`).join('')}
+            </select></label>
+          ${few ? `<p class="a36-few">${nWords ? `Nur ${nWords} eigene ${nWords === 1 ? 'Wort' : 'Wörter'}` : 'Noch keine eigenen Wörter'} – es kommen Wörter aus dem Grundwortschatz dazu.</p>` : ''}` : ''}
+        ${nd && mode === 'normal'
+          ? `<div class="a31-best"><span>Endlos</span><strong>${rec}</strong><em>·</em><span>Tages-Challenge</span><strong>${getLocalRecord('neondaily')}</strong></div>
+             <div class="a31-actions">
+               <button type="button" class="a31-play" id="btnA31Play" data-mode="daily"><span>Tages-Challenge · ${escapeHtml(new Date().toLocaleDateString('de-DE', { day: 'numeric', month: 'long' }))}</span></button>
+               <button type="button" class="a31-ghost" id="btnA31Endless" data-mode="endless">Endlos</button>
+             </div>`
+          : `<button type="button" class="a31-play" id="btnA31Play"${nd ? ' data-mode="endless"' : ''}><span>Spielen</span></button>
+             <p class="a36-rec">Dein Rekord · ${modeLabel36(mode)}: <b>${rec}</b> ${escapeHtml(def.unit)}</p>`}
+      </div>`);
+    arcadeOverlay().classList.add('is-31', 'is-36');
+    fitOverlay36();
+    arcadeOverlay().querySelectorAll('[data-m]').forEach(b => b.addEventListener('click', () => {
+      if(b.dataset.m === mode) return;
+      mode = b.dataset.m; sndTab();
+      st.mode36 = st.mode36 || {}; st.mode36[key] = mode; saveData(store);
+      render();
+    }));
+    const selEl = document.getElementById('a36Set');
+    if(selEl) selEl.addEventListener('change', () => { st.set36 = selEl.value; saveData(store); render(); });
+    document.getElementById('btnA31Play').addEventListener('click', (e) => go(e.currentTarget.dataset.mode));
+    const endlessBtn = document.getElementById('btnA31Endless');
+    if(endlessBtn) endlessBtn.addEventListener('click', () => go('endless'));
+  }
+  const go = (sub) => {
+    window.removeEventListener('keydown', onKey);
+    ARC36.key = key; ARC36.cur = mode; ARC36.ok = 0; ARC36.bad = 0;
+    st.mode36 = st.mode36 || {};
+    if(st.mode36[key] !== mode){ st.mode36[key] = mode; saveData(store); }
+    applyModeChrome36(key, sub);
+    sndClick(); hideArcadeOverlay(); onPlay(sub);
+  };
+  const onKey = (e) => {
+    if(e.target && /^(SELECT|INPUT)$/.test(e.target.tagName)) return;
+    if(e.key === 'Enter' || e.code === 'Space'){ e.preventDefault(); go(key === 'neondrift' ? (mode === 'vocab' ? 'endless' : 'daily') : undefined); }
+  };
+  render();
+  setTimeout(() => window.addEventListener('keydown', onKey), 120);
+}
+// Titelzeile und Rekord passend zum gewaehlten Modus.
+function applyModeChrome36(key, sub){
+  const def = GAME_DEFS[key];
+  const chip = (txt) => `<span class="a36-chip${ARC36.cur === 'vocab' ? ' is-voc' : ''}">${txt}</span>`;
+  const h = document.getElementById('arcadeGameTitle');
+  if(h) h.innerHTML = `${gameIcon(key, 'gi33-sm')}<span>${escapeHtml(def.name)}</span>${chip(modeLabel36(ARC36.cur))}`;
+  const bt = document.getElementById('gbar33Title');
+  if(bt) bt.innerHTML = `${gameIcon(key, 'gi33-sm')}<span>${escapeHtml(def.name)}</span>${chip(ARC36.cur === 'vocab' ? 'Vokabeln' : 'Normal')}`;
+  const rk = sub === 'daily' ? 'neondaily' : recKey36(key);
+  document.getElementById('arcadeGameRecord').innerHTML = `Rekord <strong>${getLocalRecord(rk)}</strong>`;
+  const hintEl = document.getElementById('arcadeGameHint');
+  if(hintEl) hintEl.textContent = modeText36(key, ARC36.cur).hint;
+}
+
 // Startbildschirm (Build 31): Titel, Beschreibung, Steuerung, Rekord.
 function arcadeStartScreen(key, onPlay){
+  if(arc36()) return arcadeStartScreen36(key, onPlay);
   const def = GAME_DEFS[key];
   const rec = getLocalRecord(key);
   const hint = (arcadeHint(key) || '').split('·').map(t => t.trim()).filter(Boolean);
@@ -16915,6 +17433,25 @@ function runBalloon31(canvas, ctx){
   const difficulty = gameCfg('balloon').difficulty || 1;
   const COLORS = [['#ffe7a8', '#e9a93f'], ['#ffd0dc', '#d9587e'], ['#fff6e4', '#c9b48a'], ['#dcd2ff', '#7d62d8'], ['#c9f1dc', '#3aa76d']];
   let balloons = [], t = 0, spawnT = 0.4, score = 0, lives = 3, combo = 0, comboT = 0, level = 1, over = false;
+  // Build 36: "Mit Vokabeln" - immer wieder drei Wort-Ballons, oben steht das
+  // deutsche Wort; die richtige Uebersetzung platzen lassen.
+  const VOC = vocOn36('balloon');
+  const deck = VOC ? deck36(16, 26) : null;
+  let ask = null, waveT = ARC36.fast ? 0.2 : 2.2;
+  function spawnWave(){
+    const item = deck.next();
+    const opts = arcadeShuffle([item].concat(deck.wrong(item, 2)));
+    const lvl = Math.min(1.7, 1 + t / 50);
+    const r = narrow ? 33 : 35;
+    const slots = arcadeShuffle([0, 1, 2]);
+    opts.forEach((w, i) => balloons.push({ x: W * (slots[i] * 2 + 1) / 6, y: H + r + 16 + i * 26, r, kind: 'word', word: w, ok: w === item,
+      c: ['#eef2ff', '#7d8fd8'], vy: -(46 + Math.random() * 10) * difficulty * lvl, ph: Math.random() * 6, sway: 5, pop: 0 }));
+    ask = item; vocabAsk36(item.de);
+  }
+  function endWave(){
+    for(const b of balloons) if(b.kind === 'word' && !b.pop) b.pop = 0.001;
+    ask = null; vocabAskHide36(); waveT = 1.6 + Math.random() * 1.6;
+  }
   setArcadeLives(lives); setArcadeScore('0');
   function spawn(){
     const lvl = 1 + t / 40;
@@ -16941,10 +17478,27 @@ function runBalloon31(canvas, ctx){
     for(const b of balloons){
       if(b.pop) continue;
       const d = Math.hypot(p.x - b.x, p.y - b.y);
-      if(d < b.r * 1.25 && d < best){ best = d; hit = b; }
+      const onLabel = b.kind === 'word' && b.lw && Math.abs(p.x - b.x) < b.lw / 2 + 6 && p.y > b.y + b.r && p.y < b.y + b.r * 1.15 + 34;
+      if((d < b.r * 1.25 || onLabel) && (onLabel ? 0 : d) < best){ best = onLabel ? 0 : d; hit = b; }
     }
     if(!hit) return;
     hit.pop = 0.001;
+    if(hit.kind === 'word'){
+      const item = ask;
+      if(hit.ok){
+        score += 5; setArcadeScore(String(score));
+        vocabMark36(item, true);
+        A31.burst(hit.x, hit.y, { n: 34, star: true, speed: 270 });
+        A31.popup(hit.x, hit.y - 8, `✓ ${hit.word.fr}  +5`, { size: 20, color: '#ffe7a8' });
+        sndCorrect(); endWave();
+      }else{
+        vocabMark36(item, false); vocabFlash36(item);
+        A31.burst(hit.x, hit.y, { n: 18, colors: ['#ff9ab2', '#ffd0dc', '#fff'], speed: 200 });
+        endWave();
+        loseLife(hit.x, hit.y - 20, 'Falsch!');
+      }
+      return;
+    }
     if(hit.kind === 'bomb'){
       A31.burst(hit.x, hit.y, { n: 40, colors: ['#ff8a5c', '#ffd27a', '#666'], speed: 320 });
       loseLife(hit.x, hit.y - 20, 'Bombe!');
@@ -16987,6 +17541,7 @@ function runBalloon31(canvas, ctx){
       ctx.fillText('✕', 0, b.r * 0.25);
     }else{
       const c = b.kind === 'star' ? ['#fff6d2', '#e2a43a'] : b.c;
+      if(b.kind === 'word'){ ctx.shadowColor = 'rgba(160,180,255,.7)'; ctx.shadowBlur = 14; }
       const g = ctx.createRadialGradient(-b.r * 0.35, -b.r * 0.45, 2, 0, 0, b.r * 1.1);
       g.addColorStop(0, c[0]); g.addColorStop(1, c[1]);
       ctx.fillStyle = g;
@@ -17000,14 +17555,34 @@ function runBalloon31(canvas, ctx){
         ctx.strokeStyle = `rgba(255,236,170,${0.4 + 0.4 * Math.sin(t * 6)})`; ctx.lineWidth = 2;
         ctx.beginPath(); ctx.ellipse(0, 0, b.r * 1.02, b.r * 1.16, 0, 0, Math.PI * 2); ctx.stroke();
       }
+      ctx.shadowBlur = 0;
     }
     ctx.restore();
+  }
+  // Schild mit dem franzoesischen Wort unter dem Ballon - nach allen Ballons
+  // gezeichnet, damit kein anderer Ballon es verdeckt.
+  function drawWordLabel(b){
+    if(b.kind !== 'word' || b.pop) return;
+    const x = b.x + Math.sin(t * 1.6 + b.ph) * b.sway * 0.25, y = b.y;
+    {
+      ctx.save();
+      ctx.font = `italic 600 ${narrow ? 15 : 15}px ${ARCADE_SERIF}`;
+      const tw = Math.min(W / 3 - 10, ctx.measureText(b.word.fr).width + 18);
+      b.lw = tw;
+      const ly = y + b.r * 1.15;
+      ctx.fillStyle = 'rgba(12,15,30,.9)'; arcadeRoundRect(ctx, x - tw / 2, ly, tw, 26, 13); ctx.fill();
+      ctx.strokeStyle = 'rgba(160,180,255,.75)'; ctx.lineWidth = 1.2; ctx.stroke();
+      ctx.fillStyle = '#f3f0ff'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(b.word.fr, x, ly + 13.5, tw - 10);
+      ctx.restore();
+    }
   }
   const stopLoop = arcadeLoop((dt) => {
     t += dt;
     if(!over){
       spawnT -= dt;
-      const every = Math.max(0.24, (0.95 - t * 0.011) / difficulty);
+      if(VOC && !ask){ waveT -= dt; if(waveT <= 0) spawnWave(); }
+      const every = Math.max(0.24, (0.95 - t * 0.011) / difficulty) * (VOC ? 1.3 : 1);
       if(spawnT <= 0){ spawn(); if(t > 35 && Math.random() < 0.3) spawn(); spawnT = every; }
       if(comboT > 0) comboT -= dt;
     }
@@ -17016,12 +17591,15 @@ function runBalloon31(canvas, ctx){
       b.y += b.vy * dt;
       if(b.y < -b.r * 1.3){
         b.pop = 1;
-        if(b.kind !== 'bomb' && !over) loseLife(b.x, 36, 'Entwischt!');
+        if(b.kind === 'word'){
+          if(b.ok && ask && !over){ const item = ask; vocabMark36(item, false); vocabFlash36(item); endWave(); loseLife(b.x, 36, 'Verpasst!'); }
+        }else if(b.kind !== 'bomb' && !over) loseLife(b.x, 36, 'Entwischt!');
       }
     }
     balloons = balloons.filter(b => !(b.pop && b.pop > 0.2));
     arcadeSky(ctx, W, H);
     for(const b of balloons) drawBalloon(b);
+    for(const b of balloons) drawWordLabel(b);
   });
   return { stop(){ stopLoop(); canvas.removeEventListener('pointerdown', onDown); setArcadeLives(null); } };
 }
@@ -17067,7 +17645,34 @@ function runNeonDrift(canvas, ctx, mode){
   let lane = 1, x = LANES[1], objs = [], shield = false, slow = 0, acc = 150 * S, lvl = 1;
   let curFree = 1, nextFree = Math.floor(rng() * 3), dead = false, deadT = 0, finished = false;
   const trail = [];
+  // Build 36: "Mit Vokabeln" (nur Endlos) - Wort-Tore ueber alle drei Spuren.
+  // Erst kurz das deutsche Wort (Strasse bleibt frei), dann das Tor; gewertet
+  // wird die Spur beim Durchfahren. Falsch kostet nur die Kombo.
+  const VOC = vocOn36('neondrift') && !daily;
+  const deck = VOC ? deck36(14, 26) : null;
+  let gateDue = VOC ? (ARC36.fast ? 0.1 : 6) : Infinity, gate = null;      // gate: { item, warn, spawned }
   setArcadeLives(null); score(0);
+
+  function judgeGate(){
+    const g = objs.find(q => q.type === 'gate' && q.li === lane);
+    const ok = !!(g && g.ok);
+    for(const q of objs) if(q.type === 'gate'){ q.done = true; q.hit = q.li === lane; }
+    if(ok){
+      combo += 3; updMult();
+      const gain = 100 * mult; pts += gain;
+      A31.burst(x, PY - 20, { n: 30, star: true, speed: 260 });
+      A31.popup(x, PY - 56, `✓ +${gain}`, { size: 22, color: '#ffe7a8' });
+      sndCorrect();
+    }else{
+      combo = 0; mult = 1;
+      A31.shake(5); A31.flash(0.15, '255,120,140');
+      A31.popup(x, PY - 56, 'Falsch – Kombo weg', { size: 18, color: '#ff9ab2' });
+      sndWrong(); vocabFlash36(gate.item, { top: 22 });
+    }
+    vocabMark36(gate.item, ok);
+    vocabAskHide36();
+    gate = null; gateDue = t + 8 + Math.random() * 5;
+  }
 
   function updMult(){
     const m = Math.min(8, 1 + Math.floor(combo / 5));
@@ -17191,6 +17796,19 @@ function runNeonDrift(canvas, ctx, mode){
       ctx.beginPath(); ctx.arc(0, 0, 15, 0, Math.PI * 2); ctx.stroke();
       ctx.shadowBlur = 0; ctx.fillStyle = '#cfe0ff';
       ctx.beginPath(); ctx.moveTo(0, -8); ctx.lineTo(7, -4); ctx.lineTo(6, 4); ctx.lineTo(0, 9); ctx.lineTo(-6, 4); ctx.lineTo(-7, -4); ctx.closePath(); ctx.fill();
+    }else if(o.type === 'gate'){
+      const gw = LW - 10, gh = 36;
+      ctx.globalAlpha = o.done ? (o.ok || o.hit ? 0.95 : 0.25) : 1;
+      ctx.fillStyle = o.done && o.ok ? 'rgba(246,195,92,.85)' : o.done && o.hit ? 'rgba(220,80,110,.8)' : 'rgba(18,22,44,.9)';
+      a32Round(ctx, -gw / 2, -gh / 2, gw, gh, 10); ctx.fill();
+      ctx.strokeStyle = o.done ? 'transparent' : '#9fb7ff'; ctx.lineWidth = 2;
+      ctx.shadowColor = 'rgba(159,183,255,.8)'; ctx.shadowBlur = o.done ? 0 : 12; ctx.stroke(); ctx.shadowBlur = 0;
+      let fs = narrow ? 15 : 14;
+      ctx.font = `italic 600 ${fs}px ${ARCADE_SERIF}`;
+      while(fs > 9 && ctx.measureText(o.word.fr).width > gw - 12){ fs--; ctx.font = `italic 600 ${fs}px ${ARCADE_SERIF}`; }
+      ctx.fillStyle = o.done && o.ok ? '#1a1406' : '#f1f0ff'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(o.word.fr, 0, 1, gw - 8);
+      ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic'; ctx.globalAlpha = 1;
     }else{
       ctx.rotate(tt * 1.6);
       ctx.shadowColor = '#b28cff'; ctx.shadowBlur = 14; ctx.fillStyle = '#d9c4ff';
@@ -17242,16 +17860,33 @@ function runNeonDrift(canvas, ctx, mode){
     t += dt;
     if(!dead){
       if(slow > 0) slow -= dt;
-      const sp = (260 + Math.min(300, t * 5)) * S * diff * (slow > 0 ? 0.6 : 1), mv = sp * dt;
+      if(VOC && !gate && t >= gateDue){
+        const item = deck.next();
+        gate = { item, warn: 1.1, spawned: false, opts: arcadeShuffle([item].concat(deck.wrong(item, 2))) };
+        vocabAsk36(item.de, { top: narrow ? 11 : 14 });
+      }
+      if(gate && !gate.spawned){
+        gate.warn -= dt;
+        if(gate.warn <= 0){
+          gate.spawned = true;
+          gate.opts.forEach((w, i) => objs.push({ type: 'gate', li: i, x: LANES[i], y: -40, word: w, ok: w === gate.item }));
+        }
+      }
+      const sp = (260 + Math.min(300, t * 5)) * S * diff * (slow > 0 ? 0.6 : 1) * (gate ? 0.78 : 1), mv = sp * dt;
       dist += mv; acc += mv; pts += mv / S * 0.03 * mult;
       x += (LANES[lane] - x) * Math.min(1, dt * 18);
       if(t > lvl * 20){ lvl++; A31.popup(W / 2, H * 0.32, 'Tempo ↑', { size: 26, life: 1.4 }); A31.flash(0.12); }
       const gap = (230 - Math.min(80, t * 1.5)) * S;
       const need = gap + (Math.abs(nextFree - curFree) === 2 ? 70 * S : 0);
-      if(acc >= need){ acc -= need; spawnRow(); }
+      if(acc >= need){ acc -= need; if(!gate) spawnRow(); }
       trail.push({ x: x + (Math.random() - 0.5) * 6, y: PY + 16, a: 0 });
       for(let i = objs.length - 1; i >= 0; i--){
         const o = objs[i]; o.y += mv;
+        if(o.type === 'gate'){
+          if(gate && gate.spawned && !o.done && o.y > PY - 6) judgeGate();
+          if(o.y > H + 50) objs.splice(i, 1);
+          continue;
+        }
         const dx = Math.abs(o.x - x), dy = Math.abs(o.y - PY);
         if(o.type === 'ob'){
           if(dx < OB * 0.6 && dy < OB * 0.7){
@@ -17306,7 +17941,7 @@ function a32SnakePool(){
     const fr = arcadeStripArticle(p.fr).toLocaleLowerCase('fr').trim();
     const n = letters(fr);
     if(n < 2 || n > 11 || fr.length > 14 || p.de.length > 26) return null;
-    return { fr, de: p.de, full: p.fr };
+    return { fr, de: p.de, full: p.fr, ref: p.ref };
   };
   const own = arcadeVocab().map(make).filter(Boolean);
   return arcadeShuffle(own.length >= 6 ? own : own.concat(ARCADE_WORDS.map(make).filter(Boolean)));
@@ -17319,8 +17954,10 @@ function runSnake32(canvas, ctx){
   const C = 20, TOP = narrow ? 88 : 80;
   const COLS = Math.floor(W / C), ROWS = Math.floor((H - TOP) / C);
   const OX = (W - COLS * C) / 2, OY = TOP + ((H - TOP) - ROWS * C) / 2;
-  const pool = a32SnakePool();
-  let pi = 0;
+  // Build 36: "Normal" = klassisches Snake mit goldenen Aepfeln und Sternen.
+  const VOC = vocOn36('snake');
+  const pool = VOC ? a32SnakePool() : [];
+  let pi = 0, apples = 0, wordBad = false;
   const score = a32ScoreWriter();
   let pts = 0, lives = 3, words = 0, t = 0, stepT = 0, over = false, pause = 0.6;
   let snake, prev, dir, queue, grow = 0;
@@ -17337,8 +17974,15 @@ function runSnake32(canvas, ctx){
     word = pool[pi++ % pool.length];
     slots = [...word.fr].map(ch => ({ ch, need: /\p{L}/u.test(ch), done: !/\p{L}/u.test(ch) }));
     si = slots.findIndex(s => !s.done);
-    wrongHere = 0; flashWord = 0.5;
+    wrongHere = 0; flashWord = 0.5; wordBad = false;
     placeItems();
+  }
+  function placeApple(){
+    items = items.filter(it => it.star);
+    const c = freeCell(); if(c) items.push({ ...c, ch: '', ok: true, apple: true, born: t });
+  }
+  function placeStar(){
+    const c = freeCell(); if(c) items.push({ ...c, ch: '', ok: true, star: true, born: t, until: t + 6 });
   }
   function occupied(x, y){ return snake.some(p => p.x === x && p.y === y) || items.some(it => it.x === x && it.y === y); }
   function freeCell(){
@@ -17351,6 +17995,7 @@ function runSnake32(canvas, ctx){
     return null;
   }
   function placeItems(){
+    if(!VOC){ if(!items.some(it => it.apple)) placeApple(); return; }
     items = [];
     if(si < 0) return;
     const need = slots[si].ch;
@@ -17374,7 +18019,7 @@ function runSnake32(canvas, ctx){
     A31.shake(9); A31.flash(0.26, '255,100,100');
     A31.popup(c.x, c.y - 10, why, { color: '#ff9a8a', size: 18 });
     sndWrong();
-    if(lives <= 0){ over = true; setTimeout(() => finishArcadeGame('snake', pts, { sub: `${words} Wörter buchstabiert` }), 750); return; }
+    if(lives <= 0){ over = true; setTimeout(() => finishArcadeGame('snake', pts, { sub: VOC ? `${words} Wörter buchstabiert` : `${apples} goldene Äpfel` }), 750); return; }
     resetSnake(); pause = 0.9; placeItems();
   }
   function step(){
@@ -17388,7 +18033,23 @@ function runSnake32(canvas, ctx){
     if(idx >= 0){
       const it = items[idx];
       const c = cellCenter(h);
-      if(it.ok){
+      if(!VOC){
+        items.splice(idx, 1);
+        if(it.star){
+          const g = 25 + apples; pts += g;
+          A31.burst(c.x, c.y, { n: 30, speed: 260, star: true });
+          A31.popup(c.x, c.y - 14, `★ +${g}`, { size: 20 });
+          sndCorrect();
+        }else{
+          apples++; grow += 1;
+          const g = 10 + apples; pts += g;
+          A31.burst(c.x, c.y, { n: 14, speed: 170, life: 0.5 });
+          A31.popup(c.x, c.y - 14, `+${g}`, { size: 17 });
+          playTone(480 + Math.min(apples, 30) * 14, 0.07, 'triangle', 0.045);
+          placeApple();
+          if(apples % 5 === 0) placeStar();
+        }
+      }else if(it.ok){
         grow += 1;
         slots[si].done = true;
         const gain = 10 + words * 2; pts += gain;
@@ -17399,6 +18060,7 @@ function runSnake32(canvas, ctx){
         wrongHere = 0;
         if(si < 0){
           words++;
+          if(!wordBad) vocabMark36(word, true);
           const bonus = 25 + slots.filter(s => s.need).length * 5;
           pts += bonus;
           A31.burst(c.x, c.y, { n: 36, speed: 280, star: true });
@@ -17410,6 +18072,7 @@ function runSnake32(canvas, ctx){
       }else{
         items.splice(idx, 1);
         wrongHere++;
+        if(!wordBad && arc36()){ wordBad = true; vocabMark36(word, false); vocabFlash36({ fr: word.full || word.fr, de: word.de }, { top: 18 }); }
         A31.burst(c.x, c.y, { n: 16, colors: ['#ff9ab2', '#ffd0dc'], speed: 180 });
         loseLife(`${it.ch} ist falsch`, h);
         return;
@@ -17445,6 +18108,14 @@ function runSnake32(canvas, ctx){
     ctx.fillRect(0, 0, W, TOP - 6);
     ctx.strokeStyle = 'rgba(246,195,92,.35)'; ctx.beginPath(); ctx.moveTo(0, TOP - 6); ctx.lineTo(W, TOP - 6); ctx.stroke();
     ctx.textAlign = 'center';
+    if(!VOC){
+      ctx.font = `500 ${narrow ? 13 : 11}px ${ARCADE_SANS}`; ctx.fillStyle = 'rgba(246,195,92,.9)';
+      ctx.fillText('FRISS DIE GOLDENEN ÄPFEL', W / 2, narrow ? 22 : 19);
+      ctx.font = `italic 600 ${narrow ? 30 : 28}px ${ARCADE_SERIF}`; ctx.fillStyle = '#fff3d6';
+      ctx.fillText(`${apples} ${apples === 1 ? 'Apfel' : 'Äpfel'}`, W / 2, narrow ? 62 : 56);
+      ctx.textAlign = 'left';
+      return;
+    }
     ctx.font = `500 ${narrow ? 13 : 11}px ${ARCADE_SANS}`; ctx.fillStyle = 'rgba(246,195,92,.9)';
     ctx.fillText('BUCHSTABIERE AUF FRANZÖSISCH', W / 2, narrow ? 18 : 15);
     ctx.font = `italic 600 ${narrow ? 20 : 19}px ${ARCADE_SERIF}`; ctx.fillStyle = '#fff3d6';
@@ -17475,6 +18146,26 @@ function runSnake32(canvas, ctx){
     for(const it of items){
       const c = cellCenter(it);
       const k = Math.min(1, (t - it.born) * 5);
+      if(it.apple || it.star){
+        ctx.save(); ctx.translate(c.x, c.y); ctx.scale(k, k);
+        if(it.star){
+          const left = it.until - t;
+          ctx.globalAlpha = left < 1.5 ? 0.45 + 0.55 * Math.abs(Math.sin(t * 10)) : 1;
+          ctx.shadowColor = '#ffe7a8'; ctx.shadowBlur = 14;
+          ctx.fillStyle = '#fff1c9'; ctx.font = `700 ${C * 1.1}px ${ARCADE_SANS}`;
+          ctx.fillText('★', 0, C * 0.38);
+        }else{
+          const g = ctx.createRadialGradient(-3, -3, 1, 0, 0, C * 0.55);
+          g.addColorStop(0, '#fff6d8'); g.addColorStop(0.5, '#f6c35c'); g.addColorStop(1, '#b8862f');
+          ctx.shadowColor = 'rgba(246,195,92,.8)'; ctx.shadowBlur = 10 + 4 * Math.sin(t * 5);
+          ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0, 1, C * 0.46, 0, Math.PI * 2); ctx.fill();
+          ctx.shadowBlur = 0;
+          ctx.strokeStyle = '#6e4b18'; ctx.lineWidth = 1.6; ctx.beginPath(); ctx.moveTo(0, -C * 0.36); ctx.lineTo(1, -C * 0.56); ctx.stroke();
+          ctx.fillStyle = '#8fe0a8'; ctx.beginPath(); ctx.ellipse(C * 0.2, -C * 0.5, C * 0.18, C * 0.09, -0.5, 0, Math.PI * 2); ctx.fill();
+        }
+        ctx.restore();
+        continue;
+      }
       const hint = it.ok && wrongHere >= 2;
       ctx.save(); ctx.translate(c.x, c.y); ctx.scale(k, k);
       if(hint){ ctx.shadowColor = '#8fe0a8'; ctx.shadowBlur = 14 + 6 * Math.sin(t * 8); }
@@ -17507,10 +18198,13 @@ function runSnake32(canvas, ctx){
     }
   }
 
-  resetSnake(); nextWord();
+  resetSnake();
+  if(VOC) nextWord(); else placeApple();
   const stopLoop = arcadeLoop((dt) => {
     t += dt;
-    const every = Math.max(0.075, 0.16 - words * 0.006) / diff;
+    const lvl = VOC ? words : Math.floor(apples / 3);
+    const every = Math.max(0.075, 0.16 - lvl * 0.006) / diff;
+    if(!VOC && items.some(it => it.star && t >= it.until)) items = items.filter(it => !it.star || t < it.until);
     if(!over){
       if(pause > 0) pause -= dt;
       else { stepT += dt; while(stepT >= every && !over){ stepT -= every; step(); } }
@@ -17534,7 +18228,199 @@ function runSnake32(canvas, ctx){
 // Oben das deutsche Wort, Wolken mit franzoesischen Woertern ziehen herab. Die
 // richtige abschiessen; falsche treffen oder die richtige verpassen kostet ein
 // Leben. Alle fuenf Treffer eine Stufe schneller, ab Stufe 3 eine Wolke mehr.
+// --- Build 36: Space Shooter "Normal" - Gegnerwellen statt Wortwolken -------
+// Schattenflieger in Formation ziehen hin und her und sinken ab, die unteren
+// schiessen zurueck. Welle geschafft = Bonus und die naechste wird schneller.
+// Halten feuert automatisch; Doppelschuss-Kapseln fallen manchmal heraus.
+function a36Ship(ctx, x, y, t){
+  ctx.save(); ctx.translate(x, y);
+  const fl = 8 + Math.sin(t * 40) * 3;
+  const fg = ctx.createLinearGradient(0, 14, 0, 14 + fl * 2);
+  fg.addColorStop(0, 'rgba(255,236,170,.95)'); fg.addColorStop(1, 'rgba(246,160,60,0)');
+  ctx.fillStyle = fg; ctx.beginPath(); ctx.moveTo(-6, 14); ctx.lineTo(0, 14 + fl * 2); ctx.lineTo(6, 14); ctx.fill();
+  ctx.shadowColor = 'rgba(246,195,92,.8)'; ctx.shadowBlur = 14;
+  const g = ctx.createLinearGradient(-14, 0, 14, 0);
+  g.addColorStop(0, '#c98a36'); g.addColorStop(0.5, '#fff1c9'); g.addColorStop(1, '#c98a36');
+  ctx.fillStyle = g;
+  ctx.beginPath(); ctx.moveTo(0, -24); ctx.quadraticCurveTo(12, -8, 11, 14); ctx.lineTo(-11, 14); ctx.quadraticCurveTo(-12, -8, 0, -24); ctx.fill();
+  ctx.shadowBlur = 0;
+  ctx.fillStyle = '#b8862f';
+  ctx.beginPath(); ctx.moveTo(-11, 4); ctx.lineTo(-20, 16); ctx.lineTo(-11, 14); ctx.closePath(); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(11, 4); ctx.lineTo(20, 16); ctx.lineTo(11, 14); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = '#16203a'; ctx.beginPath(); ctx.arc(0, -6, 4.5, 0, Math.PI * 2); ctx.fill();
+  ctx.strokeStyle = '#fff1c9'; ctx.lineWidth = 1; ctx.stroke();
+  ctx.restore();
+}
+function runShooterClassic36(canvas, ctx){
+  const narrow = arcadeNarrow();
+  const W = narrow ? 400 : ARCADE_W, H = narrow ? 620 : ARCADE_H;
+  arcadeHiDpi(canvas, ctx, W, H);
+  const diff = gameCfg('shooter').difficulty || 1;
+  const SHIP_Y = H - (narrow ? 58 : 44), BANNER = narrow ? 48 : 38;
+  const COLS = narrow ? 5 : 8, CW = narrow ? 58 : 62, RH = narrow ? 44 : 40;
+  const score = a32ScoreWriter();
+  let pts = 0, lives = 3, wave = 0, kills = 0, t = 0, over = false, inv = 0;
+  let shipX = W / 2, targetX = W / 2, keyL = 0, keyR = 0, cool = 0, holdFire = false, dblT = 0;
+  let foes = [], fx = 0, fy = 0, fvx = 0, shots = [], bolts = [], caps = [], fireT = 1.2, nextWaveAt = 0.3;
+  const stars = Array.from({ length: narrow ? 26 : 40 }, () => ({ x: Math.random() * W, y: Math.random() * H, v: 20 + Math.random() * 60 }));
+  setArcadeLives(lives); score(0);
+
+  function newWave(){
+    wave++;
+    const rows = Math.min(5, 2 + Math.floor(wave / 2));
+    foes = [];
+    for(let r = 0; r < rows; r++) for(let c = 0; c < COLS; c++){
+      const hp = r === 0 && wave >= 3 ? 2 : 1;
+      foes.push({ c, r, hp, max: hp, ph: Math.random() * 6, dead: 0 });
+    }
+    fx = (W - COLS * CW) / 2 + CW / 2; fy = BANNER + 34 - rows * 6;
+    fvx = (narrow ? 34 : 46) * (1 + wave * 0.12) * diff;
+    fireT = Math.max(0.45, 1.5 - wave * 0.1);
+    A31.popup(W / 2, H * 0.45, `Welle ${wave}`, { size: 28, life: 1.4 });
+  }
+  function foePos(f){ return { x: fx + f.c * CW, y: fy + f.r * RH }; }
+  function loseLife(x, y, text){
+    if(inv > 0 || over) return;
+    lives--; inv = 1.4; setArcadeLives(Math.max(0, lives));
+    A31.shake(9); A31.flash(0.26, '255,100,100');
+    A31.popup(x, y, text, { color: '#ff9a8a', size: 18 });
+    sndWrong();
+    if(lives <= 0){ over = true; setTimeout(() => finishArcadeGame('shooter', pts, { sub: `Welle ${wave} · ${kills} Treffer` }), 900); }
+  }
+  function fire(){
+    if(over || cool > 0) return;
+    cool = 0.24;
+    if(dblT > 0){ shots.push({ x: shipX - 9, y: SHIP_Y - 18 }, { x: shipX + 9, y: SHIP_Y - 18 }); }
+    else shots.push({ x: shipX, y: SHIP_Y - 22 });
+    playTone(880, 0.04, 'square', 0.018);
+  }
+  const onDown = (e) => { e.preventDefault(); targetX = arcadePoint(canvas, e, W, H).x; holdFire = true; fire(); };
+  const onMove = (e) => { if(e.pointerType === 'mouse' || e.buttons) targetX = arcadePoint(canvas, e, W, H).x; };
+  const onUp = (e) => { e.preventDefault(); holdFire = false; };
+  canvas.addEventListener('pointerdown', onDown);
+  canvas.addEventListener('pointermove', onMove);
+  canvas.addEventListener('pointerup', onUp);
+  canvas.addEventListener('pointercancel', onUp);
+  const unkeys = a32Keys((e) => {
+    if(e.key === 'ArrowLeft' || e.key === 'a'){ keyL = 1; return true; }
+    if(e.key === 'ArrowRight' || e.key === 'd'){ keyR = 1; return true; }
+    if(e.code === 'Space' || e.key === 'ArrowUp'){ holdFire = true; if(!e.repeat) fire(); return true; }
+  }, (e) => {
+    if(e.key === 'ArrowLeft' || e.key === 'a'){ keyL = 0; return true; }
+    if(e.key === 'ArrowRight' || e.key === 'd'){ keyR = 0; return true; }
+    if(e.code === 'Space' || e.key === 'ArrowUp'){ holdFire = false; return true; }
+  });
+
+  function drawFoe(f){
+    const p = foePos(f);
+    const k = f.dead ? Math.max(0, 1 - f.dead * 4) : 1;
+    if(k <= 0) return;
+    const flap = Math.sin(t * 7 + f.ph) * 0.35;
+    ctx.save(); ctx.globalAlpha = k; ctx.translate(p.x, p.y + Math.sin(t * 2 + f.ph) * 2);
+    ctx.fillStyle = f.max > 1 ? '#2a1a33' : '#1a1f36';
+    ctx.strokeStyle = f.max > 1 && f.hp > 1 ? '#e28aa8' : 'rgba(246,195,92,.8)'; ctx.lineWidth = 1.4;
+    for(const sg of [-1, 1]){
+      ctx.save(); ctx.scale(sg, 1); ctx.rotate(flap);
+      ctx.beginPath(); ctx.moveTo(3, -2); ctx.quadraticCurveTo(14, -16, 22, -6); ctx.quadraticCurveTo(17, -2, 19, 5); ctx.quadraticCurveTo(10, 2, 3, 6); ctx.closePath();
+      ctx.fill(); ctx.stroke(); ctx.restore();
+    }
+    ctx.beginPath(); ctx.ellipse(0, 0, 6, 9, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#ffd98a';
+    ctx.beginPath(); ctx.arc(-2.4, -2, 1.6, 0, Math.PI * 2); ctx.arc(2.4, -2, 1.6, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
+  }
+
+  const stopLoop = arcadeLoop((dt) => {
+    t += dt;
+    if(cool > 0) cool -= dt; if(inv > 0) inv -= dt; if(dblT > 0) dblT -= dt;
+    if(keyL || keyR) targetX = shipX + (keyR - keyL) * 60;
+    targetX = Math.max(22, Math.min(W - 22, targetX));
+    shipX += (targetX - shipX) * Math.min(1, dt * 14);
+    if(holdFire) fire();
+    if(!over && !foes.some(f => !f.dead) && t >= nextWaveAt) newWave();
+    // Formation: seitwaerts, am Rand eine Reihe tiefer, dazu langsames Sinken.
+    const alive = foes.filter(f => !f.dead);
+    if(alive.length && !over){
+      fx += fvx * dt; fy += (3 + wave * 0.6) * dt * diff;
+      const xs = alive.map(f => fx + f.c * CW);
+      if(Math.min(...xs) < 24 && fvx < 0 || Math.max(...xs) > W - 24 && fvx > 0){ fvx = -fvx * 1.03; fy += 12; }
+      fireT -= dt;
+      if(fireT <= 0){
+        fireT = Math.max(0.45, 1.5 - wave * 0.1) * (0.6 + Math.random() * 0.8);
+        const cols = {};
+        for(const f of alive){ if(!cols[f.c] || f.r > cols[f.c].r) cols[f.c] = f; }
+        const shooters = Object.values(cols);
+        const sh = shooters[(Math.random() * shooters.length) | 0];
+        if(sh){ const p = foePos(sh); bolts.push({ x: p.x, y: p.y + 10, v: (190 + wave * 14) * (narrow ? 1.1 : 1) }); }
+      }
+      for(const f of alive){ const p = foePos(f); if(p.y > SHIP_Y - 30){ f.dead = 0.001; loseLife(p.x, SHIP_Y - 50, 'Durchgebrochen!'); } }
+    }
+    for(const s2 of shots) s2.y -= 760 * dt;
+    for(const s2 of shots){
+      for(const f of alive){
+        if(f.dead) continue;
+        const p = foePos(f);
+        if(Math.abs(s2.x - p.x) < 20 && Math.abs(s2.y - p.y) < 14){
+          s2.dead = true; f.hp--;
+          if(f.hp <= 0){
+            f.dead = 0.001; kills++;
+            const g = 10 * f.max + wave * 2; pts += g; score(pts);
+            A31.burst(p.x, p.y, { n: 14, speed: 180, life: 0.5, colors: ['#ffd98a', '#e28aa8', '#fff'] });
+            A31.popup(p.x, p.y - 12, `+${g}`, { size: 16 });
+            playTone(300 + Math.random() * 120, 0.06, 'triangle', 0.035);
+            if(Math.random() < 0.07) caps.push({ x: p.x, y: p.y });
+            if(!foes.some(q => !q.dead)){
+              const bonus = 50 * wave; pts += bonus; score(pts);
+              A31.popup(W / 2, H * 0.38, `Welle geschafft  +${bonus}`, { size: 24, life: 1.6 });
+              A31.flash(0.15); sndCorrect(); nextWaveAt = t + 1.4;
+            }
+          }else{ A31.burst(p.x, p.y, { n: 6, speed: 120, life: 0.3, colors: ['#e28aa8', '#fff'] }); playTone(220, 0.04, 'square', 0.02); }
+          break;
+        }
+      }
+    }
+    for(const f of foes) if(f.dead) f.dead += dt;
+    foes = foes.filter(f => !f.dead || f.dead < 0.3);
+    shots = shots.filter(s2 => !s2.dead && s2.y > BANNER - 10);
+    for(const b of bolts){
+      b.y += b.v * dt;
+      if(!b.dead && Math.abs(b.x - shipX) < 14 && Math.abs(b.y - SHIP_Y) < 18){ b.dead = true; loseLife(shipX, SHIP_Y - 40, 'Getroffen!'); }
+    }
+    bolts = bolts.filter(b => !b.dead && b.y < H + 10);
+    for(const c of caps){
+      c.y += 130 * dt;
+      if(!c.got && Math.abs(c.x - shipX) < 22 && Math.abs(c.y - SHIP_Y) < 22){
+        c.got = true; dblT = 9; A31.popup(shipX, SHIP_Y - 46, 'Doppelschuss!', { size: 18, color: '#ffe7a8' }); playTone(760, 0.16, 'triangle', 0.05);
+      }
+    }
+    caps = caps.filter(c => !c.got && c.y < H + 20);
+
+    arcadeSky(ctx, W, H);
+    ctx.fillStyle = 'rgba(255,244,220,.7)';
+    for(const st2 of stars){ st2.y += st2.v * dt * (1 + wave * 0.1); if(st2.y > H){ st2.y = BANNER; st2.x = Math.random() * W; } ctx.fillRect(st2.x, st2.y, 1.2, 1.2 + st2.v / 40); }
+    for(const f of foes) drawFoe(f);
+    ctx.fillStyle = '#ffe7a8';
+    for(const s2 of shots) ctx.fillRect(s2.x - 1.5, s2.y - 12, 3, 14);
+    ctx.fillStyle = '#ff9ab2';
+    for(const b of bolts){ ctx.beginPath(); ctx.ellipse(b.x, b.y, 3, 7, 0, 0, Math.PI * 2); ctx.fill(); }
+    ctx.textAlign = 'center'; ctx.font = `700 12px ${ARCADE_SANS}`;
+    for(const c of caps){
+      ctx.fillStyle = '#f6c35c'; arcadeRoundRect(ctx, c.x - 16, c.y - 8, 32, 16, 8); ctx.fill();
+      ctx.fillStyle = '#10131c'; ctx.fillText('××', c.x, c.y + 4);
+    }
+    if(!over && !(inv > 0 && Math.floor(t * 12) % 2 === 0)) a36Ship(ctx, shipX, SHIP_Y, t);
+    ctx.fillStyle = 'rgba(5,7,14,.8)'; ctx.fillRect(0, 0, W, BANNER);
+    ctx.strokeStyle = 'rgba(246,195,92,.35)'; ctx.beginPath(); ctx.moveTo(0, BANNER); ctx.lineTo(W, BANNER); ctx.stroke();
+    ctx.font = `500 ${narrow ? 13 : 11}px ${ARCADE_SANS}`; ctx.fillStyle = 'rgba(246,195,92,.9)';
+    ctx.fillText(`WELLE ${Math.max(1, wave)} · ${foes.filter(f => !f.dead).length} SCHATTENFLIEGER${dblT > 0 ? ' · DOPPELSCHUSS' : ''}`, W / 2, BANNER / 2 + 4);
+    ctx.textAlign = 'left';
+  });
+  return { stop(){ stopLoop(); over = true; canvas.removeEventListener('pointerdown', onDown); canvas.removeEventListener('pointermove', onMove);
+    canvas.removeEventListener('pointerup', onUp); canvas.removeEventListener('pointercancel', onUp); unkeys(); setArcadeLives(null); } };
+}
+
 function runShooter32(canvas, ctx){
+  if(!vocOn36('shooter')) return runShooterClassic36(canvas, ctx);
   const narrow = arcadeNarrow();
   const W = narrow ? 400 : ARCADE_W, H = narrow ? 620 : ARCADE_H;
   arcadeHiDpi(canvas, ctx, W, H);
@@ -17569,8 +18455,9 @@ function runShooter32(canvas, ctx){
       return { p, ok: p === target, x: 10 + laneW * (i + 0.5) + (Math.random() - 0.5) * Math.max(0, laneW - w) * 0.6,
         y: BANNER - 30 - i % 2 * 46 - Math.random() * 30, w, h: 40, vy: speed * (0.9 + Math.random() * 0.2), ph: Math.random() * 6, gone: 0 };
     });
-    round = { target, t0: t, done: false };
+    round = { target, t0: t, done: false, marked: false };
   }
+  function mark36(ok){ if(round && !round.marked){ round.marked = true; vocabMark36(round.target, ok); if(!ok) vocabFlash36(round.target, { top: narrow ? 12 : 14 }); } }
   function endRound(delay){ round.done = true; nextRoundAt = t + delay; for(const c of clouds) if(!c.gone) c.gone = 0.001; }
   function loseLife(x, y, text){
     lives--; combo = 0; setArcadeLives(Math.max(0, lives));
@@ -17594,12 +18481,13 @@ function runShooter32(canvas, ctx){
       pts += gain; score(pts);
       A31.burst(c.x, c.y, { n: 30, speed: 260, star: true });
       A31.popup(c.x, c.y - 10, combo >= 3 ? `+${gain} · Serie ${combo}` : `+${gain}`, { size: 20 });
-      sndCorrect();
+      sndCorrect(); mark36(true);
       const nl = 1 + Math.floor(hits / 5);
       if(nl > level){ level = nl; A31.popup(W / 2, H * 0.45, `Stufe ${level} – schneller!`, { size: 24, life: 1.6 }); A31.flash(0.15); }
       endRound(0.7);
     }else{
       A31.burst(c.x, c.y, { n: 18, colors: ['#ff9ab2', '#ffd0dc', '#fff'], speed: 200 });
+      mark36(false);
       loseLife(c.x, c.y + 26, `${c.p.fr} = ${c.p.de}`);
     }
   }
@@ -17687,7 +18575,7 @@ function runShooter32(canvas, ctx){
       }
       if(!c.gone && c.y > SHIP_Y - 26){
         c.gone = 0.001;
-        if(c.ok && !round.done && !over){ loseLife(W / 2, SHIP_Y - 60, `verpasst: ${round.target.de} = ${c.p.fr}`); endRound(1.2); }
+        if(c.ok && !round.done && !over){ mark36(false); loseLife(W / 2, SHIP_Y - 60, `verpasst: ${round.target.de} = ${c.p.fr}`); endRound(1.2); }
       }
     }
     shots = shots.filter(s => !s.dead);
@@ -17727,6 +18615,22 @@ function runBreakout32(canvas, ctx){
   let pts = 0, lives = 3, level = 1, t = 0, over = false, clearing = 0;
   let px = W / 2, ptarget = W / 2, keyL = 0, keyR = 0, pw = BASE_PW;
   let bricks = [], balls = [], caps = [], wideT = 0, fireT = 0, slowT = 0;
+  // Build 36: "Mit Vokabeln" - ab und zu fallen drei Wort-Kapseln. Die
+  // richtige Uebersetzung fangen = Extra; eine falsche = Schlaeger kurz schmaler.
+  const VOC = vocOn36('breakout');
+  const deck = VOC ? deck36(14, 26) : null;
+  let wordT = ARC36.fast ? 0.3 : 6, wcaps = [], ask = null, shrinkT = 0;
+  function spawnWords(){
+    const item = deck.next();
+    const opts = arcadeShuffle([item].concat(deck.wrong(item, 2)));
+    const low = bricks.reduce((m, b) => Math.max(m, b.y + BH), TOPY);
+    const slots = arcadeShuffle([0, 1, 2]);
+    ctx.font = `italic 600 14px ${ARCADE_SERIF}`;
+    wcaps = opts.map((w, i) => ({ x: W * (slots[i] * 2 + 1) / 6, y: Math.min(H * 0.5, low + 24) - i * 14, w, ok: w === item,
+      tw: Math.min(W / 3 - 8, ctx.measureText(w.fr).width + 20) }));
+    ask = item; vocabAsk36(item.de, { top: narrow ? 60 : 56 });
+  }
+  function clearWords(next){ wcaps = []; ask = null; vocabAskHide36(); wordT = next != null ? next : 9 + Math.random() * 4; }
   setArcadeLives(lives); score(0);
 
   // Steine einmal je Sorte vorzeichnen - pro Bild nur noch drawImage.
@@ -17808,6 +18712,7 @@ function runBreakout32(canvas, ctx){
     lives--; setArcadeLives(Math.max(0, lives), Math.max(3, lives));
     A31.shake(8); A31.flash(0.24, '255,100,100'); sndWrong();
     wideT = 0; fireT = 0; slowT = 0; caps = [];
+    if(VOC) clearWords(6);
     if(lives <= 0){ over = true; setTimeout(() => finishArcadeGame('breakout', pts, { sub: `Mauer ${level} erreicht` }), 800); return; }
     newBall(true);
   }
@@ -17865,8 +18770,8 @@ function runBreakout32(canvas, ctx){
   buildWall(); newBall(true);
   const stopLoop = arcadeLoop((dt) => {
     t += dt;
-    if(wideT > 0) wideT -= dt; if(fireT > 0) fireT -= dt; if(slowT > 0) slowT -= dt;
-    pw += ((wideT > 0 ? BASE_PW * 1.6 : BASE_PW) - pw) * Math.min(1, dt * 8);
+    if(wideT > 0) wideT -= dt; if(fireT > 0) fireT -= dt; if(slowT > 0) slowT -= dt; if(shrinkT > 0) shrinkT -= dt;
+    pw += ((wideT > 0 ? BASE_PW * 1.6 : BASE_PW) * (shrinkT > 0 ? 0.65 : 1) - pw) * Math.min(1, dt * 8);
     if(keyL || keyR) ptarget = px + (keyR - keyL) * 80;
     ptarget = Math.max(pw / 2, Math.min(W - pw / 2, ptarget));
     px += (ptarget - px) * Math.min(1, dt * 20);
@@ -17879,12 +18784,37 @@ function runBreakout32(canvas, ctx){
         const bonus = 100 * level; pts += bonus; score(pts);
         A31.popup(W / 2, H * 0.4, `Mauer ${level} geschafft  +${bonus}`, { size: 24, life: 1.6 });
         A31.confetti(); sndCorrect();
+        if(VOC) clearWords(6);
       }
       for(const c of caps){
         c.y += 150 * dt;
         if(c.y >= PY - 8 && c.y <= PY + 10 && Math.abs(c.x - px) < pw / 2 + 10){ c.got = true; applyCap(c); }
       }
       caps = caps.filter(c => !c.got && c.y < H + 20);
+      if(VOC){
+        if(!ask && balls.some(b => !b.stuck)){ wordT -= dt; if(wordT <= 0) spawnWords(); }
+        for(const c of wcaps){
+          c.y += 92 * dt;
+          if(c.y >= PY - 10 && c.y <= PY + 12 && Math.abs(c.x - px) < pw / 2 + c.tw * 0.35){
+            const item = ask;
+            vocabMark36(item, c.ok);
+            if(c.ok){
+              const kinds = ['wide', 'multi', 'fire', 'slow'];
+              applyCap({ x: c.x, kind: kinds[(Math.random() * kinds.length) | 0] });
+              pts += 50; score(pts);
+              A31.popup(c.x, PY - 56, `✓ ${c.w.fr}  +50`, { size: 18, color: '#ffe7a8' });
+              sndCorrect();
+            }else{
+              shrinkT = 6;
+              A31.popup(c.x, PY - 40, 'Falsch – Schläger kleiner', { size: 17, color: '#ff9a8a' });
+              sndWrong(); vocabFlash36(item, { top: narrow ? 60 : 56 });
+            }
+            clearWords();
+            break;
+          }
+        }
+        if(ask && wcaps.length && wcaps.every(c => c.y > H + 20)){ vocabFlash36(ask, { top: narrow ? 60 : 56, ms: 1800 }); clearWords(); }
+      }
     }else if(clearing > 0){
       clearing -= dt;
       if(clearing <= 0){ level++; buildWall(); newBall(true); caps = []; wideT = fireT = slowT = 0;
@@ -17923,6 +18853,16 @@ function runBreakout32(canvas, ctx){
       ctx.textAlign = 'center'; ctx.font = `500 13px ${ARCADE_SANS}`; ctx.fillStyle = `rgba(255,243,214,${0.55 + 0.35 * Math.sin(t * 4)})`;
       ctx.fillText('Tippen oder Leertaste: Ball los', W / 2, PY - 44); ctx.textAlign = 'left';
     }
+    if(wcaps.length){
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.font = `italic 600 14px ${ARCADE_SERIF}`;
+      for(const c of wcaps){
+        ctx.shadowColor = 'rgba(159,183,255,.8)'; ctx.shadowBlur = 10;
+        ctx.fillStyle = 'rgba(14,17,36,.92)'; arcadeRoundRect(ctx, c.x - c.tw / 2, c.y - 12, c.tw, 24, 12); ctx.fill();
+        ctx.shadowBlur = 0; ctx.strokeStyle = '#9fb7ff'; ctx.lineWidth = 1.4; ctx.stroke();
+        ctx.fillStyle = '#f1f0ff'; ctx.fillText(c.w.fr, c.x, c.y + 1, c.tw - 10);
+      }
+      ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+    }
     // Laufzeit der Extras als feine Leisten
     let bx = 10;
     for(const [v, max, col] of [[wideT, 12, '#f6c35c'], [fireT, 7, '#ff9a6a'], [slowT, 8, '#b28cff']]){
@@ -17955,11 +18895,14 @@ const ARCADE_WORDS = [
 
 function arcadeVocab(){
   const own = [];
-  (store.sets || []).forEach(s => (s.pairs || []).forEach(p => {
+  // Build 36: nur das im Startbildschirm gewaehlte Lernset; ref = das Wort
+  // im Set, damit Antworten in dessen Statistik zaehlen (vocabMark36).
+  const sel = isReleased(36) ? set36() : 'all';
+  (store.sets || []).forEach(s => { if(sel !== 'all' && s.id !== sel) return; (s.pairs || []).forEach(p => {
     if(p && typeof p.fr === 'string' && typeof p.de === 'string' && p.fr.trim() && p.de.trim()){
-      own.push({ fr: p.fr.trim(), de: p.de.trim(), own: true });
+      own.push({ fr: p.fr.trim(), de: p.de.trim(), own: true, ref: p });
     }
-  }));
+  }); });
   return own;
 }
 function arcadeShuffle(a){
@@ -17989,18 +18932,38 @@ function motDuJourPool(){
     const word = arcadeFold(disp);
     if(!/^[A-Z]{4,7}$/.test(word) || seen.has(word)) return null;
     seen.add(word);
-    return { word, disp, de: p.de, own: !!p.own };
+    return { word, disp, de: p.de, own: !!p.own, ref: p.ref };
   };
   const own = arcadeVocab().map(make).filter(Boolean);
   const pool = own.length >= 8 ? own : own.concat(ARCADE_WORDS.map(make).filter(Boolean));
   return arcadeShuffle(pool);
 }
 
+// Build 36: Mot du jour "Normal" - deutsches Woerterraten ohne Vokabeln.
+// Eigene Wortliste (nur A-Z, 4-7 Buchstaben, keine Umlaute), je Kategorie;
+// die Kategorie ist der Hinweis ab dem dritten Versuch.
+const DE_WORDS36 = {
+  'Tier': 'HUND KATZE PFERD VOGEL MAUS FUCHS HASE ZIEGE ADLER BIENE ESEL TIGER AFFE WOLF SCHAF ENTE GANS FISCH ROBBE FROSCH SPATZ TAUBE RABE EULE IGEL DACHS HIRSCH ELCH ZEBRA PANDA KAMEL LAMA SCHWAN HUMMER KRABBE QUALLE LACHS FORELLE BIBER OTTER MARDER FALKE STORCH KRANICH SPINNE AMEISE RAUPE',
+  'Essen & Trinken': 'BROT APFEL BIRNE WURST SUPPE NUDEL REIS MILCH BUTTER HONIG KUCHEN TORTE PIZZA SALAT GURKE TOMATE ZWIEBEL BANANE KIRSCHE ZITRONE MELONE ORANGE BOHNE ERBSE MEHL SALZ ZUCKER PFEFFER SAHNE QUARK KAKAO KAFFEE SAFT WASSER KEKS BREZEL WAFFEL PFLAUME TRAUBE SPINAT KOHL LAUCH SENF ESSIG BRATEN',
+  'Natur & Wetter': 'BAUM BLUME WALD BERG FLUSS MEER STRAND WOLKE REGEN SCHNEE SONNE MOND STERN HIMMEL WIND STURM NEBEL BLITZ DONNER INSEL WIESE FELD GRAS ROSE TULPE BLATT STEIN SAND ERDE FEUER WELLE BACH QUELLE GIPFEL FELSEN MOOS PILZ HAGEL FROST WINTER SOMMER HERBST',
+  'Zuhause': 'HAUS TISCH STUHL BETT LAMPE FENSTER GARTEN DACH WAND BODEN TREPPE SPIEGEL TEPPICH SCHRANK REGAL SOFA KISSEN DECKE OFEN HERD TASSE TELLER GABEL MESSER GLAS FLASCHE KERZE BILD SCHLOSS ZIMMER KELLER BALKON SESSEL VORHANG DUSCHE',
+  'Unterwegs': 'AUTO BAHN TURM KIRCHE SCHULE MARKT PARK PLATZ HAFEN SCHIFF BOOT TAXI FAHRRAD ROLLER AMPEL KINO MUSEUM THEATER BAHNHOF HOTEL LADEN BANK POST BRUNNEN TUNNEL REISE KOFFER',
+  'Körper': 'KOPF HAND BEIN AUGE NASE MUND HAAR ZAHN HERZ BAUCH FINGER KNIE NACKEN LIPPE STIRN WANGE ZUNGE FERSE',
+  'Dinge': 'BUCH HEFT STIFT TAFEL KREIDE PAPIER BRIEF KARTE FARBE PINSEL SCHERE LINEAL MAPPE TASCHE SCHUH HEMD HOSE JACKE MANTEL KLEID ROCK SCHAL BRILLE RING KETTE GITARRE KLAVIER GEIGE TROMMEL BALL PUPPE DRACHEN KAMERA HANDY RADIO SCHIRM',
+};
+function germanPool36(){
+  const out = [];
+  Object.keys(DE_WORDS36).forEach(cat => DE_WORDS36[cat].split(' ').forEach(w => {
+    out.push({ word: w, disp: w[0] + w.slice(1).toLowerCase(), de: cat, own: false, german: true });
+  }));
+  return arcadeShuffle(out);
+}
 function runMotDuJour(canvas, ctx){
   const narrow = arcadeNarrow();
   const W = narrow ? 420 : ARCADE_W, H = narrow ? 486 : ARCADE_H;
   arcadeHiDpi(canvas, ctx, W, H);
-  const pool = motDuJourPool();
+  const VOC = vocOn36('motdujour');
+  const pool = VOC ? motDuJourPool() : germanPool36();
   let pi = 0;
   let target = null, rows = [], cur = '', solved = 0, score = 0;
   let state = 'play';                 // play -> reveal -> (next | lost)
@@ -18067,6 +19030,7 @@ function runMotDuJour(canvas, ctx){
       state = 'won'; bounce = t;
       setArcadeScore(`${score} Pkt. · ${solved} gelöst`);
       sndCorrect();
+      if(VOC) vocabMark36(target, true);
       if(arc31()){
         const g = gridBox();
         A31.burst(W / 2, g.y + (rows.length - 0.5) * (g.T + 7), { n: 40, star: true, speed: 300 });
@@ -18078,6 +19042,7 @@ function runMotDuJour(canvas, ctx){
       state = 'lost';
       sndWrong();
       streak = 0;
+      if(VOC){ vocabMark36(target, false); vocabFlash36({ fr: target.disp, de: target.de }, { top: 4, ms: 2600 }); }
       A31.shake(8);
       setTimeout(() => { if(running) finishArcadeGame('motdujour', score); }, 2600);
     }else{
@@ -18176,7 +19141,7 @@ function runMotDuJour(canvas, ctx){
     ctx.font = `600 11px ${ARCADE_MONO}`;
     ctx.fillStyle = ARCADE_STONE;
     ctx.textAlign = 'left';
-    ctx.fillText(`MOT ${solved + 1} · ${len} BUCHSTABEN${target.own && !narrow ? ' · AUS DEINEN SETS' : ''}`, 18, 28);
+    ctx.fillText(`${VOC ? 'MOT' : 'WORT'} ${solved + 1} · ${len} BUCHSTABEN${target.own && !narrow ? ' · AUS DEINEN SETS' : ''}`, 18, 28);
     const showHint = rows.length >= 2 || state === 'lost' || state === 'won';
     // Hochkant steht der Hinweis in einer eigenen Zeile, quer rechts oben.
     const hx = narrow ? W / 2 : W - 24, hy = narrow ? 54 : 28;
@@ -18184,7 +19149,7 @@ function runMotDuJour(canvas, ctx){
     if(showHint){
       ctx.font = `italic 500 ${narrow ? 19 : 17}px ${ARCADE_SERIF}`;
       ctx.fillStyle = ARCADE_GOLD;
-      ctx.fillText(`„${target.de}“`, hx, hy);
+      ctx.fillText(VOC ? `„${target.de}“` : `Kategorie: ${target.de}`, hx, hy);
     }else{
       ctx.font = `500 11px ${ARCADE_MONO}`;
       ctx.fillStyle = 'rgba(167,156,136,.6)';
@@ -18335,12 +19300,25 @@ function runTowerJump(canvas, ctx){
   // immer unter der Sprunghoehe (ca. 165 px) - jede Stufe ist erreichbar.
   plats.push({ x: 0, y: START_Y + 6, w: W, type: 'g', vx: 0, broken: false });
   let topY = START_Y + 6;
+  // Build 36: "Mit Vokabeln" - alle ~40 m eine Wort-Etage aus drei Traegern.
+  // Der richtige wird zur Sprungfeder, die falschen sind morsch.
+  const VOC = vocOn36('tourjump');
+  const deck = VOC ? deck36(14, 26) : null;
+  let nextWordM = ARC36.fast ? 9 : 20, askRow = null;
+  function addWordRow(y){
+    const item = deck.next();
+    const opts = arcadeShuffle([item].concat(deck.wrong(item, 2)));
+    const row = { item, done: false };
+    const lane = (W - 40) / 3, bw = Math.min(150, lane - 14);
+    opts.forEach((w, i) => plats.push({ x: 20 + i * lane + (lane - bw) / 2, y, w: bw, type: 'w', word: w, ok: w === item, row, vx: 0, broken: false }));
+  }
   function fill(){
     while(topY > camY - 120){
       const h = (START_Y - topY) / PX_PER_M;
       const gap = 52 + Math.min(1, h / 260) * 70 + Math.random() * 26;
       topY -= Math.min(gap, 150);
-      addPlat(topY);
+      if(VOC && h >= nextWordM){ addWordRow(topY); nextWordM = h + 38 + Math.random() * 12; }
+      else addPlat(topY);
     }
   }
   fill();
@@ -18404,6 +19382,19 @@ function runTowerJump(canvas, ctx){
     }
     const x = pl.x, w = pl.w, h = 11;
     ctx.save();
+    if(pl.type === 'w' && !pl.row.done){
+      const g = ctx.createLinearGradient(0, y, 0, y + h);
+      g.addColorStop(0, '#dfe7ff'); g.addColorStop(1, '#7d8fd8');
+      ctx.fillStyle = g; arcadeRoundRect(ctx, x, y, w, h, 3); ctx.fill();
+      ctx.font = `italic 600 ${narrow ? 14 : 15}px ${ARCADE_SERIF}`;
+      const tw = Math.min(w + 20, ctx.measureText(pl.word.fr).width + 16);
+      ctx.fillStyle = 'rgba(12,15,30,.9)'; arcadeRoundRect(ctx, x + w / 2 - tw / 2, y - 30, tw, 24, 12); ctx.fill();
+      ctx.strokeStyle = 'rgba(160,180,255,.8)'; ctx.lineWidth = 1.2; ctx.stroke();
+      ctx.fillStyle = '#f1f0ff'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(pl.word.fr, x + w / 2, y - 17, tw - 8);
+      ctx.restore();
+      return;
+    }
     if(pl.type === 'b'){
       // Morscher Traeger: sichtbarer Riss, bricht beim ersten Tritt.
       ctx.fillStyle = '#6d4a24';
@@ -18556,6 +19547,23 @@ function runTowerJump(canvas, ctx){
       for(const pl of plats){
         if(pl.broken) continue;
         if(prevY <= pl.y && p.y >= pl.y && p.x > pl.x - 8 && p.x < pl.x + pl.w + 8){
+          if(pl.type === 'w' && !pl.row.done){
+            pl.row.done = true;
+            vocabMark36(pl.row.item, pl.ok);
+            if(askRow === pl.row){ askRow = null; vocabAskHide36(); }
+            if(!pl.ok){
+              pl.broken = true;
+              bits.push({ x: pl.x, y: pl.y, w: pl.w / 2 - 2, vy: 0 }, { x: pl.x + pl.w / 2 + 2, y: pl.y, w: pl.w / 2 - 2, vy: 0 });
+              sndWrong(); vocabFlash36(pl.row.item);
+              A31.burst(pl.x + pl.w / 2, pl.y - camY, { n: 14, colors: ['#ff9ab2', '#7d8fd8'], speed: 160 });
+              continue;
+            }
+            p.y = pl.y; p.vy = SPRING;
+            sndCorrect();
+            A31.burst(p.x, pl.y - camY, { n: 26, angle: -Math.PI / 2, spread: 1.4, speed: 280, star: true });
+            A31.popup(p.x, pl.y - camY - 34, `✓ ${pl.word.fr}`, { size: 20, color: '#ffe7a8' });
+            break;
+          }
           if(pl.type === 'b'){
             pl.broken = true;
             bits.push({ x: pl.x, y: pl.y, w: pl.w / 2 - 2, vy: 0 }, { x: pl.x + pl.w / 2 + 2, y: pl.y, w: pl.w / 2 - 2, vy: 0 });
@@ -18592,6 +19600,17 @@ function runTowerJump(canvas, ctx){
     const targetCam = p.y - H * 0.42;
     if(targetCam < camY) camY = targetCam;
     fill();
+    if(VOC){
+      // Das gesuchte Wort: die naechste offene Wort-Etage ueber der Figur.
+      let row = null;
+      for(const pl of plats){
+        if(pl.type !== 'w' || pl.row.done) continue;
+        if(pl.y - camY > H + 20){ pl.row.done = true; vocabFlash36(pl.row.item); continue; }
+        if(pl.y < p.y + 4 && pl.y - camY > -30 && (!row || pl.y > row.y)) row = { y: pl.y, r: pl.row };
+      }
+      const r = row ? row.r : null;
+      if(r !== askRow){ askRow = r; if(r) vocabAsk36(r.item.de, { top: 2.5 }); else vocabAskHide36(); }
+    }
     for(let i = plats.length - 1; i >= 0; i--){ if(plats[i].y - camY > H + 60) plats.splice(i, 1); }
 
     const h = heightM();
@@ -18648,6 +19667,8 @@ function run2048(canvas, ctx){
   const W = narrow ? 440 : ARCADE_W, H = narrow ? 540 : ARCADE_H;
   arcadeHiDpi(canvas, ctx, W, H);
   const N = 4, BOARD = 420, GAP = 10;
+  // Build 36: im Modus "Normal" nur Zahlen, ohne franzoesische Zahlwoerter.
+  const VOC = vocOn36('g2048');
   // Quer: Brett mittig, Infos links und rechts. Hochkant: Infos oben.
   const BX = (W - BOARD) / 2, BY = narrow ? H - BOARD - 10 : (H - BOARD) / 2;
   const CELL = (BOARD - GAP * (N + 1)) / N;
@@ -18746,7 +19767,7 @@ function run2048(canvas, ctx){
           A31.burst(q.x + CELL / 2, q.y + CELL / 2, { n: v >= 128 ? 22 : 10, speed: v >= 128 ? 220 : 140, star: v >= 128 });
         }
         if(best > bestBefore && best >= 128){
-          A31.popup(W / 2, BY + BOARD / 2, `${best} · ${FR_NUMBERS[best] || ''}`, { size: 22, life: 1.8 });
+          A31.popup(W / 2, BY + BOARD / 2, VOC ? `${best} · ${FR_NUMBERS[best] || ''}` : `${best}!`, { size: VOC ? 22 : 30, life: 1.8 });
           if(best >= 512){ A31.confetti(); A31.flash(0.2); }
         }
       }, SLIDE * 1000);
@@ -18840,13 +19861,18 @@ function run2048(canvas, ctx){
       ctx.fillStyle = col.fg;
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
       const digits = String(tile.v).length;
-      ctx.font = `600 ${digits >= 4 ? 26 : digits === 3 ? 31 : 36}px ${ARCADE_SERIF}`;
-      ctx.fillText(tile.v, 0, -9);
-      ctx.font = `italic 500 ${digits >= 4 ? 10 : 11.5}px ${ARCADE_SERIF}`;
-      ctx.globalAlpha = 0.82;
-      const lines = wrapWords(FR_NUMBERS[tile.v] || '', CELL - 10).slice(0, 2);
-      lines.forEach((ln, i) => ctx.fillText(ln, 0, 20 + i * 12 - (lines.length - 1) * 5));
-      ctx.globalAlpha = 1;
+      if(VOC){
+        ctx.font = `600 ${digits >= 4 ? 26 : digits === 3 ? 31 : 36}px ${ARCADE_SERIF}`;
+        ctx.fillText(tile.v, 0, -9);
+        ctx.font = `italic 500 ${digits >= 4 ? 10 : 11.5}px ${ARCADE_SERIF}`;
+        ctx.globalAlpha = 0.82;
+        const lines = wrapWords(FR_NUMBERS[tile.v] || '', CELL - 10).slice(0, 2);
+        lines.forEach((ln, i) => ctx.fillText(ln, 0, 20 + i * 12 - (lines.length - 1) * 5));
+        ctx.globalAlpha = 1;
+      }else{
+        ctx.font = `600 ${digits >= 4 ? 32 : digits === 3 ? 38 : 46}px ${ARCADE_SERIF}`;
+        ctx.fillText(tile.v, 0, 2);
+      }
       ctx.restore();
     }
 
@@ -18859,7 +19885,7 @@ function run2048(canvas, ctx){
       ctx.fillText(best, BX + 4, 68);
       const bw = ctx.measureText(String(best)).width;
       ctx.font = `italic 500 17px ${ARCADE_SERIF}`; ctx.fillStyle = '#f3ead8';
-      wrapWords(FR_NUMBERS[best] || '', BOARD - bw - 24).forEach((ln, i) => ctx.fillText(ln, BX + bw + 18, 58 + i * 20));
+      if(VOC) wrapWords(FR_NUMBERS[best] || '', BOARD - bw - 24).forEach((ln, i) => ctx.fillText(ln, BX + bw + 18, 58 + i * 20));
     }else{
       const side = BX + BOARD + 22, sideW = W - side - 16;
       ctx.font = `600 10px ${ARCADE_MONO}`; ctx.fillStyle = ARCADE_STONE;
@@ -18867,7 +19893,7 @@ function run2048(canvas, ctx){
       ctx.font = `600 30px ${ARCADE_SERIF}`; ctx.fillStyle = ARCADE_GOLD;
       ctx.fillText(best, side, BY + 58);
       ctx.font = `italic 500 14px ${ARCADE_SERIF}`; ctx.fillStyle = '#f3ead8';
-      wrapWords(FR_NUMBERS[best] || '', sideW).forEach((ln, i) => ctx.fillText(ln, side, BY + 82 + i * 18));
+      if(VOC) wrapWords(FR_NUMBERS[best] || '', sideW).forEach((ln, i) => ctx.fillText(ln, side, BY + 82 + i * 18));
       ctx.font = `600 10px ${ARCADE_MONO}`; ctx.fillStyle = ARCADE_STONE;
       ctx.fillText('WISCHEN', 16, BY + 22);
       ctx.font = `500 12px ${ARCADE_SANS}`; ctx.fillStyle = 'rgba(243,234,216,.7)';
@@ -18879,7 +19905,7 @@ function run2048(canvas, ctx){
       arcadeRoundRect(ctx, BX, BY, BOARD, BOARD, 16); ctx.fill();
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
       ctx.font = `italic 600 30px ${ARCADE_SERIF}`; ctx.fillStyle = ARCADE_GOLD;
-      ctx.fillText('Plus de coups', BX + BOARD / 2, BY + BOARD / 2 - 8);
+      ctx.fillText(VOC ? 'Plus de coups' : 'Spiel vorbei', BX + BOARD / 2, BY + BOARD / 2 - 8);
       ctx.font = `500 13px ${ARCADE_SANS}`; ctx.fillStyle = '#f3ead8';
       ctx.fillText('Keine Züge mehr', BX + BOARD / 2, BY + BOARD / 2 + 22);
     }
@@ -18914,9 +19940,12 @@ function runWordRunner(canvas, ctx){
   const diff = gameCfg('wordrun').difficulty || 1;
   const W = ARCADE_W, H = ARCADE_H, GROUND = 392, RX = 130;
   const G = 2500, G_HOLD = 1250, JUMP = -660;
-  const own = arcadeVocab().filter(p => p.fr.length <= 20 && p.de.length <= 26);
+  // Build 36: "Normal" = ohne Wort-Tore, dafuer Goldsterne zum Einsammeln.
+  const VOC = vocOn36('wordrun');
+  const own = VOC ? arcadeVocab().filter(p => p.fr.length <= 20 && p.de.length <= 26) : [];
   const vocab = arcadeShuffle(own.length >= 4 ? own : own.concat(ARCADE_WORDS));
   let vi = 0;
+  const gold = [];                         // Normal: { x, high, got }
   const r = { y: GROUND, vy: 0, ground: true, holdT: 0 };
   let holding = false, jumpBuffer = 0;
   let speed = 290 * diff, dist = 0, bonus = 0, hearts = 3, inv = 0, t = 0;
@@ -18963,6 +19992,23 @@ function runWordRunner(canvas, ctx){
     gates.push({ x: W + 60, pair, hi: highIsRight ? pair.fr : wrong.fr, lo: highIsRight ? wrong.fr : pair.fr,
                  highIsRight, done: false });
     banner = { de: pair.de, until: Infinity };
+  }
+  function spawnGold(){
+    const high = Math.random() < 0.45;
+    const n = Math.random() < 0.35 ? 3 : 1;
+    for(let i = 0; i < n; i++) gold.push({ x: W + 40 + i * 46, high, got: false });
+  }
+  function goldRect(s2){ return { x: s2.x - 13, y: s2.high ? GROUND - 160 : GROUND - 44, w: 26, h: 26 }; }
+  function drawGold(s2){
+    if(s2.got) return;
+    const rc = goldRect(s2), cx = rc.x + 13, cy = rc.y + 13;
+    ctx.save(); ctx.translate(cx, cy); ctx.rotate(Math.sin(t * 3 + s2.x * 0.02) * 0.25);
+    ctx.shadowColor = 'rgba(246,195,92,.9)'; ctx.shadowBlur = 14;
+    ctx.fillStyle = '#ffd98a';
+    ctx.beginPath();
+    for(let i = 0; i < 10; i++){ const a = -Math.PI / 2 + i * Math.PI / 5, rr = i % 2 ? 5.5 : 12; ctx.lineTo(Math.cos(a) * rr, Math.sin(a) * rr); }
+    ctx.closePath(); ctx.fill();
+    ctx.restore();
   }
   function bubbleRect(g, high){
     ctx.font = `italic 600 17px ${ARCADE_SERIF}`;
@@ -19056,6 +20102,7 @@ function runWordRunner(canvas, ctx){
   function draw(){
     drawScene();
     obs.forEach(drawObstacle);
+    gold.forEach(drawGold);
     for(const g of gates){
       for(const high of [false, true]){
         const rc = bubbleRect(g, high);
@@ -19136,6 +20183,11 @@ function runWordRunner(canvas, ctx){
     }
 
     nextObs -= dx; nextGate -= dx;
+    if(nextGate <= 0 && !VOC){
+      spawnGold();
+      nextGate = 560 + Math.random() * 420;
+      nextObs = Math.max(nextObs, 260);
+    }
     if(nextGate <= 0){
       spawnGate();
       nextGate = 1300 + Math.random() * 500;
@@ -19149,6 +20201,19 @@ function runWordRunner(canvas, ctx){
     }
     obs.forEach(o => { o.x -= dx; });
     gates.forEach(g => { g.x -= dx; });
+    gold.forEach(g => { g.x -= dx; });
+    for(let i = gold.length - 1; i >= 0; i--){
+      const g = gold[i];
+      if(!g.got && hit({ x: RX - 9, y: r.y - 48, w: 18, h: 50 }, goldRect(g))){
+        g.got = true; combo++;
+        const mult = combo >= 10 ? 3 : combo >= 6 ? 2 : combo >= 3 ? 1.5 : 1;
+        const gain = Math.round(10 * mult); bonus += gain;
+        A31.burst(g.x, goldRect(g).y + 13, { n: 12, speed: 170, star: true, life: 0.5 });
+        A31.popup(g.x, goldRect(g).y - 8, mult > 1 ? `+${gain} ×${mult}` : `+${gain}`, { size: 17 });
+        playTone(660 + Math.min(combo, 12) * 30, 0.07, 'triangle', 0.045);
+      }
+      if(g.x < -30){ if(!g.got) combo = 0; gold.splice(i, 1); }
+    }
     for(let i = obs.length - 1; i >= 0; i--) if(obs[i].x + obs[i].w < -20) obs.splice(i, 1);
     for(let i = gates.length - 1; i >= 0; i--) if(gates[i].x < -140) gates.splice(i, 1);
     for(let i = popups.length - 1; i >= 0; i--) if(t - popups[i].born > 1.1) popups.splice(i, 1);
@@ -19165,6 +20230,8 @@ function runWordRunner(canvas, ctx){
         if(hit(body, bubbleRect(g, high))){
           g.done = true; g.chosen = high;
           g.correct = high === g.highIsRight;
+          vocabMark36(g.pair, g.correct);
+          if(!g.correct) vocabFlash36(g.pair, { top: 16 });
           if(g.correct && arc31()){
             combo++;
             const mult = combo >= 5 ? 3 : combo >= 3 ? 2 : combo >= 2 ? 1.5 : 1;
@@ -19188,6 +20255,7 @@ function runWordRunner(canvas, ctx){
       // Zwischen beiden hindurch (zu niedrig gesprungen): verpasst, ohne Strafe.
       if(!g.done && g.x < RX - 60){
         g.done = true; g.chosen = null;
+        vocabMark36(g.pair, false); vocabFlash36(g.pair, { top: 16 });
         popups.push({ x: RX + 60, y: GROUND - 200, text: `verpasst: ${g.pair.fr}`, good: false, born: t });
         banner = null;
       }

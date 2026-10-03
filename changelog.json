@@ -1,6 +1,24 @@
 {
  "entries": [
   {
+   "build": 36,
+   "date": "2026-10-03",
+   "until": "2026-10-03",
+   "title": "Spielhalle: jedes Spiel normal oder mit Vokabeln",
+   "gate": true,
+   "items": [
+    "Hinter dem Freigabe-Gate (Build 36): Im Startbildschirm jedes der 13 Spiele gibt es den Schalter 'Normal' / 'Mit Vokabeln'. Die Wahl wird je Spiel gemerkt; beim ersten Start ist der bisherige Modus vorgewählt (Lernspiele mit Vokabeln, Geschicklichkeitsspiele normal). Der Preis ist in beiden Modi gleich.",
+    "Hinter dem Gate: Im Modus 'Mit Vokabeln' lässt sich im Startbildschirm das Lernset wählen (oder alle). Bei weniger als 8 eigenen Wörtern kommen Wörter aus dem Grundwortschatz dazu, mit Hinweis.",
+    "Hinter dem Gate: Abgefragt wird Deutsch → Französisch. Nach einem Fehler steht kurz die Lösung im Spiel ('le pain = das Brot'). Antworten zählen in der Statistik des Sets (Trefferquote, schwierigste Wörter), die Leitner-Stufe bleibt unverändert.",
+    "Hinter dem Gate: Normale Fassungen der Lernspiele - Mot du jour als deutsches Wörterraten (eigene Liste mit 250 Wörtern, Kategorie als Hinweis), 2048 nur mit Zahlen, Wort-Läufer mit Goldsternen statt Wort-Toren, Snake klassisch mit goldenen Äpfeln und Sternen, Space Shooter mit Gegnerwellen (Schattenflieger, Dauerfeuer, Doppelschuss).",
+    "Hinter dem Gate: Vokabel-Fassungen der Geschicklichkeitsspiele - Ballon-Pop (Wort-Ballons platzen lassen), Neon Drift Endlos (Wort-Tore über die drei Spuren), Höhenflug (Säulen mit zwei Wort-Lücken, richtige = Schild), Turmsprung (Wort-Etagen, richtiger Träger = Sprungfeder, falsche sind morsch), Federwurf (Wort-Medaillen, richtig = doppelte Punkte), Breakout (Wort-Kapseln fangen = Extra), Weitsprung (3 Fragen vor dem Sprung = bis zu 4 Luftschübe), Paket-Stapler (alle 5 Pakete eine Frage, richtig = breiteres Paket).",
+    "Hinter dem Gate: Rekorde und Ranglisten getrennt je Modus. Der bisherige Modus behält seine Rekorde, der neue bekommt eigene Schlüssel (z. B. snake_n, balloon_v). Rangliste mit Umschalter 'Normal / Mit Vokabeln' für die Spiel-Reiter und 'Gesamt'. Die Neon-Drift-Tages-Challenge gibt es nur im normalen Modus.",
+    "Hinter dem Gate: Kacheln zeigen beide Rekorde, das Spiel zeigt den Modus als Etikett in der Titelzeile, die Endkarte zeigt den Modus und 'Vokabeln richtig/gesamt'. Auf dem Handy kommen Start- und Endkarte der Querformat-Spiele als Fenster über den ganzen Bildschirm.",
+    "Fehlerbehebung (sofort für alle): Ein verspätetes 'Runde vorbei' eines abgestürzten Spiels legte sich über ein gerade neu gestartetes anderes Spiel.",
+    "Kein SQL nötig: Ranglisten-Schlüssel sind freier Text (game_records hat keine Prüfung auf feste Spielnamen)."
+   ]
+  },
+  {
    "build": 35,
    "date": "2026-09-30",
    "until": "2026-09-30",

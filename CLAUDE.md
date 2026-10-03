@@ -1077,3 +1077,43 @@ abgelehnt, siehe Build 31).
   (`loadTeachers35`), jede Entscheidung per `sendUserMessage`.
 - RLS-Rekursion vermeiden: `is_class_teacher`/`is_class_member` sind
   security definer; Beitreten/Klasse anlegen/Fortschritt nur ueber RPCs.
+
+## Build 36: Jedes Spiel normal oder mit Vokabeln
+
+Alles an `isReleased(36)` (`arc36()` = Gate + Build 31). Ohne Freigabe laufen
+alle Spiele wie bisher (`playMode36` liefert dann `baseMode36`).
+
+- **Modus:** `baseMode36(key)` = bisheriger Modus (`LEARN_GAMES33` = 'vocab',
+  sonst 'normal'). Gewaehlt im Startbildschirm `arcadeStartScreen36`, gemerkt in
+  `store.arcade.mode36[key]`; laufend in `ARC36.key`/`ARC36.cur`. Spiele fragen
+  `vocOn36('<key>')` ganz am Anfang ab (`const VOC = ...`).
+- **Rekorde/Rangliste:** `recKey36(key, mode)` - der bisherige Modus behaelt den
+  alten Schluessel, der neue bekommt `_v` / `_n`. `finishArcadeGame` und die
+  Rangliste (`lb31.m36`, Umschalter `#lb36Mode`) rechnen damit; `lb_overall`
+  bekommt die umgerechneten Schluessel. Kein SQL noetig. Neon-Drift-Tages-
+  Challenge ('neondaily') nur normal.
+- **Vokabeln:** `arcadeVocab()` liest nur das gewaehlte Set (`set36()`,
+  `store.arcade.set36`) und haengt `ref` (das Wort im Set) an. `deck36()` =
+  Stapel mit `next()`/`wrong(item, n)`, unter 8 Woertern mit `ARCADE_WORDS`
+  aufgefuellt. Richtung immer Deutsch -> Franzoesisch.
+- **Antworten:** `vocabMark36(item, ok)` zaehlt fuer die Endkarte (`ARC36.ok/bad`)
+  und in `pair.stats` correct/wrong/seen - NICHT box/due (Leitner bleibt).
+  `vocabFlash36(item)` zeigt nach Fehlern kurz "fr = de", `vocabAsk36(de)` das
+  gesuchte Wort (HTML-Schilder `.v36-ask`/`.v36-sol` in `#arcadeStage`).
+  `quiz36(n)` = Fragen mit 4 Antworten als Vollbild-Fenster (Weitsprung,
+  Paket-Stapler). `cleanup36()` aus `stopAllGames`.
+- **Je Spiel** (jeweils der neue Modus): Mot du jour normal = `germanPool36`
+  (`DE_WORDS36`, nur A-Z, 4-7 Buchstaben, Kategorie als Hinweis); 2048 ohne
+  Zahlwoerter; Wort-Laeufer `gold`-Sterne; Snake Aepfel/Sterne; Shooter
+  `runShooterClassic36` (Wellen). Ballon-Pop `spawnWave`, Neon Drift Wort-Tore
+  (`gate`, Strasse waehrend der Ansage frei), Hoehenflug `newPipe` mit `gaps`
+  + Schild, Turmsprung `addWordRow` (Typ 'w'), Federwurf Medaillen, Breakout
+  `wcaps`, Weitsprung `quiz36(3)` vor dem Sprung, Paket-Stapler alle 5 Pakete.
+- **Texte** des neuen Modus in `GAME36_TEXT[key][mode]` (`modeText36`).
+- **Testschalter:** `ARC36.fast = true` laesst die Wort-Elemente sofort
+  erscheinen (nur fuer Playwright-Aufnahmen).
+- **Fehler (sofort fuer alle):** `finishArcadeGame` ignoriert verspaetete Aufrufe
+  eines anderen Spiels (`ARC36.key !== key`) - sonst legte sich das "Runde
+  vorbei" eines abgestuerzten Spiels ueber ein neu gestartetes.
+- Auf schmalen Schirmen kommen Start-/Endkarte der Querformat-Spiele per
+  `fitOverlay36()` (`.is-36fix`) als Vollbild-Fenster.
