@@ -1117,3 +1117,21 @@ alle Spiele wie bisher (`playMode36` liefert dann `baseMode36`).
   vorbei" eines abgestuerzten Spiels ueber ein neu gestartetes.
 - Auf schmalen Schirmen kommen Start-/Endkarte der Querformat-Spiele per
   `fitOverlay36()` (`.is-36fix`) als Vollbild-Fenster.
+
+## Build 37: Spiele starten auf iPhone/iPad wieder (Fehlerbehebung, sofort fuer alle)
+
+- Ursache "dunkles Spielfeld": die Build-36-Startkarte lag in einer eigenen
+  Scroll-Flaeche (`overflow-y:auto`) ueber dem Canvas und blendete per
+  `a31in` (fill-mode both, Start bei opacity 0) ein - Safari zeichnete sie
+  nicht. Darum `.a36-start{animation:none}` und KEINE Scroll-Flaeche mehr in
+  `#arcadeStage`.
+- Handy + Querformat-Spiel: `fitOverlay36()` haengt das Overlay an `<body>`
+  (`.is-36fix`, fixed, z 64); `hideArcadeOverlay()` und ein
+  `lumiere:viewchange`-Listener holen es zurueck in die Buehne.
+- Sicherheitsnetz: `arcadeStartScreen` faellt bei einem Fehler im
+  Build-36-Start auf den alten Startbildschirm zurueck; `safeRun37` faengt
+  Fehler beim Spielstart ab, `gameError37` zeigt "Das Spiel konnte nicht
+  starten" (Admins mit Fehlertext + Toast).
+- WebKit gibt es auf der Testmaschine nicht - Safari-Fehler lassen sich hier
+  nicht nachstellen. Neue Overlays deshalb ohne Einblend-Animation mit
+  opacity 0 als Startwert und ohne Scroll-Container ueber Canvas bauen.

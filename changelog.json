@@ -1,6 +1,19 @@
 {
  "entries": [
   {
+   "build": 37,
+   "date": "2026-10-06",
+   "until": "2026-10-06",
+   "title": "Fehlerbehebung: Spiele starteten auf iPhone/iPad nicht",
+   "gate": false,
+   "items": [
+    "Sofort für alle (Fehlerbehebung): Auf iPhone und iPad blieb das Spielfeld nach dem Antippen eines Spiels dunkel - die Startkarte mit 'Normal / Mit Vokabeln' erschien nicht. Ursache war das Build-36-Layout der Startkarte (eigene Scroll-Fläche und Einblend-Animation über der Spielfläche), das Safari nicht zeichnete. Beides ist raus.",
+    "Sofort für alle: Auf schmalen Schirmen (Handy) liegen Start- und Endkarte der Querformat-Spiele jetzt als eigenes Vollbild-Fenster direkt über der Seite statt in der Spielfläche; beim Verlassen der Spielseite verschwinden sie mit.",
+    "Sofort für alle: Sicherheitsnetz - scheitert der neue Startbildschirm, kommt automatisch der bisherige. Scheitert ein Spiel beim Starten, erscheint die Karte 'Das Spiel konnte nicht starten' mit Zurück-Knopf statt eines dunklen Feldes; Admins sehen dazu die genaue Fehlermeldung (zum Melden).",
+    "Kein SQL, keine Edge Function nötig. Version 37 (version.json, Service-Worker-Cache), damit offene Tabs die Korrektur sofort holen."
+   ]
+  },
+  {
    "build": 36,
    "date": "2026-10-03",
    "until": "2026-10-03",

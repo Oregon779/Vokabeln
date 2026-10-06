@@ -3643,9 +3643,11 @@
 
   /* --- Build 36: Spiele normal oder mit Vokabeln ----------------------- */
   .a36-start{ gap:.45rem; padding-top:1.1rem; }
-  .arcade-overlay.is-36{ justify-content:flex-start; overflow-y:auto; overscroll-behavior:contain; }
-  .arcade-overlay.is-36 > .a31-card{ margin:auto 0; flex:none; }
-  .arcade-overlay.is-36fix{ position:fixed; inset:0; z-index:64; padding:1rem; }
+  /* Build 37: keine Scroll-Flaeche und keine Einblend-Animation ueber der
+     Spielflaeche - auf iPhone/iPad blieb die Startkarte sonst unsichtbar. */
+  .a36-start{ animation:none; }
+  .arcade-overlay.is-36fix{ position:fixed; inset:0; z-index:64; padding:1rem; justify-content:flex-start; overflow-y:auto; -webkit-overflow-scrolling:touch; }
+  .arcade-overlay.is-36fix > .a31-card{ margin:auto 0; flex:none; }
   .a36-start .a31-icon{ transform:scale(.78); margin:-.5rem 0 -.6rem; }
   .a36-start h3{ font-size:clamp(1.45rem, 3.4vw, 1.9rem); }
   .a36-start .a31-desc{ max-width:44ch; font-size:.82rem; line-height:1.5; }
@@ -6796,7 +6798,7 @@
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="./lumiere-gl.js?v=36" defer></script>
+<script src="./lumiere-gl.js?v=37" defer></script>
 <script>
 /* ============================================================
    WICHTIG: Bei jedem inhaltlichen Deploy hochzaehlen (wie CACHE_NAME
@@ -6807,7 +6809,7 @@
       unten) - neue, noch nicht "veroeffentlichte" Features hinter
       isReleased(N) verstecken; Admins sehen sie trotzdem sofort.
    ============================================================ */
-const APP_VERSION = 36;
+const APP_VERSION = 37;
 
 // Handy und iPad (Build 31): ein schlanker Modus fuer alle Nutzer - keine
 // Hintergrund-Weichzeichner (backdrop-filter ueber der bewegten 3D-Ebene
@@ -15694,7 +15696,11 @@ function stopAllGames(){
   try{ cleanup36(); }catch(e){}
 }
 function arcadeOverlay(){ return document.getElementById('arcadeOverlay'); }
-function hideArcadeOverlay(){ const ov = arcadeOverlay(); ov.hidden = true; ov.classList.remove('is-36fix'); }
+function hideArcadeOverlay(){
+  const ov = arcadeOverlay(); ov.hidden = true; ov.classList.remove('is-36fix');
+  const st = document.getElementById('arcadeStage');
+  if(st && ov.parentNode !== st) st.appendChild(ov);
+}
 function showArcadeOverlay(html){
   const ov = arcadeOverlay();
   ov.innerHTML = html;
@@ -15796,11 +15802,33 @@ function launchArcadeGame(key, opts = {}){
     document.getElementById('view-arcade-game').dataset.game = key;
     A31.sky(ctx, SW, SH);
     // "Nochmal" mit festem Modus (Neon Drift) ueberspringt den Startbildschirm.
-    if(opts.mode){ if(arc36()) applyModeChrome36(key, opts.mode); runArcadeKey(key, canvas, ctx, opts.mode); return; }
-    arcadeStartScreen(key, (mode) => runArcadeKey(key, canvas, ctx, mode));
+    if(opts.mode){ if(arc36()) applyModeChrome36(key, opts.mode); safeRun37(key, canvas, ctx, opts.mode); return; }
+    arcadeStartScreen(key, (mode) => safeRun37(key, canvas, ctx, mode));
     return;
   }
   runArcadeKey(key, canvas, ctx);
+}
+// Build 37: Startet ein Spiel nicht, gibt es eine Karte statt eines dunklen
+// Feldes; Admins sehen die genaue Meldung (fuer den Fehlerbericht).
+function gameError37(e, where, quiet){
+  const msg = (e && (e.message || String(e))) || 'Unbekannter Fehler';
+  const admin = !!(currentProfile && currentProfile.is_admin);
+  if(admin) showToast(`${where}: ${msg}`, true);
+  if(quiet) return;
+  showArcadeOverlay(`<div class="a31-card a31-over a36-start">
+      <p class="a31-kicker">Hoppla</p>
+      <h3>Das Spiel konnte nicht starten</h3>
+      <p class="a31-desc">Bitte lade die Seite neu. Hilft das nicht, schick uns kurz, auf welchem Gerät es passiert ist.</p>
+      ${admin ? `<p class="a31-desc" style="font-family:var(--font-mono);font-size:.72rem;color:#ffb3a8">${escapeHtml(where + ': ' + msg)}</p>` : ''}
+      <div class="a31-actions"><button type="button" class="a31-ghost" id="btnErr37Back">Zur Spielhalle</button></div>
+    </div>`);
+  arcadeOverlay().classList.add('is-31');
+  const b = document.getElementById('btnErr37Back');
+  if(b) b.addEventListener('click', () => { sndClick(); renderRewards(); });
+}
+function safeRun37(key, canvas, ctx, mode){
+  try{ runArcadeKey(key, canvas, ctx, mode); }
+  catch(e){ console.error('Spielstart:', key, e); try{ stopAllGames(); }catch(x){} gameError37(e, 'Spielstart ' + key); }
 }
 const A32_TALL = ['balloon', 'motdujour', 'tourjump', 'g2048', 'neondrift', 'snake', 'shooter', 'breakout'];
 function runArcadeKey(key, canvas, ctx, mode){
@@ -17193,14 +17221,25 @@ function vocabFlash36(item, o = {}){
 // Querformat-Spiele auf dem Handy hochkant: die Buehne ist dann nur gut 200 px
 // hoch - Start- und Endkarte kommen deshalb als Fenster ueber den Bildschirm.
 function fitOverlay36(){
-  const st = document.getElementById('arcadeStage'), ov = arcadeOverlay();
-  if(!st || !ov) return;
-  ov.classList.toggle('is-36fix', st.getBoundingClientRect().height < 400);
+  const st = document.getElementById('arcadeStage'), ov = arcadeOverlay(), cv = document.getElementById('arcadeCanvas');
+  if(!st || !ov || !cv) return;
+  const small = cv.width > cv.height * 1.2 && window.innerWidth < 640;
+  ov.classList.toggle('is-36fix', small);
+  // Als Fenster ueber dem Bildschirm haengt es an <body>: "fixed" innerhalb
+  // der Spielflaeche (overflow:hidden, Canvas-Ebenen) zeigt Safari nicht sicher an.
+  if(small && ov.parentNode !== document.body) document.body.appendChild(ov);
+  else if(!small && ov.parentNode !== st) st.appendChild(ov);
 }
 function cleanup36(){
   document.querySelectorAll('#arcadeStage .v36-ask, #arcadeStage .v36-sol').forEach(el => { el.hidden = true; clearTimeout(el._t); });
   document.querySelectorAll('.v36-quiz').forEach(el => { if(el._close) el._close(); el.remove(); });
 }
+// Build 37: liegt die Start-/Endkarte auf dem Handy direkt im body, muss sie beim
+// Verlassen der Spielseite mit weg - sonst bliebe sie ueber der naechsten Seite stehen.
+window.addEventListener('lumiere:viewchange', (e) => {
+  const ov = arcadeOverlay();
+  if(ov && ov.parentNode === document.body && !(e.detail && e.detail.view === 'arcadeGame')) hideArcadeOverlay();
+});
 
 // Vokabel-Fragen zwischendurch (Weitsprung, Paket-Stapler): n Fragen mit je
 // vier Antworten; liefert die Zahl der richtigen. Tasten 1-4 gehen auch.
@@ -17368,7 +17407,10 @@ function applyModeChrome36(key, sub){
 
 // Startbildschirm (Build 31): Titel, Beschreibung, Steuerung, Rekord.
 function arcadeStartScreen(key, onPlay){
-  if(arc36()) return arcadeStartScreen36(key, onPlay);
+  if(arc36()){
+    try{ return arcadeStartScreen36(key, onPlay); }
+    catch(e){ console.error('Startbildschirm (Build 36):', e); gameError37(e, 'Startbildschirm', true); }
+  }
   const def = GAME_DEFS[key];
   const rec = getLocalRecord(key);
   const hint = (arcadeHint(key) || '').split('·').map(t => t.trim()).filter(Boolean);
