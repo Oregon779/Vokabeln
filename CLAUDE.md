@@ -1020,9 +1020,9 @@ Zwei Fallen, die schon einmal Zeit gekostet haben:
 Wichtig bei jedem Deploy, sonst bekommen Nutzer ein altes Buendel zu neuem
 Markup (daher kam einmal "LumiereGL.setTower is not a function"):
 - `CACHE_NAME` in `sw.js` hochzaehlen
-- den Versionsanhang im Script-Tag mitziehen:
-  `<script src="./lumiere-gl.js?v=N" defer>` - der Dateiname aendert sich nie,
-  ohne den Anhang liefern Cloudflare und Browser-Cache die alte Datei aus.
+- den Versionsanhang mitziehen: seit Build 38 laedt `ensureGl()` das Buendel
+  erst bei Bedarf (`sc.src = './lumiere-gl.js?v=N'`) - der Dateiname aendert
+  sich nie, ohne den Anhang liefern Cloudflare und Browser-Cache die alte Datei aus.
 
 Der Kaertchen-Stapel ist eine Wendel: jedes Kaertchen steht fest an seinem
 Platz (`placeCards`), bewegt wird die Welt darum (`layoutDeck`), genau
@@ -1135,3 +1135,51 @@ alle Spiele wie bisher (`playMode36` liefert dann `baseMode36`).
 - WebKit gibt es auf der Testmaschine nicht - Safari-Fehler lassen sich hier
   nicht nachstellen. Neue Overlays deshalb ohne Einblend-Animation mit
   opacity 0 als Startwert und ohne Scroll-Container ueber Canvas bauen.
+
+## Build 38: "Maison Noir" - ganze Website neu, Navigation, Heute, Gaeste-Startseite
+
+Alles hinter dem Gate (`html.build-38-live`, `data-build="38"`, `isReleased(38)`).
+Kein SQL, keine Edge Function.
+
+- **Look:** warmes Schwarz `#0b0907`, Elfenbein `#ece4d6`, Champagner `#c3a979`
+  (nur Linien/Beschriftungen), Cormorant Garamond (Ueberschriften) + Geist/Geist
+  Mono (ueber den Google-Fonts-Link; Dateien laden nur, wenn sie benutzt werden).
+  Knoepfe Elfenbein gefuellt, Radius 3px; Karten flach, Radius 6px, feine Linie.
+  Der Nutzer will: Gold nur als Akzent, nie gelb, keine Glow-Effekte.
+- **CSS-Block "Build 38" am Ende des `<style>`** hat zwei Teile:
+  1. Farbschicht, erzeugt von `tools/b38/recolor.py` aus dem CSS darueber: jede
+     Regel mit Gold-/Nachtblau-Toenen als Kopie mit Champagner/warmem Schwarz,
+     Praefix `html.build-38-live`. Neue Regeln mit Gold-Literalen bekommen so
+     KEINE 38-Fassung automatisch - entweder Variablen nutzen (`var(--gold)` usw.,
+     die sind unter 38 umdefiniert) oder in Teil 2 nachziehen.
+  2. Gestaltung von Hand (Quelle `tools/b38/hand.css`, ohne Praefix geschrieben,
+     beim Einbau mit Praefix versehen): Tokens, Knoepfe, Karten, Felder,
+     Kopfleiste, Tab-Leiste, Heute, Spielhalle-Reihenfolge, Seiten-Layouts.
+  Pruefen, ob noch alte Optik uebrig ist: das Muster aus der Session (Playwright
+  laeuft jede Seite ab und meldet Elemente mit Radius > 8px, Verlauf, Gold-Glow,
+  Grossbuchstaben).
+- **Navigation:** Kopfleiste ab 900 px mit Heute (`data-goto="hub"`), Lernsets,
+  Spielhalle (`rewards`), Klassen, Mehr (`data-more38` -> `openNavOverlay()`);
+  die alten Punkte tragen `data-build-old="38"`. Darunter die `.quick-nav` als
+  feste Tab-Leiste (Beschriftung `.qn-l`, vor 38 ausgeblendet). Im Mehr-Menue fuer
+  Admins `data-goto-special38` = Gaeste-Startseite / Admin-Panel (`.admin-only38`,
+  sichtbar ueber `body.is-admin38`).
+- **Heute** (`#view-today`, `views.today`, `renderToday38()`): `renderHub()` leitet
+  unter 38 Angemeldete dorthin. "Weiter lernen" = `practiceSet38(id)` (Set mit den
+  meisten faelligen Woertern, `sessionConfig.selection = 'srs'`, dann der
+  bestehende Knopf `btnGoPractice`). `currentNavId` bleibt 'hub' (Tab "Heute").
+- **Gaeste-Startseite:** `start.html` (eigene Einzeldatei, GSAP und Schriften
+  eingebettet, direkt bearbeiten) laeuft im Rahmen `#hub38Frame` in `#view-hub`
+  (`showGuestStart38()`, `src` erst beim ersten Zeigen). Knoepfe melden sich per
+  `postMessage({lumiere:'signup'|'login'|'guest'|'goto', view})`; der Listener in
+  index.html prueft `e.origin === location.origin`. Auf der Startseite sind
+  Kopfleiste, Tab-Leiste und Footer aus (`body.on-hub`). Glas-L-Ladebildschirm nur
+  beim ersten Oeffnen pro Sitzung (`sessionStorage 'lum-load'`). Gebaut aus der
+  Entwurfsreihe v9-v14 (`tools/b38/mkstart.py` setzte die Bruecke ein).
+- **3D-Reise und Musik:** `start()` der 3D-Reise kehrt unter 38 sofort zurueck,
+  `onGate38()` (am Ende von `applyReleaseGate`) haelt sie an (`cineFieldStop`),
+  `musicWanted()` ist unter 38 immer falsch, `applySettingsToUI()` setzt kein
+  goldenes `--shadow-glow` mehr. Das 3D-Buendel kommt seit 38 erst bei Bedarf
+  (gilt sofort fuer alle).
+- **Nicht umgefaerbt:** die Spiel-Grafik in den Canvas-Spielen (Farben stehen im
+  JS) und Inline-Styles in per JS erzeugtem Markup - bei Bedarf einzeln nachziehen.

@@ -1,6 +1,24 @@
 {
  "entries": [
   {
+   "build": 38,
+   "date": "2026-11-12",
+   "until": "2026-11-12",
+   "title": "Neuer Look „Maison Noir“ für die ganze Website, neue Navigation, Heute-Seite, neue Startseite",
+   "gate": true,
+   "items": [
+    "Hinter dem Freigabe-Gate (Build 38): Alle Seiten inklusive Admin-Panel im Stil „Maison Noir“ – warmes Schwarz statt Nachtblau, Elfenbein-Schrift, Champagner statt Gelbgold (nur noch für feine Linien und kleine Beschriftungen), Cormorant Garamond für Überschriften, Geist für Text. Knöpfe Elfenbein gefüllt und kaum gerundet, Karten flach mit feiner Linie, kein goldenes Leuchten, keine Sterne und schwebenden Motive im Hintergrund.",
+    "Build 38: Die Farben der bestehenden Seiten kommen aus einer erzeugten Farbschicht (tools/b38/recolor.py): jede CSS-Regel mit Gold oder Nachtblau hat eine Kopie in Champagner/warmem Schwarz, die nur unter html.build-38-live greift. Darüber die Gestaltung von Hand (tools/b38/hand.css).",
+    "Build 38: Neue Navigation – oben schlanke Leiste mit Heute, Lernsets, Spielhalle, Klassen, Mehr und dem Konto-Knopf; auf Handy und iPad eine feste Tab-Leiste unten mit denselben fünf Punkten. „Mehr“ öffnet das bisherige Menü (große Schrift); Admins finden dort zusätzlich „Gäste-Startseite“ (Vorschau) und das Admin-Panel. Footer-Links heißen jetzt Heute/Spielhalle.",
+    "Build 38: Neue Seite „Heute“ für Angemeldete statt der 3D-Reise: Begrüßung (Bonjour/Bonsoir), heute fällige Wörter mit „Weiter lernen“ (startet das Set mit den meisten fälligen Wörtern, Auswahl „Fällige zuerst“), Tagesziel als Ring, Serie mit den letzten sieben Tagen, nächste Klausur aus dem Kalender, die eigenen Sets mit Fortschritt und Üben-Knopf, Kacheln zu Spielhalle, Aussprache, Grammatik und Kalender.",
+    "Build 38: Gäste sehen die neue Startseite (start.html, eigene Datei im Rahmen): Glas-L-Ladebildschirm in Champagner – nur beim ersten Öffnen pro Sitzung –, Lichtpunkt-Wort, 3D-Wörterkugel, Turm, Anzeigetafel, Vergessenskurve, Mini-Spiele und Vorhang-Footer. Ihre Knöpfe öffnen Registrieren/Anmelden, „Ohne Konto ausprobieren“ führt zu den Lernsets, die Footer-Links in die App.",
+    "Build 38: Spielhalle (vorher „Belohnungen“) zeigt die Spiele zuerst, danach Coins, Serie, Verlauf und Rangliste; Spiel-Medaillons in Champagner. Lernsets als Raster mit großer Buchschrift, Set-Titel groß, Statistikzahlen in Elfenbein, Übung einrichten ohne Kästen.",
+    "Build 38: Die 3D-Reise der alten Startseite startet nicht mehr und ihre Hintergrundmusik entfällt (Schalter in den Einstellungen ausgeblendet); UI-Klänge bleiben. Die Einstellung „Leuchtstärke“ ist ausgeblendet, weil es kein Leuchten mehr gibt.",
+    "Sofort für alle (Leistung): Das 3D-Bündel lumiere-gl.js wird erst geladen, wenn die 3D-Reise wirklich startet – vorher kam es mit jedem Seitenaufruf, auch auf Seiten ohne 3D.",
+    "Kein SQL, keine Edge Function nötig. Version 38 (version.json, Service-Worker-Cache)."
+   ]
+  },
+  {
    "build": 37,
    "date": "2026-10-06",
    "until": "2026-10-06",
