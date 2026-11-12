@@ -2,7 +2,7 @@
 // WICHTIG: CACHE_NAME bei jedem Deploy mit inhaltlichen Aenderungen hochzaehlen -
 // sonst bleiben Nutzer (v.a. als "Zum Home-Bildschirm hinzugefuegt" auf iOS)
 // unter Umstaenden dauerhaft auf einem alten, kaputten Stand haengen.
-const CACHE_NAME = 'lumiere-v38';
+const CACHE_NAME = 'lumiere-v39';
 const APP_SHELL = ['./', './index.html', './manifest.json', './lumiere-gl.js'];
 
 self.addEventListener('install', (event) => {
@@ -32,6 +32,8 @@ self.addEventListener('fetch', (event) => {
   // dass laengst eine neue Fassung online ist. Ohne respondWith() macht der
   // Browser die Anfrage selbst - und haelt sich an ihr 'no-store'.
   if (url.pathname.endsWith('/version.json')) return;
+  // Build 39: Admin-Seite, ihr Schluessel-Abgleich und der Wartungs-Bildschirm immer frisch.
+  if (/\/(admin-key\.json|admin\.html|wartung\.html)$/.test(url.pathname)) return;
   // Videos und Musik nie ueber den Worker: Browser holen sie stueckweise (Range-
   // Anfragen, Antwort 206), und die kann der Cache nicht speichern - Safari
   // spielt ein Video, das so durch den Worker laeuft, gar nicht erst ab.

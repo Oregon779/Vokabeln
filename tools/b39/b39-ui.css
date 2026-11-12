@@ -1,0 +1,65 @@
+/* ---- Build 39: Heute - Woche + schwierige Woerter ---- */
+.t39-row{ display:grid; grid-template-columns:minmax(0, 1.25fr) minmax(0, 1fr); gap:1px; margin:1.6rem 0 0; background:var(--hair, rgba(195,169,121,.16)); border:1px solid var(--hair, rgba(195,169,121,.16)); border-radius:6px; overflow:hidden; }
+.t39-row[hidden]{ display:none !important; }
+.t39-row > .t38-card{ border:0 !important; border-radius:0 !important; margin:0 !important; background:var(--bg, #0b0907) !important; padding:1.5rem 1.6rem 1.4rem !important; min-width:0; }
+.t39-head{ display:flex; align-items:baseline; justify-content:space-between; gap:1rem; flex-wrap:wrap; margin-bottom:2rem; }
+.t39-head .t38-label{ margin:0; }
+.t39-sum{ margin:0; font-size:.84rem; color:var(--stone, #a39b8e); }
+.t39-sum b{ color:var(--ivory, #ece4d6); font-weight:500; font-variant-numeric:tabular-nums; }
+.t39-plot{ position:relative; height:150px; display:flex; align-items:flex-end; gap:clamp(6px, 1.6vw, 18px); padding-bottom:24px; }
+.t39-goal{ position:absolute; left:0; right:0; height:0; border-top:1px dashed rgba(195,169,121,.4); margin-bottom:24px; pointer-events:none; }
+.t39-goal em{ position:absolute; right:0; top:-1.15rem; font:400 .62rem/1 var(--font-mono, monospace); letter-spacing:.12em; text-transform:uppercase; color:var(--gold, #c3a979); font-style:normal; }
+.t39-bar{ position:relative; flex:1; height:100%; display:flex; flex-direction:column; justify-content:flex-end; align-items:center; min-width:0; }
+.t39-bar i{ display:block; width:100%; max-width:38px; min-height:2px; background:rgba(236,228,214,.16); border-radius:2px 2px 0 0; transition:height .6s cubic-bezier(.2,.8,.2,1); }
+.t39-bar.done i{ background:var(--gold, #c3a979); }
+.t39-bar.today i{ box-shadow:inset 0 0 0 1px rgba(236,228,214,.5); }
+.t39-bar b{ font:500 .72rem/1 var(--font-sans, system-ui); color:var(--ivory, #ece4d6); margin-bottom:.35rem; font-variant-numeric:tabular-nums; }
+.t39-bar em{ position:absolute; bottom:-22px; font:400 .66rem/1 var(--font-mono, monospace); letter-spacing:.08em; color:var(--stone, #a39b8e); font-style:normal; white-space:nowrap; }
+.t39-bar.today em{ color:var(--ivory, #ece4d6); }
+.t39-hardlist{ display:flex; flex-direction:column; }
+.t39-hw{ display:grid; grid-template-columns:minmax(0, 1fr) minmax(0, 1fr) auto; gap:.8rem; align-items:baseline; width:100%; padding:.62rem 0; border:0; border-bottom:1px solid var(--hair, rgba(195,169,121,.16)); background:none; color:inherit; text-align:left; cursor:pointer; font:inherit; }
+.t39-hw:last-child{ border-bottom:0; }
+.t39-hw:hover .fr{ color:var(--gold-bright, #e6d7b8); }
+.t39-hw .fr{ font:italic 500 1.12rem/1.2 var(--font-serif, serif); color:var(--ivory, #ece4d6); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; transition:color .15s; }
+.t39-hw .de{ font-size:.86rem; color:var(--stone, #a39b8e); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.t39-hw .n{ font:400 .66rem/1 var(--font-mono, monospace); letter-spacing:.06em; color:#d9a090; white-space:nowrap; }
+@media (max-width:760px){
+  .t39-row{ grid-template-columns:minmax(0, 1fr); }
+  .t39-row > .t38-card{ padding:1.2rem 1.1rem 1.1rem !important; }
+  .t39-plot{ height:120px; }
+  .t39-hw{ grid-template-columns:minmax(0, 1fr) auto; }
+  .t39-hw .de{ grid-column:1; grid-row:2; margin-top:-.35rem; }
+  .t39-hw .n{ grid-column:2; grid-row:1 / span 2; align-self:center; }
+}
+/* ---- Build 39: Spielhalle - "Dein Stand" vor den Spielen ---- */
+html.build-39-live #view-rewards > .arcade-balance{ order:0 !important; margin:0 0 2.2rem !important; }
+.arc39-streak{ display:flex; align-items:center; gap:.9rem; padding-left:1.6rem; margin-left:1.6rem; border-left:1px solid var(--hair, rgba(195,169,121,.16)); }
+.arc39-streak[hidden]{ display:none !important; }
+.arc39-streak > svg{ width:30px; height:30px; color:var(--gold, #c3a979); flex:none; }
+html.build-39-live .arcade-balance-main{ flex-wrap:wrap; row-gap:.8rem; }
+@media (max-width:560px){ .arc39-streak{ padding-left:1rem; margin-left:1rem; } }
+/* ---- Build 39: Mein Konto mit Reitern ---- */
+.acc39-tabs{ display:none; }
+html.build-39-live .acc39-tabs{ display:flex; gap:.3rem; margin:0 0 1.4rem; padding:3px; border:1px solid var(--hair, rgba(195,169,121,.16)); border-radius:4px; background:rgba(0,0,0,.18); overflow-x:auto; scrollbar-width:none; }
+html.build-39-live .acc39-tabs::-webkit-scrollbar{ display:none; }
+.acc39-tabs button{ flex:1 0 auto; display:inline-flex; align-items:center; justify-content:center; gap:.45rem; border:0; background:none; color:var(--stone, #a39b8e); font:500 .88rem/1 var(--font-sans, system-ui); padding:.72rem 1rem; border-radius:3px; cursor:pointer; transition:background .15s, color .15s; }
+.acc39-tabs button:hover{ color:var(--ivory, #ece4d6); }
+.acc39-tabs button.on{ background:var(--ivory, #ece4d6); color:var(--ink, #14110d); }
+.acc39-n{ min-width:18px; height:18px; padding:0 5px; box-sizing:border-box; border-radius:9px; display:inline-grid; place-items:center; font:500 .64rem/1 var(--font-mono, monospace); font-style:normal; background:var(--gold, #c3a979); color:var(--ink, #14110d); }
+.acc39-n[hidden]{ display:none; }
+html.build-39-live #view-account[data-tab39] .acc-card[data-acc39]{ display:none; }
+html.build-39-live #view-account[data-tab39="profil"] .acc-card[data-acc39="profil"],
+html.build-39-live #view-account[data-tab39="tarif"] .acc-card[data-acc39="tarif"],
+html.build-39-live #view-account[data-tab39="nachrichten"] .acc-card[data-acc39="nachrichten"],
+html.build-39-live #view-account[data-tab39="sicherheit"] .acc-card[data-acc39="sicherheit"]{ display:block; }
+html.build-39-live #view-account[data-tab39="sicherheit"] .acc-card[data-acc39="sicherheit"][hidden],
+html.build-39-live #view-account .acc-card[data-acc39][hidden]{ display:none !important; }
+/* ---- Build 39: Einstellungen - Sprung-Leiste ---- */
+.set39-nav{ display:none; }
+html.build-39-live .set39-nav{ position:sticky; top:calc(var(--header-h, 64px) + 8px); z-index:4; display:flex; gap:.4rem; flex-wrap:nowrap; overflow-x:auto; scrollbar-width:none; margin:0 0 2rem; padding:6px; border:1px solid var(--hair, rgba(195,169,121,.16)); border-radius:4px; background:rgba(11,9,7,.94); }
+html.build-39-live .set39-nav::-webkit-scrollbar{ display:none; }
+.set39-nav button{ flex:none; border:1px solid transparent; background:none; color:var(--stone, #a39b8e); font:500 .82rem/1 var(--font-sans, system-ui); padding:.6rem .85rem; border-radius:3px; cursor:pointer; white-space:nowrap; }
+.set39-nav button:hover{ color:var(--ivory, #ece4d6); border-color:var(--hair-2, rgba(236,228,214,.2)); }
+html.build-39-live .settings-cluster.empty39{ display:none !important; }
+html.build-39-live .settings-cluster-head .rubrik{ display:none; }
+html.build-39-live .settings-grid.cols-8-4:has(> .gone39){ grid-template-columns:minmax(0, 1fr) !important; }

@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="de" class="build-38-live adm39">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<meta name="theme-color" content="#0b0907">
+<title>Lumière · Admin</title>
+<link rel="icon" type="image/png" href="icon-round-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Geist:wght@300..700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ===== Uebernommen aus index.html (Build 38): alle Regeln, die das Admin-Markup betreffen ===== */
+/*@CSS@*/
+
+/* ===== Build 39: eigenes Admin-Dashboard (Aufbau wie "V2", Farben Maison Noir) ===== */
+html.adm39{
+  --bg:#0b0907; --s1:#13100c; --s2:#191510; --s3:#211c16; --ivory:#ece4d6; --text:#ece4d6; --muted:#a39b8e; --stone:#a39b8e;
+  --gold:#c3a979; --gold-hi:#e6d7b8; --hair:rgba(195,169,121,.16); --hair2:rgba(236,228,214,.09);
+  --ok:#9cc7a4; --warn:#d9b26f; --bad:#d98c7a;
+  --card:linear-gradient(180deg, rgba(236,228,214,.045), rgba(236,228,214,.018));
+  --r:14px; --serif:'Cormorant Garamond', Georgia, serif; --sans:'Geist', system-ui, sans-serif; --mono:'Geist Mono', ui-monospace, monospace;
+  background:var(--bg); color-scheme:dark;
+}
+html.adm39 body{
+  margin:0; min-height:100vh; background:var(--bg); color:var(--text); font-family:var(--sans); font-size:15px;
+  -webkit-font-smoothing:antialiased; overflow-x:hidden;
+}
+html.adm39 body::before{
+  content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
+  background:radial-gradient(60% 50% at 85% -10%, rgba(195,169,121,.07), transparent 70%),
+             radial-gradient(50% 40% at -10% 110%, rgba(195,169,121,.05), transparent 70%);
+}
+.a39-screen{ position:relative; z-index:1; min-height:100vh; display:grid; place-items:center; padding:24px 16px; box-sizing:border-box; }
+.a39-screen[hidden]{ display:none !important; }
+
+/* Ohne gueltigen Link: wie eine gewoehnliche Fehlseite */
+.a39-404{ text-align:center; max-width:28rem; }
+.a39-404 b{ display:block; font:400 clamp(4.5rem, 16vw, 8rem)/.9 var(--serif); color:var(--ivory); letter-spacing:-.02em; }
+.a39-404 p{ color:var(--muted); margin:.9rem 0 1.6rem; line-height:1.55; }
+.a39-404 a{ color:var(--ivory); border-bottom:1px solid var(--hair); text-decoration:none; padding-bottom:2px; }
+
+/* Anmelden */
+.a39-login{ width:min(100%, 24rem); background:var(--card); border:1px solid var(--hair); border-radius:18px; padding:2rem 1.7rem 1.7rem; box-sizing:border-box; }
+.a39-medal{ width:52px; height:52px; border-radius:50%; display:grid; place-items:center; border:1px solid rgba(195,169,121,.5);
+  font:italic 500 1.7rem/1 var(--serif); color:var(--gold-hi); background:radial-gradient(circle at 35% 30%, #2a231a, #120f0b); margin-bottom:1.2rem; }
+.a39-login h1{ font:400 2rem/1.1 var(--serif); margin:0 0 .35rem; color:var(--ivory); }
+.a39-login > p{ color:var(--muted); margin:0 0 1.4rem; font-size:.92rem; line-height:1.5; }
+.a39-field{ display:block; margin-bottom:.9rem; }
+.a39-field span{ display:block; font:500 .74rem/1 var(--mono); color:var(--muted); margin-bottom:.45rem; letter-spacing:.02em; }
+.a39-field input{ width:100%; box-sizing:border-box; background:rgba(0,0,0,.25); border:1px solid var(--hair2); border-radius:10px; color:var(--ivory);
+  font:400 .98rem var(--sans); padding:.78rem .9rem; outline:none; transition:border-color .2s; }
+.a39-field input:focus{ border-color:rgba(195,169,121,.55); }
+.a39-btn{ display:inline-flex; align-items:center; justify-content:center; gap:.5rem; border-radius:10px; border:1px solid transparent; cursor:pointer;
+  font:500 .9rem var(--sans); padding:.72rem 1.1rem; background:var(--ivory); color:#14110d; transition:background .2s, border-color .2s, opacity .2s; }
+.a39-btn:hover{ background:#f7f1e6; }
+.a39-btn:disabled{ opacity:.55; cursor:default; }
+.a39-btn.ghost{ background:transparent; color:var(--ivory); border-color:var(--hair2); }
+.a39-btn.ghost:hover{ border-color:rgba(236,228,214,.35); background:rgba(236,228,214,.04); }
+.a39-btn.wide{ width:100%; }
+.a39-err{ color:var(--bad); font-size:.86rem; margin:.2rem 0 .9rem; min-height:1.2em; }
+.a39-note{ color:var(--muted); font-size:.82rem; margin-top:1.1rem; line-height:1.5; }
+
+/* ---------- Dashboard-Rahmen ---------- */
+html.adm39 #app39{ position:relative; z-index:1; }
+html.adm39 #adminContent{ display:block; }
+html.adm39 .admin-shell{ display:grid; grid-template-columns:248px minmax(0, 1fr); min-height:100vh; gap:0; background:none; border:0; border-radius:0; box-shadow:none; max-width:none; margin:0; padding:0; }
+html.adm39 .admin-sidebar{
+  position:sticky; top:0; height:100vh; box-sizing:border-box; display:flex; flex-direction:column; gap:.3rem;
+  padding:18px 14px; background:rgba(14,11,8,.86); border:0; border-right:1px solid var(--hair2); border-radius:0; overflow-y:auto; width:auto;
+}
+html.adm39 .admin-ws{ display:flex; align-items:center; gap:.7rem; padding:.3rem .45rem 1.1rem; margin:0 0 .5rem; border-bottom:1px solid var(--hair2); }
+html.adm39 .admin-ws-avatar{ width:38px; height:38px; border-radius:50%; display:grid; place-items:center; flex:none; border:1px solid rgba(195,169,121,.5);
+  font:italic 500 1.35rem/1 var(--serif); color:var(--gold-hi); background:radial-gradient(circle at 35% 30%, #2a231a, #120f0b); box-shadow:none; }
+html.adm39 .admin-ws-text, html.adm39 .admin-nav-heading{ display:block !important; }
+html.adm39 .admin-sidebar-foot .admin-nav-item{ display:flex !important; }
+html.adm39 .admin-ws-text strong{ display:block; font:500 1.15rem/1.1 var(--serif); color:var(--ivory); letter-spacing:.01em; }
+html.adm39 .admin-ws-text span{ display:block; font:400 .72rem/1.4 var(--mono); color:var(--muted); }
+html.adm39 .admin-nav{ display:flex; flex-direction:column; gap:1rem; }
+html.adm39 .admin-nav-group{ display:flex; flex-direction:column; gap:2px; }
+html.adm39 .admin-nav-heading{ font:500 .68rem/1 var(--mono); color:rgba(163,155,142,.75); padding:.2rem .65rem .55rem; text-transform:none; letter-spacing:.04em; }
+html.adm39 .admin-nav-item{
+  display:flex; align-items:center; gap:.7rem; width:100%; box-sizing:border-box; padding:.62rem .7rem; border-radius:10px; border:1px solid transparent;
+  background:none; color:rgba(236,228,214,.72); font:450 .9rem/1.2 var(--sans); text-align:left; cursor:pointer; transition:background .18s, color .18s, border-color .18s;
+}
+html.adm39 .admin-nav-item svg{ width:18px; height:18px; flex:none; opacity:.8; }
+html.adm39 .admin-nav-item:hover{ background:rgba(236,228,214,.04); color:var(--ivory); }
+html.adm39 .admin-nav-item.is-active{ background:rgba(236,228,214,.07) !important; border-color:var(--hair) !important; color:var(--ivory) !important; box-shadow:none; font-weight:500; }
+html.adm39 .admin-nav-item.is-active svg{ color:var(--gold-hi); opacity:1; }
+html.adm39 .admin-nav-badge{ margin-left:auto; min-width:20px; height:20px; padding:0 6px; box-sizing:border-box; border-radius:10px; display:inline-grid; place-items:center;
+  font:500 .7rem/1 var(--mono); background:var(--gold); color:#14110d; box-shadow:none; }
+html.adm39 .admin-nav-badge[hidden]{ display:none; }
+html.adm39 .admin-sidebar-foot{ margin-top:auto; padding-top:.9rem; border-top:1px solid var(--hair2); display:flex; flex-direction:column; gap:2px; }
+.a39-me{ display:flex; align-items:center; gap:.65rem; padding:.55rem .55rem .7rem; }
+.a39-me .a39-me-pic{ width:34px; height:34px; border-radius:50%; overflow:hidden; flex:none; background:var(--s3); display:grid; place-items:center; font:500 .8rem var(--mono); color:var(--gold-hi); }
+.a39-me .a39-me-pic img, .a39-me .a39-me-pic svg{ width:100%; height:100%; display:block; }
+.a39-me b{ display:block; font:500 .88rem/1.2 var(--sans); color:var(--ivory); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:150px; }
+.a39-me small{ display:block; font:400 .72rem/1.3 var(--mono); color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:150px; }
+
+html.adm39 .admin-main{ min-width:0; padding:0 clamp(16px, 2.6vw, 40px) 60px; box-sizing:border-box; }
+html.adm39 .admin-topbar{
+  position:sticky; top:0; z-index:5; display:flex; align-items:center; gap:.8rem; margin:0 calc(-1 * clamp(16px, 2.6vw, 40px)) 1.4rem; padding:14px clamp(16px, 2.6vw, 40px);
+  background:rgba(11,9,7,.92); border:0; border-bottom:1px solid var(--hair2); border-radius:0;
+}
+html.adm39 .admin-sidebar-toggle{ display:none; width:38px; height:38px; border-radius:10px; border:1px solid var(--hair2); background:none; color:var(--ivory); place-items:center; cursor:pointer; flex:none; }
+html.adm39 .admin-crumb{ display:flex; align-items:center; gap:.45rem; font:400 .82rem var(--mono); color:var(--muted); min-width:0; }
+html.adm39 .admin-crumb strong{ color:var(--ivory); font:500 .92rem var(--sans); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+html.adm39 .admin-topbar .pill{ display:none; }
+.a39-top-r{ margin-left:auto; display:flex; align-items:center; gap:.55rem; }
+.a39-live{ display:inline-flex; align-items:center; gap:.45rem; font:400 .74rem var(--mono); color:var(--muted); padding:.4rem .6rem; }
+.a39-live i{ width:7px; height:7px; border-radius:50%; background:var(--ok); }
+.a39-live.off i{ background:var(--muted); }
+.a39-mt{ display:inline-flex; align-items:center; gap:.55rem; border-radius:999px; border:1px solid var(--hair2); background:rgba(236,228,214,.03); color:var(--ivory);
+  font:500 .82rem var(--sans); padding:.5rem .85rem .5rem .6rem; cursor:pointer; transition:border-color .2s, background .2s; white-space:nowrap; }
+.a39-mt:hover{ border-color:rgba(236,228,214,.3); }
+.a39-mt .sw{ width:30px; height:18px; border-radius:9px; background:rgba(236,228,214,.14); position:relative; transition:background .2s; flex:none; }
+.a39-mt .sw::after{ content:''; position:absolute; top:2px; left:2px; width:14px; height:14px; border-radius:50%; background:var(--ivory); transition:transform .25s; }
+.a39-mt.on{ border-color:rgba(217,178,111,.5); background:rgba(217,178,111,.08); }
+.a39-mt.on .sw{ background:var(--warn); }
+.a39-mt.on .sw::after{ transform:translateX(12px); background:#14110d; }
+.a39-icon-btn{ width:38px; height:38px; border-radius:10px; border:1px solid var(--hair2); background:none; color:var(--ivory); display:grid; place-items:center; cursor:pointer; flex:none; }
+.a39-icon-btn:hover{ border-color:rgba(236,228,214,.3); }
+.a39-icon-btn svg{ width:17px; height:17px; }
+
+/* ---------- Karten ---------- */
+html.adm39 .admin-panels{ min-width:0; }
+html.adm39 .settings-card, .a39-card{
+  background:var(--card); border:1px solid var(--hair2); border-radius:var(--r); box-shadow:none; padding:1.25rem 1.3rem; box-sizing:border-box; min-width:0;
+}
+html.adm39 .settings-card + .settings-card{ margin-top:1rem; }
+html.adm39 .settings-title{ font:500 1rem/1.3 var(--sans); color:var(--ivory); margin:0 0 .3rem; }
+html.adm39 .settings-desc{ color:var(--muted); font-size:.86rem; line-height:1.5; margin:0 0 1rem; }
+
+/* Begruessung */
+.a39-hello{ display:flex; align-items:flex-end; justify-content:space-between; gap:1rem; flex-wrap:wrap; margin:.2rem 0 1.3rem; }
+.a39-kick{ font:400 .76rem/1 var(--mono); color:var(--muted); margin:0 0 .55rem; }
+.a39-hello h1{ font:400 clamp(2rem, 3.4vw, 2.9rem)/1.02 var(--serif); margin:0; color:var(--ivory); letter-spacing:-.01em; }
+.a39-hello h1 em{ font-style:italic; color:var(--gold-hi); }
+.a39-hello p.a39-sub{ color:var(--muted); margin:.5rem 0 0; font-size:.92rem; }
+.a39-hello-act{ display:flex; gap:.5rem; flex-wrap:wrap; }
+
+.a39-grid{ display:grid; gap:1rem; grid-template-columns:minmax(0, 1.7fr) minmax(0, 1fr); margin-bottom:1rem; }
+.a39-grid.even{ grid-template-columns:minmax(0, 1fr) minmax(0, 1fr); }
+.a39-card-h{ display:flex; align-items:center; justify-content:space-between; gap:.8rem; margin-bottom:1rem; flex-wrap:wrap; }
+.a39-card-h h2{ font:500 1rem/1.2 var(--sans); margin:0; color:var(--ivory); }
+.a39-card-h small{ display:block; font:400 .76rem/1.4 var(--mono); color:var(--muted); margin-top:.25rem; }
+.a39-seg{ display:inline-flex; padding:3px; border-radius:999px; background:rgba(0,0,0,.25); border:1px solid var(--hair2); }
+.a39-seg button{ border:0; background:none; color:var(--muted); font:500 .76rem var(--sans); padding:.38rem .75rem; border-radius:999px; cursor:pointer; }
+.a39-seg button.on{ background:var(--ivory); color:#14110d; }
+
+/* Balkendiagramm */
+.a39-bars{ position:relative; height:210px; display:flex; align-items:flex-end; gap:clamp(3px, .7vw, 9px); padding:0 0 22px; border-bottom:1px solid var(--hair2); }
+.a39-bars::before{ content:''; position:absolute; inset:0 0 22px; background:repeating-linear-gradient(to top, transparent 0 calc(25% - 1px), rgba(236,228,214,.05) calc(25% - 1px) 25%); pointer-events:none; }
+.a39-bar{ position:relative; flex:1; min-width:0; height:100%; display:flex; flex-direction:column; justify-content:flex-end; align-items:center; }
+.a39-bar i{ display:block; width:100%; max-width:34px; border-radius:6px 6px 2px 2px; background:linear-gradient(180deg, rgba(230,215,184,.85), rgba(195,169,121,.45)); min-height:2px; transition:height .5s cubic-bezier(.2,.8,.2,1); }
+.a39-bar.today i{ background:linear-gradient(180deg, #f2e8d4, #c3a979); }
+.a39-bar s{ position:absolute; left:50%; transform:translateX(-50%); width:7px; height:7px; border-radius:50%; background:var(--bg); border:1.5px solid var(--ok); text-decoration:none; }
+.a39-bar em{ position:absolute; bottom:-20px; font:400 .64rem var(--mono); color:var(--muted); font-style:normal; white-space:nowrap; }
+.a39-bar b{ position:absolute; font:500 .66rem var(--mono); color:var(--ivory); opacity:0; transition:opacity .15s; white-space:nowrap; pointer-events:none; }
+.a39-bar:hover b{ opacity:1; }
+.a39-legend{ display:flex; gap:1.1rem; flex-wrap:wrap; margin-top:.9rem; font:400 .76rem var(--mono); color:var(--muted); }
+.a39-legend span{ display:inline-flex; align-items:center; gap:.45rem; }
+.a39-legend i{ width:10px; height:10px; border-radius:3px; background:var(--gold); }
+.a39-legend i.dot{ border-radius:50%; background:none; border:1.5px solid var(--ok); }
+.a39-legend b{ color:var(--ivory); font-weight:500; }
+
+/* Ring */
+.a39-donut{ display:flex; align-items:center; gap:1.3rem; flex-wrap:wrap; }
+.a39-ring{ position:relative; width:150px; height:150px; flex:none; }
+.a39-ring svg{ width:100%; height:100%; transform:rotate(-90deg); }
+.a39-ring circle{ fill:none; stroke-width:12; }
+.a39-ring .bg{ stroke:rgba(236,228,214,.07); }
+.a39-ring .fg{ stroke:var(--gold); stroke-linecap:round; transition:stroke-dashoffset .8s cubic-bezier(.2,.8,.2,1); }
+.a39-ring .fg.hot{ stroke:var(--warn); }
+.a39-ring-t{ position:absolute; inset:0; display:grid; place-content:center; text-align:center; }
+.a39-ring-t b{ font:500 1.7rem/1 var(--sans); color:var(--ivory); font-variant-numeric:tabular-nums; }
+.a39-ring-t span{ font:400 .7rem var(--mono); color:var(--muted); margin-top:.3rem; }
+.a39-kv{ display:grid; gap:.55rem; min-width:150px; flex:1; }
+.a39-kv div{ display:flex; justify-content:space-between; gap:1rem; font-size:.86rem; color:var(--muted); border-bottom:1px solid var(--hair2); padding-bottom:.5rem; }
+.a39-kv div:last-child{ border-bottom:0; }
+.a39-kv b{ color:var(--ivory); font-weight:500; font-variant-numeric:tabular-nums; }
+
+/* Kennzahlen */
+html.adm39 .admin-stat-row, .a39-kpis{ display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:1rem; margin:0 0 1rem; }
+html.adm39 .admin-stat, .a39-kpi{
+  background:var(--card); border:1px solid var(--hair2); border-radius:var(--r); padding:1.05rem 1.1rem 1.1rem; box-shadow:none; min-width:0; box-sizing:border-box;
+  display:flex; flex-direction:column; gap:.4rem; cursor:default; transition:border-color .2s;
+}
+.a39-kpi[data-go]{ cursor:pointer; }
+.a39-kpi[data-go]:hover, html.adm39 .admin-stat:hover{ border-color:var(--hair); }
+html.adm39 .admin-stat-head, .a39-kpi-h{ display:flex; align-items:center; gap:.55rem; }
+html.adm39 .admin-stat-icon, .a39-kpi-ic{ width:30px; height:30px; border-radius:9px; display:grid; place-items:center; background:rgba(236,228,214,.05); color:var(--gold-hi); border:1px solid var(--hair2); flex:none; }
+html.adm39 .admin-stat-icon svg, .a39-kpi-ic svg{ width:16px; height:16px; }
+html.adm39 .admin-stat-label, .a39-kpi-l{ font:400 .78rem var(--mono); color:var(--muted); }
+html.adm39 .admin-stat-value, .a39-kpi-v{ font:500 1.75rem/1.05 var(--sans); color:var(--ivory); font-variant-numeric:tabular-nums; letter-spacing:-.01em; margin-top:.35rem; }
+html.adm39 .admin-stat-note, .a39-kpi-n{ font-size:.78rem; color:var(--muted); margin:0; line-height:1.4; }
+.a39-kpi-n .up{ color:var(--ok); }
+.a39-kpi-n .warn{ color:var(--warn); }
+
+/* Listen */
+.a39-list{ display:flex; flex-direction:column; }
+.a39-li{ display:flex; align-items:center; gap:.8rem; padding:.65rem 0; border-bottom:1px solid var(--hair2); min-width:0; }
+.a39-li:last-child{ border-bottom:0; }
+.a39-li .pic{ width:34px; height:34px; flex:none; }
+.a39-li-t{ min-width:0; flex:1; }
+.a39-li-t b{ display:block; font:500 .9rem/1.25 var(--sans); color:var(--ivory); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.a39-li-t small{ display:block; font:400 .74rem/1.35 var(--mono); color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.a39-tag{ font:500 .7rem var(--mono); padding:.22rem .5rem; border-radius:999px; border:1px solid var(--hair2); color:var(--muted); white-space:nowrap; }
+.a39-tag.gold{ color:var(--gold-hi); border-color:rgba(195,169,121,.4); }
+.a39-tag.ok{ color:var(--ok); border-color:rgba(156,199,164,.35); }
+.a39-tag.warn{ color:var(--warn); border-color:rgba(217,178,111,.4); }
+.a39-tag.bad{ color:var(--bad); border-color:rgba(217,140,122,.4); }
+.a39-todo{ display:flex; align-items:center; gap:.8rem; padding:.75rem .85rem; border-radius:11px; border:1px solid var(--hair2); background:rgba(0,0,0,.18); margin-bottom:.55rem; cursor:pointer; transition:border-color .2s; color:var(--ivory); width:100%; text-align:left; font:inherit; box-sizing:border-box; }
+.a39-todo:hover{ border-color:var(--hair); }
+.a39-todo:last-child{ margin-bottom:0; }
+.a39-todo .n{ min-width:32px; height:32px; border-radius:9px; display:grid; place-items:center; font:500 .9rem var(--sans); background:rgba(236,228,214,.06); color:var(--ivory); flex:none; }
+.a39-todo .n.hot{ background:var(--gold); color:#14110d; }
+.a39-todo span{ flex:1; min-width:0; font-size:.88rem; }
+.a39-todo span small{ display:block; color:var(--muted); font-size:.76rem; margin-top:.15rem; }
+.a39-todo svg{ width:16px; height:16px; color:var(--muted); flex:none; }
+.a39-empty{ color:var(--muted); font-size:.86rem; padding:.4rem 0; }
+
+/* Wartung: Ende + Vorschau */
+.a39-mt-card{ margin-top:1rem; }
+.a39-until{ display:flex; gap:.5rem; flex-wrap:wrap; align-items:center; margin:.6rem 0 .3rem; }
+.a39-until input{ background:rgba(0,0,0,.25); border:1px solid var(--hair2); border-radius:10px; color:var(--ivory); font:400 .92rem var(--sans); padding:.6rem .75rem; color-scheme:dark; }
+.a39-chip{ border:1px solid var(--hair2); background:none; color:var(--ivory); border-radius:999px; padding:.42rem .75rem; font:500 .78rem var(--sans); cursor:pointer; }
+.a39-chip:hover{ border-color:rgba(236,228,214,.3); }
+.a39-prev{ margin-top:1rem; border-radius:12px; overflow:hidden; border:1px solid var(--hair2); aspect-ratio:16/9; background:#000; position:relative; }
+.a39-prev iframe{ position:absolute; inset:0; width:200%; height:200%; transform:scale(.5); transform-origin:0 0; border:0; pointer-events:none; }
+.a39-sql{ margin-top:.9rem; font:400 .78rem/1.5 var(--mono); color:var(--muted); background:rgba(0,0,0,.3); border:1px solid var(--hair2); border-radius:10px; padding:.8rem .9rem; white-space:pre-wrap; word-break:break-word; }
+.a39-sql[hidden]{ display:none; }
+
+
+/* Knoepfe, Felder, Beschriftungen im Admin einheitlich */
+html.adm39 .btn{ border-radius:10px !important; font:500 .86rem/1.2 var(--sans) !important; padding:.62rem 1rem !important; min-height:0 !important; letter-spacing:0 !important; text-transform:none !important; box-shadow:none !important; }
+html.adm39 .btn-primary{ background:var(--ivory) !important; color:#14110d !important; border:1px solid var(--ivory) !important; }
+html.adm39 .btn-primary:hover{ background:#f7f1e6 !important; }
+html.adm39 .btn-secondary{ background:rgba(236,228,214,.03) !important; color:var(--ivory) !important; border:1px solid var(--hair2) !important; }
+html.adm39 .btn-secondary:hover{ border-color:rgba(236,228,214,.3) !important; }
+html.adm39 .btn-small{ padding:.45rem .8rem !important; font-size:.8rem !important; }
+html.adm39 .btn-danger, html.adm39 .btn.danger{ background:rgba(217,140,122,.1) !important; color:#f0b3a5 !important; border:1px solid rgba(217,140,122,.35) !important; }
+html.adm39 .modal-input, html.adm39 textarea.modal-input{ background:rgba(0,0,0,.25) !important; border:1px solid var(--hair2) !important; border-radius:10px !important; color:var(--ivory) !important; font:400 .92rem/1.4 var(--sans) !important; padding:.62rem .8rem !important; box-shadow:none !important; }
+html.adm39 .modal-input:focus{ border-color:rgba(195,169,121,.55) !important; outline:none; }
+html.adm39 .auth-name-row{ display:flex; gap:.6rem; align-items:center; max-width:440px; }
+html.adm39 .auth-name-row .modal-input{ flex:1; min-width:0; }
+html.adm39 .settings-row-label, html.adm39 .admin-stat-label, html.adm39 .admin-users-table th, html.adm39 th{ text-transform:none !important; letter-spacing:.02em !important; }
+html.adm39 .settings-row-label{ font:500 .74rem/1.3 var(--mono) !important; color:var(--muted) !important; margin:1rem 0 .45rem !important; display:block; }
+html.adm39 .settings-title, .a39-card-h h2{ font:500 1.28rem/1.2 var(--serif) !important; letter-spacing:0; color:var(--ivory); }
+html.adm39 .a39-ring-t b{ font:500 2rem/1 var(--serif); }
+.a39-av{ width:34px; height:34px; border-radius:50%; overflow:hidden; flex:none; display:grid; place-items:center; background:var(--s3); font:500 .72rem var(--mono); color:var(--gold-hi); border:1px solid var(--hair2); }
+.a39-av .pic-fill, .a39-av svg, .a39-av img{ width:100%; height:100%; display:block; object-fit:cover; }
+.a39-me-pic .pic-fill{ display:block; width:100%; height:100%; }
+
+/* ---------- Tablet / Handy ---------- */
+.a39-scrim{ display:none; }
+@media (max-width:1180px){
+  html.adm39 .admin-stat-row, .a39-kpis{ grid-template-columns:repeat(2, minmax(0, 1fr)); }
+  .a39-grid, .a39-grid.even{ grid-template-columns:minmax(0, 1fr); }
+}
+@media (max-width:980px){
+  html.adm39 .admin-shell{ grid-template-columns:minmax(0, 1fr); }
+  html.adm39 .admin-sidebar{ position:fixed; z-index:40; left:0; top:0; bottom:0; width:min(82vw, 290px); transform:translateX(-102%); transition:transform .3s cubic-bezier(.2,.8,.2,1); background:#0e0b08; border-right:1px solid var(--hair); }
+  html.adm39 .admin-shell.drawer-open .admin-sidebar{ transform:none; }
+  html.adm39 .admin-sidebar-toggle{ display:grid; }
+  .a39-scrim{ display:block; position:fixed; inset:0; z-index:39; background:rgba(0,0,0,.55); opacity:0; pointer-events:none; transition:opacity .25s; }
+  html.adm39 .admin-shell.drawer-open .a39-scrim{ opacity:1; pointer-events:auto; }
+}
+@media (max-width:600px){
+  html.adm39 body{ font-size:14px; }
+  .a39-live span{ display:none; }
+  .a39-mt{ padding:.45rem .6rem; }
+  .a39-mt .t{ display:none; }
+  .a39-bars{ height:170px; }
+  .a39-bar em{ font-size:.56rem; }
+  .a39-bar:nth-child(odd) em{ visibility:hidden; }
+  html.adm39 .admin-stat-value, .a39-kpi-v{ font-size:1.45rem; }
+  html.adm39 .settings-card, .a39-card{ padding:1.05rem 1rem; }
+  .a39-ring{ width:124px; height:124px; }
+}
+</style>
+</head>
+<body>
+
+<!-- Ohne gueltigen Schluessel im Link: eine gewoehnliche Fehlseite -->
+<section class="a39-screen" id="gate39" hidden>
+  <div class="a39-404"><b>404</b><p>Diese Seite gibt es nicht.</p><a href="./">Zur Startseite</a></div>
+</section>
+
+<!-- Anmelden -->
+<section class="a39-screen" id="login39" hidden>
+  <form class="a39-login" id="login39Form" autocomplete="on">
+    <div class="a39-medal" aria-hidden="true">L</div>
+    <h1>Admin-Zugang</h1>
+    <p id="login39Lead">Melde dich mit deinem Lumière-Konto an. Danach bleibst du auf diesem Gerät angemeldet.</p>
+    <label class="a39-field"><span>E-Mail</span><input type="email" id="login39Mail" autocomplete="username" required></label>
+    <label class="a39-field"><span>Passwort</span><input type="password" id="login39Pw" autocomplete="current-password" required></label>
+    <p class="a39-err" id="login39Err" role="alert"></p>
+    <button type="submit" class="a39-btn wide" id="login39Go">Anmelden</button>
+    <button type="button" class="a39-btn ghost wide" id="login39Out" hidden style="margin-top:.6rem;">Mit anderem Konto anmelden</button>
+    <p class="a39-note">Diese Seite ist nur über deinen persönlichen Link erreichbar. Einen neuen Link erzeugst du auf dem Server mit <code>bash tools/admin-link.sh --neu</code>.</p>
+  </form>
+</section>
+
+<!-- Das eigentliche Panel -->
+<main id="app39" hidden>
+<!--@MARKUP@-->
+</main>
+
+<!--@DIALOGS@-->
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// ==================== Lumière Admin (Build 39) ====================
+// Eigene Seite, nur ueber den geheimen Link erreichbar (#k=...). Der Schluessel wird
+// gegen admin-key.json geprueft (dort liegt nur sein SHA-256; die Datei schreibt
+// tools/admin-link.sh auf dem Server, sie steht nicht im Git). Die eigentliche
+// Berechtigung kommt wie immer aus profiles.is_admin + Row-Level-Security.
+const ADMIN_KEY39 = (() => {
+  const m = (location.hash || '').match(/(?:^#|&)k=([0-9a-fA-F]{16,128})/);
+  let k = m ? m[1].toLowerCase() : '';
+  try{ if(!k) k = localStorage.getItem('lumiere_admin_k39') || ''; }catch(e){}
+  return k;
+})();
+const SUPABASE_URL = 'https://imjlrfemiptuwobliydq.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_IKRB3DyOe0j99GsZUAlkOw_hH3rD8Ih';
+const sb = (typeof window.supabase !== 'undefined' && window.supabase.createClient)
+  ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+  : null;
+let currentUser = null, currentProfile = null, siteSettings = null, APP_VERSION = 0;
+let currentNavId = 'admin';
+// Was der uebernommene Code aus index.html sonst noch erwartet
+function sndClick(){} function sndOpen(){} function sndClose(){} function sndToggle(){} function sndTick(){} function sndToast(){}
+function persistLastView(view, tab){ try{ if(tab) localStorage.setItem('lumiere_admin_tab39', tab); }catch(e){} }
+function showView(){} function updateNavActiveStates(){} function applyReleaseGate(){} function refreshAccountStatus(){} function updateAccountUI(){}
+function isReleased(){ return true; }
+async function loadSiteSettings(){
+  if(!sb) return;
+  const { data, error } = await sb.from('site_settings').select('*').eq('id', 1).maybeSingle();
+  if(error){ console.error('Website-Einstellungen:', error.message); return; }
+  if(data) siteSettings = data;
+  try{ onSettings39(); }catch(e){}
+}
+
+/*@JS@*/
+</script>
+<script>
+// ==================== Build 39: Start, Anmelden, Uebersicht, Wartung ====================
+const $a = (id) => document.getElementById(id);
+const DAY39 = 86400000;
+function show39(which){
+  ['gate39', 'login39', 'app39'].forEach(id => { $a(id).hidden = id !== which; });
+}
+async function sha256hex39(s){
+  const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s));
+  return Array.from(new Uint8Array(b)).map(x => x.toString(16).padStart(2, '0')).join('');
+}
+async function keyOk39(){
+  if(!ADMIN_KEY39 || !window.crypto || !crypto.subtle) return false;
+  try{
+    const r = await fetch('admin-key.json?t=' + Date.now(), { cache: 'no-store' });
+    if(!r.ok) return false;
+    const j = await r.json();
+    const want = String(j.sha256 || '').toLowerCase();
+    return want.length === 64 && want === await sha256hex39(ADMIN_KEY39);
+  }catch(e){ return false; }
+}
+
+// ---- Anmelden ----
+async function loadMe39(){
+  const { data: { session } } = await sb.auth.getSession();
+  currentUser = session ? session.user : null;
+  currentProfile = null;
+  if(!currentUser) return null;
+  const { data, error } = await sb.from('profiles').select('*').eq('user_id', currentUser.id).maybeSingle();
+  if(error) throw error;
+  currentProfile = data || null;
+  return currentProfile;
+}
+function loginScreen39(msg, other){
+  show39('login39');
+  $a('login39Err').textContent = msg || '';
+  $a('login39Out').hidden = !other;
+  setTimeout(() => { const m = $a('login39Mail'); if(m && !m.value) m.focus(); }, 60);
+}
+$a('login39Form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const btn = $a('login39Go');
+  btn.disabled = true; btn.textContent = 'Wird geprüft …'; $a('login39Err').textContent = '';
+  try{
+    const { error } = await sb.auth.signInWithPassword({ email: $a('login39Mail').value.trim(), password: $a('login39Pw').value });
+    if(error){ $a('login39Err').textContent = /invalid/i.test(error.message) ? 'E-Mail oder Passwort stimmt nicht.' : error.message; return; }
+    $a('login39Pw').value = '';
+    await enter39();
+  }catch(err){ $a('login39Err').textContent = err.message || String(err); }
+  finally{ btn.disabled = false; btn.textContent = 'Anmelden'; }
+});
+$a('login39Out').addEventListener('click', async () => { await sb.auth.signOut(); currentUser = currentProfile = null; loginScreen39(''); });
+
+async function enter39(){
+  const p = await loadMe39();
+  if(!currentUser) return loginScreen39('');
+  if(!p || !p.is_admin) return loginScreen39('Dieses Konto (' + (currentUser.email || '') + ') hat keine Admin-Rechte.', true);
+  show39('app39');
+  try{ const v = await (await fetch('version.json?t=' + Date.now(), { cache: 'no-store' })).json(); APP_VERSION = v.version || 0; }catch(e){}
+  await loadSiteSettings();
+  renderMe39();
+  let tab = 'overview';
+  try{ tab = localStorage.getItem('lumiere_admin_tab39') || 'overview'; }catch(e){}
+  if(!document.querySelector(`#adminSubnav [data-admin-tab="${tab}"]`)) tab = 'overview';
+  switchAdminTab(tab);
+  await Promise.all([loadAdminData(), loadAdminAbos(), loadPicReviews()].map(p => Promise.resolve(p).catch(e => console.warn(e))));
+  loadOverview39();
+  watch39();
+}
+
+function renderMe39(){
+  const box = $a('a39Me');
+  if(!box || !currentProfile) return;
+  const name = currentProfile.display_name || (currentUser.email || '').split('@')[0];
+  box.querySelector('b').textContent = name;
+  box.querySelector('small').textContent = currentUser.email || '';
+  const pic = box.querySelector('.a39-me-pic');
+  try{ pic.innerHTML = picHTML(currentProfile, name) || escapeHtml(lbInitials(name)); }catch(e){ pic.textContent = name.slice(0, 2).toUpperCase(); }
+}
+
+// ---- Uebersicht ----
+const OV39 = { range: 14, sess: [], prof: [], reqs: [], cap: null };
+function berlinKey39(d){ return new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Berlin' }).format(d); }
+function greet39(){
+  const h = Number(new Intl.DateTimeFormat('de-DE', { timeZone: 'Europe/Berlin', hour: 'numeric', hour12: false }).format(new Date()));
+  return h < 5 ? 'Bonne nuit' : h < 12 ? 'Bonjour' : h < 18 ? 'Bon après-midi' : 'Bonsoir';
+}
+async function loadOverview39(){
+  if(!sb) return;
+  const since = new Date(Date.now() - 31 * DAY39).toISOString();
+  const [s, p, r, c] = await Promise.all([
+    sb.from('active_sessions').select('id, user_id, created_at, last_seen').gte('created_at', since).order('created_at', { ascending: true }).limit(5000),
+    sb.from('profiles').select('user_id, email, display_name, created_at, plan, plan_until, banned, banned_until, is_admin, photo_status, avatar_kind, avatar_config, photo_path, avatar_locked, photo_locked').order('created_at', { ascending: false }),
+    sb.from('upgrade_requests').select('id, status, price_cents, decided_at, created_at').limit(1000),
+    sb.rpc('get_capacity'),
+  ]);
+  OV39.sess = s.data || []; OV39.prof = p.data || []; OV39.reqs = r.data || []; OV39.cap = c.data || null;
+  renderOverview39();
+}
+function renderOverview39(){
+  const now = new Date();
+  const name = currentProfile && (currentProfile.display_name || (currentUser.email || '').split('@')[0]);
+  $a('a39Greet').innerHTML = escapeHtml(greet39()) + ', <em>' + escapeHtml(name || 'Admin') + '</em>';
+  $a('a39Date').textContent = now.toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Europe/Berlin' });
+  // Besuche je Tag (eine Sitzung = ein Besuch) + neue Konten
+  const n = OV39.range, days = [];
+  for(let i = n - 1; i >= 0; i--){ const d = new Date(now.getTime() - i * DAY39); days.push({ k: berlinKey39(d), d, v: 0, u: new Set(), reg: 0 }); }
+  const byKey = new Map(days.map(x => [x.k, x]));
+  OV39.sess.forEach(x => { const day = byKey.get(berlinKey39(new Date(x.created_at))); if(day){ day.v++; if(x.user_id) day.u.add(x.user_id); } });
+  OV39.prof.forEach(x => { const day = byKey.get(berlinKey39(new Date(x.created_at))); if(day) day.reg++; });
+  const max = Math.max(4, ...days.map(x => x.v));
+  const wk = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
+  $a('a39Bars').innerHTML = days.map((x, i) => {
+    const h = Math.round(x.v / max * 100);
+    const lbl = n <= 7 ? wk[x.d.getDay()] : (x.d.getDate() + '.');
+    const reg = x.reg ? `<s style="bottom:calc(${Math.min(100, h) }% + 6px)" title="${x.reg} neue Konten"></s>` : '';
+    return `<div class="a39-bar${i === n - 1 ? ' today' : ''}"><b style="bottom:calc(${h}% + ${x.reg ? 18 : 6}px)">${x.v}</b>${reg}<i style="height:${h}%"></i><em>${lbl}</em></div>`;
+  }).join('');
+  const sum = days.reduce((a, x) => a + x.v, 0), regs = days.reduce((a, x) => a + x.reg, 0);
+  const uniq = new Set(); days.forEach(x => x.u.forEach(u => uniq.add(u)));
+  $a('a39BarsSum').textContent = sum;
+  $a('a39BarsAvg').textContent = (sum / n).toFixed(1).replace('.', ',');
+  $a('a39BarsUsers').textContent = uniq.size;
+  $a('a39BarsReg').textContent = regs;
+  // KI-Kontingent
+  const cap = OV39.cap || { used: 0, total: (siteSettings && siteSettings.ai_capacity_total) || 0 };
+  const pct = cap.total ? Math.min(1, cap.used / cap.total) : 0;
+  const fg = $a('a39RingFg');
+  fg.setAttribute('stroke-dashoffset', (377 * (1 - pct)).toFixed(1));
+  fg.classList.toggle('hot', pct > .85);
+  $a('a39RingPct').textContent = Math.round(pct * 100) + ' %';
+  $a('a39CapUsed').textContent = cap.used;
+  $a('a39CapFree').textContent = Math.max(0, cap.total - cap.used);
+  $a('a39CapTotal').textContent = cap.total;
+  $a('a39CapLimit').textContent = siteSettings ? siteSettings.ai_daily_limit : '–';
+  // Kennzahlen
+  const week = now.getTime() - 7 * DAY39;
+  const fresh = OV39.prof.filter(x => new Date(x.created_at).getTime() > week).length;
+  $a('a39KpiNew').textContent = fresh;
+  const open = OV39.reqs.filter(x => x.status === 'offen').length;
+  const photos = OV39.prof.filter(x => x.photo_status === 'pending').length;
+  const month = OV39.reqs.filter(x => x.status === 'erledigt' && x.price_cents && x.decided_at && new Date(x.decided_at).getMonth() === now.getMonth() && new Date(x.decided_at).getFullYear() === now.getFullYear())
+    .reduce((a, x) => a + x.price_cents, 0);
+  $a('a39KpiOpen').textContent = open;
+  $a('a39KpiPhotos').textContent = photos;
+  $a('a39KpiMoney').textContent = (month / 100).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' });
+  const live = siteSettings && typeof siteSettings.live_build === 'number' ? siteSettings.live_build : 0;
+  $a('a39KpiBuild').textContent = live;
+  $a('a39KpiBuildN').innerHTML = live < APP_VERSION ? `<span class="warn">Build ${APP_VERSION} wartet auf Freigabe</span>` : 'Alles veröffentlicht';
+  // Neueste Konten
+  const recent = OV39.prof.slice(0, 6);
+  $a('a39Recent').innerHTML = recent.length ? recent.map(x => {
+    const nm = x.display_name || (x.email || '').split('@')[0] || 'Unbekannt';
+    const tag = x.is_admin ? '<span class="a39-tag gold">Admin</span>'
+      : banRunning(x) ? '<span class="a39-tag bad">Gesperrt</span>'
+      : (x.plan && x.plan_until && new Date(x.plan_until) > now) ? `<span class="a39-tag ok">${x.plan === 'pro' ? 'Pro' : 'Plus'}</span>`
+      : '<span class="a39-tag">Gratis</span>';
+    return `<div class="a39-li"><span class="a39-av">${picHTML(x, nm) || escapeHtml(lbInitials(nm))}</span><div class="a39-li-t"><b>${escapeHtml(nm)}</b><small>${escapeHtml(x.email || '')} · seit ${new Date(x.created_at).toLocaleDateString('de-DE', { day: 'numeric', month: 'short' })}</small></div>${tag}</div>`;
+  }).join('') : '<p class="a39-empty">Noch keine Konten.</p>';
+  // Zu erledigen
+  const todo = [];
+  if(photos) todo.push({ n: photos, hot: true, t: 'Profilfotos prüfen', s: 'Warten auf Freigabe', go: 'photos' });
+  if(open) todo.push({ n: open, hot: true, t: 'Tarif-Anfragen', s: 'Offen in „Anfragen & Abos“', go: 'abos' });
+  if(live < APP_VERSION) todo.push({ n: '!', hot: true, t: `Build ${APP_VERSION} freigeben`, s: `Öffentlich ist Build ${live}`, go: 'version' });
+  if(siteSettings && siteSettings.maintenance_mode) todo.push({ n: '⏸', hot: false, t: 'Wartung läuft', s: 'Normale Nutzer sehen den Wartungs-Bildschirm', go: 'maintenance' });
+  const chev = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>';
+  $a('a39Todo').innerHTML = todo.length ? todo.map(x => `<button type="button" class="a39-todo" data-go39="${x.go}"><i class="n${x.hot ? ' hot' : ''}">${x.n}</i><span>${escapeHtml(x.t)}<small>${escapeHtml(x.s)}</small></span>${chev}</button>`).join('')
+    : '<p class="a39-empty">Nichts offen. Alles erledigt.</p>';
+  try{ fillPics && fillPics($a('a39Recent')); }catch(e){}
+}
+document.addEventListener('click', (e) => {
+  const go = e.target.closest('[data-go39]');
+  if(go){ switchAdminTab(go.dataset.go39); closeDrawer39(); window.scrollTo({ top: 0, behavior: 'instant' }); return; }
+  const seg = e.target.closest('[data-range39]');
+  if(seg){
+    OV39.range = Number(seg.dataset.range39);
+    document.querySelectorAll('[data-range39]').forEach(b => b.classList.toggle('on', b === seg));
+    renderOverview39();
+  }
+});
+
+// ---- Wartung: Schnellschalter, Ende, Vorschau ----
+function onSettings39(){
+  const on = !!(siteSettings && siteSettings.maintenance_mode);
+  const t = $a('a39Mt');
+  if(t){ t.classList.toggle('on', on); t.setAttribute('aria-pressed', on ? 'true' : 'false'); t.querySelector('.t').textContent = on ? 'Wartung an' : 'Wartung aus'; }
+  const until = $a('a39Until');
+  if(until && document.activeElement !== until){
+    const u = siteSettings && siteSettings.maintenance_until;
+    until.value = u ? toLocalInput39(new Date(u)) : '';
+  }
+  const sql = $a('a39MtSql');
+  if(sql) sql.hidden = !!(siteSettings && 'maintenance_until' in siteSettings);
+  if($a('a39Bars') && OV39.prof.length) renderOverview39();
+  refreshPreview39();
+}
+function toLocalInput39(d){
+  const p = (n) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
+}
+function previewData39(){
+  const fm = {};
+  document.querySelectorAll('#adminFeatureToggles input[type="checkbox"]').forEach(cb => { fm[cb.dataset.featureKey] = cb.checked; });
+  const u = $a('a39Until') && $a('a39Until').value;
+  return {
+    lumiere: 'maint', mode: 'full', preview: true,
+    message: ($a('adminMaintenanceMessage') && $a('adminMaintenanceMessage').value.trim()) || '',
+    until: u ? new Date(u).toISOString() : null,
+    paused: Object.keys(fm).filter(k => fm[k]), features: ADMIN_FEATURE_LIST,
+  };
+}
+function refreshPreview39(){
+  const f = $a('a39PrevFrame');
+  if(!f || !f.contentWindow || !f.dataset.ready) return;
+  f.contentWindow.postMessage(previewData39(), location.origin);
+}
+async function setMaintenance39(on){
+  if(!sb) return;
+  if(on){
+    const ok = await customConfirm('Wartung jetzt einschalten?', 'Alle normalen Nutzer sehen sofort den Wartungs-Bildschirm. Admins nicht.', 'Einschalten');
+    if(!ok) return;
+  }
+  const { error } = await sb.from('site_settings').update({ maintenance_mode: on }).eq('id', 1);
+  if(error){ showToast('Konnte nicht umgeschaltet werden.', true); return; }
+  showToast(on ? 'Wartung ist an – greift bei allen sofort.' : 'Wartung ist aus – die Seite läuft wieder.');
+  await loadSiteSettings();
+  try{ renderAdminMaintenanceForm(); }catch(e){}
+}
+
+function untilPatch39(){
+  if(!siteSettings || !('maintenance_until' in siteSettings)) return {};
+  const v = $a('a39Until') && $a('a39Until').value;
+  return { maintenance_until: v ? new Date(v).toISOString() : null };
+}
+document.addEventListener('click', (e) => {
+  const u = e.target.closest('[data-until39]');
+  if(!u) return;
+  const m = Number(u.dataset.until39);
+  $a('a39Until').value = m ? toLocalInput39(new Date(Date.now() + m * 60000)) : '';
+  refreshPreview39();
+});
+['input', 'change'].forEach(ev => document.addEventListener(ev, (e) => {
+  if(e.target.closest && e.target.closest('[data-admin-panel="maintenance"]')) refreshPreview39();
+}));
+function loadPreview39(){
+  const f = $a('a39PrevFrame');
+  if(!f || f.getAttribute('src')) return;
+  f.addEventListener('load', () => { f.dataset.ready = '1'; refreshPreview39(); }, { once: true });
+  f.setAttribute('src', 'wartung.html?vorschau=1&embed=1');
+}
+const switchAdminTab38 = switchAdminTab;
+switchAdminTab = function(tab){ switchAdminTab38(tab); if(tab === 'maintenance') loadPreview39(); };
+$a('a39Logout').addEventListener('click', async () => {
+  const ok = await customConfirm('Abmelden?', 'Du wirst auf diesem Gerät abgemeldet – auch auf der Website.', 'Abmelden');
+  if(ok){ await sb.auth.signOut(); currentUser = currentProfile = null; loginScreen39(''); }
+});
+
+// ---- Live: Einstellungen per Realtime, sonst alle 30 s ----
+function watch39(){
+  if(watch39.on || !sb) return;
+  watch39.on = true;
+  const dot = $a('a39Live');
+  try{
+    sb.channel('admin39-settings')
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'site_settings' }, (pl) => {
+        if(pl && pl.new){ siteSettings = Object.assign({}, siteSettings, pl.new); onSettings39(); }
+      })
+      .subscribe((st) => { if(dot) dot.classList.toggle('off', st !== 'SUBSCRIBED'); });
+  }catch(e){}
+  setInterval(() => { if(!document.hidden) loadSiteSettings(); }, 30000);
+  setInterval(() => { if(!document.hidden && !$a('app39').hidden) loadOverview39(); }, 120000);
+}
+
+// ---- Seitenleiste auf Handy/Tablet als Schublade ----
+function closeDrawer39(){ const s = $a('adminShell'); if(s) s.classList.remove('drawer-open'); }
+
+// ---- Start ----
+(async function boot39(){
+  if(!(await keyOk39())){ show39('gate39'); document.title = 'Seite nicht gefunden'; return; }
+  try{ localStorage.setItem('lumiere_admin_k39', ADMIN_KEY39); }catch(e){}
+  if(!sb){ loginScreen39('Supabase ist gerade nicht erreichbar. Bitte später neu laden.'); return; }
+  try{ await enter39(); }catch(e){ loginScreen39('Profil konnte nicht geladen werden: ' + (e.message || e)); }
+  sb.auth.onAuthStateChange((ev) => { if(ev === 'SIGNED_OUT'){ currentUser = currentProfile = null; loginScreen39(''); } });
+})();
+</script>
+</body>
+</html>

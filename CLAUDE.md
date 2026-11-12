@@ -1183,3 +1183,64 @@ Kein SQL, keine Edge Function.
   (gilt sofort fuer alle).
 - **Nicht umgefaerbt:** die Spiel-Grafik in den Canvas-Spielen (Farben stehen im
   JS) und Inline-Styles in per JS erzeugtem Markup - bei Bedarf einzeln nachziehen.
+
+## Build 39: Admin per Link, Sofort-Wartung, Startseite fuer alle, ohne Klassen
+
+Neues haengt an `isReleased(39)` / `data-build="39"` / `html.build-39-live`.
+Ausgeblendetes Altes traegt die Klasse `gone39` (CSS
+`html.build-39-live .gone39{display:none}`) - noetig, weil viele dieser
+Elemente schon `data-build="35/38"` haben und zwei Attribute sich um
+`hidden` streiten wuerden. SQL: `supabase/build39.sql`.
+
+- **Admin-Panel = eigene Seite `admin.html`.** Zusammengesetzt einmalig von
+  `tools/b39/mkadmin.py` aus dem Admin-Teil von index.html (Stand Build 38:
+  Markup, Dialoge, JS-Bereiche, dazu alle CSS-Regeln, deren Klassen/IDs
+  vorkommen) plus `tools/b39/admin-shell.html` (Schluessel-Pruefung,
+  Anmelden, Dashboard-Optik, Uebersicht, Wartungs-Schnellschalter).
+  **Ab jetzt admin.html direkt bearbeiten**, nicht neu erzeugen. Der alte
+  Admin-Code steht noch in index.html, ist aber nicht mehr erreichbar
+  (Admins sehen Build 39 sofort) - kann in einem spaeteren Build raus.
+- **Geheimer Link:** `bash tools/admin-link.sh` auf dem VPS gibt
+  `https://vokabeln.stoneuniverse.de/admin.html#k=<Schluessel>` aus
+  (`--neu` = neuer Schluessel, alter ungueltig). Der Schluessel liegt nur in
+  `~/.config/lumiere/admin-token`, im Web-Ordner nur `admin-key.json` mit
+  seinem SHA-256 (in .gitignore). admin.html vergleicht per
+  `crypto.subtle` - ohne Treffer eine normale 404-Seite. Nach dem ersten
+  Treffer merkt sich das Geraet den Schluessel (`lumiere_admin_k39`).
+  Berechtigung bleibt is_admin + RLS; die Supabase-Sitzung teilt sich
+  admin.html mit der Website (gleiche Herkunft).
+- **Wartung sofort (gilt fuer alle):** `watchSettings39()` - Realtime auf
+  `site_settings` + `loadSiteSettings()` alle 20 s und bei Tab-Rueckkehr.
+  `loadSiteSettings` wendet nur bei Aenderungen an (sonst liefe
+  `applyReleaseGate` alle 20 s). Realtime braucht build39.sql.
+- **Wartungs-Bildschirm `wartung.html`** (Glas-L aus start.html, erzeugt
+  von `tools/b39/mkwartung.py` aus `tools/b39/wartung-shell.html`; ab jetzt
+  direkt bearbeiten). index.html laedt ihn nur bei Wartung in `#maint39`
+  (z 9500, Rest `inert`) und schickt die Daten per postMessage
+  (`maint39Data`: mode full/partial, Nachricht, `maintenance_until`,
+  pausierte Bereiche). Teil-Wartung: `requireFeatureAvailable` und
+  `maint39Apply` (live; `FEAT39` ordnet Seiten den Schaltern zu). Rueckweg
+  aus dem Rahmen: `maint-go` / `maint-back`. `?vorschau=1` (&modus=teil)
+  zeigt ihn mit Beispieldaten; das Admin-Panel bettet ihn als Vorschau ein.
+  Zustand ueber `m39()` statt let (TDZ - applyMaintenanceMode laeuft frueh).
+- **Startseite fuer alle:** `renderHub()` zeigt ab 39 immer start.html.
+  `postState39()` schickt Angemeldeten Name/Kuerzel/faellige Woerter, die
+  Startseite tauscht die Knoepfe (`applyState` in ihrem Brueckenskript;
+  sie fragt mit `hello` nach). "Heute" = Ziel `today`
+  (`goToDestination('today')`). Falle: onGate38 leitete vor dem Laden des
+  Profils schon auf Heute um - `window.__redir38` + Ruecksprung in `onGate39`.
+- **Mehr-Menue** `#more39` (`openMore39`, ersetzt ueber `openNavOverlay`
+  das alte Vollbild-Menue), Serie/Coins in der Kopfleiste (`hstat39`).
+- **Politur:** Heute `renderToday39` (Woche, schwierige Woerter), Spielhalle
+  Stand-Leiste oben (+ `arc39Streak`), Konto-Reiter (`ACC39`, `accTab39`,
+  Karten per `aria-labelledby` zugeordnet), Einstellungen `setupSet39`
+  (Sprung-Leiste, `empty39` fuer leere Rubriken).
+- **Klassen/Lehrkraefte raus:** `clsReady35()`/`lessonOn35()` sind ab 39
+  falsch, `openClasses35` leitet auf Lernsets, `unclass39()` macht
+  Klassen-Sets zu normalen Sets. PDF-Export bleibt.
+- **Testen ohne Supabase:** Attrappe `tools/b39/test/supa-mock.js` (Testskripte daneben) per
+  `page.route` statt des CDN-Skripts (Tabellen im Speicher, `__mockEmit`
+  fuer Realtime). Lokal ein Test-`admin-key.json` anlegen. Konsolenmeldungen
+  "GPU stall due to ReadPixels" kommen vom veralteten Software-WebGL der
+  Testmaschine - mit `--use-angle=swiftshader --enable-unsafe-swiftshader`
+  ist die Konsole sauber.

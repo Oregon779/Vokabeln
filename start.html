@@ -90,6 +90,9 @@ html.no-loader .loader{ display:none; }
 .nav.hide{ translate:0 calc(-100% - 30px); }
 @media (min-width:1024px) and (hover:hover){ .nav{ background:rgba(17,17,17,.78); -webkit-backdrop-filter:blur(16px); backdrop-filter:blur(16px); } }
 .brand{ display:flex; align-items:center; gap:.55rem; text-decoration:none; }
+.nav .me-ini{ display:inline-grid; place-items:center; width:24px; height:24px; border-radius:50%; border:1px solid rgba(195,169,121,.5); font:500 .62rem/1 var(--mono); letter-spacing:.04em; color:var(--gold); margin-right:.5rem; }
+.nav .me-name{ max-width:9rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+@media (max-width:640px){ .nav .me-name{ display:none; } .nav .me-ini{ margin-right:0; } }
 .brand-mark{ width:28px; height:28px; border-radius:9px; background:var(--gold); display:grid; place-items:center; font:italic 400 1.2rem/1 var(--serif); color:#000000; }
 .brand b{ font-weight:600; font-size:1.05rem; letter-spacing:-.02em; }
 .nav-cta{ display:flex; gap:.4rem; }
@@ -558,7 +561,7 @@ html, .sheet{ background:var(--bg); }
       <p class="cur-alt"><a href="#ausprobieren" data-action="guest">Ohne Konto ausprobieren</a><span aria-hidden="true">·</span><a href="#anmelden" data-action="login">Anmelden</a></p>
     </div>
     <div class="cur-mid wrap">
-      <nav class="cur-nav" aria-label="Entdecken"><span class="mono">Entdecken</span><a href="#lernsets">Lernsets</a><a href="#spielhalle">Spielhalle</a><a href="#klassen">Klassen</a><a href="#konto">Mein Konto</a></nav>
+      <nav class="cur-nav" aria-label="Entdecken"><span class="mono">Entdecken</span><a href="#lernsets">Lernsets</a><a href="#spielhalle">Spielhalle</a><a href="#konto">Mein Konto</a></nav>
       <nav class="cur-nav" aria-label="Rechtliches"><span class="mono">Rechtliches</span><a href="#datenschutz">Datenschutz</a><a href="#impressum">Impressum</a></nav>
     </div>
     <div class="cur-mega" aria-hidden="true"><span class="o">Lumière</span><span class="fw" id="megaW"><span class="f" id="megaF">Lumière</span></span></div>
@@ -677,7 +680,7 @@ html, .sheet{ background:var(--bg); }
   function glassSdf(){
     if(glSdfCache) return glSdfCache;
     var S = narrow ? 320 : 512, k = S / GL_SPAN, c = document.createElement('canvas'), x, i, a, n = S * S;
-    c.width = c.height = S; x = c.getContext('2d');
+    c.width = c.height = S; x = c.getContext('2d', { willReadFrequently: true });
     x.setTransform(k, 0, 0, -k, S / 2, S / 2); x.beginPath();
     var b = [9, 9, -9, -9];
     function pt(px, py){ b[0] = Math.min(b[0], px); b[1] = Math.min(b[1], py); b[2] = Math.max(b[2], px); b[3] = Math.max(b[3], py); }
@@ -1031,7 +1034,7 @@ html, .sheet{ background:var(--bg); }
   for(var k = 0; k < BK; k++) bucketColors.push(gradAt(k / (BK - 1)));
   function sample(word){
     var off = document.createElement('canvas'); off.width = W; off.height = H;
-    var o = off.getContext('2d'), fs = H * .92;
+    var o = off.getContext('2d', { willReadFrequently: true }), fs = H * .92;
     o.font = '500 ' + fs + 'px "Cormorant Garamond"';
     var w = o.measureText(word).width;
     if(w > W * .94){ fs *= W * .94 / w; o.font = '500 ' + fs + 'px "Cormorant Garamond"'; }
@@ -1990,14 +1993,43 @@ html, .sheet{ background:var(--bg); }
   // In der App laeuft diese Seite in einem iframe. Knoepfe und Footer-Links fuehren dann nicht
   // auf Anker, sondern sagen der App Bescheid (Registrieren, Anmelden, Gast, Seitenwechsel).
   var emb = window.parent && window.parent !== window;
-  var GO = { '#lernsets':'home', '#spielhalle':'rewards', '#klassen':'classes', '#konto':'account', '#datenschutz':'about', '#impressum':'about' };
+  var GO = { '#lernsets':'home', '#spielhalle':'rewards', '#konto':'account', '#datenschutz':'about', '#impressum':'about', '#heute':'today' };
   document.addEventListener('click', function(e){
     var a = e.target.closest && e.target.closest('a'); if(!a || !emb) return;
     var act = a.getAttribute('data-action'), go = GO[a.getAttribute('href') || ''];
+    if(act === 'today'){ act = null; go = 'today'; }
+    if(act === 'mine'){ act = null; go = 'home'; }
+    if(act === 'account'){ act = null; go = 'account'; }
     if(!act && !go) return;
     e.preventDefault();
     try{ parent.postMessage({ lumiere:act || 'goto', view:go || null }, location.origin); }catch(err){}
   });
+  // Build 39: auch Angemeldete sehen diese Seite - die Knoepfe fuehren dann weiter statt zur Anmeldung.
+  var orig = null;
+  function setLabel(a, txt){ for(var i = 0; i < a.childNodes.length; i++){ var n = a.childNodes[i]; if(n.nodeType === 3 && n.textContent.trim()){ n.textContent = txt + (a.querySelector('svg') ? ' ' : ''); return; } } a.insertBefore(document.createTextNode(txt), a.firstChild); }
+  function applyState(u){
+    var all = Array.prototype.slice.call(document.querySelectorAll('[data-action]'));
+    if(!orig) orig = all.map(function(a){ return [a, a.getAttribute('data-action'), a.innerHTML]; });
+    orig.forEach(function(o){ o[0].setAttribute('data-action', o[1]); o[0].innerHTML = o[2]; });
+    document.documentElement.classList.toggle('signed-in', !!u);
+    if(!u) return;
+    var due = u.due > 0 ? ' · ' + u.due + ' fällig' : '';
+    orig.forEach(function(o){
+      var a = o[0], act = o[1], inNav = !!a.closest('.nav');
+      if(act === 'signup'){ a.setAttribute('data-action', 'today'); setLabel(a, inNav ? 'Weiter lernen' : 'Weiter lernen' + due); }
+      else if(act === 'login'){
+        a.setAttribute('data-action', 'account');
+        if(inNav){ a.innerHTML = '<span class="me-ini" aria-hidden="true"></span><span class="me-name"></span>'; a.querySelector('.me-ini').textContent = u.initials || '?'; a.querySelector('.me-name').textContent = u.name || 'Mein Konto'; a.setAttribute('aria-label', 'Mein Konto'); }
+        else setLabel(a, 'Mein Konto');
+      }
+      else if(act === 'guest'){ a.setAttribute('data-action', 'mine'); setLabel(a, 'Meine Lernsets'); }
+    });
+  }
+  window.addEventListener('message', function(e){
+    if(e.origin !== location.origin || !e.data || e.data.lumiere !== 'state') return;
+    applyState(e.data.user || null);
+  });
+  if(emb){ try{ parent.postMessage({ lumiere:'hello' }, location.origin); }catch(err){} }
 })();
 </script>
 </body>

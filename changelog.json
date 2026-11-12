@@ -1,6 +1,28 @@
 {
  "entries": [
   {
+   "build": 39,
+   "date": "2026-11-12",
+   "until": "2026-11-12",
+   "title": "Eigenes Admin-Panel per Link, Wartung greift sofort, Startseite für alle, ohne Klassen",
+   "gate": true,
+   "items": [
+    "Neu: Admin-Panel als eigene Seite admin.html – nicht mehr in der Website. Erreichbar nur über einen geheimen Link (#k=…), den der Befehl „bash tools/admin-link.sh“ auf dem VPS ausgibt; „--neu“ erzeugt einen neuen Link, der alte gilt dann nicht mehr. Der Schlüssel liegt nur auf dem Server (~/.config/lumiere/admin-token), im Web-Ordner nur sein SHA-256 (admin-key.json, nicht im Git). Ohne gültigen Link: normale Fehlseite. Danach Anmeldung mit dem Lumière-Konto (is_admin), auf dem Gerät bleibt man angemeldet.",
+    "Admin-Panel neu gestaltet nach Vorbild „V2“ in Maison-Noir-Farben: Seitenleiste mit Badges, Begrüßung, Besuche je Tag als Balkendiagramm (7/14/30 Tage, neue Konten als Punkt), KI-Kontingent als Ring, acht Kennzahl-Kacheln (Konten, Gesperrt, Online, Neu, Anfragen, Fotos, Einnahmen, öffentlicher Build), Neueste Konten, „Zu erledigen“. Oben ein Schnellschalter für die Wartung. Auf Handy/iPad wird die Seitenleiste zur Schublade. Alle bisherigen Reiter (Sitzungen, Nutzer, Abos, Profilfotos, Wartung, Spiele, Test-Mails, Changelog, Version) samt Dialogen übernommen; Lehrkräfte entfällt.",
+    "Website: kein Admin-Knopf und kein Admin-Code mehr (Einstellungen → „Erweiterter Zugriff“, Mehr-Menü → Admin-Panel/Gäste-Startseite fallen weg). Die Vorschau-Plakette öffnet admin.html.",
+    "Sofort für alle (Fehlerbehebung): Website-Einstellungen kommen live an – Realtime auf site_settings plus Abfrage alle 20 Sekunden und beim Zurückkehren in den Tab. Eine Wartung greift damit ohne Neuladen. Neu angewendet wird nur, wenn sich etwas geändert hat. SQL: supabase/build39.sql (Realtime + Spalte maintenance_until).",
+    "Hinter dem Gate (Build 39): neuer Wartungs-Bildschirm wartung.html (nur bei Wartung geladen) – warmes Schwarz, das gläserne L aus dem Ladebildschirm dreht sich, ein Lichtstreif poliert darüber, „Bonjour – wir polieren gerade.“, deine Nachricht, Countdown bis „voraussichtlich zurück“ (neu im Admin einstellbar, mit +30 Min./+1 Std./+2 Std.), Hinweis „geht von selbst weiter“. Endet die Wartung, verschwindet er live mit „Willkommen zurück“.",
+    "Build 39: Teil-Wartung (einzelne Bereiche) zeigt denselben Bildschirm statt einer kurzen Meldung – mit „Gerade pausiert“ und „Läuft weiter“ (antippbar). Geht ein Bereich in Wartung, während jemand drin ist, erscheint der Hinweis sofort; ist er fertig, öffnet sich der Bereich von selbst. Vorschau des Bildschirms direkt im Admin-Panel (auch mit ungespeicherten Werten).",
+    "Build 39: Startseite für alle – auch Angemeldete landen zuerst auf der großen Startseite. Dort heißen die Knöpfe dann „Weiter lernen · N fällig“, „Meine Lernsets“ und „Mein Konto“ (mit Kürzel). Heute ist ein eigener Punkt: Kopfleiste Startseite · Heute · Lernsets · Spielhalle · Mehr, Tab-Leiste Start · Heute · Lernsets · Spielhalle · Mehr. Das Logo führt zur Startseite.",
+    "Build 39: neues Mehr-Menü – am PC ein Aufklapper unter der Kopfleiste (zwei Spalten: Lernen, Spielen, Du, Lumière), auf Handy/iPad ein Blatt von unten. Ersetzt das alte Vollbild-Menü.",
+    "Build 39: Kopfleiste zeigt Serie und Coins (Klick → Spielhalle).",
+    "Build 39: Heute bekommt „Deine Woche“ (geübte Wörter der letzten 7 Tage mit Ziel-Linie) und „Schwierige Wörter“ (am häufigsten falsch, noch nicht sicher). Spielhalle: Coins, Serie und Tagesbelohnung stehen jetzt oben vor den Spielen. Mein Konto mit Reitern (Profil, Tarif, Nachrichten, Sicherheit; ungelesene Nachrichten als Zahl am Reiter). Einstellungen mit Sprung-Leiste; leere Rubriken (z. B. „Darstellung“ seit Build 38) verschwinden.",
+    "Build 39: Klassen und Lehrkräfte komplett raus (Kopfleiste, Tab-Leiste, Menü, Footer, Startseite, Mein Konto, Admin). Vorhandene Klassen-Sets werden zu ganz normalen eigenen Sets (bearbeitbar, Lernstand bleibt). Der Unterrichtsmodus entfällt ebenfalls; der PDF-Export für GoodNotes bleibt.",
+    "Sofort für alle: Startseite/Wartung lesen die L-Form mit willReadFrequently aus (weniger Grafik-Stocken beim Laden).",
+    "Bildzeit (Software-Renderer der Testmaschine, nur relativ): Wartungs-Bildschirm Handy 16,7 ms, iPad 50 ms, Desktop 83 ms mit automatischer Auflösung – derselbe Shader wie im Ladebildschirm. Heute, Mehr-Menü, Konto, Einstellungen: reines CSS, keine Dauer-Animation."
+   ]
+  },
+  {
    "build": 38,
    "date": "2026-11-12",
    "until": "2026-11-12",

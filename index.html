@@ -5101,6 +5101,117 @@ html.build-38-live .practice-card, html.build-38-live .card-stage, html.build-38
 html.build-38-live .set-card::before, html.build-38-live .practice-card::after, html.build-38-live .listen-free-box::before, html.build-38-live .ai-query-box::after, html.build-38-live .auth-modal-box h3::before, html.build-38-live .rewards-card::before, html.build-38-live .btn-secondary::before, html.build-38-live .btn-secondary::after, html.build-38-live .chip::before, html.build-38-live .chip::after, html.build-38-live .session-opt::before, html.build-38-live .session-opt::after, html.build-38-live .dl-feature-card::before, html.build-38-live .dl-step::before, html.build-38-live .dl-handoff-card::before, html.build-38-live .info-legal-card::before, html.build-38-live .info-hero::after, html.build-38-live .info-security-section::before, html.build-38-live .info-manifest::before{display:none !important;}
 html.build-38-live .info-security-panel::before{box-shadow:none !important; opacity:.6;}
 html.build-38-live .auth-wordmark{background:none !important; -webkit-text-fill-color:currentColor !important; color:var(--ivory) !important; font-family:var(--font-serif) !important; font-weight:500 !important;}
+/* ==================== Build 39: Wartung, Mehr-Menue, Serie/Coins, ohne Klassen ==================== */
+html.build-39-live .gone39{ display:none !important; }
+.hstat39-wrap[hidden]{ display:none !important; }
+/* Wartung: wartung.html im Rahmen ueber allem (nur der Sperr-Bildschirm liegt hoeher) */
+.maint39{ position:fixed; inset:0; z-index:9500; background:#0b0907; opacity:0; transition:opacity .45s ease; }
+.maint39.on{ opacity:1; }
+.maint39[hidden]{ display:none !important; }
+.maint39 iframe{ position:absolute; inset:0; width:100%; height:100%; border:0; display:block; background:#0b0907; }
+html.maint39-open, html.maint39-open body{ overflow:hidden !important; }
+/* Kopfleiste: Serie + Coins */
+.hstat39{ display:inline-flex; align-items:center; gap:.85rem; height:38px; padding:0 .8rem; margin-right:.5rem; border-radius:3px; border:1px solid var(--hair-2, rgba(236,228,214,.2));
+  background:transparent; color:var(--ivory, #ece4d6); font:500 .82rem/1 var(--font-sans, system-ui); cursor:pointer; transition:border-color .2s, background .2s; }
+.hstat39:hover{ border-color:rgba(236,228,214,.42); background:rgba(236,228,214,.03); }
+.hs39{ display:inline-flex; align-items:center; gap:.35rem; font-variant-numeric:tabular-nums; }
+.hs39 svg{ width:15px; height:15px; color:var(--gold, #c3a979); }
+@media (max-width:899px){ .hstat39{ height:34px; padding:0 .6rem; gap:.6rem; margin-right:.35rem; font-size:.76rem; } }
+@media (max-width:420px){ .hstat39 .hs39:last-child{ display:none; } }
+/* Mehr-Menue */
+.more39{ position:fixed; inset:0; z-index:80; }
+.more39[hidden]{ display:none !important; }
+.more39-scrim{ position:absolute; inset:0; background:rgba(5,4,3,.55); opacity:0; transition:opacity .25s ease; }
+.more39.on .more39-scrim{ opacity:1; }
+.more39-panel{ position:absolute; top:calc(var(--header-h, 64px) + 6px); right:max(16px, calc((100vw - 1240px) / 2)); width:min(600px, calc(100vw - 32px));
+  background:#13100c; border:1px solid rgba(195,169,121,.18); border-radius:6px; box-shadow:0 30px 80px -30px rgba(0,0,0,.9); padding:22px 22px 18px;
+  opacity:0; transform:translateY(-8px); transition:opacity .22s ease, transform .26s cubic-bezier(.2,.8,.2,1); }
+.more39.on .more39-panel{ opacity:1; transform:none; }
+.more39-grab{ display:none; }
+.more39-grid{ display:grid; grid-template-columns:1fr 1fr; gap:6px 22px; }
+.more39-grid section{ display:flex; flex-direction:column; gap:2px; margin-bottom:10px; }
+.more39-h{ font:500 .62rem/1 var(--font-mono, monospace); letter-spacing:.22em; text-transform:uppercase; color:var(--gold, #c3a979); margin:2px 0 8px 10px; }
+.more39-item{ display:flex; align-items:center; gap:12px; width:100%; padding:9px 10px; border-radius:4px; border:0; background:none; color:var(--ivory, #ece4d6); text-align:left; cursor:pointer; transition:background .15s; }
+.more39-item:hover, .more39-item:focus-visible{ background:rgba(236,228,214,.05); }
+.more39-item.active{ background:rgba(236,228,214,.07); }
+.more39-item svg{ width:20px; height:20px; flex:none; color:var(--stone, #a39b8e); }
+.more39-item.active svg, .more39-item:hover svg{ color:var(--gold-bright, #e6d7b8); }
+.more39-item b{ display:block; font:500 .95rem/1.25 var(--font-sans, system-ui); }
+.more39-item small{ display:block; font:400 .76rem/1.35 var(--font-sans, system-ui); color:var(--stone, #a39b8e); margin-top:1px; }
+@media (max-width:899px){
+  .more39-panel{ top:auto; right:0; left:0; bottom:0; width:auto; border-radius:14px 14px 0 0; border-bottom:0; padding:10px 16px calc(78px + env(safe-area-inset-bottom));
+    max-height:82vh; overflow-y:auto; transform:translateY(24px); }
+  .more39-grab{ display:block; width:38px; height:4px; border-radius:2px; background:rgba(236,228,214,.18); margin:2px auto 14px; }
+  .more39-grid{ grid-template-columns:1fr; gap:0; }
+  .more39-item{ padding:11px 8px; }
+}
+@media (min-width:600px) and (max-width:899px){ .more39-grid{ grid-template-columns:1fr 1fr; gap:0 18px; } }
+@media (prefers-reduced-motion:reduce){ .more39-panel, .more39-scrim, .maint39{ transition:none; } }
+/* ---- Build 39: Heute - Woche + schwierige Woerter ---- */
+.t39-row{ display:grid; grid-template-columns:minmax(0, 1.25fr) minmax(0, 1fr); gap:1px; margin:1.6rem 0 0; background:var(--hair, rgba(195,169,121,.16)); border:1px solid var(--hair, rgba(195,169,121,.16)); border-radius:6px; overflow:hidden; }
+.t39-row[hidden]{ display:none !important; }
+.t39-row > .t38-card{ border:0 !important; border-radius:0 !important; margin:0 !important; background:var(--bg, #0b0907) !important; padding:1.5rem 1.6rem 1.4rem !important; min-width:0; }
+.t39-head{ display:flex; align-items:baseline; justify-content:space-between; gap:1rem; flex-wrap:wrap; margin-bottom:2rem; }
+.t39-head .t38-label{ margin:0; }
+.t39-sum{ margin:0; font-size:.84rem; color:var(--stone, #a39b8e); }
+.t39-sum b{ color:var(--ivory, #ece4d6); font-weight:500; font-variant-numeric:tabular-nums; }
+.t39-plot{ position:relative; height:150px; display:flex; align-items:flex-end; gap:clamp(6px, 1.6vw, 18px); padding-bottom:24px; }
+.t39-goal{ position:absolute; left:0; right:0; height:0; border-top:1px dashed rgba(195,169,121,.4); margin-bottom:24px; pointer-events:none; }
+.t39-goal em{ position:absolute; right:0; top:-1.15rem; font:400 .62rem/1 var(--font-mono, monospace); letter-spacing:.12em; text-transform:uppercase; color:var(--gold, #c3a979); font-style:normal; }
+.t39-bar{ position:relative; flex:1; height:100%; display:flex; flex-direction:column; justify-content:flex-end; align-items:center; min-width:0; }
+.t39-bar i{ display:block; width:100%; max-width:38px; min-height:2px; background:rgba(236,228,214,.16); border-radius:2px 2px 0 0; transition:height .6s cubic-bezier(.2,.8,.2,1); }
+.t39-bar.done i{ background:var(--gold, #c3a979); }
+.t39-bar.today i{ box-shadow:inset 0 0 0 1px rgba(236,228,214,.5); }
+.t39-bar b{ font:500 .72rem/1 var(--font-sans, system-ui); color:var(--ivory, #ece4d6); margin-bottom:.35rem; font-variant-numeric:tabular-nums; }
+.t39-bar em{ position:absolute; bottom:-22px; font:400 .66rem/1 var(--font-mono, monospace); letter-spacing:.08em; color:var(--stone, #a39b8e); font-style:normal; white-space:nowrap; }
+.t39-bar.today em{ color:var(--ivory, #ece4d6); }
+.t39-hardlist{ display:flex; flex-direction:column; }
+.t39-hw{ display:grid; grid-template-columns:minmax(0, 1fr) minmax(0, 1fr) auto; gap:.8rem; align-items:baseline; width:100%; padding:.62rem 0; border:0; border-bottom:1px solid var(--hair, rgba(195,169,121,.16)); background:none; color:inherit; text-align:left; cursor:pointer; font:inherit; }
+.t39-hw:last-child{ border-bottom:0; }
+.t39-hw:hover .fr{ color:var(--gold-bright, #e6d7b8); }
+.t39-hw .fr{ font:italic 500 1.12rem/1.2 var(--font-serif, serif); color:var(--ivory, #ece4d6); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; transition:color .15s; }
+.t39-hw .de{ font-size:.86rem; color:var(--stone, #a39b8e); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.t39-hw .n{ font:400 .66rem/1 var(--font-mono, monospace); letter-spacing:.06em; color:#d9a090; white-space:nowrap; }
+@media (max-width:760px){
+  .t39-row{ grid-template-columns:minmax(0, 1fr); }
+  .t39-row > .t38-card{ padding:1.2rem 1.1rem 1.1rem !important; }
+  .t39-plot{ height:120px; }
+  .t39-hw{ grid-template-columns:minmax(0, 1fr) auto; }
+  .t39-hw .de{ grid-column:1; grid-row:2; margin-top:-.35rem; }
+  .t39-hw .n{ grid-column:2; grid-row:1 / span 2; align-self:center; }
+}
+/* ---- Build 39: Spielhalle - "Dein Stand" vor den Spielen ---- */
+html.build-39-live #view-rewards > .arcade-balance{ order:0 !important; margin:0 0 2.2rem !important; }
+.arc39-streak{ display:flex; align-items:center; gap:.9rem; padding-left:1.6rem; margin-left:1.6rem; border-left:1px solid var(--hair, rgba(195,169,121,.16)); }
+.arc39-streak[hidden]{ display:none !important; }
+.arc39-streak > svg{ width:30px; height:30px; color:var(--gold, #c3a979); flex:none; }
+html.build-39-live .arcade-balance-main{ flex-wrap:wrap; row-gap:.8rem; }
+@media (max-width:560px){ .arc39-streak{ padding-left:1rem; margin-left:1rem; } }
+/* ---- Build 39: Mein Konto mit Reitern ---- */
+.acc39-tabs{ display:none; }
+html.build-39-live .acc39-tabs{ display:flex; gap:.3rem; margin:0 0 1.4rem; padding:3px; border:1px solid var(--hair, rgba(195,169,121,.16)); border-radius:4px; background:rgba(0,0,0,.18); overflow-x:auto; scrollbar-width:none; }
+html.build-39-live .acc39-tabs::-webkit-scrollbar{ display:none; }
+.acc39-tabs button{ flex:1 0 auto; display:inline-flex; align-items:center; justify-content:center; gap:.45rem; border:0; background:none; color:var(--stone, #a39b8e); font:500 .88rem/1 var(--font-sans, system-ui); padding:.72rem 1rem; border-radius:3px; cursor:pointer; transition:background .15s, color .15s; }
+.acc39-tabs button:hover{ color:var(--ivory, #ece4d6); }
+.acc39-tabs button.on{ background:var(--ivory, #ece4d6); color:var(--ink, #14110d); }
+.acc39-n{ min-width:18px; height:18px; padding:0 5px; box-sizing:border-box; border-radius:9px; display:inline-grid; place-items:center; font:500 .64rem/1 var(--font-mono, monospace); font-style:normal; background:var(--gold, #c3a979); color:var(--ink, #14110d); }
+.acc39-n[hidden]{ display:none; }
+html.build-39-live #view-account[data-tab39] .acc-card[data-acc39]{ display:none; }
+html.build-39-live #view-account[data-tab39="profil"] .acc-card[data-acc39="profil"],
+html.build-39-live #view-account[data-tab39="tarif"] .acc-card[data-acc39="tarif"],
+html.build-39-live #view-account[data-tab39="nachrichten"] .acc-card[data-acc39="nachrichten"],
+html.build-39-live #view-account[data-tab39="sicherheit"] .acc-card[data-acc39="sicherheit"]{ display:block; }
+html.build-39-live #view-account[data-tab39="sicherheit"] .acc-card[data-acc39="sicherheit"][hidden],
+html.build-39-live #view-account .acc-card[data-acc39][hidden]{ display:none !important; }
+/* ---- Build 39: Einstellungen - Sprung-Leiste ---- */
+.set39-nav{ display:none; }
+html.build-39-live .set39-nav{ position:sticky; top:calc(var(--header-h, 64px) + 8px); z-index:4; display:flex; gap:.4rem; flex-wrap:nowrap; overflow-x:auto; scrollbar-width:none; margin:0 0 2rem; padding:6px; border:1px solid var(--hair, rgba(195,169,121,.16)); border-radius:4px; background:rgba(11,9,7,.94); }
+html.build-39-live .set39-nav::-webkit-scrollbar{ display:none; }
+.set39-nav button{ flex:none; border:1px solid transparent; background:none; color:var(--stone, #a39b8e); font:500 .82rem/1 var(--font-sans, system-ui); padding:.6rem .85rem; border-radius:3px; cursor:pointer; white-space:nowrap; }
+.set39-nav button:hover{ color:var(--ivory, #ece4d6); border-color:var(--hair-2, rgba(236,228,214,.2)); }
+html.build-39-live .settings-cluster.empty39{ display:none !important; }
+html.build-39-live .settings-cluster-head .rubrik{ display:none; }
+html.build-39-live .settings-grid.cols-8-4:has(> .gone39){ grid-template-columns:minmax(0, 1fr) !important; }
 </style>
 </head>
 <body>
@@ -5132,11 +5243,13 @@ html.build-38-live .auth-wordmark{background:none !important; -webkit-text-fill-
     </span>
   </button>
   <nav class="header-nav" aria-label="Hauptnavigation">
-    <button type="button" class="header-nav-item" data-goto="hub" data-build="38">Heute</button>
+    <button type="button" class="header-nav-item gone39" data-goto="hub" data-build="38">Heute</button>
+    <button type="button" class="header-nav-item" data-goto="hub" data-build="39">Startseite</button>
+    <button type="button" class="header-nav-item" data-goto="today" data-build="39">Heute</button>
     <button type="button" class="header-nav-item" data-goto="hub" data-build-old="38">Startseite</button>
     <button type="button" class="header-nav-item" data-goto="home">Lernsets</button>
     <button type="button" class="header-nav-item" data-goto="rewards" data-build="38">Spielhalle</button>
-    <button type="button" class="header-nav-item" data-goto="classes" data-build="35">Klassen</button>
+    <button type="button" class="header-nav-item gone39" data-goto="classes" data-build="35">Klassen</button>
     <button type="button" class="header-nav-item" data-goto="listen" data-build-old="38">Aussprache</button>
     <button type="button" class="header-nav-item" data-goto="grammar" data-build-old="38">Grammatik</button>
     <button type="button" class="header-nav-item" data-goto="rewards" data-build-old="38">Belohnungen</button>
@@ -5151,7 +5264,8 @@ html.build-38-live .auth-wordmark{background:none !important; -webkit-text-fill-
       <button type="button" class="lang-opt is-active" id="langDe" data-lang="de">DE</button>
       <button type="button" class="lang-opt" id="langEn" data-lang="en">EN</button>
     </div>
-    <span class="lesson35-wrap" data-build="35"><button type="button" class="lesson35-badge" id="lesson35Badge" hidden title="Unterrichtsmodus beenden" aria-label="Unterrichtsmodus an – antippen zum Beenden"><span class="lesson35-dot" aria-hidden="true"></span><span class="lesson35-txt">Unterricht</span></button></span>
+    <span class="lesson35-wrap gone39" data-build="35"><button type="button" class="lesson35-badge" id="lesson35Badge" hidden title="Unterrichtsmodus beenden" aria-label="Unterrichtsmodus an – antippen zum Beenden"><span class="lesson35-dot" aria-hidden="true"></span><span class="lesson35-txt">Unterricht</span></button></span>
+    <span class="hstat39-wrap" data-build="39"><button type="button" class="hstat39" id="hstat39" aria-label="Serie und Coins – zur Spielhalle"><span class="hs39" title="Serie"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3c.6 3.2 4.5 5.1 4.5 9.3A4.5 4.5 0 0 1 12 17a4.5 4.5 0 0 1-4.5-4.7c0-1.8.9-3 1.9-3.9.2 1.5 1 2.4 2 2.6C10.9 8.6 11.3 5.6 12 3Z"/><path d="M8 20.5h8"/></svg><b id="hs39Streak">0</b></span><span class="hs39" title="Coins"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M14.5 9.2A3 3 0 1 0 14.5 14.8M8.6 11h4.4M8.6 13h4.4"/></svg><b id="hs39Coins">0</b></span></button></span>
     <button class="account-btn" id="btnAccount" type="button" aria-label="Konto &amp; Cloud-Sync">
       <span class="account-dot" id="accountDot" aria-hidden="true"></span>
       <svg class="account-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
@@ -5184,11 +5298,39 @@ html.build-38-live .auth-wordmark{background:none !important; -webkit-text-fill-
       <li><button class="nav-overlay-item" data-goto="appDownload"><span class="idx">08</span><span class="label">App</span><span class="hint">Als App installieren</span></button></li>
       <li><button class="nav-overlay-item" data-goto="about"><span class="idx">09</span><span class="label">Über uns</span><span class="hint">Zweck, Rechte &amp; Schutz</span></button></li>
       <li><button class="nav-overlay-item" data-goto="account"><span class="idx">10</span><span class="label">Mein Konto</span><span class="hint">Profil, Tarif &amp; Passwort</span></button></li>
-      <li data-build="35"><button class="nav-overlay-item" data-goto="classes"><span class="idx">11</span><span class="label">Klassen</span><span class="hint">Gemeinsam im Unterricht lernen</span></button></li>
-      <li data-build="38" class="admin-only38"><button class="nav-overlay-item" data-goto-special38="guestStart"><span class="idx">12</span><span class="label">Gäste-Startseite</span><span class="hint">Vorschau, wie Gäste die Startseite sehen</span></button></li>
-      <li data-build="38" class="admin-only38"><button class="nav-overlay-item" data-goto-special38="admin"><span class="idx">13</span><span class="label">Admin-Panel</span><span class="hint">Betreiber-Ansicht</span></button></li>
+      <li data-build="35" class="gone39"><button class="nav-overlay-item" data-goto="classes"><span class="idx">11</span><span class="label">Klassen</span><span class="hint">Gemeinsam im Unterricht lernen</span></button></li>
+      <li data-build="38" class="admin-only38 gone39"><button class="nav-overlay-item" data-goto-special38="guestStart"><span class="idx">12</span><span class="label">Gäste-Startseite</span><span class="hint">Vorschau, wie Gäste die Startseite sehen</span></button></li>
+      <li data-build="38" class="admin-only38 gone39"><button class="nav-overlay-item" data-goto-special38="admin"><span class="idx">13</span><span class="label">Admin-Panel</span><span class="hint">Betreiber-Ansicht</span></button></li>
     </ul>
   </nav>
+</div>
+
+<div class="more39" id="more39" hidden>
+  <div class="more39-scrim" data-more39-close></div>
+  <div class="more39-panel" role="dialog" aria-modal="true" aria-label="Mehr">
+    <div class="more39-grab" aria-hidden="true"></div>
+    <div class="more39-grid">
+      <section><p class="more39-h">Lernen</p>
+        <button type="button" class="more39-item" data-goto39="today"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2"/></svg><span><b>Heute</b><small>Fällig, Ziel, Serie</small></span></button>
+        <button type="button" class="more39-item" data-goto39="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5V5.5Z"/><path d="M4 18.5A2.5 2.5 0 0 1 6.5 16H20"/></svg><span><b>Lernsets</b><small>Deine Vokabeln</small></span></button>
+        <button type="button" class="more39-item" data-goto39="listen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M15.5 9a4 4 0 0 1 0 6M18.2 6.4a7.6 7.6 0 0 1 0 11.2"/></svg><span><b>Aussprache</b><small>Hören & nachsprechen</small></span></button>
+        <button type="button" class="more39-item" data-goto39="grammar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5C6 4.5 9 4.5 12 6c3-1.5 6-1.5 8-.5v13c-2-1-5-1-8 .5-3-1.5-6-1.5-8-.5V5.5Z"/><path d="M12 6v13"/></svg><span><b>Grammatik</b><small>Regeln kurz erklärt</small></span></button>
+        <button type="button" class="more39-item" data-goto39="calendar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="16" rx="2"/><path d="M3.5 9.5h17M8 3v3M16 3v3"/></svg><span><b>Kalender</b><small>Klausuren & Lernplan</small></span></button>
+      </section>
+      <section><p class="more39-h">Spielen</p>
+        <button type="button" class="more39-item" data-goto39="rewards"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="7" width="19" height="11" rx="3"/><path d="M7 11v3M5.5 12.5h3M15.5 11.5h.01M18 13.5h.01"/></svg><span><b>Spielhalle</b><small>Spiele, Coins, Rangliste</small></span></button>
+      </section>
+      <section><p class="more39-h">Du</p>
+        <button type="button" class="more39-item" data-goto39="account"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8.5" r="3.5"/><path d="M5 20c1.2-3.6 3.8-5.4 7-5.4s5.8 1.8 7 5.4"/></svg><span><b>Mein Konto</b><small>Profil, Tarif, Nachrichten</small></span></button>
+        <button type="button" class="more39-item" data-goto39="settingsPage"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg><span><b>Einstellungen</b><small>Klang, Lernen, Daten</small></span></button>
+      </section>
+      <section><p class="more39-h">Lumière</p>
+        <button type="button" class="more39-item" data-goto39="hub"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10.5 12 4l8 6.5V20h-5.5v-5.5h-5V20H4Z"/></svg><span><b>Startseite</b><small>Zurück zum Anfang</small></span></button>
+        <button type="button" class="more39-item" data-goto39="appDownload"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M11 18.5h2"/></svg><span><b>Als App</b><small>Auf den Homebildschirm</small></span></button>
+        <button type="button" class="more39-item" data-goto39="about"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.5M12 7.5h.01"/></svg><span><b>Über uns</b><small>Zweck, Rechte, Schutz</small></span></button>
+      </section>
+    </div>
+  </div>
 </div>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
@@ -5198,7 +5340,13 @@ html.build-38-live .auth-wordmark{background:none !important; -webkit-text-fill-
   </defs>
 </svg>
 <nav class="quick-nav" id="quickNav" aria-label="Schnellzugriff" hidden>
-  <button type="button" class="quick-nav-item" data-goto="hub" aria-label="Heute" title="Heute" data-build="38">
+  <button type="button" class="quick-nav-item" data-goto="hub" aria-label="Startseite" title="Startseite" data-build="39">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10.5 12 4l8 6.5V20h-5.5v-5.5h-5V20H4Z"/></svg><span class="qn-l">Start</span>
+  </button>
+  <button type="button" class="quick-nav-item" data-goto="today" aria-label="Heute" title="Heute" data-build="39">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/></svg><span class="qn-l">Heute</span>
+  </button>
+  <button type="button" class="quick-nav-item gone39" data-goto="hub" aria-label="Heute" title="Heute" data-build="38">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/></svg><span class="qn-l">Heute</span>
   </button>
   <button type="button" class="quick-nav-item" data-goto="home" aria-label="Lernsets" title="Lernsets">
@@ -5210,7 +5358,7 @@ html.build-38-live .auth-wordmark{background:none !important; -webkit-text-fill-
   <button type="button" class="quick-nav-item" data-goto="rewards" aria-label="Belohnungen" title="Belohnungen">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 5.5L19 10l-5.2 1.5L12 17l-1.8-5.5L5 10l5.2-1.5L12 3Z"/></svg><span class="qn-l">Spielhalle</span>
   </button>
-  <button type="button" class="quick-nav-item" data-goto="classes" aria-label="Klassen" title="Klassen" data-build="38">
+  <button type="button" class="quick-nav-item gone39" data-goto="classes" aria-label="Klassen" title="Klassen" data-build="38">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8.5" r="3"/><path d="M3.5 19c.7-3 2.9-4.6 5.5-4.6s4.8 1.6 5.5 4.6"/><circle cx="16.5" cy="9.5" r="2.4"/><path d="M15.6 14.6c2.3.1 4.1 1.6 4.8 4.4"/></svg><span class="qn-l">Klassen</span>
   </button>
   <button type="button" class="quick-nav-item" data-goto="grammar" data-build-old="38" aria-label="Grammatik" title="Grammatik">
@@ -5559,6 +5707,9 @@ html.build-38-live .auth-wordmark{background:none !important; -webkit-text-fill-
   </div>
 </div>
 
+<!-- Build 39: Wartung als eigener Bildschirm (wartung.html), nur bei Wartung geladen -->
+<div class="maint39" id="maint39" hidden><iframe id="maint39Frame" title="Lumière – Wartung"></iframe></div>
+
 <div class="maintenance-overlay" id="maintenanceOverlay" hidden>
   <div class="maintenance-box">
     <span class="maintenance-icon" aria-hidden="true">🛠️</span>
@@ -5620,6 +5771,16 @@ html.build-38-live .auth-wordmark{background:none !important; -webkit-text-fill-
           <p class="t38-ex-t" id="t38ExamT"></p>
           <p class="t38-note" id="t38ExamNote"></p>
         </article>
+      </div>
+      <div class="t39-row" data-build="39">
+        <section class="t38-card t39-week" aria-labelledby="t39WeekH">
+          <div class="t39-head"><p class="t38-label" id="t39WeekH">Deine Woche</p><p class="t39-sum"><b id="t39WeekSum">0</b> Wörter · Ziel an <b id="t39WeekGoal">0</b> von 7 Tagen</p></div>
+          <div class="t39-plot" id="t39Bars" role="img" aria-label="Geübte Wörter der letzten sieben Tage"></div>
+        </section>
+        <section class="t38-card t39-hard" aria-labelledby="t39HardH">
+          <div class="t39-head"><p class="t38-label" id="t39HardH">Schwierige Wörter</p><button type="button" class="t38-link" data-goto38="home">Alle Sets</button></div>
+          <div class="t39-hardlist" id="t39Hard"></div>
+        </section>
       </div>
       <section class="t38-sec" aria-labelledby="t38SetsH">
         <div class="t38-sec-head"><h2 id="t38SetsH">Deine Sets</h2><button type="button" class="t38-link" data-goto38="home">Alle ansehen</button></div>
@@ -6352,6 +6513,7 @@ html.build-38-live .auth-wordmark{background:none !important; -webkit-text-fill-
           <div class="arcade-balance-num" id="arcadeCoinCount">0</div>
           <div class="arcade-balance-label">Coins verfügbar</div>
         </div>
+        <div class="arc39-streak" data-build="39"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3c.6 3.2 4.5 5.1 4.5 9.3A4.5 4.5 0 0 1 12 17a4.5 4.5 0 0 1-4.5-4.7c0-1.8.9-3 1.9-3.9.2 1.5 1 2.4 2 2.6C10.9 8.6 11.3 5.6 12 3Z"/><path d="M8 20.5h8"/></svg><div><div class="arcade-balance-num" id="arc39Streak">0</div><div class="arcade-balance-label">Tage Serie</div></div></div>
       </div>
       <div class="arcade-daily">
         <button type="button" class="btn btn-primary btn-small" id="btnClaimDaily">🎁 Tagesbelohnung</button>
@@ -6572,7 +6734,7 @@ html.build-38-live .auth-wordmark{background:none !important; -webkit-text-fill-
       </div>
     </div>
 
-    <div class="settings-cluster" data-build="35">
+    <div class="settings-cluster gone39" data-build="35">
       <div class="settings-cluster-head"><span class="rubrik">Unterricht</span><h2>Lernen in der Schule</h2></div>
       <div class="settings-card">
         <div class="settings-card-head">
@@ -6604,7 +6766,7 @@ html.build-38-live .auth-wordmark{background:none !important; -webkit-text-fill-
           <input type="file" id="importAllFile" accept="application/json" hidden>
         </div>
 
-        <div class="settings-card">
+        <div class="settings-card gone39">
           <div class="settings-card-head">
             <span class="settings-card-icon"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="15" r="4.5"/><path d="M11.5 12 20 3.5M17 6l2.5 2.5M14 9l2 2"/></svg></span>
             <p class="settings-title">Erweiterter Zugriff</p>
@@ -7148,7 +7310,7 @@ html.build-38-live .auth-wordmark{background:none !important; -webkit-text-fill-
         <button type="button" class="btn btn-secondary acc-btn-wide" id="authSignOutBtn">Abmelden</button>
       </section>
 
-      <section class="acc-card" id="accTeach35" data-build="35" aria-labelledby="accTeach35Title">
+      <section class="acc-card gone39" id="accTeach35" data-build="35" aria-labelledby="accTeach35Title">
         <div class="acc-card-head"><h2 class="acc-card-title" id="accTeach35Title">Lehrkraft</h2></div>
         <div id="accTeach35Body"></div>
       </section>
@@ -7228,7 +7390,7 @@ html.build-38-live .auth-wordmark{background:none !important; -webkit-text-fill-
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="m3.5 7 8.5 6 8.5-6"/></svg>
                 Test-E-Mails
               </button>
-              <button type="button" class="admin-nav-item" data-admin-tab="teachers" data-build="35">
+              <button type="button" class="admin-nav-item gone39" data-admin-tab="teachers" data-build="35">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9.5 12 5l9 4.5-9 4.5z"/><path d="M7 11.5v4.2c1.4 1.3 3.1 2 5 2s3.6-.7 5-2v-4.2"/></svg>
                 Lehrkräfte
                 <span class="admin-nav-badge" id="adminNavBadgeTeach" hidden>0</span>
@@ -7597,7 +7759,7 @@ html.build-38-live .auth-wordmark{background:none !important; -webkit-text-fill-
         <button type="button" data-goto="hub" data-build="38">Heute</button>
         <button type="button" data-goto="home">Lernsets</button>
         <button type="button" data-goto="rewards" data-build="38">Spielhalle</button>
-        <button type="button" data-goto="classes" data-build="35">Klassen</button>
+        <button type="button" class="gone39" data-goto="classes" data-build="35">Klassen</button>
         <button type="button" data-goto="listen">Aussprache</button>
         <button type="button" data-goto="grammar">Grammatik</button>
         <button type="button" data-goto="rewards" data-build-old="38">Belohnungen</button>
@@ -7634,7 +7796,7 @@ html.build-38-live .auth-wordmark{background:none !important; -webkit-text-fill-
       unten) - neue, noch nicht "veroeffentlichte" Features hinter
       isReleased(N) verstecken; Admins sehen sie trotzdem sofort.
    ============================================================ */
-const APP_VERSION = 38;
+const APP_VERSION = 39;
 
 // Handy und iPad (Build 31): ein schlanker Modus fuer alle Nutzer - keine
 // Hintergrund-Weichzeichner (backdrop-filter ueber der bewegten 3D-Ebene
@@ -7722,6 +7884,7 @@ function applyReleaseGate(){
     if(label) label.textContent = `Vorschau · Build ${APP_VERSION} (öffentlich: ${liveBuild})`;
   }
   try{ if(typeof onGate38 === 'function') onGate38(); }catch(e){ console.warn(e); }
+  try{ if(typeof onGate39 === 'function') onGate39(); }catch(e){ console.warn(e); }
 }
 
 /* ============================================================
@@ -9425,7 +9588,9 @@ async function loadSiteSettings(){
   try{
     const { data, error } = await sb.from('site_settings').select('*').eq('id', 1).maybeSingle();
     if(error){ console.error('Website-Einstellungen konnten nicht geladen werden:', error.message); return; }
+    const before = siteSettings ? JSON.stringify(siteSettings) : '';
     siteSettings = data;
+    if(before && before === JSON.stringify(data)) return;
     applyMaintenanceMode();
     applyReleaseGate();
   }catch(e){ console.error('Website-Einstellungen konnten nicht geladen werden:', e.message); }
@@ -9524,6 +9689,13 @@ function applyMaintenanceMode(){
   const overlay = document.getElementById('maintenanceOverlay');
   if(!overlay || !siteSettings) return;
   const isAdmin = !!(currentProfile && currentProfile.is_admin);
+  // Build 39: eigener Bildschirm (wartung.html), auch fuer einzelne Bereiche, live.
+  if(isReleased(39)){
+    overlay.hidden = true;
+    maint39Apply(isAdmin);
+    if(window.lumiereUpdateRecheck) window.lumiereUpdateRecheck();
+    return;
+  }
   if(siteSettings.maintenance_mode && !isAdmin){
     overlay.hidden = false;
     document.getElementById('maintenanceMessage').textContent =
@@ -10249,6 +10421,7 @@ function renderAdminVersionTab(){
 // Klick auf die Vorschau-Plakette fuehrt direkt dorthin, wo man freigibt.
 document.getElementById('previewBadge').addEventListener('click', () => {
   sndClick();
+  if(isReleased(39)){ window.open('admin.html', '_blank', 'noopener'); return; }
   openAdminPanel();
   switchAdminTab('version');
   renderAdminVersionTab();
@@ -10438,6 +10611,7 @@ function requireAccountFor(viewKey, label){
 function requireFeatureAvailable(viewKey, label){
   if(currentProfile && currentProfile.is_admin) return true;
   if(siteSettings && siteSettings.feature_maintenance && siteSettings.feature_maintenance[viewKey]){
+    if(isReleased(39)){ showMaint39('partial', viewKey); return false; }
     showToast(`🛠️ ${label} ist gerade in Wartung — schau später wieder vorbei.`, true);
     return false;
   }
@@ -13448,12 +13622,12 @@ const views = {
 };
 let currentSetId = null;
 let currentNavId = 'hub';
-const NAV_SUB_LABELS = { hub: 'Startseite', home: 'Lernsets', rewards: 'Belohnungen', grammar: 'Grammatik', listen: 'Sprechen', settingsPage: 'Einstellungen', calendar: 'Kalender', appDownload: 'App installieren', about: 'Über uns', admin: 'Admin-Panel', account: 'Mein Konto' };
+const NAV_SUB_LABELS = { hub: 'Startseite', today: 'Heute', home: 'Lernsets', rewards: 'Belohnungen', grammar: 'Grammatik', listen: 'Sprechen', settingsPage: 'Einstellungen', calendar: 'Kalender', appDownload: 'App installieren', about: 'Über uns', admin: 'Admin-Panel', account: 'Mein Konto' };
 const QUICKNAV_HIDDEN_VIEWS = new Set(['hub', 'practice', 'match', 'results', 'game', 'appDownload', 'about', 'admin', 'arcadeGame']);
 // --- Reload-Persistenz: merkt sich die zuletzt besuchte (sinnvoll wiederherstellbare) Ansicht ---
 const LAST_VIEW_KEY = 'lumiere_last_view';
 const ADMIN_UNLOCKED_KEY = 'lumiere_admin_unlocked';
-const RESTORABLE_VIEWS = new Set(['hub', 'home', 'set', 'rewards', 'grammar', 'listen', 'calendar', 'settingsPage', 'appDownload', 'about', 'admin', 'account']);
+const RESTORABLE_VIEWS = new Set(['hub', 'today', 'home', 'set', 'rewards', 'grammar', 'listen', 'calendar', 'settingsPage', 'appDownload', 'about', 'admin', 'account']);
 let SAVED_VIEW_ON_LOAD = null;
 try{ SAVED_VIEW_ON_LOAD = JSON.parse(sessionStorage.getItem(LAST_VIEW_KEY) || 'null'); }catch(e){}
 function persistLastView(name, adminTab){
@@ -13503,7 +13677,9 @@ function restoreLastView(){
     if(saved.setId && getSet(saved.setId)) renderSetDetail(saved.setId);
     return;
   }
+  if(saved.view === 'today'){ if(isReleased(38)) renderToday38(); return; }
   if(saved.view === 'admin'){
+    if(isReleased(39)) return;   // Build 39: das Admin-Panel ist eine eigene Seite (admin.html)
     let unlocked = false;
     try{ unlocked = localStorage.getItem(ADMIN_UNLOCKED_KEY) === '1'; }catch(e){}
     if(unlocked){ openAdminPanel(); switchAdminTab(saved.adminTab || 'overview'); }
@@ -13550,6 +13726,7 @@ function updateNavActiveStates(){
 }
 
 function openNavOverlay(){
+  if(isReleased(39)){ openMore39(); return; }
   if(!navOverlay.classList.contains('open')) sndMenuOpen();
   navOverlay.classList.add('open');
   btnMenu.classList.add('open');
@@ -13574,7 +13751,9 @@ document.addEventListener('keydown', (e) => { if(e.key === 'Escape' && document.
 btnBrand.addEventListener('click', () => { sndClick(); closeNavOverlay(); renderHub(); });
 
 function goToDestination(target){
+  window.__redir38 = false;
   if(target === 'hub') renderHub();
+  else if(target === 'today') renderToday38();
   else if(target === 'home') renderHome();
   else if(target === 'rewards') renderRewards();
   else if(target === 'grammar') openGrammar();
@@ -14505,6 +14684,8 @@ const CINE_PAIRS = [
 
 function renderHub(){
   if(lessonOn35()){ renderHome(); return; }
+  // Build 39: alle sehen zuerst die Startseite; "Heute" ist ein eigener Punkt
+  if(isReleased(39)){ showGuestStart38(false); postState39(); return; }
   // Build 38: Angemeldete landen auf "Heute", Gaeste auf der neuen Startseite
   if(isReleased(38)){ if(currentUser) renderToday38(); else showGuestStart38(false); return; }
   showView('hub');
@@ -14545,7 +14726,7 @@ function practiceSet38(setId){
 function renderToday38(){
   guestPreview38 = false;
   showView('today');
-  currentNavId = 'hub';
+  currentNavId = isReleased(39) ? 'today' : 'hub';
   updateNavActiveStates();
   const $t = (id) => document.getElementById(id);
   const now = new Date(), h = now.getHours();
@@ -14610,6 +14791,7 @@ function renderToday38(){
       + (x.due ? `<span class="t38-set-due">${x.due} fällig</span>` : '')
       + `</p></div><button type="button" class="btn ${x.due ? 'btn-primary' : 'btn-secondary'}" data-practice38="${escapeHtml(String(x.s.id))}">${x.due ? 'Üben' : 'Öffnen'}</button></div>`;
   }).join('') : '<p class="t38-empty">Noch keine Lernsets – leg unter „Lernsets“ dein erstes an.</p>';
+  try{ if(isReleased(39)) renderToday39(); }catch(e){ console.warn(e); }
 }
 function showGuestStart38(preview){
   guestPreview38 = !!preview;
@@ -14653,7 +14835,7 @@ function onGate38(){
   if(window.cineFieldStop) window.cineFieldStop();
   try{ musicSync(); }catch(e){}
   try{ applySettingsToUI(); }catch(e){}
-  if(lastShownView === 'hub' && !guestPreview38 && currentUser) renderToday38();
+  if(lastShownView === 'hub' && !guestPreview38 && currentUser && !isReleased(39)){ renderToday38(); window.__redir38 = true; }
   else if(lastShownView === 'hub' && !currentUser) showGuestStart38(false);
 }
 
@@ -14682,6 +14864,290 @@ document.addEventListener('visibilitychange', musicSync);
 ['pointerdown', 'keydown'].forEach(t => window.addEventListener(t, () => { if(musicWanted() && !music.playing) musicStart(); }, { passive: true }));
 updateMusicUI();
 document.getElementById('btnHubContinue').addEventListener('click', () => { sndCineEnter(); renderHome(); });
+
+// ==================== Build 39: Wartung sofort, Startseite zuerst, Mehr-Menue, ohne Klassen ====================
+// Alles Neue haengt an isReleased(39). Sofort fuer alle gilt nur: Website-Einstellungen kommen live an
+// (Realtime auf site_settings + Abfrage alle 20 s), damit eine Wartung nicht erst nach dem Neuladen greift.
+// Zustand ueber eine Funktion statt let/const: applyMaintenanceMode() kann vor diesem Block laufen (TDZ).
+function m39(){ return window.__m39 || (window.__m39 = { ch: null, poll: 0, mode: null, feature: null, ready: false }); }
+// Welche Seite zu welchem Wartungs-Schalter gehoert (Schluessel wie im Admin unter "Einzelne Bereiche")
+var FEAT39 = { home: 'home', set: 'home', sessionSetup: 'home', practice: 'home', match: 'home', results: 'home',
+  listen: 'listen', rewards: 'rewards', arcadeGame: 'rewards', game: 'rewards', grammar: 'grammar', calendar: 'calendar', appDownload: 'appDownload', about: 'about' };
+function featName39(key){
+  return { home: 'Die Lernsets', listen: 'Die Aussprache', rewards: 'Die Spielhalle', grammar: 'Die Grammatik', calendar: 'Der Kalender', appDownload: 'Die App-Seite', about: 'Die Über-uns-Seite' }[key] || 'Dieser Bereich';
+}
+function maint39Data(mode, feature){
+  const ss = siteSettings || {}, fm = ss.feature_maintenance || {};
+  return {
+    lumiere: 'maint', mode, feature: feature || null, label: feature ? featName39(feature) : '', plural: feature === 'home',
+    message: ss.maintenance_message || '', until: ss.maintenance_until || null,
+    paused: Object.keys(fm).filter(k => fm[k]),
+    features: ADMIN_FEATURE_LIST.map(f => ({ key: f.key, label: f.key === 'rewards' ? 'Spielhalle' : f.label })),
+  };
+}
+function setInert39(on){
+  for(const el of document.body.children){
+    if(el.id === 'maint39' || el.id === 'banScreen' || el.id === 'toast' || el.tagName === 'SCRIPT') continue;
+    el.inert = on;
+  }
+}
+function showMaint39(mode, feature){
+  const st = m39(), box = document.getElementById('maint39'), fr = document.getElementById('maint39Frame');
+  if(!box || !fr) return;
+  if(!mode){
+    if(box.hidden) return;
+    st.mode = null; st.feature = null;
+    box.classList.remove('on');
+    setInert39(false);
+    document.documentElement.classList.remove('maint39-open');
+    setTimeout(() => { if(!st.mode){ box.hidden = true; fr.removeAttribute('src'); st.ready = false; } }, 500);
+    return;
+  }
+  const fresh = !st.mode;
+  st.mode = mode; st.feature = feature || null;
+  box.hidden = false;
+  requestAnimationFrame(() => box.classList.add('on'));
+  setInert39(true);
+  document.documentElement.classList.add('maint39-open');
+  if(!fr.getAttribute('src')){ st.ready = false; fr.setAttribute('src', 'wartung.html?embed=1&v=' + APP_VERSION); }
+  else if(st.ready && fr.contentWindow) fr.contentWindow.postMessage(maint39Data(mode, feature), location.origin);
+  if(fresh){
+    try{ stopAllGames(); }catch(e){}
+    try{ musicStop(); }catch(e){}
+    try{ closeNavOverlay(); closeMore39(); }catch(e){}
+    if('speechSynthesis' in window) speechSynthesis.cancel();
+  }
+}
+// Entscheidet bei jeder Aenderung der Einstellungen neu (auch live, ohne Neuladen).
+function maint39Apply(isAdmin){
+  const st = m39(), ss = siteSettings || {};
+  if(isAdmin){ showMaint39(null); return; }
+  if(ss.maintenance_mode){ showMaint39('full'); return; }
+  const fm = ss.feature_maintenance || {};
+  if(st.mode === 'full'){
+    showMaint39(null);
+    const cur = FEAT39[lastShownView];
+    if(cur && fm[cur]){ showMaint39('partial', cur); return; }
+    showToast('Willkommen zurück – alles läuft wieder.');
+    return;
+  }
+  if(st.mode === 'partial'){
+    const f = st.feature;
+    if(f && !fm[f]){ showMaint39(null); showToast(featName39(f) + (f === 'home' ? ' sind' : ' ist') + ' wieder da.'); goToDestination(f); return; }
+    showMaint39('partial', f);
+    return;
+  }
+  // Geht der Bereich in Wartung, in dem man gerade ist: sofort der Hinweis
+  const cur = FEAT39[lastShownView];
+  if(cur && fm[cur]) showMaint39('partial', cur);
+}
+window.addEventListener('message', (e) => {
+  if(e.origin !== location.origin || !e.data || typeof e.data.lumiere !== 'string') return;
+  const st = m39(), a = e.data.lumiere, fr = document.getElementById('maint39Frame');
+  if(a === 'maint-ready' && fr && e.source === fr.contentWindow){
+    st.ready = true;
+    if(st.mode) fr.contentWindow.postMessage(maint39Data(st.mode, st.feature), location.origin);
+  } else if(a === 'maint-go' && st.mode === 'partial'){
+    showMaint39(null); goToDestination(e.data.view);
+  } else if(a === 'maint-back' && st.mode === 'partial'){
+    const f = st.feature;
+    showMaint39(null);
+    if(FEAT39[lastShownView] === f) goToDestination(currentUser ? 'today' : 'hub');
+  } else if(a === 'hello'){
+    postState39();
+  }
+});
+
+// ---- Live-Einstellungen (sofort fuer alle) ----
+function watchSettings39(){
+  const st = m39();
+  if(!sb || st.ch) return;
+  try{
+    st.ch = sb.channel('lumiere-settings')
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'site_settings' }, (pl) => {
+        if(!pl || !pl.new || pl.new.id !== 1) return;
+        const before = siteSettings ? JSON.stringify(siteSettings) : '';
+        siteSettings = Object.assign({}, siteSettings || {}, pl.new);
+        if(before !== JSON.stringify(siteSettings)){ applyMaintenanceMode(); applyReleaseGate(); }
+      })
+      .subscribe();
+  }catch(e){ st.ch = { failed: true }; }
+  // Netz unter dem Netz: Realtime kann (Firmen-WLAN, Energiesparen) wegbrechen.
+  st.poll = setInterval(() => { if(!document.hidden) loadSiteSettings(); }, 20000);
+  document.addEventListener('visibilitychange', () => { if(!document.hidden) loadSiteSettings(); });
+  window.addEventListener('online', () => loadSiteSettings());
+}
+
+// ---- Klassen-Sets werden normale Sets ----
+function unclass39(){
+  if(!isReleased(39) || !store || !Array.isArray(store.sets)) return;
+  let ch = false;
+  store.sets.forEach(s => {
+    if(s.classSetId || s.classId || s.readOnly || s.className){ delete s.classSetId; delete s.classId; delete s.className; delete s.readOnly; ch = true; }
+  });
+  if(ch){ saveData(store); try{ if(views.home && !views.home.hidden) renderHome(); }catch(e){} }
+}
+
+// ---- Startseite: Angemeldete sehen sie auch, mit "Weiter lernen" ----
+function postState39(){
+  const f = document.getElementById('hub38Frame');
+  if(!f || !f.contentWindow || !f.getAttribute('src')) return;
+  let user = null;
+  if(currentUser && isReleased(39)){
+    const name = (currentProfile && currentProfile.display_name) || (currentUser.email || '').split('@')[0] || '';
+    let due = 0;
+    try{ (store.sets || []).forEach(s => s.pairs.forEach(p => { if(isPairDue(p)) due++; })); }catch(e){}
+    user = { name, initials: lbInitials(name), due };
+  }
+  try{ f.contentWindow.postMessage({ lumiere: 'state', user }, location.origin); }catch(e){}
+}
+
+// ---- Kopfleiste: Serie + Coins ----
+function updateHeaderStats39(){
+  const s = document.getElementById('hs39Streak'), c = document.getElementById('hs39Coins');
+  if(!s || !c) return;
+  try{ s.textContent = computeCurrentStreak(); }catch(e){}
+  try{ c.textContent = getCoins(); }catch(e){}
+}
+document.getElementById('hstat39').addEventListener('click', () => { sndClick(); renderRewards(); });
+window.addEventListener('lumiere:viewchange', updateHeaderStats39);
+
+// ---- Mehr-Menue: Aufklapper (PC) bzw. Blatt von unten (Handy/iPad) ----
+function openMore39(){
+  const m = document.getElementById('more39');
+  if(!m || !m.hidden) return closeMore39();
+  try{ sndMenuOpen(); }catch(e){}
+  m.querySelectorAll('[data-goto39]').forEach(b => b.classList.toggle('active', b.dataset.goto39 === currentNavId));
+  m.hidden = false;
+  requestAnimationFrame(() => m.classList.add('on'));
+  document.querySelectorAll('[data-more38], #quickNavMenu, #btnMenu').forEach(b => b.setAttribute('aria-expanded', 'true'));
+}
+function closeMore39(){
+  const m = document.getElementById('more39');
+  if(!m || m.hidden) return;
+  m.classList.remove('on');
+  document.querySelectorAll('[data-more38], #quickNavMenu, #btnMenu').forEach(b => b.setAttribute('aria-expanded', 'false'));
+  setTimeout(() => { if(!m.classList.contains('on')) m.hidden = true; }, 260);
+}
+document.getElementById('more39').addEventListener('click', (e) => {
+  const it = e.target.closest('[data-goto39]');
+  if(it){ sndClick(); closeMore39(); goToDestination(it.dataset.goto39); return; }
+  if(e.target.closest('[data-more39-close]')) closeMore39();
+});
+document.addEventListener('keydown', (e) => { if(e.key === 'Escape') closeMore39(); });
+window.addEventListener('lumiere:viewchange', closeMore39);
+
+// Nach jedem Gate-Wechsel
+function onGate39(){
+  if(!isReleased(39)) return;
+  // Build 38 hat vor dem Laden des Profils schon von der Startseite auf "Heute" umgeleitet - zurueck.
+  if(window.__redir38 && lastShownView === 'today'){ window.__redir38 = false; renderHub(); }
+  unclass39();
+  updateHeaderStats39();
+  postState39();
+}
+
+// ---- Build 39: Heute - Woche und schwierige Woerter ----
+function renderToday39(){
+  const plot = document.getElementById('t39Bars');
+  if(!plot) return;
+  const dp = store.dailyProgress || {}, goal = (store.settings && store.settings.dailyGoal) || 20;
+  const wk = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'], days = [];
+  for(let i = 6; i >= 0; i--){ const d = new Date(); d.setDate(d.getDate() - i); days.push({ d, v: dp[todayKey(d)] || 0 }); }
+  const max = Math.max(goal * 1.15, ...days.map(x => x.v), 1);
+  plot.innerHTML = `<span class="t39-goal" style="bottom:${(goal / max * 100).toFixed(1)}%"><em>Ziel ${goal}</em></span>` + days.map((x, i) =>
+    `<div class="t39-bar${i === 6 ? ' today' : ''}${x.v >= goal ? ' done' : ''}"><b>${x.v || ''}</b><i style="height:${(x.v / max * 100).toFixed(1)}%"></i><em>${i === 6 ? 'Heute' : wk[x.d.getDay()]}</em></div>`).join('');
+  document.getElementById('t39WeekSum').textContent = days.reduce((a, x) => a + x.v, 0);
+  document.getElementById('t39WeekGoal').textContent = days.filter(x => x.v >= goal).length;
+  // Woerter, die oft falsch waren (und noch nicht sicher sitzen)
+  const hard = [];
+  (store.sets || []).forEach(s => s.pairs.forEach(p => {
+    const st = ensurePairStats(p);
+    if(st.wrong > 0 && st.box < 4) hard.push({ p, s, score: st.wrong * 2 - st.correct, wrong: st.wrong });
+  }));
+  hard.sort((a, b) => b.score - a.score || b.wrong - a.wrong);
+  const box = document.getElementById('t39Hard');
+  box.innerHTML = hard.length ? hard.slice(0, 5).map(x =>
+    `<button type="button" class="t39-hw" data-practice38="${escapeHtml(String(x.s.id))}"><span class="fr">${escapeHtml(x.p.fr)}</span><span class="de">${escapeHtml(x.p.de)}</span><span class="n">${x.wrong}× falsch</span></button>`).join('')
+    : '<p class="t38-empty">Noch keine – sobald du übst, stehen hier die Wörter, die dir am schwersten fallen.</p>';
+}
+
+// ---- Build 39: Spielhalle - Serie in der Stand-Leiste ----
+window.addEventListener('lumiere:viewchange', (e) => {
+  if(!e.detail || e.detail.view !== 'rewards') return;
+  const el = document.getElementById('arc39Streak');
+  if(el) try{ el.textContent = computeCurrentStreak(); }catch(err){}
+});
+
+// ---- Build 39: Mein Konto mit Reitern ----
+var ACC39 = { profil: ['accProfileTitle', 'accSyncTitle'], tarif: ['accUsageTitle', 'accPlansTitle'], nachrichten: ['accMsgTitle'], sicherheit: ['accPwViewTitle', 'accSecTitle', 'accDangerTitle'] };
+function setupAcc39(){
+  const view = document.getElementById('view-account');
+  if(!view || view.querySelector('.acc39-tabs')) return;
+  Object.keys(ACC39).forEach(tab => ACC39[tab].forEach(id => {
+    const card = view.querySelector(`.acc-card[aria-labelledby="${id}"]`);
+    if(card) card.setAttribute('data-acc39', tab);
+  }));
+  const bar = document.createElement('div');
+  bar.className = 'acc39-tabs';
+  bar.setAttribute('role', 'tablist');
+  bar.innerHTML = [['profil', 'Profil'], ['tarif', 'Tarif'], ['nachrichten', 'Nachrichten'], ['sicherheit', 'Sicherheit']]
+    .map(([k, l]) => `<button type="button" role="tab" data-acc39tab="${k}">${l}${k === 'nachrichten' ? '<i class="acc39-n" hidden></i>' : ''}</button>`).join('');
+  const head = view.querySelector('.acc-hero') || view.querySelector('.acc-wrap > *');
+  head.insertAdjacentElement('afterend', bar);
+  bar.addEventListener('click', (e) => { const b = e.target.closest('[data-acc39tab]'); if(b){ sndClick(); accTab39(b.dataset.acc39tab); } });
+}
+function accTab39(tab){
+  const view = document.getElementById('view-account');
+  if(!view) return;
+  view.setAttribute('data-tab39', tab);
+  view.querySelectorAll('[data-acc39tab]').forEach(b => { const on = b.dataset.acc39tab === tab; b.classList.toggle('on', on); b.setAttribute('aria-selected', on ? 'true' : 'false'); });
+  try{ sessionStorage.setItem('lumiere_acc_tab39', tab); }catch(e){}
+}
+window.addEventListener('lumiere:viewchange', (e) => {
+  if(!e.detail || e.detail.view !== 'account' || !isReleased(39)) return;
+  setupAcc39();
+  let t = 'profil';
+  try{ t = sessionStorage.getItem('lumiere_acc_tab39') || 'profil'; }catch(err){}
+  // ungelesene Nachrichten: Zahl am Reiter
+  const cnt = document.getElementById('accMsgCount'), n = document.querySelector('.acc39-n');
+  if(n && cnt){ n.hidden = cnt.hidden || !cnt.textContent.trim(); n.textContent = cnt.textContent.trim(); }
+  accTab39(ACC39[t] ? t : 'profil');
+});
+
+// ---- Build 39: Einstellungen - Sprung-Leiste, leere Rubriken weg ----
+function setupSet39(){
+  const view = document.getElementById('view-settings');
+  if(!view) return;
+  const clusters = [...view.querySelectorAll('.settings-cluster')];
+  clusters.forEach(c => {
+    const cards = [...c.querySelectorAll('.settings-card')];
+    c.classList.toggle('empty39', cards.length > 0 && cards.every(k => getComputedStyle(k).display === 'none'));
+  });
+  let nav = view.querySelector('.set39-nav');
+  if(!nav){
+    nav = document.createElement('nav');
+    nav.className = 'set39-nav';
+    nav.setAttribute('aria-label', 'Bereiche der Einstellungen');
+    const first = clusters[0];
+    if(!first) return;
+    first.parentNode.insertBefore(nav, first);
+    nav.addEventListener('click', (e) => {
+      const b = e.target.closest('[data-set39]');
+      if(!b) return;
+      const c = clusters[Number(b.dataset.set39)];
+      if(c){ sndClick(); const y = c.getBoundingClientRect().top + scrollY - 130; window.scrollTo({ top: y, behavior: 'smooth' }); }
+    });
+  }
+  nav.innerHTML = clusters.map((c, i) => {
+    if(c.classList.contains('empty39') || getComputedStyle(c).display === 'none') return '';
+    const h = c.querySelector('.settings-cluster-head h2');
+    return h ? `<button type="button" data-set39="${i}">${escapeHtml(h.textContent.trim())}</button>` : '';
+  }).join('');
+}
+window.addEventListener('lumiere:viewchange', (e) => {
+  if(e.detail && e.detail.view === 'settingsPage' && isReleased(39)) setTimeout(setupSet39, 0);
+});
 
 // --- BELOHNUNGEN / STREAK --------------------------------------------------
 function todayKey(d = new Date()){ const x = new Date(d); x.setHours(0,0,0,0); return x.toISOString().slice(0,10); }
@@ -21327,7 +21793,7 @@ function loadScript35(src){
 
 // ---- Unterrichtsmodus (je Geraet) ----
 function lessonOn35(){
-  try{ return isReleased(35) && localStorage.getItem('lumiere_lesson') === '1'; }catch(e){ return false; }
+  try{ return isReleased(35) && !isReleased(39) && localStorage.getItem('lumiere_lesson') === '1'; }catch(e){ return false; }
 }
 function lessonBlocked35(name){
   return lessonOn35() && (name === 'hub' || name === 'rewards' || name === 'arcadeGame' || name === 'game');
@@ -21493,7 +21959,7 @@ async function exportPdf35(set){
 })();
 
 // ---- Klassen: Status, Mitglied-Sets, Veroeffentlichen ----
-function clsReady35(){ return !!(sb && currentUser && isReleased(35)); }
+function clsReady35(){ return !!(sb && currentUser && isReleased(35) && !isReleased(39)); }
 async function loadTeacher35(){
   CLS35.isTeacher = false;
   if(!clsReady35()) return false;
@@ -21602,6 +22068,7 @@ async function initClasses35(){
 // ---- Seite "Klassen" ----
 function openClasses35(opts = {}){
   if(!isReleased(35)) return;
+  if(isReleased(39)){ renderHome(); return; }
   showView('classes'); currentNavId = 'classes'; updateNavActiveStates();
   if(opts.code) document.getElementById('cls35Code').value = opts.code;
   renderClasses35();
@@ -21893,7 +22360,7 @@ document.getElementById('cls35CopyBtn').addEventListener('click', () => {
 });
 
 initAuth().then(() => { restoreLastView(); sendSessionHeartbeat(); try{ applyLesson35(); initClasses35(); }catch(e){ console.warn(e); } });
-loadSiteSettings();
+loadSiteSettings().then(watchSettings39, watchSettings39);
 setInterval(() => {
   sendSessionHeartbeat();
   if(currentUser) loadOrCreateProfile();
