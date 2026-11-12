@@ -1,0 +1,53 @@
+  <!-- Build 38: "Heute" - die Startseite fuer Angemeldete (Gaeste sehen start.html im Rahmen) -->
+  <section id="view-today" class="view view-today38" hidden>
+    <div class="t38">
+      <header class="t38-head">
+        <p class="t38-kick" id="t38Date">Heute</p>
+        <h1 class="t38-hello"><span id="t38Greet">Bonjour</span>, <em id="t38Name"></em></h1>
+        <p class="t38-lead" id="t38Lead"></p>
+      </header>
+      <div class="t38-grid">
+        <article class="t38-card t38-due">
+          <p class="t38-label">Heute fällig</p>
+          <p class="t38-big"><b id="t38Due">0</b><span id="t38DueUnit">Wörter</span></p>
+          <p class="t38-note" id="t38DueNote"></p>
+          <div class="t38-actions">
+            <button type="button" class="btn btn-primary" id="t38Go">Weiter lernen</button>
+            <button type="button" class="btn btn-secondary" id="t38AllSets">Alle Lernsets</button>
+          </div>
+        </article>
+        <article class="t38-card t38-goal">
+          <p class="t38-label">Tagesziel</p>
+          <div class="t38-ring" aria-hidden="true">
+            <svg viewBox="0 0 120 120"><circle class="bg" cx="60" cy="60" r="54"/><circle class="fg" id="t38Ring" cx="60" cy="60" r="54" stroke-dasharray="339.3" stroke-dashoffset="339.3"/></svg>
+            <div class="t38-ring-t"><b id="t38GoalDone">0</b><span id="t38GoalOf">von 20</span></div>
+          </div>
+          <p class="t38-note" id="t38GoalNote"></p>
+        </article>
+        <article class="t38-card t38-streak t38-small">
+          <p class="t38-label">Serie</p>
+          <p class="t38-big"><b id="t38Streak">0</b><span id="t38StreakUnit">Tage</span></p>
+          <div class="t38-week" id="t38Week" aria-label="Die letzten sieben Tage"></div>
+        </article>
+        <article class="t38-card t38-exam" id="t38Exam">
+          <p class="t38-label" id="t38ExamLabel">Nächste Klausur</p>
+          <p class="t38-ex-t" id="t38ExamT"></p>
+          <p class="t38-note" id="t38ExamNote"></p>
+        </article>
+      </div>
+      <section class="t38-sec" aria-labelledby="t38SetsH">
+        <div class="t38-sec-head"><h2 id="t38SetsH">Deine Sets</h2><button type="button" class="t38-link" data-goto38="home">Alle ansehen</button></div>
+        <div class="t38-sets" id="t38Sets"></div>
+      </section>
+      <section class="t38-sec" aria-labelledby="t38MoreH">
+        <div class="t38-sec-head"><h2 id="t38MoreH">Mehr entdecken</h2></div>
+        <div class="t38-tiles">
+          <button type="button" class="t38-tile" data-goto38="rewards"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="7" width="19" height="11" rx="3"/><path d="M7 11v3M5.5 12.5h3M15.5 11.5h.01M18 13.5h.01"/></svg><b>Spielhalle</b><span>Spiele mit deinen Vokabeln – oder einfach so.</span></button>
+          <button type="button" class="t38-tile" data-goto38="listen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M15.5 9a4 4 0 0 1 0 6M18.2 6.4a7.6 7.6 0 0 1 0 11.2"/></svg><b>Aussprache</b><span>Hören und nachsprechen wie in Paris.</span></button>
+          <button type="button" class="t38-tile" data-goto38="grammar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5C6 4.5 9 4.5 12 6c3-1.5 6-1.5 8-.5v13c-2-1-5-1-8 .5-3-1.5-6-1.5-8-.5V5.5Z"/><path d="M12 6v13"/></svg><b>Grammatik</b><span>Regeln kurz erklärt, mit Beispielen.</span></button>
+          <button type="button" class="t38-tile" data-goto38="calendar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="16" rx="2"/><path d="M3.5 9.5h17M8 3v3M16 3v3"/></svg><b>Kalender</b><span>Klausuren eintragen, Lernplan im Blick.</span></button>
+        </div>
+      </section>
+    </div>
+  </section>
+

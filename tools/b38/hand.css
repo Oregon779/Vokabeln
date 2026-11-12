@@ -1,0 +1,330 @@
+/* ============================================================
+   Build 38 "Maison Noir": warmes Schwarz, Elfenbein, Champagner nur als feine Linie.
+   Jede Regel hier gilt nur unter html.build-38-live (das Skript setzt das Praefix davor).
+   ============================================================ */
+:root{
+  --bg:#0b0907; --bg-2:#0b0907; --surface:#14110d; --surface-2:#1a1612; --surface-3:#211c16;
+  --ember:#c3a979; --ember-dim:#75644a; --ember-bright:#d6c193; --gold:#c3a979; --gold-bright:#e6d7b8; --rose:#cdb48a; --stone:#a39b8e;
+  --saphir:#c3a979; --saphir-dim:#75644a; --saphir-bright:#e6d7b8; --pop:#c3a979; --pop-2:#ece4d6; --pop-dim:rgba(195,169,121,.45);
+  --text:#ece4d6; --ivory:#ece4d6; --ink:#14110d; --dim38:#776f63; --hair:rgba(195,169,121,.16); --hair-2:rgba(236,228,214,.2);
+  --border-solid:rgba(195,169,121,.16); --success:#8fbf8a; --danger:#d0675f;
+  --font-serif:'Cormorant Garamond', Georgia, serif; --font-sans:'Geist', system-ui, -apple-system, 'Segoe UI', sans-serif; --font-mono:'Geist Mono', ui-monospace, monospace;
+  --shadow-sm:0 1px 0 rgba(0,0,0,.4); --shadow-md:0 18px 40px -24px rgba(0,0,0,.85); --shadow-lg:0 30px 70px -34px rgba(0,0,0,.9);
+  --shadow-glow:0 0 0 1px rgba(195,169,121,.16); --shadow-glow-lg:0 0 0 1px rgba(195,169,121,.2), 0 30px 70px -34px rgba(0,0,0,.9);
+  --r38:6px; --r38s:3px;
+}
+html{ background:var(--bg); }
+body{ background:var(--bg); color:var(--text); font-family:var(--font-sans); -webkit-font-smoothing:antialiased; }
+::selection{ background:var(--gold); color:var(--ink); }
+/* ruhiger Grund: keine Sterne, kein schwebender Schein, keine Motive */
+.bg-stars, .page-glow, .page-motifs, .page-motif, .aurora-band, .ember-particle, .bg-aurora, .bg-noise{ display:none !important; }
+.view{ animation:viewIn38 .5s cubic-bezier(.16,1,.3,1); }
+@keyframes viewIn38{ from{ opacity:0; transform:translateY(8px); } to{ opacity:1; transform:none; } }
+#app{ max-width:1080px; padding:7.4rem 1.4rem 5rem; }
+body.wide34 #app{ max-width:1180px; }
+a{ color:var(--text); }
+:focus-visible{ outline:1px solid var(--gold); outline-offset:3px; }
+
+/* ——— Typografie ——— */
+h1, h2, h3, .page-title, .settings-title, .acc-card-title{ font-family:var(--font-serif); font-weight:500; letter-spacing:-.005em; }
+.page-eyebrow, .page-eyebrow-row{ font-family:var(--font-mono); font-size:.66rem; letter-spacing:.28em; color:var(--gold); text-transform:uppercase; }
+.page-eyebrow-row{ display:flex; align-items:center; gap:.7rem; margin-bottom:1rem; }
+.eyebrow-dot{ width:28px !important; height:1px !important; border-radius:0 !important; background:var(--gold) !important; box-shadow:none !important; animation:none !important; opacity:.7; }
+.page-title{ font-size:clamp(2.6rem, 5.6vw, 4rem); line-height:1; margin:0 0 .9rem; font-weight:500; color:var(--ivory); }
+.page-title em, .page-title i, .page-title .gold-shimmer, .gold-shimmer{ font-style:italic; color:var(--ivory) !important; background:none !important; -webkit-text-fill-color:currentColor !important; animation:none !important; text-shadow:none !important; filter:none !important; }
+.gold-shimmer::before, .gold-shimmer::after{ display:none !important; }
+.page-sub{ color:var(--stone); font-size:1.02rem; line-height:1.65; max-width:38em; margin-bottom:2.4rem; }
+.hint, .settings-desc, .acc-hint{ color:var(--stone); }
+.settings-title{ font-size:1.5rem; font-weight:500; }
+h2{ font-weight:500; }
+.label, .settings-row-label, .acc-label, .acc-kicker, .config-group-label{ font-family:var(--font-mono); font-size:.64rem; letter-spacing:.22em; text-transform:uppercase; color:var(--stone); }
+
+/* ——— Knoepfe: Elfenbein gefuellt, kaum Rundung, kein Leuchten ——— */
+.btn{ border-radius:var(--r38s) !important; font-family:var(--font-sans); font-weight:500; letter-spacing:.01em; text-transform:none; box-shadow:none; animation:none; transition:background .25s, border-color .25s, color .25s, transform .15s; }
+.btn-primary{ background:var(--ivory) !important; color:var(--ink) !important; border:1px solid var(--ivory) !important; box-shadow:none !important; animation:none !important; }
+.btn-primary:hover{ background:#f7f1e6 !important; }
+.btn-primary::before, .btn-primary::after{ display:none !important; }
+.btn-secondary{ background:transparent !important; color:var(--text) !important; border:1px solid var(--hair-2) !important; -webkit-backdrop-filter:none; backdrop-filter:none; box-shadow:none !important; }
+.btn-secondary:hover{ border-color:rgba(236,228,214,.5) !important; background:rgba(236,228,214,.03) !important; }
+.btn-danger{ background:transparent !important; color:#e7a29b !important; border:1px solid rgba(208,103,95,.45) !important; box-shadow:none !important; }
+.btn-link{ color:var(--text); text-decoration:underline; text-decoration-color:rgba(195,169,121,.5); text-underline-offset:4px; }
+.btn:active{ transform:scale(.98); }
+
+/* ——— Flaechen: eine Sprache fuer Karten, Panels, Dialoge ——— */
+.settings-card, .acc-card, .rewards-card, .cls35-card, .empty-state, .info-panel, .modal-box, .set-card, .admin-stat, .abo-panel, .pad-section,
+.dl-feature-card, .session-opt, .config-group, .listen-row, .result-card, .results-card, .res34, .game-card, .a31-card, .arc-tile, .card{
+  background:var(--surface) !important; border:1px solid var(--hair) !important; border-radius:var(--r38) !important; box-shadow:none !important;
+  -webkit-backdrop-filter:none !important; backdrop-filter:none !important;
+}
+.modal-box{ background:#15120e !important; box-shadow:0 40px 90px -30px rgba(0,0,0,.9) !important; }
+.modal-backdrop{ background:rgba(8,6,4,.86) !important; -webkit-backdrop-filter:none !important; backdrop-filter:none !important; }
+.empty-state{ border-style:solid !important; }
+
+/* ——— Felder ——— */
+input[type="text"], input[type="email"], input[type="password"], input[type="search"], input[type="number"], input[type="date"], input[type="time"], textarea, select,
+.modal-input, .acc-input{
+  background:#0e0c09 !important; color:var(--text) !important; border:1px solid rgba(236,228,214,.14) !important; border-radius:var(--r38s) !important; box-shadow:none !important; font-family:var(--font-sans);
+}
+input:focus, textarea:focus, select:focus, .modal-input:focus, .acc-input:focus{ border-color:rgba(195,169,121,.7) !important; outline:none; box-shadow:0 0 0 3px rgba(195,169,121,.12) !important; }
+::placeholder{ color:#6f685d; }
+
+/* ——— Chips, Pills, Schalter ——— */
+.chip{ border-radius:var(--r38s) !important; background:transparent !important; border:1px solid var(--hair-2) !important; color:var(--text) !important; box-shadow:none !important; font-family:var(--font-sans); letter-spacing:0; text-transform:none; }
+.chip.selected, .chip.is-active, .chip[aria-pressed="true"]{ background:var(--ivory) !important; color:var(--ink) !important; border-color:var(--ivory) !important; }
+.pill{ border-radius:var(--r38s) !important; background:var(--surface-2) !important; border-color:var(--hair) !important; }
+.settings-switch{ accent-color:var(--gold); }
+
+/* ——— Kopfleiste: schlank, fuenf Punkte, darunter eine feine Linie ——— */
+.site-header{ background:rgba(11,9,7,.97) !important; -webkit-backdrop-filter:none !important; backdrop-filter:none !important; border-bottom:1px solid var(--hair) !important; box-shadow:none !important; padding:.75rem 1.4rem !important; }
+.brand-mark{ width:30px !important; height:30px !important; border-radius:var(--r38s) !important; background:transparent !important; border:1px solid rgba(195,169,121,.6) !important; color:var(--gold) !important; box-shadow:none !important; font-family:var(--font-serif) !important; font-weight:500 !important; font-size:1.15rem !important; }
+.brand-text .name{ font-family:var(--font-serif) !important; font-style:normal !important; font-weight:500 !important; font-size:1.35rem !important; letter-spacing:.01em; color:var(--ivory) !important; }
+.brand-text .sub{ display:none !important; }
+.header-nav{ gap:2.1rem; }
+.header-nav-item{ font-family:var(--font-sans) !important; font-size:.86rem !important; font-weight:400 !important; text-transform:none !important; letter-spacing:.01em !important; color:var(--stone) !important; padding:.4rem 0 !important; border-bottom:1px solid transparent; }
+.header-nav-item:hover{ color:var(--ivory) !important; }
+.header-nav-item.active{ color:var(--ivory) !important; border-bottom-color:var(--gold) !important; }
+.header-nav-item .lock-ico, .header-nav-item .lock-badge{ opacity:.55; }
+.account-btn{ border-radius:var(--r38s) !important; background:transparent !important; border:1px solid var(--hair-2) !important; font-family:var(--font-sans) !important; text-transform:none !important; letter-spacing:.01em !important; font-size:.84rem !important; color:var(--text) !important; -webkit-backdrop-filter:none; backdrop-filter:none; }
+.menu-btn{ display:none !important; }
+@media (min-width:900px){ .header-nav{ display:flex !important; } }
+@media (max-width:899px){ .header-nav{ display:none !important; } .site-header{ padding:.6rem 1rem !important; } }
+
+/* ——— Handy/iPad: feste Tab-Leiste unten statt schwebender Kapsel ——— */
+.qn-l{ display:block; font:500 .62rem/1 var(--font-sans); letter-spacing:.02em; margin-top:.3rem; }
+@media (max-width:899px){
+  .quick-nav{ left:0 !important; right:0 !important; bottom:0 !important; transform:none !important; width:100% !important; border-radius:0 !important; gap:0 !important; justify-content:space-around !important;
+    padding:.35rem .4rem calc(.35rem + env(safe-area-inset-bottom)) !important; background:rgba(11,9,7,.94) !important; border:0 !important; border-top:1px solid var(--hair) !important; box-shadow:none !important; }
+  .quick-nav-item{ flex:1 1 0 !important; width:auto !important; height:54px !important; border-radius:var(--r38s) !important; flex-direction:column !important; color:var(--dim38) !important; background:none !important; }
+  .quick-nav-item svg{ width:21px; height:21px; }
+  .quick-nav-item.active, .quick-nav-item:hover{ color:var(--ivory) !important; background:none !important; }
+  .quick-nav-item.active::after{ content:""; position:absolute; top:0; left:30%; right:30%; height:1px; background:var(--gold); }
+  .quick-nav-item{ position:relative; }
+  .quick-nav-item .dot, .quick-nav-item .qn-dot{ display:none !important; }
+  body.quicknav-visible #app{ padding-bottom:7rem; }
+  body.quicknav-visible .site-foot{ padding-bottom:6.5rem; }
+}
+@media (min-width:900px){ .quick-nav{ display:none !important; } }
+
+/* ——— "Mehr": das bisherige Vollbild-Menue, ruhig ——— */
+.nav-overlay-bg{ background:rgba(8,6,4,.96) !important; }
+.nav-overlay-glow{ display:none !important; }
+.nav-overlay-label{ font-family:var(--font-mono); letter-spacing:.28em; color:var(--gold) !important; }
+.nav-overlay-item{ border-bottom-color:var(--hair) !important; }
+.nav-overlay-item .label{ font-family:var(--font-serif) !important; font-weight:500 !important; font-style:normal !important; color:var(--ivory) !important; }
+.nav-overlay-item .idx{ font-family:var(--font-mono) !important; color:var(--gold) !important; }
+.nav-overlay-item .hint{ color:var(--stone) !important; }
+.nav-overlay-item.active .label{ font-style:italic !important; }
+
+/* ——— Footer ——— */
+.site-foot, .cine-colophon{ border-top:1px solid var(--hair); }
+.cine-colophon a, .cine-colophon button{ font-family:var(--font-sans) !important; text-transform:none !important; letter-spacing:.01em !important; color:var(--stone) !important; }
+.cine-colophon-credit{ color:var(--dim38) !important; }
+
+/* ——— Vorschau-Plakette, Hinweise ——— */
+.preview-badge{ border-radius:var(--r38s) !important; background:#14110d !important; border-color:var(--hair) !important; box-shadow:none !important; }
+.toast{ border-radius:var(--r38s) !important; background:#1a1612 !important; border:1px solid var(--hair) !important; box-shadow:0 20px 50px -24px rgba(0,0,0,.9) !important; color:var(--text) !important; }
+.exam-banner{ border-radius:var(--r38) !important; background:var(--surface) !important; border:1px solid var(--hair) !important; box-shadow:none !important; }
+
+/* ——— Lernsets: Karten wie Buchruecken, grosse Buchschrift ——— */
+.sets-grid{ gap:1px !important; background:var(--hair); border:1px solid var(--hair); border-radius:var(--r38); overflow:hidden; }
+@media (min-width:760px){ .sets-grid{ grid-template-columns:repeat(2, minmax(0, 1fr)) !important; } }
+@media (min-width:1100px){ .sets-grid{ grid-template-columns:repeat(3, minmax(0, 1fr)) !important; } }
+.sets-grid .set-card{ border:0 !important; border-radius:0 !important; background:var(--surface) !important; padding:1.5rem 1.5rem 1.3rem !important; transition:background .25s; }
+.sets-grid .set-card:hover{ background:#191510 !important; transform:none !important; }
+.set-card-title, .set-card h3{ font-family:var(--font-serif) !important; font-size:1.75rem !important; font-weight:500 !important; line-height:1.05 !important; color:var(--ivory) !important; }
+.set-card-langs{ font-family:var(--font-mono) !important; font-size:.62rem !important; letter-spacing:.22em !important; color:var(--gold) !important; background:none !important; border:0 !important; padding:0 !important; }
+.set-card-due{ background:none !important; border:1px solid rgba(195,169,121,.45) !important; color:var(--gold-bright) !important; border-radius:var(--r38s) !important; box-shadow:none !important; }
+.set-card-bar span{ background:rgba(236,228,214,.08) !important; border-radius:0 !important; height:2px !important; box-shadow:none !important; }
+.set-card-bar span.filled{ background:var(--gold) !important; }
+.set-card-progress-head, .set-card-foot{ font-family:var(--font-sans) !important; text-transform:none !important; letter-spacing:.01em !important; font-size:.78rem !important; }
+.set-card-open{ color:var(--ivory) !important; }
+.set-card-add{ background:transparent !important; color:var(--stone) !important; }
+.set-card-add-icon{ border-radius:var(--r38s) !important; border:1px solid var(--hair-2) !important; background:none !important; color:var(--ivory) !important; box-shadow:none !important; }
+
+/* ——— Set, Uebung, Zuordnen, Hoeren, Ergebnis ——— */
+.word-table, .pairs-table, .vocab-table{ border-color:var(--hair) !important; }
+.pair-row, .vocab-row, .word-row{ border-bottom:1px solid var(--hair) !important; background:transparent !important; border-radius:0 !important; }
+.flashcard, .practice-card, .quiz-card, .q-card{ background:var(--surface) !important; border:1px solid var(--hair) !important; border-radius:var(--r38) !important; box-shadow:none !important; }
+.flashcard::before, .practice-card::before, .quiz-card::before{ display:none !important; }
+.q-word, .quiz-word, .flashcard-word, .prompt-word{ font-family:var(--font-serif) !important; font-weight:500 !important; color:var(--ivory) !important; }
+.answer-btn, .option-btn, .quiz-option, .mc-option{ border-radius:var(--r38s) !important; background:transparent !important; border:1px solid var(--hair-2) !important; box-shadow:none !important; font-family:var(--font-sans); }
+.answer-btn:hover, .option-btn:hover, .quiz-option:hover, .mc-option:hover{ border-color:rgba(236,228,214,.5) !important; }
+.progress-bar, .practice-progress, .session-progress{ height:2px !important; border-radius:0 !important; background:rgba(236,228,214,.08) !important; }
+.progress-fill, .practice-progress-fill, .session-progress-fill{ background:var(--gold) !important; box-shadow:none !important; border-radius:0 !important; }
+.match-chip{ border-radius:var(--r38s) !important; background:var(--surface) !important; border:1px solid var(--hair-2) !important; box-shadow:none !important; font-family:var(--font-serif); font-size:1.15rem; }
+.match-chip.selected{ border-color:var(--gold) !important; }
+.speak-btn{ border-radius:var(--r38s) !important; box-shadow:none !important; }
+
+/* ——— Belohnungen / Spielhalle ——— */
+.arcade-grid .arc-tile, .arc33-tile, .a33-tile{ border-radius:var(--r38) !important; box-shadow:none !important; }
+.coin-ico{ filter:saturate(.35) !important; }
+.gi33{ filter:saturate(.35) brightness(1.05); }
+
+/* ——— Einstellungen und Konto: zweispaltig auf breiten Schirmen ——— */
+@media (min-width:1000px){
+  .settings-grid{ display:grid !important; grid-template-columns:repeat(2, minmax(0, 1fr)) !important; gap:1rem !important; align-items:start; }
+  .settings-grid > *{ margin:0 !important; }
+}
+.settings-card{ padding:1.5rem !important; }
+.settings-card-icon{ border-radius:var(--r38s) !important; background:transparent !important; border:1px solid var(--hair) !important; color:var(--gold) !important; box-shadow:none !important; }
+.settings-cluster-head{ font-family:var(--font-mono); letter-spacing:.24em; color:var(--gold); }
+.acc-card{ padding:1.6rem !important; }
+.acc-card-title{ font-size:1.6rem !important; }
+.acc-badge{ border-radius:var(--r38s) !important; background:none !important; border:1px solid rgba(195,169,121,.5) !important; color:var(--gold-bright) !important; }
+
+/* ——— Ueber uns, App, Klassen, Kalender, Grammatik ——— */
+.info-panel-row{ border-bottom-color:var(--hair) !important; }
+.info-panel-row-icon, .dl-step-num{ border-radius:var(--r38s) !important; background:transparent !important; border:1px solid var(--hair) !important; color:var(--gold) !important; box-shadow:none !important; }
+.info-panel-tag, .dl-eyebrow-badge{ border-radius:var(--r38s) !important; background:none !important; border:1px solid var(--hair) !important; color:var(--gold) !important; }
+.cal-day, .calendar-day{ border-radius:var(--r38s) !important; }
+.grammar-card, .gram-card, .rule-card{ background:var(--surface) !important; border:1px solid var(--hair) !important; border-radius:var(--r38) !important; box-shadow:none !important; }
+
+/* ——— Admin-Panel ——— */
+.admin-nav-item{ border-radius:var(--r38s) !important; font-family:var(--font-sans) !important; text-transform:none !important; letter-spacing:.01em !important; box-shadow:none !important; }
+.admin-nav-item.active, .admin-nav-item.is-active{ background:var(--ivory) !important; color:var(--ink) !important; border-color:var(--ivory) !important; }
+.admin-stat-value{ font-family:var(--font-serif) !important; font-weight:500 !important; color:var(--ivory) !important; }
+.admin-stat-label{ font-family:var(--font-mono) !important; letter-spacing:.2em !important; }
+table{ border-color:var(--hair) !important; }
+th{ font-family:var(--font-mono); font-size:.62rem; letter-spacing:.2em; text-transform:uppercase; color:var(--stone) !important; background:transparent !important; }
+td{ border-color:var(--hair) !important; }
+
+/* ——— Musik gehoerte zur 3D-Reise: Schalter weg ——— */
+.settings-card:has(#musicToggle){ display:none !important; }
+
+/* ——— Startseite: fuer Gaeste die neue Seite im Rahmen, ohne App-Kopfleiste ——— */
+#view-hub > :not(.hub38){ display:none !important; }
+body.on-hub .site-header, body.on-hub .quick-nav, body.on-hub .site-foot, body.on-hub .preview-badge{ display:none !important; }
+body.on-hub #app{ padding:0 !important; max-width:none !important; }
+.hub38{ position:fixed; inset:0; z-index:30; background:#0b0907; }
+.hub38 iframe{ position:absolute; inset:0; width:100%; height:100%; border:0; display:block; background:#0b0907; }
+
+/* ——— Heute ——— */
+.t38{ display:grid; gap:2.6rem; }
+.t38-kick{ font-family:var(--font-mono); font-size:.66rem; letter-spacing:.28em; text-transform:uppercase; color:var(--gold); margin:0 0 1rem; display:flex; align-items:center; gap:.7rem; }
+.t38-kick::before{ content:""; width:28px; height:1px; background:var(--gold); opacity:.7; }
+.t38-hello{ font:500 clamp(2.8rem, 6.2vw, 4.6rem)/1 var(--font-serif); margin:0; color:var(--ivory); letter-spacing:-.01em; }
+.t38-hello em{ font-style:italic; }
+.t38-lead{ margin:1rem 0 0; color:var(--stone); font-size:1.05rem; line-height:1.6; max-width:34em; }
+.t38-grid{ display:grid; gap:1px; background:var(--hair); border:1px solid var(--hair); border-radius:var(--r38); overflow:hidden; grid-template-columns:1fr; }
+@media (min-width:760px){ .t38-grid{ grid-template-columns:1.5fr 1fr 1fr; } .t38-due{ grid-row:span 2; } .t38-exam{ grid-column:2 / span 2; } }
+.t38-card{ background:var(--surface); padding:1.6rem 1.6rem 1.5rem; display:flex; flex-direction:column; gap:.9rem; min-width:0; }
+.t38-label{ font-family:var(--font-mono); font-size:.62rem; letter-spacing:.24em; text-transform:uppercase; color:var(--stone); margin:0; }
+.t38-big{ display:flex; align-items:baseline; gap:.6rem; margin:0; }
+.t38-big b{ font:500 clamp(3.6rem, 7vw, 5.6rem)/.9 var(--font-serif); color:var(--ivory); font-variant-numeric:lining-nums; }
+.t38-big span{ font-family:var(--font-serif); font-style:italic; font-size:1.5rem; color:var(--stone); }
+.t38-small .t38-big b{ font-size:clamp(2.6rem, 4.6vw, 3.4rem); }
+.t38-note{ margin:0; color:var(--stone); line-height:1.6; }
+.t38-actions{ display:flex; flex-wrap:wrap; gap:.6rem; margin-top:auto; padding-top:.6rem; }
+.t38-actions .btn{ min-height:48px; padding:0 1.3rem; }
+.t38-ring{ position:relative; width:118px; height:118px; }
+.t38-ring svg{ width:100%; height:100%; transform:rotate(-90deg); }
+.t38-ring circle{ fill:none; stroke-width:2; }
+.t38-ring .bg{ stroke:rgba(236,228,214,.1); }
+.t38-ring .fg{ stroke:var(--gold); stroke-linecap:round; transition:stroke-dashoffset 1.2s cubic-bezier(.16,1,.3,1); }
+.t38-ring-t{ position:absolute; inset:0; display:grid; place-content:center; text-align:center; }
+.t38-ring-t b{ font:500 2.2rem/1 var(--font-serif); color:var(--ivory); }
+.t38-ring-t span{ font-size:.72rem; color:var(--stone); margin-top:.2rem; }
+.t38-week{ display:flex; gap:.45rem; }
+.t38-week i{ display:grid; place-items:center; width:26px; height:26px; border:1px solid var(--hair-2); border-radius:50%; font:500 .62rem/1 var(--font-mono); font-style:normal; color:var(--dim38); }
+.t38-week i.on{ background:var(--ivory); border-color:var(--ivory); color:var(--ink); }
+.t38-week i.today{ border-color:var(--gold); }
+.t38-exam .t38-ex-t{ font:500 1.6rem/1.15 var(--font-serif); color:var(--ivory); margin:0; }
+.t38-sec{ display:grid; gap:1.1rem; }
+.t38-sec-head{ display:flex; align-items:baseline; justify-content:space-between; gap:1rem; border-bottom:1px solid var(--hair); padding-bottom:.8rem; }
+.t38-sec-head h2{ margin:0; font:500 1.9rem/1 var(--font-serif); color:var(--ivory); }
+.t38-link{ background:none; border:0; color:var(--stone); font:400 .88rem var(--font-sans); cursor:pointer; padding:.3rem 0; text-decoration:underline; text-decoration-color:rgba(195,169,121,.4); text-underline-offset:4px; }
+.t38-link:hover{ color:var(--ivory); }
+.t38-sets{ display:grid; }
+.t38-set{ display:grid; grid-template-columns:minmax(0, 1fr) auto; align-items:center; gap:1rem 1.4rem; padding:1.1rem 0; border-bottom:1px solid var(--hair); }
+.t38-set-name{ font:500 1.45rem/1.1 var(--font-serif); color:var(--ivory); margin:0; overflow-wrap:anywhere; }
+.t38-set-meta{ margin:.35rem 0 0; font-size:.8rem; color:var(--stone); display:flex; flex-wrap:wrap; gap:.4rem .9rem; align-items:center; }
+.t38-set-bar{ display:block; width:120px; height:2px; background:rgba(236,228,214,.08); position:relative; }
+.t38-set-bar i{ position:absolute; left:0; top:0; bottom:0; background:var(--gold); }
+.t38-set-due{ color:var(--gold-bright); }
+.t38-set .btn{ min-height:42px; padding:0 1.1rem; font-size:.88rem; }
+.t38-empty{ padding:2rem 0; color:var(--stone); }
+.t38-tiles{ display:grid; gap:1px; background:var(--hair); border:1px solid var(--hair); border-radius:var(--r38); overflow:hidden; grid-template-columns:repeat(2, minmax(0, 1fr)); }
+@media (min-width:900px){ .t38-tiles{ grid-template-columns:repeat(4, minmax(0, 1fr)); } }
+.t38-tile{ background:var(--surface); border:0; text-align:left; padding:1.4rem 1.3rem 1.3rem; cursor:pointer; color:var(--text); display:flex; flex-direction:column; gap:.55rem; min-height:150px; transition:background .25s; }
+.t38-tile:hover{ background:#191510; }
+.t38-tile svg{ width:22px; height:22px; color:var(--gold); }
+.t38-tile b{ font:500 1.45rem/1.05 var(--font-serif); color:var(--ivory); margin-top:auto; }
+.t38-tile span{ font-size:.82rem; color:var(--stone); line-height:1.45; }
+@media (max-width:520px){ .t38-set{ grid-template-columns:1fr; } .t38-set .btn{ justify-self:start; } .t38-tile{ min-height:130px; padding:1.2rem 1.1rem; } }
+
+/* ===== Runde 2: was die Pruefung je Seite noch gefunden hat ===== */
+/* Raster ohne braune Restflaeche: Linien an den Karten statt Luecken-Hintergrund */
+.sets-grid{ gap:0 !important; background:transparent !important; border-width:1px 0 0 1px !important; border-radius:0 !important; }
+.sets-grid .set-card{ border-right:1px solid var(--hair) !important; border-bottom:1px solid var(--hair) !important; }
+/* flache Karten statt Verlauf und grosser Rundung */
+.listen-free-box, .box, .stats-box, .pairs-table, .ai-query-box, .streak-hero, .arcade-balance, .lb31, .lb-empty, .acc-hero, .acc-plan,
+.info-security-panel, .info-legal-card, .dl-warning-note, .dl-phone-card, .dl-guide-box, .dl-step, .dl-handoff-card, .dl-handoff-link, .dl-closing, .listen-section-head{
+  border-radius:var(--r38) !important; background:var(--surface) !important; border:1px solid var(--hair) !important; box-shadow:none !important; -webkit-backdrop-filter:none !important; backdrop-filter:none !important;
+}
+.pairs-table{ background:transparent !important; overflow:hidden; }
+.acc-plan.is-current{ border-color:rgba(195,169,121,.55) !important; }
+.acc-plan.is-featured{ background:#18140f !important; }
+.dl-glow, .dl-closing-glow, .streak-hero::before, .streak-hero::after, .arcade-balance::before, .arcade-balance::after, .acc-hero::before, .acc-hero::after{ display:none !important; }
+.ai-query-submit{ background:var(--ivory) !important; color:var(--ink) !important; border-radius:var(--r38s) !important; box-shadow:none !important; }
+.arc33-tile{ background:var(--surface) !important; border:1px solid var(--hair) !important; border-radius:var(--r38) !important; box-shadow:none !important; }
+.arc33-tile:hover{ background:#191510 !important; border-color:rgba(195,169,121,.35) !important; transform:none !important; }
+.arc33-new{ background:none !important; border:1px solid rgba(195,169,121,.5) !important; color:var(--gold-bright) !important; border-radius:var(--r38s) !important; box-shadow:none !important; }
+.arc33-tabs button, .lb31-tabs button, .lb31-periods button{ border-radius:var(--r38s) !important; background:transparent !important; border:1px solid var(--hair-2) !important; color:var(--text) !important; box-shadow:none !important; font-family:var(--font-sans) !important; text-transform:none !important; letter-spacing:0 !important; }
+.arc33-tabs button.is-on, .lb31-tabs button.is-on, .lb31-periods button.is-on, .arc33-tabs button[aria-selected="true"], .lb31-tabs button[aria-selected="true"]{ background:var(--ivory) !important; color:var(--ink) !important; border-color:var(--ivory) !important; }
+.lb31-title, .acc-plan-name, .dl-handoff-title{ font-family:var(--font-serif) !important; text-transform:none !important; letter-spacing:0 !important; font-weight:500 !important; font-size:1.6rem !important; color:var(--ivory) !important; background:none !important; -webkit-text-fill-color:currentColor !important; }
+.cal-day.today{ box-shadow:none !important; border-color:var(--gold) !important; }
+.settings-card:has(.glow-preview){ display:none !important; }
+.settings-signature-rule{ background:var(--hair) !important; }
+/* Zahlen in der Buchschrift, Elfenbein statt Gold */
+.stat-hero-num, .stats-summary-item b, .stats-summary-item strong, .stats-summary-item .num, .streak-num, .arcade-balance-num, .session-opt b, .session-opt strong, .session-opt .num,
+.rewards-card .value, .admin-stat-value, .dl-step-num{
+  font-family:var(--font-serif) !important; font-weight:500 !important; color:var(--ivory) !important; background:none !important; -webkit-text-fill-color:currentColor !important; text-shadow:none !important; letter-spacing:0 !important;
+}
+.stats-summary-item{ font-family:var(--font-sans); }
+.session-opt{ border-radius:var(--r38s) !important; }
+.session-opt.selected, .session-opt.is-active{ border-color:var(--ivory) !important; background:#1a1612 !important; }
+/* Uebung einrichten: Gruppen ohne Kasten, nur Ueberschrift */
+.config-group{ background:transparent !important; border:0 !important; padding:0 !important; }
+/* Streak: flache Tagesbalken statt goldener Pillen */
+.streak-day{ height:6px !important; border-radius:0 !important; background:rgba(236,228,214,.08) !important; border:0 !important; box-shadow:none !important; animation:none !important; }
+.streak-day.active{ background:var(--gold) !important; }
+.streak-day.active:last-child{ background:var(--ivory) !important; }
+.streak-day.active:last-child::after{ display:none !important; }
+.streak-flame-wrap, .streak-flame{ filter:saturate(.3); }
+/* Spielhalle: die Spiele zuerst, dann Coins, Serie, Verlauf, Rangliste */
+#view-rewards{ display:flex; flex-direction:column; }
+#view-rewards > *{ order:5; }
+#view-rewards > .page-eyebrow-row, #view-rewards > .page-title, #view-rewards > .page-sub{ order:0; }
+#view-rewards > h3, #view-rewards > .arc33-tabs, #view-rewards > .arcade-grid, #view-rewards > .arcade-grid + div{ order:1; }
+#view-rewards > .arcade-balance{ order:2; margin-top:2.4rem; }
+#view-rewards > .rewards-grid{ order:3; }
+#view-rewards > .rewards-card{ order:4; }
+#view-rewards > h3{ font:500 1.9rem/1 var(--font-serif); margin:0 0 1rem; padding-bottom:.8rem; border-bottom:1px solid var(--hair); color:var(--ivory); }
+/* Mehr-Menue: grosse Buchschrift */
+.nav-overlay-item .label{ font-size:clamp(1.6rem, 3vw, 2.3rem) !important; text-transform:none !important; letter-spacing:0 !important; line-height:1.05 !important; }
+.nav-overlay-item .hint{ font-family:var(--font-sans) !important; text-transform:none !important; letter-spacing:.01em !important; font-size:.84rem !important; }
+.nav-overlay-item .idx{ font-size:.66rem !important; letter-spacing:.2em !important; }
+.nav-overlay-item{ align-items:center !important; padding:.95rem 0 !important; }
+/* Kalender: Monat in der Buchschrift */
+.cal-month-label, .cal-title{ font-family:var(--font-serif) !important; font-weight:500 !important; }
+
+/* ===== Runde 3 ===== */
+.nav-overlay.open, .nav-overlay-bg{ background:#0b0907 !important; -webkit-backdrop-filter:none !important; backdrop-filter:none !important; }
+.nav-overlay-nav{ padding-top:calc(4.6rem + env(safe-area-inset-top)) !important; padding-bottom:calc(5.5rem + env(safe-area-inset-bottom)) !important; overflow-y:auto; max-height:100%; }
+.quick-nav-item.active{ box-shadow:none !important; background:none !important; }
+@media (max-width:899px){ body.quicknav-visible .preview-badge{ bottom:calc(76px + env(safe-area-inset-bottom)) !important; } }
+#setTitle{ font-size:clamp(2.2rem, 4.4vw, 3.2rem) !important; line-height:1.02 !important; font-weight:500 !important; color:var(--ivory) !important; }
+#view-rewards > h3{ text-transform:none !important; letter-spacing:0 !important; }
+#gi33Gold stop:nth-child(1){ stop-color:#f3ead8; } #gi33Gold stop:nth-child(2){ stop-color:#d2bb8c; } #gi33Gold stop:nth-child(3){ stop-color:#8f7a55; }
+#gi33Bg stop:nth-child(1){ stop-color:#221d16; } #gi33Bg stop:nth-child(2){ stop-color:#0d0b08; }
+
+/* ===== Runde 4 ===== */
+.free-text-row input{ min-width:0 !important; flex:1 1 auto !important; }
+.free-text-row .btn{ flex:none !important; }
+.practice-card, .card-stage, .practice-stage, #view-practice .flashcard{ background:var(--surface) !important; }
+/* dekorative Lichtflecken und Glanzstreifen auf Karten und Knoepfen weg */
+.set-card::before, .practice-card::after, .listen-free-box::before, .ai-query-box::after, .auth-modal-box h3::before, .rewards-card::before,
+.btn-secondary::before, .btn-secondary::after, .chip::before, .chip::after, .session-opt::before, .session-opt::after,
+.dl-feature-card::before, .dl-step::before, .dl-handoff-card::before, .info-legal-card::before, .info-hero::after, .info-security-section::before, .info-manifest::before{ display:none !important; }
+.info-security-panel::before{ box-shadow:none !important; opacity:.6; }
+.auth-wordmark{ background:none !important; -webkit-text-fill-color:currentColor !important; color:var(--ivory) !important; font-family:var(--font-serif) !important; font-weight:500 !important; }

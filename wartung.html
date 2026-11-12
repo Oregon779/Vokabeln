@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#0b0907">
+<title>Lumière · Kurze Pause</title>
+<link rel="icon" type="image/png" href="icon-round-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Geist:wght@300..600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* Build 39: Wartungs-Bildschirm. Wird von index.html nur bei Wartung in einem Rahmen geladen
+   (Daten per postMessage), vom Admin als Vorschau, oder direkt mit ?vorschau=1. */
+:root{
+  --bg:#0b0907; --ivory:#ece4d6; --muted:#a39b8e; --dim:#6f685d; --gold:#c3a979; --gold-hi:#e6d7b8; --hair:rgba(195,169,121,.18); --hair2:rgba(236,228,214,.1);
+  --serif:'Cormorant Garamond', Georgia, serif; --sans:'Geist', system-ui, -apple-system, 'Segoe UI', sans-serif; --mono:'Geist Mono', ui-monospace, monospace;
+  --gut:clamp(20px, 6vw, 96px);
+}
+*{ box-sizing:border-box; }
+html, body{ margin:0; height:100%; background:var(--bg); color:var(--ivory); font-family:var(--sans); -webkit-font-smoothing:antialiased; overflow:hidden; }
+canvas#wCv{ position:fixed; inset:0; width:100%; height:100%; display:block; }
+.w-fb{ display:none; position:fixed; right:8vw; top:50%; transform:translateY(-50%); font:italic 400 min(62vh, 40vw)/1 var(--serif); color:transparent; -webkit-text-stroke:1px rgba(195,169,121,.55);
+  background:linear-gradient(0deg, #c3a979 58%, transparent 58%); -webkit-background-clip:text; background-clip:text; }
+html.no-gl .w-fb{ display:block; }
+.w-grain{ position:fixed; inset:-50%; pointer-events:none; opacity:.035; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+.w-ui{ position:fixed; inset:0; display:flex; flex-direction:column; padding:max(22px, env(safe-area-inset-top)) var(--gut) max(22px, env(safe-area-inset-bottom)); overflow-y:auto; }
+.mono{ font:400 .72rem/1.4 var(--mono); letter-spacing:.14em; text-transform:uppercase; color:var(--muted); }
+.w-top, .w-foot{ display:flex; justify-content:space-between; gap:1rem; align-items:center; }
+.w-top .dot{ display:inline-block; width:7px; height:7px; border-radius:50%; background:var(--gold); margin-right:.6rem; vertical-align:1px; }
+.w-main{ margin:auto 0; max-width:min(36rem, 52vw); padding:4vh 0; }
+.w-kick{ color:var(--gold); margin:0 0 1.4rem; display:flex; align-items:center; gap:.8rem; }
+.w-kick::before{ content:''; width:34px; height:1px; background:currentColor; opacity:.7; }
+h1{ font:400 clamp(2.6rem, 5.6vw, 5.2rem)/.98 var(--serif); letter-spacing:-.015em; margin:0; }
+h1 em{ font-style:italic; color:var(--gold-hi); }
+.w-lead{ font:400 clamp(1.05rem, 1.5vw, 1.25rem)/1.55 var(--sans); color:var(--muted); margin:1.4rem 0 0; max-width:32rem; white-space:pre-line; }
+.w-count{ margin-top:2.2rem; display:flex; align-items:flex-end; gap:1.6rem; flex-wrap:wrap; padding-top:1.4rem; border-top:1px solid var(--hair); }
+.w-count[hidden]{ display:none; }
+.w-count b{ font:300 clamp(2.4rem, 5vw, 3.8rem)/1 var(--sans); font-variant-numeric:tabular-nums; letter-spacing:-.02em; color:var(--ivory); }
+.w-count b small{ font-size:.42em; color:var(--muted); margin-left:.15em; font-weight:400; }
+.w-count p{ margin:0 0 .35rem; }
+.w-count p span{ display:block; font:italic 400 1.35rem/1.2 var(--serif); color:var(--ivory); text-transform:none; letter-spacing:0; margin-top:.35rem; }
+.w-lists{ display:grid; grid-template-columns:1fr 1fr; gap:1.4rem 2rem; margin-top:2rem; }
+.w-lists[hidden]{ display:none; }
+.w-lists ul{ list-style:none; margin:.8rem 0 0; padding:0; display:flex; flex-direction:column; gap:.15rem; }
+.w-lists li{ font:400 .98rem/1.3 var(--sans); padding:.45rem 0; border-bottom:1px solid var(--hair2); display:flex; align-items:center; gap:.6rem; color:var(--ivory); }
+.w-lists li::before{ content:''; width:6px; height:6px; border-radius:50%; flex:none; }
+.w-lists .paused li{ color:var(--muted); }
+.w-lists .paused li::before{ background:transparent; border:1px solid var(--gold); }
+.w-lists .running li::before{ background:#9cc7a4; }
+.w-lists button{ all:unset; cursor:pointer; flex:1; display:flex; justify-content:space-between; gap:.6rem; }
+.w-lists button::after{ content:'→'; color:var(--gold); opacity:.6; transition:transform .2s, opacity .2s; }
+.w-lists button:hover::after, .w-lists button:focus-visible::after{ transform:translateX(3px); opacity:1; }
+.w-auto{ margin-top:2rem; display:flex; align-items:center; gap:.7rem; font:400 .9rem/1.45 var(--sans); color:var(--muted); }
+.w-auto i{ width:8px; height:8px; border-radius:50%; background:var(--gold); flex:none; animation:wPulse 2.4s ease-in-out infinite; }
+@keyframes wPulse{ 0%, 100%{ opacity:.35; transform:scale(.8); } 50%{ opacity:1; transform:scale(1); } }
+.w-act{ margin-top:1.6rem; display:flex; gap:.6rem; flex-wrap:wrap; }
+.w-act[hidden]{ display:none; }
+.w-btn{ font:500 .92rem var(--sans); border-radius:3px; padding:.85rem 1.3rem; cursor:pointer; border:1px solid rgba(236,228,214,.26); background:transparent; color:var(--ivory); }
+.w-btn.main{ background:var(--ivory); color:#14110d; border-color:var(--ivory); }
+.w-foot .mono{ font-size:.66rem; }
+.w-in{ opacity:0; transform:translateY(14px); animation:wIn .9s cubic-bezier(.2,.8,.2,1) forwards; }
+@keyframes wIn{ to{ opacity:1; transform:none; } }
+@media (max-width:860px){
+  .w-ui{ padding-top:max(18px, env(safe-area-inset-top)); }
+  .w-shade{ position:fixed; inset:0; pointer-events:none; background:linear-gradient(180deg, transparent 0, transparent 34vh, rgba(11,9,7,.82) 46vh, rgba(11,9,7,.94) 70vh); }
+  .w-main{ max-width:none; margin:auto 0 0; padding:38vh 0 2vh; }
+  h1{ font-size:clamp(2.3rem, 10vw, 3.4rem); }
+  .w-fb{ right:auto; left:50%; top:22vh; transform:translate(-50%, -50%); font-size:min(34vh, 60vw); }
+  .w-lists{ grid-template-columns:1fr; gap:1.2rem; }
+  .w-foot .w-hide{ display:none; }
+}
+@media (prefers-reduced-motion:reduce){ .w-in{ animation:none; opacity:1; transform:none; } .w-auto i{ animation:none; opacity:1; } }
+</style>
+</head>
+<body>
+<canvas id="wCv" aria-hidden="true"></canvas>
+<div class="w-fb" aria-hidden="true">L</div>
+<div class="w-shade" aria-hidden="true"></div>
+<div class="w-grain" aria-hidden="true"></div>
+<div class="w-ui">
+  <div class="w-top"><span class="mono"><i class="dot"></i>Lumière</span><span class="mono" id="wTag">Wartung</span></div>
+  <main class="w-main" role="status" aria-live="polite">
+    <p class="mono w-kick w-in" id="wKick">Kurze Pause</p>
+    <h1 class="w-in" style="animation-delay:.08s" id="wTitle">Bonjour – wir polieren <em>gerade</em>.</h1>
+    <p class="w-lead w-in" style="animation-delay:.16s" id="wLead">Lumière bekommt gerade einen neuen Schliff. Gleich geht es weiter – dein Lernstand ist sicher gespeichert.</p>
+    <div class="w-count w-in" style="animation-delay:.24s" id="wCount" hidden>
+      <b id="wLeft">00:00</b>
+      <p class="mono">Voraussichtlich zurück<span id="wAt"></span></p>
+    </div>
+    <div class="w-lists w-in" style="animation-delay:.3s" id="wLists" hidden>
+      <div class="paused"><p class="mono">Gerade pausiert</p><ul id="wPaused"></ul></div>
+      <div class="running"><p class="mono">Läuft weiter</p><ul id="wRunning"></ul></div>
+    </div>
+    <div class="w-act" id="wAct" hidden><button type="button" class="w-btn main" id="wBack">Zurück</button></div>
+    <p class="w-auto w-in" style="animation-delay:.36s"><i aria-hidden="true"></i><span id="wAuto">Diese Seite geht von selbst weiter, sobald wir fertig sind – du musst nichts neu laden.</span></p>
+  </main>
+  <div class="w-foot"><span class="mono">Deutsch ⇄ Français</span><span class="mono w-hide" id="wClock"></span></div>
+</div>
+<script>
+(function(){
+  var clamp = function(v, a, b){ return v < a ? a : v > b ? b : v; };
+  var narrow = Math.min(innerWidth, innerHeight) < 600;
+  var tier = narrow ? 'phone' : (matchMedia('(pointer:coarse)').matches ? 'tablet' : 'desktop');
+  var RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var $ = function(id){ return document.getElementById(id); };
+
+  // ---- aus start.html uebernommen (Glas-L) ----
+  // ================= Glas-L (WebGL): Ladebildschirm und Schluss =================
+  // Das L ist der echte Glyph aus Fraunces SemiBold Italic (wie das Zeichen in der App), Hoehe 1.12.
+  // Aus dem Umriss wird einmal ein Abstandsfeld gerechnet; der Shader zieht es zu einem Glasblock
+  // mit runder Kante aus und verfolgt die Strahlen hinein (Spiegelung, Brechung, Fluessigkeit).
+  var L_OUTLINE = [
+    0, 0.095, -0.5388, 1, -0.3814, -0.5388, 2, -0.4081, -0.5388, -0.4183, -0.5286, 2, -0.4285, -0.5184, -0.4278, -0.5035, 2, -0.427, -0.4886,
+    -0.4164, -0.478, 2, -0.4058, -0.4674, -0.3877, -0.4619, 1, -0.3453, -0.4525, 2, -0.3234, -0.4462, -0.3116, -0.4317, 2, -0.2998, -0.4172,
+    -0.2904, -0.3873, 2, -0.2826, -0.3583, -0.2684, -0.3065, 2, -0.2543, -0.2547, -0.2362, -0.188, 2, -0.2182, -0.1213, -0.1986, -0.0475, 2,
+    -0.1789, 0.0263, -0.1597, 0.0997, 2, -0.1405, 0.1731, -0.1236, 0.2386, 2, -0.1067, 0.3041, -0.0946, 0.3536, 2, -0.0824, 0.403, -0.0777, 0.4297, 2,
+    -0.0738, 0.4478, -0.0797, 0.4588, 2, -0.0856, 0.4697, -0.0997, 0.4737, 1, -0.146, 0.4854, 2, -0.1609, 0.4909, -0.1695, 0.4988, 2, -0.1782, 0.5066,
+    -0.1782, 0.52, 2, -0.1782, 0.538, -0.164, 0.549, 2, -0.1499, 0.56, -0.1248, 0.56, 1, 0.2417, 0.56, 2, 0.2676, 0.56, 0.2774, 0.5502, 2,
+    0.2873, 0.5404, 0.2873, 0.5255, 2, 0.2873, 0.5098, 0.2763, 0.4992, 2, 0.2653, 0.4886, 0.2496, 0.4831, 1, 0.1994, 0.4721, 2, 0.1813, 0.4682,
+    0.1711, 0.4564, 2, 0.1609, 0.4446, 0.1523, 0.4179, 2, 0.1413, 0.3811, 0.1256, 0.3253, 2, 0.1099, 0.2696, 0.0914, 0.2025, 2, 0.073, 0.1354,
+    0.0542, 0.0632, 2, 0.0353, -0.009, 0.0169, -0.0793, 2, -0.0016, -0.1495, -0.0169, -0.2107, 2, -0.0322, -0.272, -0.0432, -0.3183, 2, -0.0542,
+    -0.3646, -0.0589, -0.3881, 2, -0.0683, -0.4329, -0.0522, -0.4513, 2, -0.0361, -0.4697, 0, -0.4697, 1, 0.1005, -0.4697, 2, 0.1507, -0.4697,
+    0.1895, -0.4485, 2, 0.2284, -0.4274, 0.2633, -0.3783, 2, 0.2982, -0.3293, 0.3375, -0.2468, 2, 0.35, -0.2209, 0.363, -0.2103, 2, 0.3759, -0.1997,
+    0.3916, -0.1997, 2, 0.4121, -0.1997, 0.4203, -0.2127, 2, 0.4285, -0.2256, 0.4285, -0.2468, 2, 0.4262, -0.3151, 0.4089, -0.3728, 2, 0.3916, -0.4305,
+    0.363, -0.4721, 2, 0.3344, -0.5137, 0.2975, -0.5368, 2, 0.2606, -0.56, 0.2174, -0.56, 2, 0.1978, -0.56, 0.1813, -0.5545, 2, 0.1648, -0.549,
+    0.1448, -0.5439, 2, 0.1248, -0.5388, 0.095, -0.5388
+  ];
+  var GL_SPAN = 1.3, GL_H = .11, glSdfCache = null;
+  // Abstandsfeld (Felzenszwalb, Startwerte aus der Kantenglaettung des Canvas -> genauer als ein Texel)
+  function glEdt1(g, off, st, n, f, v, z){
+    var q, k, s, r;
+    for(q = 0; q < n; q++) f[q] = g[off + q * st];
+    v[0] = 0; z[0] = -1e20; z[1] = 1e20;
+    for(q = 1, k = 0; q < n; q++){
+      do{ r = v[k]; s = (f[q] - f[r] + q * q - r * r) / (q - r) / 2; }while(s <= z[k] && --k > -1);
+      k++; v[k] = q; z[k] = s; z[k + 1] = 1e20;
+    }
+    for(q = 0, k = 0; q < n; q++){ while(z[k + 1] < q) k++; r = v[k]; g[off + q * st] = f[r] + (q - r) * (q - r); }
+  }
+  function glEdt(g, S){
+    var f = new Float64Array(S), v = new Uint16Array(S), z = new Float64Array(S + 1), i;
+    for(i = 0; i < S; i++) glEdt1(g, i, S, S, f, v, z);
+    for(i = 0; i < S; i++) glEdt1(g, i * S, 1, S, f, v, z);
+  }
+  function glassSdf(){
+    if(glSdfCache) return glSdfCache;
+    var S = narrow ? 320 : 512, k = S / GL_SPAN, c = document.createElement('canvas'), x, i, a, n = S * S;
+    c.width = c.height = S; x = c.getContext('2d', { willReadFrequently: true });
+    x.setTransform(k, 0, 0, -k, S / 2, S / 2); x.beginPath();
+    var b = [9, 9, -9, -9];
+    function pt(px, py){ b[0] = Math.min(b[0], px); b[1] = Math.min(b[1], py); b[2] = Math.max(b[2], px); b[3] = Math.max(b[3], py); }
+    for(i = 0; i < L_OUTLINE.length;){
+      var op = L_OUTLINE[i++];
+      if(op === 0){ x.moveTo(L_OUTLINE[i], L_OUTLINE[i + 1]); pt(L_OUTLINE[i], L_OUTLINE[i + 1]); i += 2; }
+      else if(op === 1){ x.lineTo(L_OUTLINE[i], L_OUTLINE[i + 1]); pt(L_OUTLINE[i], L_OUTLINE[i + 1]); i += 2; }
+      else { x.quadraticCurveTo(L_OUTLINE[i], L_OUTLINE[i + 1], L_OUTLINE[i + 2], L_OUTLINE[i + 3]); pt(L_OUTLINE[i + 2], L_OUTLINE[i + 3]); i += 4; }
+    }
+    x.closePath(); x.fillStyle = '#fff'; x.fill();
+    var px = x.getImageData(0, 0, S, S).data, go = new Float64Array(n), gi = new Float64Array(n);
+    for(i = 0; i < n; i++){
+      a = px[i * 4 + 3] / 255;
+      go[i] = a === 1 ? 0 : a === 0 ? 1e20 : Math.pow(Math.max(0, .5 - a), 2);
+      gi[i] = a === 1 ? 1e20 : a === 0 ? 0 : Math.pow(Math.max(0, a - .5), 2);
+    }
+    glEdt(go, S); glEdt(gi, S);
+    var d = new Float32Array(n), t = new Float32Array(n), best = 0, bi = 0, y, xx;
+    for(i = 0; i < n; i++) t[i] = (Math.sqrt(go[i]) - Math.sqrt(gi[i])) / k;
+    // einmal weichzeichnen (1-2-1): sonst sieht man auf den spiegelnden Flanken die Texelreihen
+    for(y = 0; y < S; y++) for(xx = 0; xx < S; xx++){ i = y * S + xx; d[i] = (t[i] * 2 + t[y * S + Math.max(0, xx - 1)] + t[y * S + Math.min(S - 1, xx + 1)]) / 4; }
+    for(y = 0; y < S; y++) for(xx = 0; xx < S; xx++){ i = y * S + xx; t[i] = (d[i] * 2 + d[Math.max(0, y - 1) * S + xx] + d[Math.min(S - 1, y + 1) * S + xx]) / 4; }
+    // zweiter Durchgang mit doppeltem Abstand: glaettet die Steigung noch einmal
+    for(y = 0; y < S; y++) for(xx = 0; xx < S; xx++){ i = y * S + xx; d[i] = (t[i] * 2 + t[y * S + Math.max(0, xx - 2)] + t[y * S + Math.min(S - 1, xx + 2)]) / 4; }
+    for(y = 0; y < S; y++) for(xx = 0; xx < S; xx++){ i = y * S + xx; t[i] = (d[i] * 2 + d[Math.max(0, y - 2) * S + xx] + d[Math.min(S - 1, y + 2) * S + xx]) / 4; }
+    d = t;
+    // tiefster Punkt im Stamm (mittleres Drittel der Hoehe): dort fliegt die Kamera hinein
+    for(i = 0; i < n; i++){ var oy = GL_SPAN / 2 - (((i / S) | 0) + .5) / k; if(oy > -.3 && oy < .25 && d[i] < best){ best = d[i]; bi = i; } }
+    var deep = [((bi % S) + .5) / k - GL_SPAN / 2, GL_SPAN / 2 - (((bi / S) | 0) + .5) / k];
+    return (glSdfCache = { S:S, d:d, box:b, deep:deep });
+  }
+  var glF32 = new Float32Array(1), glU32 = new Uint32Array(glF32.buffer);
+  function glHalf(v){
+    glF32[0] = v; var x = glU32[0], s = (x >>> 16) & 0x8000, e = ((x >>> 23) & 0xff) - 112, m = x & 0x7fffff;
+    if(e <= 0) return s; if(e >= 31) return s | 0x7c00; return s | (e << 10) | (m >>> 13);
+  }
+  var GL_VS = 'attribute vec2 aP; void main(){ gl_Position = vec4(aP, 0.0, 1.0); }';
+  var GL_FS = [
+    'precision highp float;',
+    'uniform vec2 uRes; uniform float uT, uTan, uA, uLvl, uLvlN, uFlash, uWin, uDive, uTilt, uWave, uSweep, uSweepA, uEnc;',
+    'uniform vec3 uCam; uniform mat3 uRot, uRotI; uniform sampler2D uSdf; uniform vec4 uBox; uniform vec2 uDeep, uOff;',
+    '#define SPAN 1.3',
+    '#define HH 0.11',
+    '#define RR 0.024',
+    // Gold so gewaehlt, dass es nach Tonwertkurve und Gamma als #c3a979 herauskommt; GT = Goldtoenung fuer Spiegelungen
+    'const vec3 LQ = vec3(0.78, 0.48, 0.18);',
+    'const vec3 GT = vec3(1.0, 0.84, 0.6);',
+    'float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }',
+    'float sd2(vec2 p){',
+    '  vec2 uv = vec2(p.x / SPAN + 0.5, 0.5 - p.y / SPAN), q = clamp(uv, 0.004, 0.996);',
+    '  float d = texture2D(uSdf, q).r; if(uEnc > 0.5) d = (d - 0.50196) * 0.3;',
+    '  return d + length(uv - q) * SPAN;',
+    '}',
+    'float sdL(vec3 p){',
+    '  vec2 w = vec2(sd2(p.xy) + RR, abs(p.z) - (HH - RR));',
+    '  return min(max(w.x, w.y), 0.0) + length(max(w, 0.0)) - RR;',
+    '}',
+    'vec3 nrm(vec3 p){',
+    '  vec2 k = vec2(1.0, -1.0); float e = 0.006;',
+    '  return normalize(k.xyy * sdL(p + k.xyy * e) + k.yyx * sdL(p + k.yyx * e) + k.yxy * sdL(p + k.yxy * e) + k.xxx * sdL(p + k.xxx * e));',
+    '}',
+    'float march(vec3 ro, vec3 rd){',
+    '  vec3 inv = 1.0 / (rd + vec3(1e-7));',
+    '  vec3 t0 = (vec3(uBox.xy - 0.03, -HH - 0.01) - ro) * inv, t1 = (vec3(uBox.zw + 0.03, HH + 0.01) - ro) * inv;',
+    '  vec3 a = min(t0, t1), b = max(t0, t1);',
+    '  float t = max(max(a.x, a.y), max(a.z, 0.0)), te = min(min(b.x, b.y), b.z);',
+    '  if(t > te) return -1.0;',
+    '  for(int i = 0; i < 80; i++){',
+    '    float d = sdL(ro + rd * t);',
+    '    if(d < 0.0004 + 0.0004 * t) return t;',
+    '    t += d * 0.9; if(t > te) return -1.0;',
+    '  }',
+    '  return -1.0;',
+    '}',
+    'float marchIn(vec3 ro, vec3 rd){',
+    '  float t = 0.0;',
+    '  for(int i = 0; i < 36; i++){ float d = -sdL(ro + rd * t); if(d < 0.0006) break; t += max(d * 0.95, 0.0015); }',
+    '  return t;',
+    '}',
+    'float band(float x, float a, float b, float s){ return smoothstep(a - s, a + s, x) * (1.0 - smoothstep(b - s, b + s, x)); }',
+    // Fotostudio: zwei Lichtstreifen (weiss links, Champagner rechts), Deckenlicht, Bronze-Kante hinten, wandernder Glanz
+    'vec3 env(vec3 d){',
+    '  float az = atan(d.x, d.z), el = asin(clamp(d.y, -1.0, 1.0));',
+    '  vec3 c = mix(vec3(0.006, 0.007, 0.008), vec3(0.03, 0.032, 0.036), smoothstep(-0.3, 0.9, el));',
+    '  c += vec3(1.0, 0.98, 0.94) * 3.2 * band(az, -1.08, -0.82, 0.05) * band(el, -0.3, 0.95, 0.08);',
+    '  c += vec3(0.93, 0.8, 0.5) * 2.2 * band(az, 0.82, 1.0, 0.04) * band(el, -0.45, 0.8, 0.08);',
+    '  c += vec3(0.85) * 1.3 * smoothstep(0.72, 1.0, el);',
+    '  c += vec3(0.55, 0.32, 0.08) * 0.5 * band(abs(az), 2.3, 3.3, 0.12) * band(el, -0.15, 0.55, 0.12);',
+    '  c += vec3(1.0) * 5.0 * uSweepA * band(az, uSweep - 0.05, uSweep + 0.05, 0.035) * band(el, -0.7, 1.1, 0.1);',
+    '  c += LQ * 0.06 * smoothstep(0.0, -0.5, el);',
+    '  return c;',
+    '}',
+    'float surf(vec3 w){',
+    '  return uLvl + uTilt * w.x + uWave * (0.016 * sin(w.x * 9.0 + uT * 3.1) + 0.011 * sin(w.z * 14.0 - uT * 4.3) + 0.007 * sin((w.x + w.z) * 23.0 + uT * 6.2));',
+    '}',
+    'vec3 glass(vec3 p, vec3 rd, vec3 n){',
+    '  float ci = clamp(dot(-rd, n), 0.0, 1.0), fr = 0.04 + 0.96 * pow(1.0 - ci, 5.0);',
+    '  vec3 rf = env(uRotI * reflect(rd, n)), col = rf * fr;',
+    '  vec3 ri = refract(rd, n, 0.6667), pi = p - n * 0.004;',
+    '  float tin = marchIn(pi, ri);',
+    '  vec3 pe = pi + ri * tin, ne = nrm(pe), ro2 = refract(ri, -ne, 1.5);',
+    '  if(dot(ro2, ro2) < 1e-4) ro2 = reflect(ri, -ne);',
+    '  vec3 tb = env(uRotI * ro2), tr = tb * exp(-tin * vec3(0.5, 0.65, 1.0));',
+    // Fluessigkeit: wie viel vom Weg durchs Glas liegt unter der Oberflaeche
+    '  float fl = 0.0;',
+    '  for(int i = 0; i < 5; i++){ vec3 w = uRotI * mix(pi, pe, (float(i) + 0.5) / 5.0); fl += smoothstep(0.006, -0.006, w.y - surf(w)); }',
+    '  fl /= 5.0;',
+    '  vec3 wp = uRotI * p; float s = surf(wp), under = smoothstep(0.004, -0.004, wp.y - s);',
+    '  vec2 bg = vec2(p.x * 24.0, p.y * 24.0 - uT * 1.9), id = floor(bg), f = fract(bg) - 0.5;',
+    '  vec2 o = vec2(hash(id + 1.7), hash(id + 9.1)) - 0.5;',
+    '  float bub = smoothstep(0.15, 0.05, length(f - o * 0.6)) * step(0.8, hash(id)) * under;',
+    '  vec3 wob = vec3(sin(p.y * 46.0 + uT * 2.3) + sin(p.x * 23.0 - uT * 1.7), cos(p.x * 39.0 - uT * 1.9) + sin(p.y * 19.0 + uT), 0.0) * 0.05;',
+    '  vec3 rg = env(uRotI * reflect(rd, normalize(n + wob)));',
+    '  vec3 liq = LQ * (0.26 + 0.16 * fl) * (0.7 + 0.4 * ci) + GT * min(rg, vec3(2.2)) * 1.0 + GT * tb * 0.2 + vec3(1.0, 0.88, 0.6) * bub * 1.4;',
+    '  tr = mix(tr, liq, fl * 0.96);',
+    '  col += tr * (1.0 - fr);',
+    '  col += vec3(1.0, 0.9, 0.62) * 2.4 * exp(-abs(wp.y - s) * 150.0) * step(uBox.y, s) * step(s, uBox.w);',
+    '  col += LQ * uFlash * (0.25 + 1.6 * pow(1.0 - ci, 2.0));',
+    '  return col;',
+    '}',
+    '#ifdef BG',
+    'vec3 back(vec2 uv, vec3 wro, vec3 wrd){',
+    '  vec2 lc = uv - uOff;',
+    '  vec3 c = vec3(0.0003, 0.0003, 0.0004);',
+    '  c += vec3(0.62, 0.42, 0.09) * 0.011 * exp(-dot(lc, lc) * 4.0) * (0.3 + uLvlN);',
+    '  float an = atan(lc.y, lc.x), ray = pow(0.5 + 0.5 * sin(an * 13.0 + uT * 0.5) * sin(an * 21.0 - uT * 0.8), 7.0);',
+    '  c += vec3(0.6, 0.42, 0.08) * 0.009 * ray * exp(-length(lc) * 1.6) * uLvlN;',
+    '  if(wrd.y < -0.001){',
+    '    float tf = (uBox.y - wro.y) / wrd.y; vec3 fp = wro + wrd * tf;',
+    '    float fog = exp(-max(tf - 2.5, 0.0) * 0.32);',
+    '    vec2 g = abs(fract(fp.xz * 2.0) - 0.5);',
+    '    c += vec3(0.7, 0.5, 0.15) * 0.006 * smoothstep(0.5 - 0.012 * tf, 0.5, max(g.x, g.y)) * fog;',
+    '    c += LQ * 0.018 * exp(-dot(fp.xz, fp.xz) * 2.2) * uLvlN;',
+    '    vec3 rr = vec3(wrd.x, -wrd.y, wrd.z), ro2 = uRot * fp, rd2 = uRot * rr;',
+    '    float t2 = march(ro2, rd2);',
+    '    if(t2 > 0.0){',
+    '      vec3 q = ro2 + rd2 * t2, n2 = nrm(q), w = uRotI * q;',
+    '      float un = smoothstep(0.01, -0.01, w.y - surf(w)), ci2 = clamp(dot(-rd2, n2), 0.0, 1.0);',
+    '      vec3 rf2 = env(uRotI * reflect(rd2, n2)), rc = rf2 * (0.04 + 0.96 * pow(1.0 - ci2, 5.0)) + (LQ * 0.25 + GT * rf2 * 0.6) * un;',
+    '      c = mix(c, rc, 0.22 * exp(-(w.y - uBox.y) * 2.2) * fog);',
+    '    }',
+    '  }',
+    '  vec2 g2 = uv * 28.0 + vec2(0.0, -uT * 0.3), id = floor(g2), f = fract(g2) - 0.5;',
+    '  float h = hash(id); vec2 o = vec2(hash(id + 3.1), hash(id + 7.7)) - 0.5;',
+    '  c += vec3(0.95, 0.75, 0.35) * 0.1 * smoothstep(0.07, 0.0, length(f - o * 0.7)) * step(0.9, h) * (0.5 + 0.5 * sin(uT * 3.0 + h * 50.0));',
+    '  if(uDive > 0.0){',
+    '    float r = length(uv), a2 = atan(uv.y, uv.x) * 38.0, hh = hash(vec2(floor(a2), 3.0));',
+    '    float sp = fract(hh * 7.0 + uT * (1.2 + hh * 2.0)) * 1.4;',
+    '    float seg = smoothstep(0.0, 0.05, r - sp) * smoothstep(0.32, 0.0, r - sp) * smoothstep(0.14, 0.0, abs(fract(a2) - 0.5));',
+    '    c += mix(LQ * 0.5, vec3(1.0, 0.92, 0.75), hh) * 0.5 * seg * step(0.5, hh) * uDive * smoothstep(0.05, 0.45, r);',
+    '  }',
+    '  return c * (1.0 - 0.5 * dot(uv, uv));',
+    '}',
+    '#endif',
+    'void main(){',
+    '  vec2 uv = (gl_FragCoord.xy - 0.5 * uRes) / uRes.y;',
+    '  vec3 wrd = normalize(vec3(uv * 2.0 * uTan, -1.0)), ro = uRot * uCam, rd = uRot * wrd;',
+    '  float t = march(ro, rd), a = 1.0; vec3 col;',
+    '  if(t > 0.0){',
+    '    vec3 p = ro + rd * t, n = nrm(p);',
+    '    col = glass(p, rd, n);',
+    '    if(uWin > 0.0){',
+    // das Fenster: im Gold oeffnet sich ein Loch, durch das die Seite zu sehen ist
+    '      float dd = length(p.xy - uDeep), rw = uWin * 2.0, fl = smoothstep(0.5, 0.88, abs(n.z));',
+    '      float hole = 1.0 - smoothstep(rw - 0.04, rw, dd);',
+    '      col += LQ * 1.4 * exp(-abs(dd - rw) * 40.0) * fl;',
+    '      a = 1.0 - hole * fl;',
+    '    }',
+    '  } else {',
+    '#ifdef BG',
+    '    col = back(uv, uCam, wrd);',
+    '#else',
+    '    col = vec3(0.0); a = 0.0;',
+    '#endif',
+    '  }',
+    '  col = pow(1.0 - exp(-col * 1.15), vec3(0.4545));',
+    '#ifdef BG',
+    '  gl_FragColor = vec4(col * uA * a, a);',
+    '#else',
+    '  gl_FragColor = vec4(col * uA * a, a * uA);',
+    '#endif',
+    '}'
+  ].join('\n');
+
+  // Ein Renderer je Canvas. o.bg: Hintergrund mit Boden und Spiegelung (Ladebildschirm)
+  function makeGlass(cv, o){
+    var opts = { alpha:true, premultipliedAlpha:true, antialias:false, depth:false, stencil:false, powerPreference:'high-performance' };
+    var gl = null, v2 = false;
+    try{ gl = cv.getContext('webgl2', opts); v2 = !!gl; if(!gl) gl = cv.getContext('webgl', opts) || cv.getContext('experimental-webgl', opts); }catch(e){ gl = null; }
+    if(!gl) return null;
+    function sh(type, src){ var s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); if(!gl.getShaderParameter(s, gl.COMPILE_STATUS)){ console.warn(gl.getShaderInfoLog(s)); return null; } return s; }
+    var vs = sh(gl.VERTEX_SHADER, GL_VS), fs = sh(gl.FRAGMENT_SHADER, (o.bg ? '#define BG 1\n' : '') + GL_FS);
+    if(!vs || !fs) return null;
+    var pr = gl.createProgram(); gl.attachShader(pr, vs); gl.attachShader(pr, fs); gl.linkProgram(pr);
+    if(!gl.getProgramParameter(pr, gl.LINK_STATUS)) return null;
+    gl.useProgram(pr);
+    var buf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+    var loc = gl.getAttribLocation(pr, 'aP'); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+    var sd = glassSdf(), S = sd.S, i, enc = 0;
+    var tex = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, tex);
+    gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    var h16 = new Uint16Array(S * S); for(i = 0; i < S * S; i++) h16[i] = glHalf(sd.d[i]);
+    if(v2) gl.texImage2D(gl.TEXTURE_2D, 0, gl.R16F, S, S, 0, gl.RED, gl.HALF_FLOAT, h16);
+    else {
+      var hf = gl.getExtension('OES_texture_half_float'), hl = gl.getExtension('OES_texture_half_float_linear');
+      if(hf && hl) gl.texImage2D(gl.TEXTURE_2D, 0, gl.LUMINANCE, S, S, 0, gl.LUMINANCE, hf.HALF_FLOAT_OES, h16); else enc = 1;
+    }
+    if(!enc && gl.getError() !== gl.NO_ERROR) enc = 1;
+    if(enc){ var u8 = new Uint8Array(S * S); for(i = 0; i < S * S; i++) u8[i] = clamp(Math.round(128 + sd.d[i] / .3 * 255), 0, 255); gl.texImage2D(gl.TEXTURE_2D, 0, gl.LUMINANCE, S, S, 0, gl.LUMINANCE, gl.UNSIGNED_BYTE, u8); }
+    var U = {};
+    ['uRes', 'uT', 'uTan', 'uA', 'uLvl', 'uLvlN', 'uFlash', 'uWin', 'uDive', 'uTilt', 'uWave', 'uSweep', 'uSweepA', 'uEnc', 'uCam', 'uRot', 'uRotI', 'uSdf', 'uBox', 'uDeep', 'uOff'].forEach(function(n){ U[n] = gl.getUniformLocation(pr, n); });
+    gl.uniform1i(U.uSdf, 0); gl.uniform1f(U.uEnc, enc);
+    gl.uniform4f(U.uBox, sd.box[0], sd.box[1], sd.box[2], sd.box[3]); gl.uniform2f(U.uDeep, sd.deep[0], sd.deep[1]);
+    var R = new Float32Array(9), RI = new Float32Array(9);
+    return {
+      gl:gl, box:sd.box, deep:sd.deep,
+      // s: { t, yaw, pitch, lvl (0..1), flash, dive, win, tilt, wave, sweep, sweepA, a, cam:[x,y,z], tan, off:[x,y] }
+      draw:function(s){
+        var cy = Math.cos(s.yaw), sy = Math.sin(s.yaw), cp = Math.cos(s.pitch), sp = Math.sin(s.pitch);
+        // Objekt -> Welt = Drehung um die Hochachse * Neigung; spaltenweise abgelegt
+        RI[0] = cy; RI[1] = 0; RI[2] = -sy; RI[3] = sy * sp; RI[4] = cp; RI[5] = cy * sp; RI[6] = sy * cp; RI[7] = -sp; RI[8] = cy * cp;
+        R[0] = RI[0]; R[1] = RI[3]; R[2] = RI[6]; R[3] = RI[1]; R[4] = RI[4]; R[5] = RI[7]; R[6] = RI[2]; R[7] = RI[5]; R[8] = RI[8];
+        var b = sd.box, ly = b[1] - .03 + (b[3] - b[1] + .06) * s.lvl;
+        gl.viewport(0, 0, cv.width, cv.height);
+        gl.uniform2f(U.uRes, cv.width, cv.height); gl.uniform1f(U.uT, s.t); gl.uniform1f(U.uTan, s.tan); gl.uniform1f(U.uA, s.a);
+        gl.uniform1f(U.uLvl, ly); gl.uniform1f(U.uLvlN, s.lvl); gl.uniform1f(U.uFlash, s.flash || 0); gl.uniform1f(U.uWin, s.win || 0);
+        gl.uniform1f(U.uDive, s.dive || 0); gl.uniform1f(U.uTilt, s.tilt || 0); gl.uniform1f(U.uWave, s.wave || 0);
+        gl.uniform1f(U.uSweep, s.sweep || 0); gl.uniform1f(U.uSweepA, s.sweepA || 0);
+        gl.uniform3f(U.uCam, s.cam[0], s.cam[1], s.cam[2]); gl.uniform2f(U.uOff, s.off ? s.off[0] : 0, s.off ? s.off[1] : 0);
+        gl.uniformMatrix3fv(U.uRot, false, R); gl.uniformMatrix3fv(U.uRotI, false, RI);
+        gl.drawArrays(gl.TRIANGLES, 0, 3);
+      },
+      // Bildschirmpunkt eines Objektpunkts (fuer die Prozentanzeige neben dem L)
+      project:function(s, x, y, W, H){
+        var cy = Math.cos(s.yaw), sy = Math.sin(s.yaw), wx = cy * x, wz = -sy * x;
+        var dz = s.cam[2] - wz, k = 1 / (dz * s.tan * 2);
+        return [W / 2 + (wx - s.cam[0]) * k * H, H / 2 - (y - s.cam[1]) * k * H];
+      },
+      level:function(l){ return sd.box[1] - .03 + (sd.box[3] - sd.box[1] + .06) * l; },
+      destroy:function(){ var x = gl.getExtension('WEBGL_lose_context'); if(x) x.loseContext(); }
+    };
+  }
+
+  // ================= Inhalt =================
+  var PREVIEW = /[?&]vorschau=1/.test(location.search), EMBED = /[?&]embed=1/.test(location.search);
+  var state = { mode:'full', message:'', until:null, paused:[], features:[], feature:null, label:'', plural:false };
+  var DEMO_FEATURES = [{ key:'home', label:'Lernsets' }, { key:'listen', label:'Aussprache' }, { key:'rewards', label:'Spielhalle' }, { key:'grammar', label:'Grammatik' }, { key:'calendar', label:'Kalender' }];
+  if(PREVIEW && !EMBED){
+    var mode = (location.search.match(/[?&]modus=(\w+)/) || [])[1];
+    state.until = new Date(Date.now() + 47 * 60000 + 12000).toISOString();
+    state.features = DEMO_FEATURES;
+    if(mode === 'teil'){ state.mode = 'partial'; state.feature = 'rewards'; state.label = 'Die Spielhalle'; state.paused = ['rewards']; }
+  }
+  var timer = null;
+  function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]; }); }
+  function render(){
+    var full = state.mode !== 'partial';
+    $('wTag').textContent = full ? 'Wartung' : 'Teilweise Wartung';
+    $('wKick').textContent = full ? 'Kurze Pause' : 'Nur hier eine Pause';
+    if(full) $('wTitle').innerHTML = 'Bonjour – wir polieren <em>gerade</em>.';
+    else $('wTitle').innerHTML = esc(state.label || 'Dieser Bereich') + (state.plural ? ' werden' : ' wird') + ' <em>gerade</em> poliert.';
+    var msg = (state.message || '').trim();
+    $('wLead').textContent = msg || (full
+      ? 'Lumière bekommt gerade einen neuen Schliff. Gleich geht es weiter – dein Lernstand ist sicher gespeichert.'
+      : 'Alles andere läuft ganz normal weiter. Dein Lernstand ist sicher gespeichert.');
+    // Was pausiert ist, was weiterlaeuft
+    var feats = state.features || [], paused = state.paused || [];
+    var showLists = !full && feats.length > 0;
+    $('wLists').hidden = !showLists;
+    $('wAct').hidden = full || !EMBED;
+    if(showLists){
+      $('wPaused').innerHTML = feats.filter(function(f){ return paused.indexOf(f.key) >= 0; }).map(function(f){ return '<li>' + esc(f.label) + '</li>'; }).join('');
+      var run = feats.filter(function(f){ return paused.indexOf(f.key) < 0; });
+      $('wRunning').innerHTML = run.length ? run.map(function(f){ return '<li><button type="button" data-go="' + esc(f.key) + '">' + esc(f.label) + '</button></li>'; }).join('') : '<li>Startseite</li>';
+    }
+    $('wAuto').textContent = full
+      ? 'Diese Seite geht von selbst weiter, sobald wir fertig sind – du musst nichts neu laden.'
+      : (state.label || 'Der Bereich') + (state.plural ? ' öffnen' : ' öffnet') + ' sich von selbst, sobald alles fertig ist.';
+    tick();
+  }
+  function two(n){ return (n < 10 ? '0' : '') + n; }
+  function tick(){
+    var now = new Date();
+    $('wClock').textContent = now.toLocaleTimeString('de-DE', { hour:'2-digit', minute:'2-digit' }) + ' Uhr';
+    var u = state.until ? new Date(state.until) : null;
+    var box = $('wCount');
+    if(!u || isNaN(u)){ box.hidden = true; return; }
+    box.hidden = false;
+    var ms = u.getTime() - now.getTime();
+    var day = u.toDateString() === now.toDateString();
+    $('wAt').textContent = (day ? 'heute ' : u.toLocaleDateString('de-DE', { weekday:'short', day:'numeric', month:'short' }) + ', ') + u.toLocaleTimeString('de-DE', { hour:'2-digit', minute:'2-digit' }) + ' Uhr';
+    if(ms <= 0){ $('wLeft').innerHTML = 'Gleich'; $('wAt').textContent = 'Dauert etwas länger als geplant'; return; }
+    var s = Math.floor(ms / 1000), h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), sec = s % 60;
+    $('wLeft').innerHTML = h > 0 ? h + '<small>h</small> ' + two(m) + '<small>min</small>' : two(m) + ':' + two(sec);
+  }
+  setInterval(tick, 1000);
+  window.addEventListener('message', function(e){
+    if(e.origin !== location.origin || !e.data || e.data.lumiere !== 'maint') return;
+    var d = e.data;
+    state.mode = d.mode === 'partial' ? 'partial' : 'full';
+    state.message = d.message || ''; state.until = d.until || null;
+    state.paused = d.paused || []; state.features = d.features || [];
+    state.feature = d.feature || null; state.label = d.label || ''; state.plural = !!d.plural;
+    render();
+  });
+  document.addEventListener('click', function(e){
+    var g = e.target.closest('[data-go]');
+    if(g && parent !== window) parent.postMessage({ lumiere:'maint-go', view:g.dataset.go }, location.origin);
+    if(e.target.closest('#wBack') && parent !== window) parent.postMessage({ lumiere:'maint-back' }, location.origin);
+  });
+  render();
+  if(parent !== window) parent.postMessage({ lumiere:'maint-ready' }, location.origin);
+
+  // ================= Glas-L: dreht sich langsam, ein Lichtstreif poliert darueber =================
+  var cv = $('wCv'), g = null;
+  try{ g = makeGlass(cv, { bg:true }); }catch(e){ g = null; }
+  if(!g){ document.documentElement.classList.add('no-gl'); return; }
+  var W, H, D = 4, camY = .03, scale = Math.min(devicePixelRatio || 1, tier === 'phone' ? 1.25 : 1.4);
+  if(EMBED) scale = Math.min(scale, 1);
+  var st = { t:0, yaw:-.5, pitch:.07, lvl:.58, flash:0, dive:0, win:0, tilt:0, wave:.5, sweep:-2.8, sweepA:1, a:0, cam:[0, camY, 4], tan:.32, off:[0, 0] };
+  var fx = .5, fy = .5;
+  function size(){
+    W = innerWidth; H = innerHeight;
+    cv.width = Math.max(2, Math.round(W * scale)); cv.height = Math.max(2, Math.round(H * scale));
+    var wide = W > 860;
+    // L-Hoehe: am Desktop gut die Haelfte, rechts; hochkant oben, etwa ein Drittel
+    var f = wide ? .56 : .3, maxW = wide ? .32 : .5;
+    D = Math.max(1.12 / (f * 2 * st.tan), .95 / (maxW * 2 * st.tan * W / H));
+    fx = wide ? .72 : .5; fy = wide ? .5 : .22;
+  }
+  size(); addEventListener('resize', size);
+  var last = 0, frames = 0, ema = 1 / 60, yawP = st.yaw, yawV = 0, tiltV = 0, run = true, born = performance.now();
+  document.addEventListener('visibilitychange', function(){ run = !document.hidden; if(run){ last = 0; requestAnimationFrame(frame); } });
+  function frame(now){
+    if(!run) return;
+    var dt = Math.min(.05, (now - (last || now)) / 1000); last = now; st.t += dt;
+    var t = (now - born) / 1000;
+    st.a = Math.min(1, t / 1.2);
+    st.yaw = RM ? -.4 : -.42 + Math.sin(t * .23) * .55;
+    st.pitch = .07 + Math.sin(t * .17) * .04;
+    // alle 7 s zieht ein Lichtstreif ueber das Glas ("poliert")
+    var ph = (t % 7) / 2.4; st.sweep = ph < 1 ? -2.8 + ph * 5.6 : 2.8;
+    st.lvl = .58 + Math.sin(t * .5) * .02;
+    var yv = dt > 0 ? (st.yaw - yawP) / dt : 0, acc = dt > 0 ? (yv - yawV) / dt : 0; yawP = st.yaw; yawV = yv;
+    tiltV += (-60 * st.tilt - 5 * tiltV - clamp(acc, -40, 40) * .02) * dt; st.tilt = clamp(st.tilt + tiltV * dt, -.3, .3);
+    st.wave = .5 + Math.min(1.2, Math.abs(tiltV) * 1.5);
+    var tan2 = 2 * st.tan * D;
+    st.cam[0] = -(fx - .5) * (W / H) * tan2;
+    st.cam[1] = camY + (fy - .5) * tan2;
+    st.cam[2] = D;
+    st.off[0] = (fx - .5) * (W / H); st.off[1] = -(fy - .5) - camY / tan2;
+    g.draw(st);
+    // wird es zaeh: Aufloesung runter
+    if(++frames > 6 && !/[?&]hq=1/.test(location.search)){ ema = ema * .85 + dt * .15; if(frames % 10 === 0 && ema > 1 / 42 && scale > .5){ scale = Math.max(.5, scale * .8); size(); } }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+  window.__w = { st:st, g:g };
+})();
+</script>
+</body>
+</html>

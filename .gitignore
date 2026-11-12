@@ -1,2 +1,7 @@
 __pycache__/
 *.pyc
+node_modules/
+package.json
+package-lock.json
+admin-key.json
+admin-key.json.tmp

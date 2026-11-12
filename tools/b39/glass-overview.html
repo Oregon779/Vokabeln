@@ -1,0 +1,38 @@
+              <div class="g39-hello g39-in">
+                <div>
+                  <p class="a39-kick" id="a39Date"></p>
+                  <h1 id="a39Greet">Bonsoir</h1>
+                  <div class="g39-status" id="g39Status"></div>
+                </div>
+                <div class="a39-hello-act"><button type="button" class="g39-btn" data-go39="users">Nutzer verwalten</button><button type="button" class="g39-btn ghost" data-go39="maintenance">Wartung</button></div>
+              </div>
+              <div class="g39-grid g39-top">
+                <section class="g39-card g39-chartcard g39-in" style="--d:1">
+                  <div class="g39-card-h"><div><h2>Besuche</h2><small>Sitzungen je Tag · Linie = aktive Konten · Punkt = neue Konten</small></div>
+                    <div class="a39-seg" role="group" aria-label="Zeitraum"><button type="button" data-range39="7">7 Tage</button><button type="button" data-range39="14" class="on">14 Tage</button><button type="button" data-range39="30">30 Tage</button></div></div>
+                  <div class="g39-chart" id="g39Chart"><div class="g39-tip" id="g39Tip" hidden></div></div>
+                  <div class="g39-legend"><span><i class="sw a"></i>Besuche <b id="a39BarsSum">–</b></span><span>Ø pro Tag <b id="a39BarsAvg">–</b></span><span><i class="sw l"></i>Konten aktiv <b id="a39BarsUsers">–</b></span><span><i class="sw d"></i>Neu <b id="a39BarsReg">–</b></span></div>
+                </section>
+                <section class="g39-card g39-in" style="--d:2">
+                  <div class="g39-card-h"><div><h2>KI-Kontingent</h2><small>Heute, website-weit</small></div></div>
+                  <div class="g39-donut">
+                    <div class="g39-ring"><svg viewBox="0 0 140 140" aria-hidden="true"><defs><linearGradient id="g39RingGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f3e6c8"/><stop offset="1" stop-color="#b8935a"/></linearGradient></defs><circle class="bg" cx="70" cy="70" r="58"/><circle class="fg" id="a39RingFg" cx="70" cy="70" r="58" stroke-dasharray="364.4" stroke-dashoffset="364.4"/></svg>
+                      <div class="g39-ring-t"><b id="a39RingPct">–</b><span>genutzt</span></div></div>
+                    <div class="g39-kv"><div><span>Anfragen heute</span><b id="a39CapUsed">–</b></div><div><span>Noch frei</span><b id="a39CapFree">–</b></div><div><span>Obergrenze</span><b id="a39CapTotal">–</b></div><div><span>Limit je Konto</span><b id="a39CapLimit">–</b></div></div>
+                  </div>
+                </section>
+              </div>
+              <div class="admin-stat-row g39-kpis">
+@@KPIS@@
+              </div>
+              <div class="g39-grid g39-bottom">
+                <section class="g39-card g39-in" style="--d:11">
+                  <div class="g39-card-h"><div><h2><span class="g39-live" aria-hidden="true"></span>Live-Aktivität</h2><small>Was gerade auf Lumière passiert</small></div><button type="button" class="a39-chip" data-go39="sessions">Sitzungen</button></div>
+                  <ol class="g39-feed" id="g39Feed"><li class="a39-empty">Wird geladen …</li></ol>
+                </section>
+                <section class="g39-card g39-in" style="--d:12">
+                  <div class="g39-card-h"><div><h2>Zu erledigen</h2><small>Was auf dich wartet</small></div></div>
+                  <div id="a39Todo"><p class="a39-empty">Wird geladen …</p></div>
+                </section>
+              </div>
+
