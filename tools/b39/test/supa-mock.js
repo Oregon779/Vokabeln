@@ -131,6 +131,7 @@
       storage: { from: () => ({
         getPublicUrl: () => ({ data: { publicUrl: 'icon-round-192.png' } }),
         createSignedUrl: async () => ({ data: { signedUrl: 'icon-round-192.png' }, error: null }),
+        createSignedUrls: async (paths) => ({ data: (paths || []).map(p => ({ path: p, signedUrl: 'icon-round-192.png' })), error: null }),
         upload: async () => ({ data: {}, error: null }), remove: async () => ({ data: {}, error: null }),
         copy: async () => ({ data: {}, error: null }), download: async () => ({ data: new Blob(), error: null }), list: async () => ({ data: [], error: null }),
       }) },

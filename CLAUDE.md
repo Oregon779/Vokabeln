@@ -1209,6 +1209,17 @@ Elemente schon `data-build="35/38"` haben und zwei Attribute sich um
   Treffer merkt sich das Geraet den Schluessel (`lumiere_admin_k39`).
   Berechtigung bleibt is_admin + RLS; die Supabase-Sitzung teilt sich
   admin.html mit der Website (gleiche Herkunft).
+- **Optik "Warmes Glas"** (nachtraeglich in Build 39, Quelle der Regeln
+  `tools/b39/admin-glass.css`, Uebersicht `tools/b39/glass-overview.*` -
+  alles bereits in admin.html eingebaut): `.g39-aura` = vier weiche Flecken,
+  am PC per transform wandernd; Karten `--g-glass` + Lichtkante. Uebersicht:
+  `drawChart39` (SVG-Flaechenkurve in echten Pixeln, monotone Kurve
+  `mono39`, Tooltip), `spark39` + `trend39` je Kachel (`data-kpi`),
+  `renderFeed39` (Live-Aktivitaet), `countUp39` (nur beim ersten Rendern).
+  **Falle Leistung:** keine `box-shadow`-Animationen - unter der
+  weichgezeichneten Kopfzeile liessen sie jedes Bild neu malen (Software
+  100 ms statt 16,7). Pulse nur per transform/opacity. `calm39()` haelt den
+  Nebel an (`html.g39-calm`), wenn der Median ueber 22 ms liegt.
 - **Wartung sofort (gilt fuer alle):** `watchSettings39()` - Realtime auf
   `site_settings` + `loadSiteSettings()` alle 20 s und bei Tab-Rueckkehr.
   `loadSiteSettings` wendet nur bei Aenderungen an (sonst liefe
